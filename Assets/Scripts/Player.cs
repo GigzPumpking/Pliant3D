@@ -58,8 +58,9 @@ public class Player : MonoBehaviour
 
     // Transformation Variables
     public Transformation transformation = Transformation.TERRY;
-    private Transform smoke;
+
     private Transform transformationBubble;
+    private Transform smoke;
     private Transform shadow;
 
     private void Awake()
@@ -162,11 +163,11 @@ public class Player : MonoBehaviour
         float vertical = 0f;
         
         if (Input.GetKey(KeyCode.A)) {
-            TerrySprite.flipX = true;
+            TerrySprite.flipX = false;
             horizontal = -1f;
             jumpDirection[1] = JumpDirection.LEFT;
         } else if (Input.GetKey(KeyCode.D)) {
-            TerrySprite.flipX = false;
+            TerrySprite.flipX = true;
             horizontal = 1f;
             jumpDirection[1] = JumpDirection.RIGHT;
         } else {

@@ -62,6 +62,10 @@ public class FormManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.T)) {
             SelectChoice();
         }
+
+        // follow player
+
+        Debug.Log("Player position: " + Player.Instance.transform.position);
     }
 
     //When called will cycle to the next form in the order unless at the end of the form database in which case it loops around to start

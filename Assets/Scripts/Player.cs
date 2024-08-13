@@ -98,10 +98,6 @@ public class Player : MonoBehaviour
 
         InputHandler();
         if (Input.GetKeyDown(KeyCode.T)) TransformationHandler();
-
-        // if not touching the ground, set isGrounded to false
-        if (rbody.velocity.y == 0) isGrounded = true;
-        else isGrounded = false;
     }
 
     // Update is called once per frame
@@ -148,6 +144,10 @@ public class Player : MonoBehaviour
     }
 
     void JumpHandler() {
+        // if not touching the ground, set isGrounded to false
+        if (rbody.velocity.y == 0) isGrounded = true;
+        else isGrounded = false;
+
         if (isGrounded) {
             Debug.Log("Jumping");
             if (direction == Direction.DOWN) animator.Play(jumpFrogDirections[0]);

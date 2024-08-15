@@ -41,7 +41,7 @@ public class Player : MonoBehaviour
     bool isGrounded = true;
 
     // Jumping and Movement Variables
-    [SerializeField] float movementSpeed = 1f;
+    [SerializeField] float movementSpeed = 5f;
     Vector3 movement;
     float timeElapsed = 0f;
     public bool onRamp = false;
@@ -62,6 +62,10 @@ public class Player : MonoBehaviour
     private Transform transformationBubble;
     private Transform smoke;
     private Transform shadow;
+
+    // Other Variables
+
+    public GameObject obstacleToPush;
 
     private void Awake()
     {
@@ -97,28 +101,27 @@ public class Player : MonoBehaviour
     void Update() {
 
         InputHandler();
+        MoveHandler();
+        AnimationHandler();
         if (Input.GetKeyDown(KeyCode.T)) TransformationHandler();
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        MoveHandler();
-        AnimationHandler();
+        if (transformation == Transformation.BULLDOZER) {
+            rbody.mass = 1000;
+        } else {
+            rbody.mass = 1;
+        }
+        
+        if (transformation == Transformation.BULLDOZER && obstacleToPush != null) {
+            
+        }
+
     }
 
     void MoveHandler() {
-        switch (transformation) {
-            case(Transformation.TERRY):
-                movementSpeed = 3f;
-                break;
-            case(Transformation.FROG):
-                movementSpeed = 3.5f;
-                break;
-            case(Transformation.BULLDOZER):
-                movementSpeed = 2f;
-                break;
-        }
 
         float verticalInput = Input.GetAxis("Vertical");
         float horizontalInput = Input.GetAxis("Horizontal");
@@ -256,5 +259,15 @@ public class Player : MonoBehaviour
     public void HealAnim() {
         sparkles.gameObject.SetActive(true);
         sparklesAnimator.Play("Heal Anim");
+    }
+
+    // Bulldozer Actions
+
+    public void SetPushingTarget(GameObject target) {
+        obstacleToPush = target;
+    }
+
+    public GameObject GetPushingTarget() {
+        return obstacleToPush;
     }
 }

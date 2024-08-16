@@ -101,7 +101,6 @@ public class Player : MonoBehaviour
     void Update() {
 
         InputHandler();
-        MoveHandler();
         AnimationHandler();
         if (Input.GetKeyDown(KeyCode.T)) TransformationHandler();
     }
@@ -118,6 +117,8 @@ public class Player : MonoBehaviour
         if (transformation == Transformation.BULLDOZER && obstacleToPush != null) {
             
         }
+
+        MoveHandler();
 
     }
 

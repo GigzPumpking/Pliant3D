@@ -62,10 +62,6 @@ public class FormManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.T)) {
             SelectChoice();
         }
-
-        // follow player
-
-        Debug.Log("Player position: " + Player.Instance.transform.position);
     }
 
     //When called will cycle to the next form in the order unless at the end of the form database in which case it loops around to start
@@ -146,18 +142,13 @@ public class FormManager : MonoBehaviour
         Form form = characterForm.GetForm(selectedForm);
         Debug.Log("Selected Form: " + selectedForm);
 
-        //Set sprite and transformation corresponding to form information.
-        formSprite.sprite = form.formSprite;
+        //Set transformation corresponding to form information.
 
         if (Player.Instance.transformation != form.transformation) {
             Player.Instance.Smoke();
         }
 
-        if (!Player.Instance.onRamp || form.transformation != Transformation.BULLDOZER) {
-            Player.Instance.transformation = form.transformation;
-        } else {
-            Debug.Log("Player cannot transform into Bulldozer while on ramp");
-        }
+        Player.Instance.SetTransformation(form.transformation);
 
         // close thought bubble after selection.
         thoughtBubble.SetActive(false);

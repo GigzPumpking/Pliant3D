@@ -14,9 +14,6 @@ public class Player : MonoBehaviour
     // Animation Variables
     private Animator animator;
     private Animator smokeAnimator;
-    private SpriteRenderer TerrySprite;
-    private Transform sprite;
-
     private Transform sparkles;
     private Animator sparklesAnimator;
 
@@ -58,10 +55,13 @@ public class Player : MonoBehaviour
 
     // Transformation Variables
     public Transformation transformation = Transformation.TERRY;
-
     private Transform transformationBubble;
     private Transform smoke;
     private Transform shadow;
+    private Transform terryGroup;
+    private Transform frogGroup;
+    private Transform bulldozerGroup;
+    private Transform selectedGroup;
 
     // Other Variables
 
@@ -82,9 +82,13 @@ public class Player : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         rbody = GetComponent<Rigidbody>();
-        sprite = transform.Find("Sprite");
-        animator = sprite.GetComponent<Animator>();
-        TerrySprite = sprite.GetComponent<SpriteRenderer>();
+
+        terryGroup = transform.Find("Terry");
+        frogGroup = transform.Find("Frog");
+        bulldozerGroup = transform.Find("Bulldozer");
+
+        SetTransformation(Transformation.TERRY);
+
         smoke = transform.Find("Smoke");
         smokeAnimator = smoke.GetComponent<Animator>();
         sparkles = transform.Find("Sparkles");
@@ -154,8 +158,8 @@ public class Player : MonoBehaviour
 
         if (isGrounded) {
             Debug.Log("Jumping");
-            if (direction == Direction.DOWN) animator.Play(jumpFrogDirections[0]);
-            else animator.Play(jumpFrogDirections[2]);
+            if (direction == Direction.DOWN) animator.Play("Jump Front");
+            else animator.Play("Jump Back");
 
             rbody.AddForce(new Vector3(0, 8, 0), ForceMode.Impulse);
             isGrounded = false;
@@ -167,11 +171,11 @@ public class Player : MonoBehaviour
         float vertical = 0f;
         
         if (Input.GetKey(KeyCode.A)) {
-            TerrySprite.flipX = false;
+            selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
             horizontal = -1f;
             jumpDirection[1] = JumpDirection.LEFT;
         } else if (Input.GetKey(KeyCode.D)) {
-            TerrySprite.flipX = true;
+            selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = true;
             horizontal = 1f;
             jumpDirection[1] = JumpDirection.RIGHT;
         } else {
@@ -205,50 +209,58 @@ public class Player : MonoBehaviour
         return (transformationBubble.gameObject.activeSelf);
     }
 
-    void AnimationHandler() {
+    public void SetTransformation(Transformation newTransformation) {
+        transformation = newTransformation;
+
         switch(transformation) {
             case Transformation.TERRY:
-                if (isMoving) {
-                    if (direction == Direction.DOWN) {
-                        animator.Play(runDirections[0]);
-                    }
-                    else {
-                        animator.Play(runDirections[4]);
-                    }
-                }
-                else {
-                    if (direction == Direction.DOWN) {
-                        animator.Play(staticDirections[0]);
-                    }
-                    else {
-                        animator.Play(staticDirections[4]);
-                    }
-                }
+                terryGroup.gameObject.SetActive(true);
+                frogGroup.gameObject.SetActive(false);
+                bulldozerGroup.gameObject.SetActive(false);
+                selectedGroup = terryGroup;
+                animator = terryGroup.GetComponentInChildren<Animator>();
                 break;
             case Transformation.FROG:
-                if (isMoving) {
-                    if (direction == Direction.DOWN) {
-                        animator.Play(jumpFrogDirections[1]);
-                    }
-                    else animator.Play(jumpFrogDirections[3]);
-                } else {
-                    if (direction == Direction.DOWN) {
-                        animator.Play(staticFrogDirections[0]);
-                    }
-                    else animator.Play(staticFrogDirections[1]);
-                }
+                terryGroup.gameObject.SetActive(false);
+                frogGroup.gameObject.SetActive(true);
+                bulldozerGroup.gameObject.SetActive(false);
+                selectedGroup = frogGroup;
+                animator = frogGroup.GetComponentInChildren<Animator>();
                 break;
             case Transformation.BULLDOZER:
-                if (isMoving) {
-                    if (direction == Direction.DOWN) {
-                        animator.Play(walkBulldozerDirections[0]);
-                    }
-                    else animator.Play(walkBulldozerDirections[1]);
-                } else {
-                    if (direction == Direction.DOWN) animator.Play(staticBulldozerDirections[0]);
-                    else animator.Play(staticBulldozerDirections[1]);
-                }
+                terryGroup.gameObject.SetActive(false);
+                frogGroup.gameObject.SetActive(false);
+                bulldozerGroup.gameObject.SetActive(true);
+                selectedGroup = bulldozerGroup;
+                animator = bulldozerGroup.GetComponentInChildren<Animator>();
                 break;
+            default:
+            // Default to Terry
+                terryGroup.gameObject.SetActive(true);
+                frogGroup.gameObject.SetActive(false);
+                bulldozerGroup.gameObject.SetActive(false);
+                selectedGroup = terryGroup;
+                animator = terryGroup.GetComponentInChildren<Animator>();
+                break;
+        }
+    }
+
+    void AnimationHandler() {
+        if (isMoving) {
+            if (direction == Direction.DOWN) {
+                animator.Play("Walk Front");
+            }
+            else {
+                animator.Play("Walk Back");
+            }
+        }
+        else {
+            if (direction == Direction.DOWN) {
+                animator.Play("Idle Front");
+            }
+            else {
+                animator.Play("Idle Back");
+            }
         }
     }
 

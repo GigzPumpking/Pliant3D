@@ -34,6 +34,6 @@ public class IsometricCamera : MonoBehaviour
     }
 
     public void SetTargetPos() {
-        targetPos = new Vector3(followTarget.position.x + xOffset, followTarget.position.y + yOffset, transform.position.z + zOffset);
+        targetPos = new Vector3(followTarget.position.x + xOffset, followTarget.position.y + yOffset, followTarget.position.z + zOffset);
     }
 }

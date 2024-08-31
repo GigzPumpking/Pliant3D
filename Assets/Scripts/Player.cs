@@ -43,7 +43,7 @@ public class Player : MonoBehaviour
     float timeElapsed = 0f;
     public bool onRamp = false;
     public bool onPlatform = false;
-
+    public float jumpForce = 8f;
     public bool canMove = true;
 
     public static readonly string[] staticDirections = { "Idle Front", "Hurt Idle Front 1", "Hurt Idle Front 2", "Hurt Idle Front 3", "Idle Back", "Hurt Idle Back 1", "Hurt Idle Back 2", "Hurt Idle Back 3"};
@@ -64,8 +64,7 @@ public class Player : MonoBehaviour
     private Transform selectedGroup;
 
     // Other Variables
-
-    public GameObject obstacleToPush;
+    public GameObject obstacleToBreak;
 
     private void Awake()
     {
@@ -118,7 +117,7 @@ public class Player : MonoBehaviour
             rbody.mass = 1;
         }
         
-        if (transformation == Transformation.BULLDOZER && obstacleToPush != null) {
+        if (transformation == Transformation.BULLDOZER && obstacleToBreak != null) {
             
         }
 
@@ -161,7 +160,7 @@ public class Player : MonoBehaviour
             if (direction == Direction.DOWN) animator.Play("Jump Front");
             else animator.Play("Jump Back");
 
-            rbody.AddForce(new Vector3(0, 8, 0), ForceMode.Impulse);
+            rbody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
             isGrounded = false;
         }
     }
@@ -196,6 +195,12 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space) && transformation == Transformation.FROG) {
             JumpHandler();
+        }
+
+        // if F is pressed while in Bulldozer form, break the obstacle
+        if (Input.GetKeyDown(KeyCode.F) && transformation == Transformation.BULLDOZER && obstacleToBreak != null) {
+            obstacleToBreak.SetActive(false);
+            obstacleToBreak = null;
         }
     }
 
@@ -276,11 +281,11 @@ public class Player : MonoBehaviour
 
     // Bulldozer Actions
 
-    public void SetPushingTarget(GameObject target) {
-        obstacleToPush = target;
+    public void SetBreakingTarget(GameObject target) {
+        obstacleToBreak = target;
     }
 
-    public GameObject GetPushingTarget() {
-        return obstacleToPush;
+    public GameObject GetBreakingTarget() {
+        return obstacleToBreak;
     }
 }

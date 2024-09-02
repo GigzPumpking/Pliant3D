@@ -16,9 +16,9 @@ public class WinScreen : MonoBehaviour
             Destroy(AudioManager.Instance.gameObject);
         }
 
-        if (IsometricCharacterController.Instance != null) {
-            Destroy(IsometricCharacterController.Instance.gameObject);
-        }
+        // if (IsometricCharacterController.Instance != null) {
+        //     Destroy(IsometricCharacterController.Instance.gameObject);
+        // }
 
         if (UIManager.Instance != null) {
             Destroy(UIManager.Instance.gameObject);

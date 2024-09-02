@@ -6,7 +6,7 @@ public class WinTransition : MonoBehaviour
 {
     void OnTriggerEnter2D(Collider2D other) {
         if (other.CompareTag("Player")) {
-            IsometricCharacterController.Instance.Win();
+            // IsometricCharacterController.Instance.Win();
         }
     }
 }

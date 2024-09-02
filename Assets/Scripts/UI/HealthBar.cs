@@ -16,6 +16,6 @@ public class HealthBar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        healthBar.value = GameManager.Instance.GetHealth();
+        // healthBar.value = GameManager.Instance.GetHealth();
     }
 }

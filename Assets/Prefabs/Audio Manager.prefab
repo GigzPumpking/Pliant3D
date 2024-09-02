@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1613512031835265956
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 297092603688123877}
+  - component: {fileID: 3573068608414637599}
+  m_Layer: 0
+  m_Name: Audio Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &297092603688123877
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1613512031835265956}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 8.473853, y: 0.01661551, z: -0.27123475}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3573068608414637599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1613512031835265956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3ca68256aa9b6841a7b454772bb16e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sounds:
+  - name: Theme
+    clip: {fileID: 0}
+    volume: 0
+    pitch: 0.1
+    loop: 0
+    source: {fileID: 0}
+  - name: Ambience
+    clip: {fileID: 8300000, guid: 7a90df5e9daa445349e8dcc6a64c018a, type: 3}
+    volume: 0.652
+    pitch: 1
+    loop: 1
+    source: {fileID: 0}
+  - name: Radio
+    clip: {fileID: 8300000, guid: 3ca5de335088c44659b52992b23e96c6, type: 3}
+    volume: 0.807
+    pitch: 1
+    loop: 1
+    source: {fileID: 0}
+  - name: Ambience Radio
+    clip: {fileID: 8300000, guid: a22fea4cf8d6b4b459543be6901bf9cf, type: 3}
+    volume: 0
+    pitch: 0
+    loop: 0
+    source: {fileID: 0}
+  - name: Walk
+    clip: {fileID: 8300000, guid: 5f35752817eff49f6b8dea2e0f9b1351, type: 3}
+    volume: 0
+    pitch: 0
+    loop: 0
+    source: {fileID: 0}
+  - name: Jump
+    clip: {fileID: 8300000, guid: 4eaed41f67e974cada583e70f598f545, type: 3}
+    volume: 0.724
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - name: Transformation Poof
+    clip: {fileID: 8300000, guid: fe702f81c907f45339f7f5d71d1eaa5e, type: 3}
+    volume: 0
+    pitch: 0
+    loop: 0
+    source: {fileID: 0}
+  - name: Main MenuBGM
+    clip: {fileID: 8300000, guid: f3dd51f21d7284980b8a46f82b1e1758, type: 3}
+    volume: 0.807
+    pitch: 1
+    loop: 1
+    source: {fileID: 0}

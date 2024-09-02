@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/MainMenuStyle.uss?fileID=7433441132597879392&amp;guid=0126ca872eee1444fb3f9f1a4431c051&amp;type=3#MainMenuStyle" />
+    <ui:VisualElement name="MainMenuWindow" style="background-image: url(&apos;project://database/Assets/Images/W95/WelcomeMenu.png?fileID=2800000&amp;guid=58d6f9be3f0234cdba5caec6e1c117ca&amp;type=3#WelcomeMenu&apos;); width: 1000px; height: 700px; align-items: stretch; justify-content: space-between; flex-direction: column;">
+        <ui:Label text="Welcome | Main Menu" display-tooltip-when-elided="true" name="Welcome" class="header" style="margin-left: 10px; margin-right: 10px; margin-top: 10px; margin-bottom: 10px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;" />
+        <ui:Label text="Welcome to Pliant" display-tooltip-when-elided="true" name="WelcomeMessage" style="-unity-font-definition: initial; -unity-font: resource(&apos;Fonts &amp; Materials/W95FA&apos;); font-size: 74px; width: 538px; margin-left: 10px; margin-right: 10px; margin-top: 10px; margin-bottom: 10px;" />
+        <ui:VisualElement name="Assets" style="flex-direction: row; align-items: flex-start; justify-content: center;">
+            <ui:VisualElement name="Animation" style="width: 500px; height: 500px; align-items: auto; color: rgb(255, 255, 255); background-color: rgb(255, 255, 255); margin-left: 20px; margin-right: 20px; margin-top: 20px; margin-bottom: 20px;" />
+            <ui:VisualElement name="Buttons" style="flex-direction: column-reverse;">
+                <ui:Button text="Continue" display-tooltip-when-elided="true" name="Continue" class="button" />
+                <ui:Button text="New Game" display-tooltip-when-elided="true" name="NewGame" class="button" style="border-left-color: rgba(255, 255, 255, 0); border-right-color: rgba(255, 255, 255, 0); border-top-color: rgba(255, 255, 255, 0); border-bottom-color: rgba(255, 255, 255, 0); transition-property: all; transition-duration: 0s; transition-timing-function: ease; transition-delay: 0s; -unity-text-align: middle-center;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -23,17 +23,16 @@ public class Player : MonoBehaviour
     }
     private Direction direction = Direction.DOWN;
 
-    enum JumpDirection {
+    bool isMoving = false;
+
+    enum LastInput {
         UP,
         DOWN,
         LEFT,
-        RIGHT,
-        NONE
+        RIGHT
     }
-    
-    private JumpDirection[] jumpDirection = new JumpDirection[2];
 
-    bool isMoving = false;
+    private LastInput lastInput = LastInput.DOWN;
 
     bool isGrounded = true;
 
@@ -65,6 +64,8 @@ public class Player : MonoBehaviour
 
     // Other Variables
     public GameObject obstacleToBreak;
+    public GameObject obstacleToPull;
+    public Color obstacleToPullColor;
 
     private void Awake()
     {
@@ -95,6 +96,8 @@ public class Player : MonoBehaviour
         sparkles.gameObject.SetActive(false);
         smoke.gameObject.SetActive(false);
         transformationBubble = transform.Find("Transformation Bubble");
+
+        Debug.Log(transform.TransformDirection(Vector3.forward));
     }
 
     public GameObject GetSmoke() {
@@ -116,13 +119,40 @@ public class Player : MonoBehaviour
         } else {
             rbody.mass = 1;
         }
-        
-        if (transformation == Transformation.BULLDOZER && obstacleToBreak != null) {
-            
+
+        // Pullable Layer
+        int layerMask = 1 << 6;
+
+        RaycastHit hit;
+
+        Vector3 position = transform.position;
+        position.y += 0.5f;
+        Vector3 facingDirection = transform.TransformDirection(Vector3.forward);
+        switch (lastInput) {
+            case LastInput.UP:
+                facingDirection = transform.TransformDirection(Vector3.forward);
+                break;
+            case LastInput.DOWN:
+                facingDirection = transform.TransformDirection(Vector3.back);
+                break;
+            case LastInput.LEFT:
+                facingDirection = transform.TransformDirection(Vector3.left);
+                break;
+            case LastInput.RIGHT:
+                facingDirection = transform.TransformDirection(Vector3.right);
+                break;
         }
 
+        if (Physics.Raycast(position, facingDirection, out hit, 10f, layerMask)) {
+            Debug.DrawRay(position, facingDirection * hit.distance, Color.red);
+            if (hit.collider.gameObject != obstacleToPull && transformation == Transformation.FROG) {
+                SetPullingTarget(hit.collider.gameObject);
+            }
+        } else {
+            SetPullingTarget(null);
+        }
+        
         MoveHandler();
-
     }
 
     void MoveHandler() {
@@ -172,25 +202,21 @@ public class Player : MonoBehaviour
         if (Input.GetKey(KeyCode.A)) {
             selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
             horizontal = -1f;
-            jumpDirection[1] = JumpDirection.LEFT;
+            lastInput = LastInput.LEFT;
         } else if (Input.GetKey(KeyCode.D)) {
             selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = true;
             horizontal = 1f;
-            jumpDirection[1] = JumpDirection.RIGHT;
-        } else {
-            jumpDirection[1] = JumpDirection.NONE;
+            lastInput = LastInput.RIGHT;
         }
 
         if (Input.GetKey(KeyCode.W)) {
             vertical = 1f;
             direction = Direction.UP;
-            jumpDirection[0] = JumpDirection.UP;
+            lastInput = LastInput.UP;
         } else if (Input.GetKey(KeyCode.S)) {
             vertical = -1f;
             direction = Direction.DOWN;
-            jumpDirection[0] = JumpDirection.DOWN;
-        } else {
-            jumpDirection[0] = JumpDirection.NONE;
+            lastInput = LastInput.DOWN;
         }
 
         if (Input.GetKeyDown(KeyCode.Space) && transformation == Transformation.FROG) {
@@ -201,6 +227,12 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F) && transformation == Transformation.BULLDOZER && obstacleToBreak != null) {
             obstacleToBreak.SetActive(false);
             obstacleToBreak = null;
+        }
+
+        // if F is pressed while in Frog form, pull the obstacle
+        if (Input.GetKeyDown(KeyCode.F) && transformation == Transformation.FROG && obstacleToPull != null) {
+            Debug.Log("Pulling");
+            PullObject(obstacleToPull);
         }
     }
 
@@ -287,5 +319,53 @@ public class Player : MonoBehaviour
 
     public GameObject GetBreakingTarget() {
         return obstacleToBreak;
+    }
+
+    // Frog Actions
+
+    public void SetPullingTarget(GameObject target) {
+        if (target == null) {
+            if (obstacleToPull != null) {
+                if (obstacleToPullColor != null) {
+                    obstacleToPull.GetComponent<Renderer>().material.color = obstacleToPullColor;
+                } else {
+                    obstacleToPull.GetComponent<Renderer>().material.color = Color.white;
+                }
+            }
+        }
+
+        obstacleToPull = target;
+
+        // set obstacle color to red
+        if (obstacleToPull != null) {
+            obstacleToPullColor = obstacleToPull.GetComponent<Renderer>().material.color;
+            obstacleToPull.GetComponent<Renderer>().material.color = Color.red;
+        }
+    }
+
+    public GameObject GetPullingTarget() {
+        return obstacleToPull;
+    }
+
+    public void PullObject(GameObject target) {
+        Debug.Log("Target: " + target);
+        StartCoroutine(PullObjectCoroutine(target));
+    }
+
+    IEnumerator PullObjectCoroutine(GameObject target) {
+        float timeElapsed = 0f;
+        float duration = 1.5f;
+        Vector3 originalPosition = target.transform.position;
+        Vector3 targetPosition = transform.position;
+        // if target position is below original position, match the y position
+        if (targetPosition.y < originalPosition.y) {
+            targetPosition.y = originalPosition.y;
+        }
+
+        while (timeElapsed < duration) {
+            target.transform.position = Vector3.Lerp(originalPosition, targetPosition, timeElapsed / duration);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
     }
 }

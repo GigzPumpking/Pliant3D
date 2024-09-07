@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -21,6 +22,14 @@ public class GameManager : MonoBehaviour
         }
 
         DontDestroyOnLoad(this.gameObject);
+    }
+
+    private void Update() {
+        if (Input.GetKeyDown(KeyCode.R)) {
+            // Restart the game
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            Player.Instance.SetTransformation(Transformation.TERRY);
+        }
     }
 
     public void SetPlayer(Transform player)

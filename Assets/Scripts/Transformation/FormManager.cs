@@ -29,6 +29,7 @@ public class FormManager : MonoBehaviour
     public Image prevSprite; //the icon for the transformation menu icon of previous select
 
     private int selectedForm = 0, nextForm = 0, prevForm = 0; //indexes for the selected, next, and previous forms
+    [SerializeField] public Image[] formImages; //array of the form images to be used in the transformation menu
 
     // Start is called before the first frame update
     void Start()

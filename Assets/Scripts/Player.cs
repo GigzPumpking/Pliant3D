@@ -37,6 +37,8 @@ public class Player : MonoBehaviour
     bool isGrounded = true;
 
     // Jumping and Movement Variables
+
+    [SerializeField] float baseSpeed = 5f;
     [SerializeField] float movementSpeed = 5f;
     Vector3 movement;
     float timeElapsed = 0f;
@@ -60,6 +62,7 @@ public class Player : MonoBehaviour
     private Transform terryGroup;
     private Transform frogGroup;
     private Transform bulldozerGroup;
+    private Transform ballGroup;
     private Transform selectedGroup;
 
     // Other Variables
@@ -86,6 +89,7 @@ public class Player : MonoBehaviour
         terryGroup = transform.Find("Terry");
         frogGroup = transform.Find("Frog");
         bulldozerGroup = transform.Find("Bulldozer");
+        ballGroup = transform.Find("Ball");
 
         SetTransformation(Transformation.TERRY);
 
@@ -97,7 +101,7 @@ public class Player : MonoBehaviour
         smoke.gameObject.SetActive(false);
         transformationBubble = transform.Find("Transformation Bubble");
 
-        Debug.Log(transform.TransformDirection(Vector3.forward));
+        movementSpeed = baseSpeed;
     }
 
     public GameObject GetSmoke() {
@@ -156,7 +160,6 @@ public class Player : MonoBehaviour
     }
 
     void MoveHandler() {
-
         float verticalInput = Input.GetAxis("Vertical");
         float horizontalInput = Input.GetAxis("Horizontal");
 
@@ -198,6 +201,12 @@ public class Player : MonoBehaviour
     void InputHandler() {
         float horizontal = 0f;
         float vertical = 0f;
+
+        if (Input.GetKey(KeyCode.LeftShift) && transformation == Transformation.BALL) {
+            movementSpeed = baseSpeed * 2;
+        } else {
+            movementSpeed = baseSpeed;
+        }
         
         if (Input.GetKey(KeyCode.A)) {
             selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
@@ -254,6 +263,7 @@ public class Player : MonoBehaviour
                 terryGroup.gameObject.SetActive(true);
                 frogGroup.gameObject.SetActive(false);
                 bulldozerGroup.gameObject.SetActive(false);
+                ballGroup.gameObject.SetActive(false);
                 selectedGroup = terryGroup;
                 animator = terryGroup.GetComponentInChildren<Animator>();
                 break;
@@ -261,6 +271,7 @@ public class Player : MonoBehaviour
                 terryGroup.gameObject.SetActive(false);
                 frogGroup.gameObject.SetActive(true);
                 bulldozerGroup.gameObject.SetActive(false);
+                ballGroup.gameObject.SetActive(false);
                 selectedGroup = frogGroup;
                 animator = frogGroup.GetComponentInChildren<Animator>();
                 break;
@@ -268,8 +279,17 @@ public class Player : MonoBehaviour
                 terryGroup.gameObject.SetActive(false);
                 frogGroup.gameObject.SetActive(false);
                 bulldozerGroup.gameObject.SetActive(true);
+                ballGroup.gameObject.SetActive(false);
                 selectedGroup = bulldozerGroup;
                 animator = bulldozerGroup.GetComponentInChildren<Animator>();
+                break;
+            case Transformation.BALL:
+                terryGroup.gameObject.SetActive(false);
+                frogGroup.gameObject.SetActive(false);
+                bulldozerGroup.gameObject.SetActive(false);
+                ballGroup.gameObject.SetActive(true);
+                selectedGroup = ballGroup;
+                animator = ballGroup.GetComponentInChildren<Animator>();
                 break;
             default:
             // Default to Terry

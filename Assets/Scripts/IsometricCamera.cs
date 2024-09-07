@@ -7,12 +7,11 @@ public class IsometricCamera : MonoBehaviour
     public Transform followTarget;
     private Vector3 targetPos;
     public float moveSpeed = 1.0f;
-
     public float xOffset = 0.0f;
     public float yOffset = 0.0f;
     public float zOffset = 0.0f;
 
-    void Start()
+    void Awake()
     {
         SetTargetPos();
     }
@@ -34,6 +33,9 @@ public class IsometricCamera : MonoBehaviour
     }
 
     public void SetTargetPos() {
+        if (followTarget == null) {
+            followTarget = GameManager.Instance.GetPlayer();
+        }
         targetPos = new Vector3(followTarget.position.x + xOffset, followTarget.position.y + yOffset, followTarget.position.z + zOffset);
     }
 }

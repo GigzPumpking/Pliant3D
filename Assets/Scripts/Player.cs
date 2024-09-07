@@ -23,27 +23,28 @@ public class Player : MonoBehaviour
     }
     private Direction direction = Direction.DOWN;
 
-    enum JumpDirection {
+    bool isMoving = false;
+
+    enum LastInput {
         UP,
         DOWN,
         LEFT,
-        RIGHT,
-        NONE
+        RIGHT
     }
-    
-    private JumpDirection[] jumpDirection = new JumpDirection[2];
 
-    bool isMoving = false;
+    private LastInput lastInput = LastInput.DOWN;
 
     bool isGrounded = true;
 
     // Jumping and Movement Variables
+
+    [SerializeField] float baseSpeed = 5f;
     [SerializeField] float movementSpeed = 5f;
     Vector3 movement;
     float timeElapsed = 0f;
     public bool onRamp = false;
     public bool onPlatform = false;
-
+    public float jumpForce = 8f;
     public bool canMove = true;
 
     public static readonly string[] staticDirections = { "Idle Front", "Hurt Idle Front 1", "Hurt Idle Front 2", "Hurt Idle Front 3", "Idle Back", "Hurt Idle Back 1", "Hurt Idle Back 2", "Hurt Idle Back 3"};
@@ -61,11 +62,13 @@ public class Player : MonoBehaviour
     private Transform terryGroup;
     private Transform frogGroup;
     private Transform bulldozerGroup;
+    private Transform ballGroup;
     private Transform selectedGroup;
 
     // Other Variables
-
-    public GameObject obstacleToPush;
+    public GameObject obstacleToBreak;
+    public GameObject obstacleToPull;
+    public Color obstacleToPullColor;
 
     private void Awake()
     {
@@ -86,6 +89,7 @@ public class Player : MonoBehaviour
         terryGroup = transform.Find("Terry");
         frogGroup = transform.Find("Frog");
         bulldozerGroup = transform.Find("Bulldozer");
+        ballGroup = transform.Find("Ball");
 
         SetTransformation(Transformation.TERRY);
 
@@ -96,6 +100,8 @@ public class Player : MonoBehaviour
         sparkles.gameObject.SetActive(false);
         smoke.gameObject.SetActive(false);
         transformationBubble = transform.Find("Transformation Bubble");
+
+        movementSpeed = baseSpeed;
     }
 
     public GameObject GetSmoke() {
@@ -117,17 +123,43 @@ public class Player : MonoBehaviour
         } else {
             rbody.mass = 1;
         }
-        
-        if (transformation == Transformation.BULLDOZER && obstacleToPush != null) {
-            
+
+        // Pullable Layer
+        int layerMask = 1 << 6;
+
+        RaycastHit hit;
+
+        Vector3 position = transform.position;
+        position.y += 0.5f;
+        Vector3 facingDirection = transform.TransformDirection(Vector3.forward);
+        switch (lastInput) {
+            case LastInput.UP:
+                facingDirection = transform.TransformDirection(Vector3.forward);
+                break;
+            case LastInput.DOWN:
+                facingDirection = transform.TransformDirection(Vector3.back);
+                break;
+            case LastInput.LEFT:
+                facingDirection = transform.TransformDirection(Vector3.left);
+                break;
+            case LastInput.RIGHT:
+                facingDirection = transform.TransformDirection(Vector3.right);
+                break;
         }
 
+        if (Physics.Raycast(position, facingDirection, out hit, 10f, layerMask)) {
+            Debug.DrawRay(position, facingDirection * hit.distance, Color.red);
+            if (hit.collider.gameObject != obstacleToPull && transformation == Transformation.FROG) {
+                SetPullingTarget(hit.collider.gameObject);
+            }
+        } else {
+            SetPullingTarget(null);
+        }
+        
         MoveHandler();
-
     }
 
     void MoveHandler() {
-
         float verticalInput = Input.GetAxis("Vertical");
         float horizontalInput = Input.GetAxis("Horizontal");
 
@@ -161,7 +193,7 @@ public class Player : MonoBehaviour
             if (direction == Direction.DOWN) animator.Play("Jump Front");
             else animator.Play("Jump Back");
 
-            rbody.AddForce(new Vector3(0, 8, 0), ForceMode.Impulse);
+            rbody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
             isGrounded = false;
         }
     }
@@ -169,33 +201,47 @@ public class Player : MonoBehaviour
     void InputHandler() {
         float horizontal = 0f;
         float vertical = 0f;
+
+        if (Input.GetKey(KeyCode.LeftShift) && transformation == Transformation.BALL) {
+            movementSpeed = baseSpeed * 2;
+        } else {
+            movementSpeed = baseSpeed;
+        }
         
         if (Input.GetKey(KeyCode.A)) {
             selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
             horizontal = -1f;
-            jumpDirection[1] = JumpDirection.LEFT;
+            lastInput = LastInput.LEFT;
         } else if (Input.GetKey(KeyCode.D)) {
             selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = true;
             horizontal = 1f;
-            jumpDirection[1] = JumpDirection.RIGHT;
-        } else {
-            jumpDirection[1] = JumpDirection.NONE;
+            lastInput = LastInput.RIGHT;
         }
 
         if (Input.GetKey(KeyCode.W)) {
             vertical = 1f;
             direction = Direction.UP;
-            jumpDirection[0] = JumpDirection.UP;
+            lastInput = LastInput.UP;
         } else if (Input.GetKey(KeyCode.S)) {
             vertical = -1f;
             direction = Direction.DOWN;
-            jumpDirection[0] = JumpDirection.DOWN;
-        } else {
-            jumpDirection[0] = JumpDirection.NONE;
+            lastInput = LastInput.DOWN;
         }
 
         if (Input.GetKeyDown(KeyCode.Space) && transformation == Transformation.FROG) {
             JumpHandler();
+        }
+
+        // if F is pressed while in Bulldozer form, break the obstacle
+        if (Input.GetKeyDown(KeyCode.F) && transformation == Transformation.BULLDOZER && obstacleToBreak != null) {
+            obstacleToBreak.SetActive(false);
+            obstacleToBreak = null;
+        }
+
+        // if F is pressed while in Frog form, pull the obstacle
+        if (Input.GetKeyDown(KeyCode.F) && transformation == Transformation.FROG && obstacleToPull != null) {
+            Debug.Log("Pulling");
+            PullObject(obstacleToPull);
         }
     }
 
@@ -217,6 +263,7 @@ public class Player : MonoBehaviour
                 terryGroup.gameObject.SetActive(true);
                 frogGroup.gameObject.SetActive(false);
                 bulldozerGroup.gameObject.SetActive(false);
+                ballGroup.gameObject.SetActive(false);
                 selectedGroup = terryGroup;
                 animator = terryGroup.GetComponentInChildren<Animator>();
                 break;
@@ -224,6 +271,7 @@ public class Player : MonoBehaviour
                 terryGroup.gameObject.SetActive(false);
                 frogGroup.gameObject.SetActive(true);
                 bulldozerGroup.gameObject.SetActive(false);
+                ballGroup.gameObject.SetActive(false);
                 selectedGroup = frogGroup;
                 animator = frogGroup.GetComponentInChildren<Animator>();
                 break;
@@ -231,8 +279,17 @@ public class Player : MonoBehaviour
                 terryGroup.gameObject.SetActive(false);
                 frogGroup.gameObject.SetActive(false);
                 bulldozerGroup.gameObject.SetActive(true);
+                ballGroup.gameObject.SetActive(false);
                 selectedGroup = bulldozerGroup;
                 animator = bulldozerGroup.GetComponentInChildren<Animator>();
+                break;
+            case Transformation.BALL:
+                terryGroup.gameObject.SetActive(false);
+                frogGroup.gameObject.SetActive(false);
+                bulldozerGroup.gameObject.SetActive(false);
+                ballGroup.gameObject.SetActive(true);
+                selectedGroup = ballGroup;
+                animator = ballGroup.GetComponentInChildren<Animator>();
                 break;
             default:
             // Default to Terry
@@ -276,11 +333,59 @@ public class Player : MonoBehaviour
 
     // Bulldozer Actions
 
-    public void SetPushingTarget(GameObject target) {
-        obstacleToPush = target;
+    public void SetBreakingTarget(GameObject target) {
+        obstacleToBreak = target;
     }
 
-    public GameObject GetPushingTarget() {
-        return obstacleToPush;
+    public GameObject GetBreakingTarget() {
+        return obstacleToBreak;
+    }
+
+    // Frog Actions
+
+    public void SetPullingTarget(GameObject target) {
+        if (target == null) {
+            if (obstacleToPull != null) {
+                if (obstacleToPullColor != null) {
+                    obstacleToPull.GetComponent<Renderer>().material.color = obstacleToPullColor;
+                } else {
+                    obstacleToPull.GetComponent<Renderer>().material.color = Color.white;
+                }
+            }
+        }
+
+        obstacleToPull = target;
+
+        // set obstacle color to red
+        if (obstacleToPull != null) {
+            obstacleToPullColor = obstacleToPull.GetComponent<Renderer>().material.color;
+            obstacleToPull.GetComponent<Renderer>().material.color = Color.red;
+        }
+    }
+
+    public GameObject GetPullingTarget() {
+        return obstacleToPull;
+    }
+
+    public void PullObject(GameObject target) {
+        Debug.Log("Target: " + target);
+        StartCoroutine(PullObjectCoroutine(target));
+    }
+
+    IEnumerator PullObjectCoroutine(GameObject target) {
+        float timeElapsed = 0f;
+        float duration = 1.5f;
+        Vector3 originalPosition = target.transform.position;
+        Vector3 targetPosition = transform.position;
+        // if target position is below original position, match the y position
+        if (targetPosition.y < originalPosition.y) {
+            targetPosition.y = originalPosition.y;
+        }
+
+        while (timeElapsed < duration) {
+            target.transform.position = Vector3.Lerp(originalPosition, targetPosition, timeElapsed / duration);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
     }
 }

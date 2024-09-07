@@ -2,5 +2,6 @@ public enum Transformation
 {
     TERRY,
     FROG,
-    BULLDOZER
+    BULLDOZER,
+    BALL
 }

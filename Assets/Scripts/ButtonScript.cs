@@ -5,6 +5,7 @@ using UnityEngine;
 public class ButtonScript : MonoBehaviour
 {
     private Animator animator;
+    public GameObject[] boxes;
 
     // Start is called before the first frame update
     void Start()
@@ -17,6 +18,9 @@ public class ButtonScript : MonoBehaviour
     {
         Debug.Log("Button pressed");
         animator.SetTrigger("Press");
+        foreach(GameObject box in boxes){
+            box.SetActive(false);
+        }
     }
 
     public void UnpressButton()

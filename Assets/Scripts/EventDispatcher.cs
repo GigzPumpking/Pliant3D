@@ -33,6 +33,16 @@ public class QuitGame : Event
 
 }
 
+public class PressButton : Event
+{
+
+}
+
+public class ReleaseButton : Event
+{
+
+}
+
 public class EventDispatcher 
 {
     private static EventDispatcher _instance;

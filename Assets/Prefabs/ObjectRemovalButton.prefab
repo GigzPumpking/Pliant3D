@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 7072609924396585124}
   - component: {fileID: 7072609924396585127}
   - component: {fileID: 7072609924396585128}
-  - component: {fileID: 7072609924396585129}
+  - component: {fileID: 1624605165569458322}
   m_Layer: 0
-  m_Name: Button
+  m_Name: ObjectRemovalButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -124,7 +124,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &7072609924396585129
+--- !u!114 &1624605165569458322
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -133,9 +133,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 7072609924396585122}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e8f1692331a0f4fcb816c6da248c78e7, type: 3}
+  m_Script: {fileID: 11500000, guid: 47d3f7003b56445b19cb2420d3c44328, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  objects: []
 --- !u!1 &7072609924662162551
 GameObject:
   m_ObjectHideFlags: 0
@@ -194,8 +195,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.5323782, y: 0.8154671, z: 0.5602584}
-  m_Center: {x: 0.009678364, y: 0.4594365, z: -0.009453535}
+  m_Size: {x: 0.5959892, y: 0.1959153, z: 0.6115694}
+  m_Center: {x: -0.032341957, y: 0.1496606, z: -0.035109043}
 --- !u!114 &7072609924662162554
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -208,4 +209,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b731ff0327af40fea757e388d80b7dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  button: {fileID: 7072609924396585129}

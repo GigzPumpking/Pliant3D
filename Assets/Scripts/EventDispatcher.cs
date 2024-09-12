@@ -7,31 +7,30 @@ public class Event
 
 }
 
-public class MyEvent : Event
-{
-    int i;
-}
-
-public class PlayerInteract : Event
-{
-
-}
-
 public class PlaySound : Event
 {
     public string soundName;
+    public AudioSource source;
 }
 
-public class ItemSearch : Event
+public class PlayMusic : Event
 {
-    public Vector3 interactionPosition;
-    public float interactionDistance;
+    public string musicName;
 }
 
-public class ShowInteractUI : Event
+public class StopMusic : Event
 {
-    public bool enable;
-    public Transform anchor;
+    public string musicName;
+}
+
+public class PlayGame : Event
+{
+
+}
+
+public class QuitGame : Event
+{
+
 }
 
 public class EventDispatcher 

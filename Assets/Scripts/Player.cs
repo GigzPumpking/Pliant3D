@@ -71,6 +71,14 @@ public class Player : MonoBehaviour
     [SerializeField] private float raycastDistance = 1f;
     [SerializeField] private float yOffset = 0.5f;
 
+    [SerializeField] private Vector3 area1Position = new Vector3(-14.63f, 0.89f, 0.83f);
+
+    [SerializeField] private Vector3 area2Position = new Vector3(8.93f, 0.89f, 69.6f);
+
+    [SerializeField] private Vector3 area3Position = new Vector3(64.8f, 0.89f, 33f);
+
+    [SerializeField] private Vector3 area4Position = new Vector3(88.29f, 0.89f, -18f);
+
     private void Awake()
     {
         if (instance == null)
@@ -103,6 +111,11 @@ public class Player : MonoBehaviour
         transformationBubble = transform.Find("Transformation Bubble");
 
         movementSpeed = baseSpeed;
+
+        Debug.Log("Area 1 Position: " + area1Position);
+        Debug.Log("Area 2 Position: " + area2Position);
+        Debug.Log("Area 3 Position: " + area3Position);
+        Debug.Log("Area 4 Position: " + area4Position);
     }
 
     public GameObject GetSmoke() {
@@ -153,6 +166,10 @@ public class Player : MonoBehaviour
         }
 
         rbody.velocity = new Vector3(desiredMoveDirection.x * movementSpeed, rbody.velocity.y, desiredMoveDirection.z * movementSpeed);
+    }
+
+    public void SetVelocity(Vector3 velocity) {
+        rbody.velocity = velocity;
     }
 
     void JumpHandler() {
@@ -256,6 +273,26 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F) && transformation == Transformation.FROG && obstacleToPull != null) {
             PullObject(obstacleToPull);
         }
+
+        // if 1 is pressed, move to area 1
+        if (Input.GetKeyDown(KeyCode.Alpha1)) {
+            Area1();
+        }
+
+        // if 2 is pressed, move to area 2
+        if (Input.GetKeyDown(KeyCode.Alpha2)) {
+            Area2();
+        }
+
+        // if 3 is pressed, move to area 3
+        if (Input.GetKeyDown(KeyCode.Alpha3)) {
+            Area3();
+        }
+
+        // if 4 is pressed, move to area 4
+        if (Input.GetKeyDown(KeyCode.Alpha4)) {
+            Area4();
+        }
     }
 
     public void TransformationHandler() {
@@ -319,6 +356,9 @@ public class Player : MonoBehaviour
     }
 
     void AnimationHandler() {
+        // if animator is null, return
+        if (animator == null) return;
+
         if (isMoving) {
             if (direction == Direction.DOWN) {
                 animator.Play("Walk Front");
@@ -403,5 +443,23 @@ public class Player : MonoBehaviour
             timeElapsed += Time.deltaTime;
             yield return null;
         }
+    }
+
+    public void Area1() {
+        Debug.Log("Area 1 Position: " + area1Position);
+        transform.position = area1Position;
+    }
+
+    public void Area2() {
+        Debug.Log("Area 2 Position: " + area2Position);
+        transform.position = area2Position;
+    }
+
+    public void Area3() {
+        transform.position = area3Position;
+    }
+
+    public void Area4() {
+        transform.position = area4Position;
     }
 }

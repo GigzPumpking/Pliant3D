@@ -75,6 +75,8 @@ public class EventDispatcher
         if (m_eventDelegates.TryGetValue(typeof(T), out del))
         {
             del = System.Delegate.Combine(del, listener);
+            // if m_eventDelegates already contains the key, remove it first
+            if (m_eventDelegates.ContainsKey(typeof(T))) m_eventDelegates.Remove(typeof(T));
             m_eventDelegates.Add(typeof(T), del);
         }
         else

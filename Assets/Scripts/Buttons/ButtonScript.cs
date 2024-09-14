@@ -12,18 +12,24 @@ public abstract class ButtonScript : MonoBehaviour
         animator = GetComponent<Animator>();
         animator.Play("Unpressed");
 
+        // Remove listeners to avoid duplicates
+        EventDispatcher.RemoveListener<PressButton>(PressButton);
+        EventDispatcher.RemoveListener<ReleaseButton>(ReleaseButton);
+
         EventDispatcher.AddListener<PressButton>(PressButton);
         EventDispatcher.AddListener<ReleaseButton>(ReleaseButton);
     }
 
     public void PressButton(PressButton e)
     {
+        if (animator == null) animator = GetComponent<Animator>();
         animator.SetTrigger("Press");
         OnPress();
     }
 
     public void ReleaseButton(ReleaseButton e)
     {
+        if (animator == null) animator = GetComponent<Animator>();
         animator.SetTrigger("Unpress");
         OnRelease();
     }

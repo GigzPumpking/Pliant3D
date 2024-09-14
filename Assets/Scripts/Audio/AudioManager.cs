@@ -32,8 +32,21 @@ public class AudioManager : MonoBehaviour
             return;
         }
         else {
-            evtData.source.clip = s.clip;
-            evtData.source.Play();
+            AudioSource source = evtData.source;
+            if (source == null) {
+                // From a list of sources, find the first one that is not playing
+                source = System.Array.Find(sources, s => !s.isPlaying);
+                if (source == null) {
+                    // If all sources are playing, find the first one in the list
+                    if (sources[0] == null) {
+                        Debug.LogWarning("No available audio sources!");
+                        return;
+                    } 
+                    source = sources[0];
+                }
+            }
+            source.clip = s.clip;
+            source.Play();
         }
     }
 

@@ -16,7 +16,6 @@ public class DetectionTrigger : MonoBehaviour
             Player.Instance.SetBreakingTarget(this.transform.parent.gameObject);
             originalColor = this.transform.parent.gameObject.GetComponent<Renderer>().material.color;
             this.transform.parent.gameObject.GetComponent<Renderer>().material.color = highlightColor;
-            Debug.Log("Player entered trigger");
         }
     }
 
@@ -25,7 +24,6 @@ public class DetectionTrigger : MonoBehaviour
             if (Player.Instance.GetBreakingTarget() == this.transform.parent.gameObject) {
                 Player.Instance.SetBreakingTarget(null);
                 if (originalColor != null) this.transform.parent.gameObject.GetComponent<Renderer>().material.color = originalColor;
-                Debug.Log("Player exited trigger");
             }
         }
     }

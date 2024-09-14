@@ -41,7 +41,6 @@ public class PauseMenu : MonoBehaviour
         pauseMenu.SetActive(true);
         Time.timeScale = 0f;
         isPaused = true;
-        FindAnyObjectByType<AudioManager>().Pause("Ambience");
     }
 
     public void ResumeGame()
@@ -49,15 +48,10 @@ public class PauseMenu : MonoBehaviour
         pauseMenu.SetActive(false);
         Time.timeScale = 1f;
         isPaused = false;
-        FindAnyObjectByType<AudioManager>().Play("Crumple");
-        FindAnyObjectByType<AudioManager>().Play("Ambience");
     }
 
     public void ReturnToMainMenu()
     {
-        FindAnyObjectByType<AudioManager>().Play("Ambience");
-        FindAnyObjectByType<AudioManager>().Stop("Ambience");
-        FindAnyObjectByType<AudioManager>().Stop("Radio");
 
         Time.timeScale = 1f;
 
@@ -67,7 +61,6 @@ public class PauseMenu : MonoBehaviour
     public void QuitGame()
     {
         Time.timeScale = 1f;
-        FindAnyObjectByType<AudioManager>().Play("Ambience");
         sceneloader.QuitFade();
     }
 

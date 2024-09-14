@@ -34,7 +34,7 @@ public class Player : MonoBehaviour
 
     private LastInput lastInput = LastInput.DOWN;
 
-    bool isGrounded = true;
+    [SerializeField] bool isGrounded = true;
 
     // Jumping and Movement Variables
 
@@ -42,8 +42,6 @@ public class Player : MonoBehaviour
     [SerializeField] float movementSpeed = 5f;
     Vector3 movement;
     float timeElapsed = 0f;
-    public bool onRamp = false;
-    public bool onPlatform = false;
     public float jumpForce = 8f;
     public bool canMove = true;
 
@@ -69,6 +67,9 @@ public class Player : MonoBehaviour
     public GameObject obstacleToBreak;
     public GameObject obstacleToPull;
     public Color obstacleToPullColor;
+
+    [SerializeField] private float raycastDistance = 1f;
+    [SerializeField] private float yOffset = 0.5f;
 
     private void Awake()
     {
@@ -112,6 +113,7 @@ public class Player : MonoBehaviour
 
         InputHandler();
         AnimationHandler();
+        GroundedChecker();
         if (Input.GetKeyDown(KeyCode.T)) TransformationHandler();
     }
 
@@ -124,6 +126,57 @@ public class Player : MonoBehaviour
             rbody.mass = 1;
         }
 
+        PullChecker();
+        
+        MoveHandler();
+    }
+
+    void MoveHandler() {
+        float verticalInput = Input.GetAxis("Vertical");
+        float horizontalInput = Input.GetAxis("Horizontal");
+
+        Vector3 cameraForwards = Camera.main.transform.forward;
+
+        Vector3 cameraRight = Camera.main.transform.right;
+
+        cameraForwards.y = 0f;
+        cameraRight.y = 0f;
+        cameraForwards = cameraForwards.normalized;
+        cameraRight = cameraRight.normalized;
+
+        Vector3 desiredMoveDirection = cameraForwards * verticalInput + cameraRight * horizontalInput;
+
+        if (desiredMoveDirection != Vector3.zero) {
+            isMoving = true;
+        } else {
+            isMoving = false;
+        }
+
+        rbody.velocity = new Vector3(desiredMoveDirection.x * movementSpeed, rbody.velocity.y, desiredMoveDirection.z * movementSpeed);
+    }
+
+    void JumpHandler() {
+        if (isGrounded) {
+            if (direction == Direction.DOWN) animator.Play("Jump Front");
+            else animator.Play("Jump Back");
+
+            rbody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
+            isGrounded = false;
+        }
+    }
+
+    void GroundedChecker() {
+        RaycastHit hit;
+        // Cast from transform.position + Y offset of 0.5f
+        Debug.DrawRay(transform.position + new Vector3(0, 0.5f, 0), Vector3.down * raycastDistance, Color.green);
+        if (Physics.Raycast(transform.position + new Vector3(0, yOffset, 0), Vector3.down * raycastDistance, out hit, raycastDistance)) {
+            isGrounded = true;
+        } else {
+            isGrounded = false;
+        }
+    }
+
+    void PullChecker() {
         // Pullable Layer
         int layerMask = 1 << 6;
 
@@ -154,47 +207,6 @@ public class Player : MonoBehaviour
             }
         } else {
             SetPullingTarget(null);
-        }
-        
-        MoveHandler();
-    }
-
-    void MoveHandler() {
-        float verticalInput = Input.GetAxis("Vertical");
-        float horizontalInput = Input.GetAxis("Horizontal");
-
-        Vector3 cameraForwards = Camera.main.transform.forward;
-
-        Vector3 cameraRight = Camera.main.transform.right;
-
-        cameraForwards.y = 0f;
-        cameraRight.y = 0f;
-        cameraForwards = cameraForwards.normalized;
-        cameraRight = cameraRight.normalized;
-
-        Vector3 desiredMoveDirection = cameraForwards * verticalInput + cameraRight * horizontalInput;
-
-        if (desiredMoveDirection != Vector3.zero) {
-            isMoving = true;
-        } else {
-            isMoving = false;
-        }
-
-        rbody.MovePosition(transform.position + desiredMoveDirection * movementSpeed * Time.deltaTime);
-    }
-
-    void JumpHandler() {
-        // if not touching the ground, set isGrounded to false
-        if (rbody.velocity.y == 0) isGrounded = true;
-        else isGrounded = false;
-
-        if (isGrounded) {
-            Debug.Log("Jumping");
-            if (direction == Direction.DOWN) animator.Play("Jump Front");
-            else animator.Play("Jump Back");
-
-            rbody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
-            isGrounded = false;
         }
     }
 
@@ -240,7 +252,6 @@ public class Player : MonoBehaviour
 
         // if F is pressed while in Frog form, pull the obstacle
         if (Input.GetKeyDown(KeyCode.F) && transformation == Transformation.FROG && obstacleToPull != null) {
-            Debug.Log("Pulling");
             PullObject(obstacleToPull);
         }
     }
@@ -300,6 +311,9 @@ public class Player : MonoBehaviour
                 animator = terryGroup.GetComponentInChildren<Animator>();
                 break;
         }
+    }
+    public Transformation GetTransformation() {
+        return transformation;
     }
 
     void AnimationHandler() {

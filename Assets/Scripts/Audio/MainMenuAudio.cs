@@ -4,25 +4,67 @@ using UnityEngine;
 
 public class MainMenuAudio : MonoBehaviour
 {
-    public void PlayBackground()
+    private AudioSource audioSource;
+
+    private void Start()
     {
-        AudioManager.Instance.Play("Main Menu BGM");
-        AudioManager.Instance.Play("Main Menu Ambience");
+        audioSource = GetComponent<AudioSource>();
+        EventDispatcher.AddListener<PlayGame>(PlayGame);
+        EventDispatcher.AddListener<QuitGame>(QuitGame);
     }
 
-    public void StopBackgorund()
+    public void PlayGame(PlayGame e)
     {
-        AudioManager.Instance.Stop("Main Menu BGM");
-        AudioManager.Instance.Stop("Main Menu Ambience");
+        StopBackground();
+        PlaySound("Main Menu Play", audioSource);
+    }
+
+    public void QuitGame(QuitGame e)
+    {
+        CrumplePlay();
+    }
+
+    public void PlayBackground()
+    {
+        PlayMusic("Main Menu BGM");
+        PlayMusic("Main Menu Ambience");
+    }
+
+    public void StopBackground()
+    {
+        StopMusic("Main Menu BGM");
+        StopMusic("Main Menu Ambience");
     }
 
     public void DingPlay()
     {
-        AudioManager.Instance.Play("Main Menu Play");
+        PlaySound("Ding Select", audioSource);
     }
 
     public void CrumplePlay()
     {
-        AudioManager.Instance.Play("Crumple Select");
+        PlaySound("Crumple Select", audioSource);
+    }
+
+    private void PlaySound(string soundName, AudioSource source)
+    {
+        EventDispatcher.Raise<PlaySound>(new PlaySound() {
+            soundName = soundName,
+            source = source
+        });
+    }
+
+    private void PlayMusic(string musicName)
+    {
+        EventDispatcher.Raise<PlayMusic>(new PlayMusic() {
+            musicName = musicName
+        });
+    }
+
+    private void StopMusic(string musicName)
+    {
+        EventDispatcher.Raise<StopMusic>(new StopMusic() {
+            musicName = musicName
+        });
     }
 }

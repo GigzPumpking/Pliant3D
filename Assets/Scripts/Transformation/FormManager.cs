@@ -141,7 +141,6 @@ public class FormManager : MonoBehaviour
     {
         // Set get form variable based off current form index
         Form form = characterForm.GetForm(selectedForm);
-        Debug.Log("Selected Form: " + selectedForm);
 
         //Set transformation corresponding to form information.
 

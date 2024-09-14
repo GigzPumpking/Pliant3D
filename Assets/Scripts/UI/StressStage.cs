@@ -1,6 +1,6 @@
-public enum HealthState
+public enum StressStage
 {
-    FULL,
+    MAX,
     THREEQUART,
     HALF,
     QUART

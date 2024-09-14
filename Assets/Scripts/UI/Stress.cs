@@ -11,9 +11,7 @@ public class Stress : MonoBehaviour
     [SerializeField] private float SOTAmount = 3.3f;
     [SerializeField] private float TickSpeed = 1f;
     private float currentTickTime = 0f;
-    private float nextTickTIme = 0f;
-
-    private Player player;
+    private float nextTickTime = 0f;
     public StressStage stressStage { get; private set; }
 
     public Image stressMeterR;
@@ -21,20 +19,10 @@ public class Stress : MonoBehaviour
     [SerializeField] private Sprite[] healthSprites;
     public Image stressStageImage;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        player = this.GetComponentInParent<Player>();
-    }
-
     // Update is called once per frame
     void Update()
     {
-        //if player isn't in Terry form increase stress
-        if (player.GetTransformation() != Transformation.TERRY)
-        {
-            StressHandler();
-        }
+        StressHandler();
 
         //Adjust meter UI according to stress amount
         stressMeterR.fillAmount = Mathf.Clamp((stress/maxStress), 0, 1);
@@ -43,24 +31,31 @@ public class Stress : MonoBehaviour
         if (stress >= maxStress)
         {
             Debug.Log("Max stress Reached debuff active.");
+            // lerp stress to 0 over 1 second in a coroutine
+            StartCoroutine(ResetStress());
+
+            EventDispatcher.Raise<StressDebuff>(new StressDebuff());
         }
-        
-        if (stress > maxStress)
+
+        if (stress <= 0)
         {
-            stress = maxStress;
+            stress = 0;
         }
 
     }
 
-    void StressHandler ()
+    void StressHandler()
     {
         currentTickTime += Time.deltaTime;
 
-        if (player.GetTransformation() != Transformation.TERRY && 
-            currentTickTime > nextTickTIme)
+        if (currentTickTime > nextTickTime)
         {
-            nextTickTIme += TickSpeed;
-            stress += SOTAmount;
+            nextTickTime += TickSpeed;
+            if (Player.Instance.GetTransformation() != Transformation.TERRY) {
+                stress += SOTAmount;
+            } else {
+                stress -= SOTAmount*3/4;
+            }
             UpdateStress();
         }
     }
@@ -71,18 +66,35 @@ public class Stress : MonoBehaviour
         if( stress >= maxStress*3/4)
         {
             stressStageImage.sprite = healthSprites[3];
+            stressStageImage.SetNativeSize();
         }// 50%
         else if( stress >= maxStress/2)
         {
             stressStageImage.sprite = healthSprites[2];
+            stressStageImage.SetNativeSize();
         }// 25%
         else if( stress >= maxStress/4)
         {
             stressStageImage.sprite = healthSprites[1];
+            stressStageImage.SetNativeSize();
         }
         else
         { // 0%
             stressStageImage.sprite = healthSprites[0];
+            stressStageImage.SetNativeSize();
+        }
+    }
+
+    IEnumerator ResetStress()
+    {
+        float time = 1f;
+        float elapsedTime = 0f;
+        float startStress = stress;
+        while (elapsedTime < time)
+        {
+            stress = Mathf.Lerp(startStress, 0, elapsedTime/time);
+            elapsedTime += Time.deltaTime;
+            yield return null;
         }
     }
 

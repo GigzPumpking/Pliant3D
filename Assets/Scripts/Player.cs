@@ -63,6 +63,8 @@ public class Player : MonoBehaviour
     private Transform ballGroup;
     private Transform selectedGroup;
 
+    public float transformationDuration = 10f;
+
     // Other Variables
     public GameObject obstacleToBreak;
     public GameObject obstacleToPull;
@@ -78,6 +80,11 @@ public class Player : MonoBehaviour
     [SerializeField] private Vector3 area3Position = new Vector3(64.8f, 0.89f, 33f);
 
     [SerializeField] private Vector3 area4Position = new Vector3(88.29f, 0.89f, -18f);
+
+    void Start()
+    {
+        EventDispatcher.AddListener<StressDebuff>(StressDebuffHandler);
+    }
 
     private void Awake()
     {
@@ -306,6 +313,9 @@ public class Player : MonoBehaviour
     }
 
     public void SetTransformation(Transformation newTransformation) {
+        if (transformation != newTransformation) {
+            Smoke();
+        }
         transformation = newTransformation;
 
         switch(transformation) {
@@ -353,6 +363,10 @@ public class Player : MonoBehaviour
     }
     public Transformation GetTransformation() {
         return transformation;
+    }
+
+    public void StressDebuffHandler(StressDebuff e) {
+        SetTransformation(Transformation.TERRY);
     }
 
     void AnimationHandler() {

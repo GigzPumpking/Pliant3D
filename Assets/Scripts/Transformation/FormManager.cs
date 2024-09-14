@@ -144,10 +144,6 @@ public class FormManager : MonoBehaviour
 
         //Set transformation corresponding to form information.
 
-        if (Player.Instance.transformation != form.transformation) {
-            Player.Instance.Smoke();
-        }
-
         Player.Instance.SetTransformation(form.transformation);
 
         // close thought bubble after selection.

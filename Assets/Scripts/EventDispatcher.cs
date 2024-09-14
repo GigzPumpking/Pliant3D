@@ -43,6 +43,11 @@ public class ReleaseButton : Event
 
 }
 
+public class StressDebuff : Event
+{
+
+}
+
 public class EventDispatcher 
 {
     private static EventDispatcher _instance;

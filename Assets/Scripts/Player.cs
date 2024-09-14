@@ -200,12 +200,14 @@ public class Player : MonoBehaviour
                 break;
         }
 
-        if (Physics.Raycast(position, facingDirection, out hit, 10f, layerMask)) {
+        if (Physics.Raycast(position, facingDirection, out hit, 10f, layerMask)) 
+        {
             Debug.DrawRay(position, facingDirection * hit.distance, Color.red);
             if (hit.collider.gameObject != obstacleToPull && transformation == Transformation.FROG) {
                 SetPullingTarget(hit.collider.gameObject);
             }
         } else {
+            Debug.DrawRay(position, facingDirection * hit.distance, Color.red);
             SetPullingTarget(null);
         }
     }

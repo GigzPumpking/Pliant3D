@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
@@ -21,6 +22,11 @@ public class UIManager : MonoBehaviour
 
         DontDestroyOnLoad(this);
     }
-
-
+    public void ToggleButton(GameObject button)
+    {
+        if (button.GetComponent<Image>().color == Color.red)
+            button.GetComponent<Image>().color = Color.green;
+        else
+            button.GetComponent<Image>().color = Color.red;
+    }
 }

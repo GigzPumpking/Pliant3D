@@ -46,6 +46,10 @@ public class HookableObject : MonoBehaviour
                     }
                 }
             }
+        } else {
+            foreach (Renderer rend in renderers) {
+                rend.material.color = originalColor;
+            }
         }
 
     }

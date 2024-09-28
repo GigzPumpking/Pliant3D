@@ -17,22 +17,18 @@ public class Player : MonoBehaviour
     private Transform sparkles;
     private Animator sparklesAnimator;
 
-    enum Direction {
-        UP,
-        DOWN
-    }
-    private Direction direction = Direction.DOWN;
-
-    bool isMoving = false;
-
-    enum LastInput {
+    enum Directions {
         UP,
         DOWN,
         LEFT,
         RIGHT
     }
 
-    private LastInput lastInput = LastInput.DOWN;
+    private Directions lastVerticalInput = Directions.DOWN;
+    private Directions lastHorizontalInput = Directions.RIGHT;
+
+    bool isMoving = false;
+    private Directions lastInput = Directions.DOWN;
 
     [SerializeField] bool isGrounded = true;
 
@@ -68,6 +64,10 @@ public class Player : MonoBehaviour
     // Other Variables
     public GameObject obstacleToBreak;
     public GameObject obstacleToPull;
+    public Transform objectToHookTo;
+    public float hookForce = 0.5f;
+    public float hookDuration = 3f;
+    public bool usePhysicsHooking = false;
     public Color obstacleToPullColor;
 
     [SerializeField] private float raycastDistance = 1f;
@@ -80,6 +80,8 @@ public class Player : MonoBehaviour
     [SerializeField] private Vector3 area3Position = new Vector3(64.8f, 0.89f, 33f);
 
     [SerializeField] private Vector3 area4Position = new Vector3(88.29f, 0.89f, -18f);
+
+    public bool directionalMovement = false;
 
     void Start()
     {
@@ -135,6 +137,10 @@ public class Player : MonoBehaviour
         AnimationHandler();
         GroundedChecker();
         if (Input.GetKeyDown(KeyCode.T)) TransformationHandler();
+
+        if (Input.GetKeyDown(KeyCode.G) && transformation == Transformation.FROG) {
+            if (objectToHookTo != null) GrapplingHook(objectToHookTo);
+        }
     }
 
     // Update is called once per frame
@@ -164,7 +170,23 @@ public class Player : MonoBehaviour
         cameraForwards = cameraForwards.normalized;
         cameraRight = cameraRight.normalized;
 
+        // if vertical input or horizontal input are 0, set them to the lastVerticalInput or lastHorizontalInput
+        // unless both are 0, then it's not moving
+
+        if (directionalMovement) {
+            if (verticalInput != 0 || horizontalInput != 0) {
+                if (verticalInput == 0) {
+                    verticalInput = (lastVerticalInput == Directions.UP) ? 1 : -1;
+                }
+                if (horizontalInput == 0) {
+                    horizontalInput = (lastHorizontalInput == Directions.RIGHT) ? 1 : -1;
+                }
+            }   
+        }
+
         Vector3 desiredMoveDirection = cameraForwards * verticalInput + cameraRight * horizontalInput;
+
+        // if there is Vertical Input and Horizontal Input
 
         if (desiredMoveDirection != Vector3.zero) {
             isMoving = true;
@@ -181,7 +203,7 @@ public class Player : MonoBehaviour
 
     void JumpHandler() {
         if (isGrounded) {
-            if (direction == Direction.DOWN) animator.Play("Jump Front");
+            if (lastVerticalInput == Directions.DOWN) animator.Play("Jump Front");
             else animator.Play("Jump Back");
 
             rbody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
@@ -208,18 +230,19 @@ public class Player : MonoBehaviour
 
         Vector3 position = transform.position;
         position.y += 0.5f;
+
         Vector3 facingDirection = transform.TransformDirection(Vector3.forward);
         switch (lastInput) {
-            case LastInput.UP:
+            case Directions.UP:
                 facingDirection = transform.TransformDirection(Vector3.forward);
                 break;
-            case LastInput.DOWN:
+            case Directions.DOWN:
                 facingDirection = transform.TransformDirection(Vector3.back);
                 break;
-            case LastInput.LEFT:
+            case Directions.LEFT:
                 facingDirection = transform.TransformDirection(Vector3.left);
                 break;
-            case LastInput.RIGHT:
+            case Directions.RIGHT:
                 facingDirection = transform.TransformDirection(Vector3.right);
                 break;
         }
@@ -249,21 +272,23 @@ public class Player : MonoBehaviour
         if (Input.GetKey(KeyCode.A)) {
             selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
             horizontal = -1f;
-            lastInput = LastInput.LEFT;
+            lastHorizontalInput = Directions.LEFT;
+            lastInput = Directions.LEFT;
         } else if (Input.GetKey(KeyCode.D)) {
             selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = true;
             horizontal = 1f;
-            lastInput = LastInput.RIGHT;
+            lastHorizontalInput = Directions.RIGHT;
+            lastInput = Directions.RIGHT;
         }
 
         if (Input.GetKey(KeyCode.W)) {
             vertical = 1f;
-            direction = Direction.UP;
-            lastInput = LastInput.UP;
+            lastVerticalInput = Directions.UP;
+            lastInput = Directions.UP;
         } else if (Input.GetKey(KeyCode.S)) {
             vertical = -1f;
-            direction = Direction.DOWN;
-            lastInput = LastInput.DOWN;
+            lastVerticalInput = Directions.DOWN;
+            lastInput = Directions.DOWN;
         }
 
         if (Input.GetKeyDown(KeyCode.Space) && transformation == Transformation.FROG) {
@@ -374,7 +399,7 @@ public class Player : MonoBehaviour
         if (animator == null) return;
 
         if (isMoving) {
-            if (direction == Direction.DOWN) {
+            if (lastVerticalInput == Directions.DOWN) {
                 animator.Play("Walk Front");
             }
             else {
@@ -382,7 +407,7 @@ public class Player : MonoBehaviour
             }
         }
         else {
-            if (direction == Direction.DOWN) {
+            if (lastVerticalInput == Directions.DOWN) {
                 animator.Play("Idle Front");
             }
             else {
@@ -459,6 +484,53 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void SetHookingTarget(Transform target) {
+        objectToHookTo = target;
+    }
+
+    public Transform GetHookingTarget() {
+        return objectToHookTo;
+    }
+
+    void GrapplingHook(Transform objectToHookTo) {
+        // Grappling Hook
+
+        // Start Coroutine
+        if (!usePhysicsHooking) StartCoroutine(GrapplingHookCoroutine(objectToHookTo));
+        else StartCoroutine(GrapplingHookPhysicsCoroutine(objectToHookTo));
+    }
+    IEnumerator GrapplingHookCoroutine(Transform objectToHookTo) {
+        // hook and move towards objectToHookTo
+        float timeElapsed = 0f;
+        float duration = hookDuration;
+        Vector3 originalPosition = transform.position;
+        Vector3 targetPosition = objectToHookTo.position;
+
+        // if target position is below original position, match the y position
+        if (targetPosition.y < originalPosition.y) {
+            targetPosition.y = originalPosition.y;
+        }
+
+        while (timeElapsed < duration) {
+            transform.position = Vector3.Lerp(originalPosition, targetPosition, timeElapsed / duration);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    IEnumerator GrapplingHookPhysicsCoroutine(Transform objectToHookTo) {
+        // Loop the following until the object is close enough to the target or 3 seconds have passed
+
+        float timeElapsed = 0f;
+
+        while (Vector3.Distance(transform.position, objectToHookTo.position) > 1f && timeElapsed < hookDuration) {
+            Vector3 direction = objectToHookTo.position - transform.position;
+            rbody.AddForce(direction.normalized * hookForce, ForceMode.Impulse);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
+    }
+
     public void Area1() {
         Debug.Log("Area 1 Position: " + area1Position);
         transform.position = area1Position;
@@ -475,5 +547,9 @@ public class Player : MonoBehaviour
 
     public void Area4() {
         transform.position = area4Position;
+    }
+
+    public void ToggleMovement() {
+        directionalMovement = !directionalMovement;
     }
 }

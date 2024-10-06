@@ -153,8 +153,10 @@ public class Player : MonoBehaviour
         }
 
         PullChecker();
-        
-        MoveHandler();
+
+        if (!transformationBubble.gameObject.activeSelf) {
+            MoveHandler();
+        }
     }
 
     void MoveHandler() {
@@ -199,6 +201,10 @@ public class Player : MonoBehaviour
 
     public void SetVelocity(Vector3 velocity) {
         rbody.velocity = velocity;
+    }
+
+    public void SetSpeed(float speed) {
+        baseSpeed = speed;
     }
 
     void JumpHandler() {

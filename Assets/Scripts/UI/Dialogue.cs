@@ -8,18 +8,17 @@ public class Dialogue : MonoBehaviour
     public TextMeshProUGUI textDisplay;
     public string[] sentences;
     public float textSpeed;
-
     private int index;
+    private bool active = false;
 
-    void Start() 
-    {
-        gameObject.SetActive(false);
-    }
+    [SerializeField] private Animator animator;
 
     void Awake()
     {
         textDisplay.text = string.Empty;
         index = 0;
+        animator.Play("DialogueHide_Idle");
+        active = false;
     }
 
     // Update is called once per frame
@@ -49,7 +48,9 @@ public class Dialogue : MonoBehaviour
         else 
         {
             textDisplay.text = "";
-            gameObject.SetActive(false);
+            animator.Play("DialogueHide");
+            EventDispatcher.Raise<EndDialogue>(new EndDialogue());
+            active = false;
         }
     }
 
@@ -69,12 +70,14 @@ public class Dialogue : MonoBehaviour
 
     public bool isActive() 
     {
-        return gameObject.activeSelf;
+        return active;
     }
 
     public void Appear() 
     {
-        gameObject.SetActive(true);
+        // Play Dialogue Appear animation
+        animator.Play("DialogueAppear");
+        active = true;
         textDisplay.text = string.Empty;
         StartDialogue();
     }

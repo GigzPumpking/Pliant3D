@@ -23,6 +23,16 @@ public class StopMusic : Event
     public string musicName;
 }
 
+public class Interact : Event
+{
+
+}
+
+public class EndDialogue : Event
+{
+
+}
+
 public class PlayGame : Event
 {
 

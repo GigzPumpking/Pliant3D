@@ -82,7 +82,6 @@ public class Player : MonoBehaviour
     [SerializeField] private Vector3 area4Position = new Vector3(88.29f, 0.89f, -18f);
 
     public bool directionalMovement = false;
-
     void Start()
     {
         EventDispatcher.AddListener<StressDebuff>(StressDebuffHandler);
@@ -140,6 +139,11 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.G) && transformation == Transformation.FROG) {
             if (objectToHookTo != null) GrapplingHook(objectToHookTo);
+        }
+
+        // if E is pressed, interact with object
+        if (Input.GetKeyDown(KeyCode.E)) {
+            EventDispatcher.Raise<Interact>(new Interact());
         }
     }
 

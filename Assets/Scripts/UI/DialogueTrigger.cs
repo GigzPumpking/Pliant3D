@@ -6,6 +6,7 @@ public class DialogueTrigger : MonoBehaviour
     public string[] dialogueLines;
     public GameObject interactBubble;
     private bool inRadius = false;
+    private bool triggered = false;
     private Dialogue dialogue;
     private void Start() {
         EventDispatcher.AddListener<Interact>(PlayerInteract);
@@ -26,16 +27,18 @@ public class DialogueTrigger : MonoBehaviour
         if (other.CompareTag("Player")) {
             interactBubble.SetActive(false);
             inRadius = false;
+            triggered = false;
         }
     }
 
     void PlayerInteract(Interact e) {
-        if (interactBubble.activeSelf) {  
-            interactBubble.SetActive(false);
+        if (inRadius && !dialogue.isActive() && interactBubble.activeSelf && !triggered) {
+            triggered = true;
+            dialogue.Appear();
         }
 
-        if (inRadius && !dialogue.isActive()) {
-            dialogue.Appear();
+        if (interactBubble.activeSelf) {  
+            interactBubble.SetActive(false);
         }
     }
 

@@ -8,8 +8,7 @@ public class UIManager : MonoBehaviour
     private static UIManager instance;
 
     public static UIManager Instance { get { return instance; } }
-
-    [SerializeField] private Dialogue dialogueScript;
+    private Dialogue dialogueScript;
 
     void Awake()
     {
@@ -23,6 +22,8 @@ public class UIManager : MonoBehaviour
         }
 
         DontDestroyOnLoad(this);
+
+        dialogueScript = transform.Find("DialogueBox").GetComponent<Dialogue>();
     }
     
     public void ToggleButton(GameObject button)

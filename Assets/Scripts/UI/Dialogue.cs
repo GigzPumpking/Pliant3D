@@ -33,6 +33,7 @@ public class Dialogue : MonoBehaviour
 
     void StartDialogue() 
     {
+        active = true;
         index = 0;
         StartCoroutine(TypeLine());
     }
@@ -75,11 +76,16 @@ public class Dialogue : MonoBehaviour
 
     public void Appear() 
     {
+        if (!validSentences()) 
+        {
+            return;
+        }
+
         // Play Dialogue Appear animation
         animator.Play("DialogueAppear");
-        active = true;
         textDisplay.text = string.Empty;
-        StartDialogue();
+        // Start Dialogue after 1 second
+        Invoke("StartDialogue", 1.0f);
     }
 
     public bool validSentences() 

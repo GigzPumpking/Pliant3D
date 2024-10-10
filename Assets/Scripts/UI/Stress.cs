@@ -8,6 +8,7 @@ public class Stress : MonoBehaviour
     [SerializeField] private float stress = 0;
     public float maxStress { get; private set; } = 100f;
 
+    [SerializeField] private float additonalStress = 5f;
     [SerializeField] private float SOTAmount = 3.3f;
     [SerializeField] private float TickSpeed = 1f;
     private float currentTickTime = 0f;
@@ -18,6 +19,14 @@ public class Stress : MonoBehaviour
     public Image stressMeterL;
     [SerializeField] private Sprite[] healthSprites;
     public Image stressStageImage;
+
+    void Start()
+    {
+        // Possibly redundant can maybe remove if uneccessary.
+        EventDispatcher.RemoveListener<StressAbility>(StressAbilityHandler);
+
+        EventDispatcher.AddListener<StressAbility>(StressAbilityHandler);
+    }
 
     // Update is called once per frame
     void Update()
@@ -59,6 +68,12 @@ public class Stress : MonoBehaviour
             UpdateStress();
         }
     }
+
+    void StressAbilityHandler(StressAbility e)
+    {
+        stress += additonalStress;
+    }
+
 
     private void UpdateStress()
     {

@@ -138,7 +138,10 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.T)) TransformationHandler();
 
         if (Input.GetKeyDown(KeyCode.G) && transformation == Transformation.FROG) {
-            if (objectToHookTo != null) GrapplingHook(objectToHookTo);
+            if (objectToHookTo != null) {
+                GrapplingHook(objectToHookTo);
+                EventDispatcher.Raise<StressAbility>(new StressAbility());
+            }
         }
 
         // if E is pressed, interact with object
@@ -317,11 +320,13 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F) && transformation == Transformation.BULLDOZER && obstacleToBreak != null) {
             obstacleToBreak.SetActive(false);
             obstacleToBreak = null;
+            EventDispatcher.Raise<StressAbility>(new StressAbility());
         }
 
         // if F is pressed while in Frog form, pull the obstacle
         if (Input.GetKeyDown(KeyCode.F) && transformation == Transformation.FROG && obstacleToPull != null) {
             PullObject(obstacleToPull);
+            EventDispatcher.Raise<StressAbility>(new StressAbility());
         }
 
         // if 1 is pressed, move to area 1

@@ -160,6 +160,14 @@ public class Player : MonoBehaviour
 
         if (!transformationBubble.gameObject.activeSelf) {
             MoveHandler();
+        } else {
+            isMoving = false;
+            // play idle animation
+            if (lastVerticalInput == Directions.DOWN) {
+                animator.Play("Idle Front");
+            } else {
+                animator.Play("Idle Back");
+            }
         }
     }
 
@@ -561,5 +569,10 @@ public class Player : MonoBehaviour
 
     public void ToggleMovement() {
         directionalMovement = !directionalMovement;
+    }
+
+    public void Heal() {
+        EventDispatcher.Raise<Heal>(new Heal());
+        HealAnim();
     }
 }

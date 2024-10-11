@@ -63,6 +63,11 @@ public class StressAbility : Event
 
 }
 
+public class Heal : Event
+{
+    
+}
+
 public class EventDispatcher 
 {
     private static EventDispatcher _instance;

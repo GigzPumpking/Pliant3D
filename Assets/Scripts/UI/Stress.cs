@@ -26,6 +26,8 @@ public class Stress : MonoBehaviour
         EventDispatcher.RemoveListener<StressAbility>(StressAbilityHandler);
 
         EventDispatcher.AddListener<StressAbility>(StressAbilityHandler);
+
+        EventDispatcher.AddListener<Heal>(HealHandler);
     }
 
     // Update is called once per frame
@@ -111,6 +113,10 @@ public class Stress : MonoBehaviour
             elapsedTime += Time.deltaTime;
             yield return null;
         }
+    }
+
+    void HealHandler(Heal e) {
+        StartCoroutine(ResetStress());
     }
 
 }

@@ -13,10 +13,13 @@ public class Stress : MonoBehaviour
     [SerializeField] private float TickSpeed = 1f;
     private float currentTickTime = 0f;
     private float nextTickTime = 0f;
-    public StressStage stressStage { get; private set; }
+    //public StressStage stressStage { get; private set; }
 
-    public Image stressMeterR;
-    public Image stressMeterL;
+    // public Image stressMeterR;
+    // public Image stressMeterL;
+
+    public Image stressCircle;
+
     [SerializeField] private Sprite[] healthSprites;
     public Image stressStageImage;
 
@@ -36,8 +39,9 @@ public class Stress : MonoBehaviour
         StressHandler();
 
         //Adjust meter UI according to stress amount
-        stressMeterR.fillAmount = Mathf.Clamp((stress/maxStress), 0, 1);
-        stressMeterL.fillAmount = Mathf.Clamp((stress/maxStress), 0, 1);
+        // stressMeterR.fillAmount = Mathf.Clamp((stress/maxStress), 0, 1);
+        // stressMeterL.fillAmount = Mathf.Clamp((stress/maxStress), 0, 1);
+        stressCircle.fillAmount = Mathf.Clamp((stress/maxStress), 0, 1);
 
         if (stress >= maxStress)
         {
@@ -67,7 +71,7 @@ public class Stress : MonoBehaviour
             } else {
                 stress -= SOTAmount*3/4;
             }
-            UpdateStress();
+            //UpdateStress();
         }
     }
 

@@ -5,23 +5,46 @@ using UnityEngine.UI;
 
 public class Stress : MonoBehaviour
 {
-    [SerializeField] private float stress = 0;
-    public float maxStress { get; private set; } = 100f;
 
+    #region PROPERTIES
+
+    /// <summary>
+        /// The Stress damage over time and ability damage components
+    /// </summary>
+    [Header("CONFIGURATIONS")]
+    [Tooltip("The current stress amount.")]
+    [SerializeField] private float stress = 0;
+    [Tooltip("The max stress limit before debuffed.")]
+    [SerializeField] private float maxStress = 100f;
+
+    [Tooltip("The additional damage taken for using an ability.")]
     [SerializeField] private float additonalStress = 5f;
+    [Tooltip("The amount damage taken over time for not being in base form.")]
     [SerializeField] private float SOTAmount = 3.3f;
+    [Tooltip("The tick speed for damage over time.")]
     [SerializeField] private float TickSpeed = 1f;
     private float currentTickTime = 0f;
     private float nextTickTime = 0f;
+
+    [Space(8f)]
+    [Header("IMAGES")]
+    /// <summary>
+    /// The images and sprites for stress stages and meter fill.
+    /// </summary>
     //public StressStage stressStage { get; private set; }
 
     // public Image stressMeterR;
     // public Image stressMeterL;
 
+    [Tooltip("The filling image for the stress meter.")]
     public Image stressCircle;
 
-    [SerializeField] private Sprite[] healthSprites;
-    public Image stressStageImage;
+    //[SerializeField] private Sprite[] healthSprites;
+    //public Image stressStageImage;
+
+    #endregion
+
+    #region PRIVATE METHODS
 
     void Start()
     {
@@ -31,6 +54,12 @@ public class Stress : MonoBehaviour
         EventDispatcher.AddListener<StressAbility>(StressAbilityHandler);
 
         EventDispatcher.AddListener<Heal>(HealHandler);
+    }
+
+    private void OnDestroy()
+    {
+        EventDispatcher.RemoveListener<StressAbility>(StressAbilityHandler);
+        EventDispatcher.RemoveListener<Heal>(HealHandler);
     }
 
     // Update is called once per frame
@@ -80,31 +109,32 @@ public class Stress : MonoBehaviour
         stress += additonalStress;
     }
 
+// Reactivate this function if stress stage image/progression is reimplemented
 
-    private void UpdateStress()
-    {
-        // if stress is 75% or more
-        if( stress >= maxStress*3/4)
-        {
-            stressStageImage.sprite = healthSprites[3];
-            stressStageImage.SetNativeSize();
-        }// 50%
-        else if( stress >= maxStress/2)
-        {
-            stressStageImage.sprite = healthSprites[2];
-            stressStageImage.SetNativeSize();
-        }// 25%
-        else if( stress >= maxStress/4)
-        {
-            stressStageImage.sprite = healthSprites[1];
-            stressStageImage.SetNativeSize();
-        }
-        else
-        { // 0%
-            stressStageImage.sprite = healthSprites[0];
-            stressStageImage.SetNativeSize();
-        }
-    }
+    // private void UpdateStress()
+    // {
+    //     // if stress is 75% or more
+    //     if( stress >= maxStress*3/4)
+    //     {
+    //         stressStageImage.sprite = healthSprites[3];
+    //         stressStageImage.SetNativeSize();
+    //     }// 50%
+    //     else if( stress >= maxStress/2)
+    //     {
+    //         stressStageImage.sprite = healthSprites[2];
+    //         stressStageImage.SetNativeSize();
+    //     }// 25%
+    //     else if( stress >= maxStress/4)
+    //     {
+    //         stressStageImage.sprite = healthSprites[1];
+    //         stressStageImage.SetNativeSize();
+    //     }
+    //     else
+    //     { // 0%
+    //         stressStageImage.sprite = healthSprites[0];
+    //         stressStageImage.SetNativeSize();
+    //     }
+    // }
 
     IEnumerator ResetStress()
     {
@@ -122,5 +152,7 @@ public class Stress : MonoBehaviour
     void HealHandler(Heal e) {
         StartCoroutine(ResetStress());
     }
+
+    #endregion
 
 }

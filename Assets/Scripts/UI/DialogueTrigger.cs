@@ -15,6 +15,11 @@ public class DialogueTrigger : MonoBehaviour
         dialogue = UIManager.Instance.returnDialogue();
     }
 
+    private void OnDestroy() {
+        EventDispatcher.RemoveListener<Interact>(PlayerInteract);
+        EventDispatcher.RemoveListener<EndDialogue>(EndDialogue);
+    }
+
     void OnTriggerEnter(Collider other) {
         if (other.CompareTag("Player")) {
             UIManager.Instance.returnDialogue().setSentences(dialogueLines);

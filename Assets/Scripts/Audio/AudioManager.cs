@@ -23,6 +23,13 @@ public class AudioManager : MonoBehaviour
         EventDispatcher.AddListener<StopMusic>(StopMusic);
     }
 
+    private void OnDestroy()
+    {
+        EventDispatcher.RemoveListener<PlaySound>(PlaySound);
+        EventDispatcher.RemoveListener<PlayMusic>(PlayMusic);
+        EventDispatcher.RemoveListener<StopMusic>(StopMusic);
+    }
+
     public void PlaySound(PlaySound evtData)
     {
         Sound s = System.Array.Find(sounds, sound => sound.name == evtData.soundName);
@@ -34,7 +41,6 @@ public class AudioManager : MonoBehaviour
         else {
             AudioSource source = evtData.source;
             if (source == null) {
-                // From a list of sources, find the first one that is not playing
                 source = System.Array.Find(sources, s => !s.isPlaying);
                 if (source == null) {
                     // If all sources are playing, find the first one in the list

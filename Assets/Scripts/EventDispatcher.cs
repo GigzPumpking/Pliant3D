@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Event 
 {
@@ -66,6 +67,15 @@ public class StressAbility : Event
 public class Heal : Event
 {
     
+}
+public class ShiftAbility : Event
+{
+    public bool isEnabled = false;
+}
+
+public class NewSceneLoaded : Event
+{
+    public string sceneName;
 }
 
 public class EventDispatcher 

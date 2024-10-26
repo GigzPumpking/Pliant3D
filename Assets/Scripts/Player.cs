@@ -81,7 +81,7 @@ public class Player : MonoBehaviour
 
     [SerializeField] private Vector3 area4Position = new Vector3(88.29f, 0.89f, -18f);
 
-    public bool directionalMovement = false;
+    public bool directionalMovement = true;
     void Start()
     {
         EventDispatcher.AddListener<StressDebuff>(StressDebuffHandler);
@@ -119,11 +119,10 @@ public class Player : MonoBehaviour
         transformationBubble = transform.Find("Transformation Bubble");
 
         movementSpeed = baseSpeed;
-
-        Debug.Log("Area 1 Position: " + area1Position);
-        Debug.Log("Area 2 Position: " + area2Position);
-        Debug.Log("Area 3 Position: " + area3Position);
-        Debug.Log("Area 4 Position: " + area4Position);
+    }
+    private void OnDestroy()
+    {
+        EventDispatcher.RemoveListener<StressDebuff>(StressDebuffHandler);
     }
 
     public GameObject GetSmoke() {
@@ -148,17 +147,16 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E)) {
             EventDispatcher.Raise<Interact>(new Interact());
         }
+
+        // If player is below -50 Y, reset to area 1
+        if (transform.position.y < -50) {
+            transform.position = area1Position;
+        }
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (transformation == Transformation.BULLDOZER) {
-            rbody.mass = 1000;
-        } else {
-            rbody.mass = 1;
-        }
-
         PullChecker();
 
         if (!transformationBubble.gameObject.activeSelf) {
@@ -187,21 +185,35 @@ public class Player : MonoBehaviour
         cameraForwards = cameraForwards.normalized;
         cameraRight = cameraRight.normalized;
 
-        // if vertical input or horizontal input are 0, set them to the lastVerticalInput or lastHorizontalInput
-        // unless both are 0, then it's not moving
+        Vector3 desiredMoveDirection = Vector3.zero;
 
         if (directionalMovement) {
-            if (verticalInput != 0 || horizontalInput != 0) {
-                if (verticalInput == 0) {
-                    verticalInput = (lastVerticalInput == Directions.UP) ? 1 : -1;
+            if (verticalInput != 0) {
+                if (verticalInput > 0) {
+                    verticalInput = 1;
+                    selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
+                } else {
+                    verticalInput = -1;
+                    selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = true;
                 }
-                if (horizontalInput == 0) {
-                    horizontalInput = (lastHorizontalInput == Directions.RIGHT) ? 1 : -1;
-                }
-            }   
-        }
 
-        Vector3 desiredMoveDirection = cameraForwards * verticalInput + cameraRight * horizontalInput;
+                horizontalInput = 0;
+            }
+            if (horizontalInput != 0) {
+                if (horizontalInput > 0) {
+                    horizontalInput = 1;
+                    selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = true;
+                } else {
+                    horizontalInput = -1;
+                    selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
+                }
+                verticalInput = 0;
+            }
+
+            desiredMoveDirection = Vector3.forward * verticalInput + Vector3.right * horizontalInput;
+        } else {
+            desiredMoveDirection = cameraForwards * verticalInput + cameraRight * horizontalInput;
+        }
 
         // if there is Vertical Input and Horizontal Input
 
@@ -286,17 +298,32 @@ public class Player : MonoBehaviour
 
         if (Input.GetKey(KeyCode.LeftShift) && transformation == Transformation.BALL) {
             movementSpeed = baseSpeed * 2;
-        } else {
+        } else if (Input.GetKey(KeyCode.LeftShift) && transformation == Transformation.BULLDOZER) {
+            rbody.mass = 1000;
+            EventDispatcher.Raise<ShiftAbility>(new ShiftAbility() {
+                isEnabled = true
+            });
+        } 
+
+        if (Input.GetKeyUp(KeyCode.LeftShift)) {
             movementSpeed = baseSpeed;
+            rbody.mass = 1;
+            EventDispatcher.Raise<ShiftAbility>(new ShiftAbility() {
+                isEnabled = false
+            });
         }
         
         if (Input.GetKey(KeyCode.A)) {
-            selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
+            if (!directionalMovement) {
+                selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
+            }
             horizontal = -1f;
             lastHorizontalInput = Directions.LEFT;
             lastInput = Directions.LEFT;
         } else if (Input.GetKey(KeyCode.D)) {
-            selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = true;
+            if (!directionalMovement) {
+                selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = true;
+            }
             horizontal = 1f;
             lastHorizontalInput = Directions.RIGHT;
             lastInput = Directions.RIGHT;

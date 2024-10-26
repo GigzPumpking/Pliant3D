@@ -7,6 +7,9 @@ public class Terry : FormScript
     public float speed = 5.0f;
     public override void OnEnable()
     {
-        Player.Instance.SetSpeed(speed);
+        if (Player.Instance != null)
+        {
+            Player.Instance.SetSpeed(speed);
+        }
     }
 }

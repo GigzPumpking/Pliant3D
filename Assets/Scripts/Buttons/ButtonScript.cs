@@ -20,6 +20,12 @@ public abstract class ButtonScript : MonoBehaviour
         EventDispatcher.AddListener<ReleaseButton>(ReleaseButton);
     }
 
+    private void OnDestroy()
+    {
+        EventDispatcher.RemoveListener<PressButton>(PressButton);
+        EventDispatcher.RemoveListener<ReleaseButton>(ReleaseButton);
+    }
+
     public void PressButton(PressButton e)
     {
         if (animator == null) animator = GetComponent<Animator>();

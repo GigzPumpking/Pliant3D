@@ -13,6 +13,12 @@ public class MainMenuAudio : MonoBehaviour
         EventDispatcher.AddListener<QuitGame>(QuitGame);
     }
 
+    private void OnDestroy()
+    {
+        EventDispatcher.RemoveListener<PlayGame>(PlayGame);
+        EventDispatcher.RemoveListener<QuitGame>(QuitGame);
+    }
+
     public void PlayGame(PlayGame e)
     {
         StopBackground();

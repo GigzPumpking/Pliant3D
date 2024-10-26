@@ -8,7 +8,6 @@ public class DetectionTrigger : MonoBehaviour
     Color highlightColor = Color.red;
 
     void Start() {
-        Debug.Log(this.transform.parent.gameObject.name);
         Player.Instance.SetBreakingTarget(null);
     }
     private void OnTriggerEnter(Collider other) {

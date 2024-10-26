@@ -56,6 +56,12 @@ public class Stress : MonoBehaviour
         EventDispatcher.AddListener<Heal>(HealHandler);
     }
 
+    private void OnDestroy()
+    {
+        EventDispatcher.RemoveListener<StressAbility>(StressAbilityHandler);
+        EventDispatcher.RemoveListener<Heal>(HealHandler);
+    }
+
     // Update is called once per frame
     void Update()
     {

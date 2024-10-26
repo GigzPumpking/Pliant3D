@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour
 
     public static UIManager Instance { get { return instance; } }
     private Dialogue dialogueScript;
+    public GameObject sceneTransition;
 
     void Awake()
     {
@@ -24,6 +25,13 @@ public class UIManager : MonoBehaviour
         DontDestroyOnLoad(this);
 
         dialogueScript = transform.Find("DialogueBox").GetComponent<Dialogue>();
+
+        EventDispatcher.AddListener<NewSceneLoaded>(FadeOut);
+    }
+
+    private void OnDestroy()
+    {
+        EventDispatcher.RemoveListener<NewSceneLoaded>(FadeOut);
     }
     
     public void ToggleButton(GameObject button)
@@ -32,6 +40,22 @@ public class UIManager : MonoBehaviour
             button.GetComponent<Image>().color = Color.green;
         else
             button.GetComponent<Image>().color = Color.red;
+    }
+
+    public void FadeOut()
+    {
+        sceneTransition.GetComponent<Animator>().SetTrigger("FadeOut");
+    }
+
+    public void FadeIn()
+    {
+        sceneTransition.SetActive(true);
+        sceneTransition.GetComponent<Animator>().SetTrigger("FadeIn");
+    }
+
+    public void FadeOut(NewSceneLoaded e)
+    {
+        FadeOut();
     }
 
     public Dialogue returnDialogue()

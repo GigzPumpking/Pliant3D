@@ -25,6 +25,7 @@ public class Stress : MonoBehaviour
     [SerializeField] private float TickSpeed = 1f;
     private float currentTickTime = 0f;
     private float nextTickTime = 0f;
+    public Vector3 offset;
 
     [Space(8f)]
     [Header("IMAGES")]
@@ -85,6 +86,8 @@ public class Stress : MonoBehaviour
         {
             stress = 0;
         }
+
+        this.transform.position = Camera.main.WorldToScreenPoint(Player.Instance.transform.position) + offset;
 
     }
 

@@ -1066,7 +1066,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5554935718075386589}
-  - component: {fileID: 5554935718075386402}
+  - component: {fileID: 3170958794267973911}
   m_Layer: 3
   m_Name: Collider
   m_TagString: Player
@@ -1082,15 +1082,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5554935718075386588}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.516, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5554935718531090985}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &5554935718075386402
-BoxCollider:
+--- !u!136 &3170958794267973911
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -1099,9 +1099,10 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.8168826, y: 1.8917601, z: 1.0849891}
-  m_Center: {x: -0.091558695, y: 1.1317204, z: 0.042494535}
+  m_Radius: 0.5
+  m_Height: 1.9657612
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.4828806, z: 0}
 --- !u!1 &5554935718437192433
 GameObject:
   m_ObjectHideFlags: 0

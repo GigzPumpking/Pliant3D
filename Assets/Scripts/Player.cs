@@ -130,7 +130,7 @@ public class Player : MonoBehaviour
     }
 
     void Update() {
-
+        // Animations + Input
         InputHandler();
         AnimationHandler();
         GroundedChecker();
@@ -157,6 +157,7 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        // Physics + Rigidbodies/Colliders + Applying Input
         PullChecker();
 
         if (!transformationBubble.gameObject.activeSelf) {
@@ -214,6 +215,8 @@ public class Player : MonoBehaviour
         } else {
             desiredMoveDirection = cameraForwards * verticalInput + cameraRight * horizontalInput;
         }
+
+        desiredMoveDirection = desiredMoveDirection.normalized;
 
         // if there is Vertical Input and Horizontal Input
 

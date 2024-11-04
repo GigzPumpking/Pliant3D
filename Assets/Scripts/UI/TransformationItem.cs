@@ -10,9 +10,13 @@ public class TransformationItem : MonoBehaviour
         
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Select()
     {
-        
+        return;
+    }
+
+    public void Deselect()
+    {
+        return;
     }
 }

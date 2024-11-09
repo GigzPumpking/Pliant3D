@@ -238,8 +238,8 @@ public class Player : MonoBehaviour
             isGrounded = false;
             coyoteTimeActive = true;
 
-            if (lastVerticalInput == Directions.DOWN) animator.Play("Jump Front");
-            else animator.Play("Jump Back");
+            if (lastVerticalInput == Directions.DOWN) animator.Play("Jump Front Start");
+            else animator.Play("Jump Back Start");
 
             rbody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
 
@@ -311,7 +311,8 @@ public class Player : MonoBehaviour
         } else if (Input.GetKey(KeyCode.LeftShift) && transformation == Transformation.BULLDOZER) {
             rbody.mass = 1000;
             EventDispatcher.Raise<ShiftAbility>(new ShiftAbility() {
-                isEnabled = true
+                isEnabled = true,
+                transformation = Transformation.BULLDOZER
             });
         } 
 

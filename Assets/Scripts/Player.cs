@@ -155,12 +155,10 @@ public class Player : MonoBehaviour
             transform.position = area1Position;
         }
 
-        /*
         // if the player clicks Y, play " " animation
         if (Input.GetKeyDown(KeyCode.Y)) {
             animator.Play("Break Front");
         }
-        */
         
     }
 

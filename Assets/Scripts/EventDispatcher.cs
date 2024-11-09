@@ -71,6 +71,8 @@ public class Heal : Event
 public class ShiftAbility : Event
 {
     public bool isEnabled = false;
+
+    public Transformation transformation = Transformation.TERRY;
 }
 
 public class NewSceneLoaded : Event

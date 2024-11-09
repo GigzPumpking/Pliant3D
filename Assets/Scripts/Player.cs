@@ -82,6 +82,9 @@ public class Player : MonoBehaviour
     [SerializeField] private Vector3 area4Position = new Vector3(88.29f, 0.89f, -18f);
 
     public bool directionalMovement = true;
+
+    [SerializeField] private float coyoteTimeDuration = 0.1f; // Time before grounded check resumes after jump
+    private bool coyoteTimeActive = false;
     void Start()
     {
         EventDispatcher.AddListener<StressDebuff>(StressDebuffHandler);
@@ -133,7 +136,6 @@ public class Player : MonoBehaviour
         // Animations + Input
         InputHandler();
         AnimationHandler();
-        GroundedChecker();
         if (Input.GetKeyDown(KeyCode.T)) TransformationHandler();
 
         if (Input.GetKeyDown(KeyCode.G) && transformation == Transformation.FROG) {
@@ -152,25 +154,19 @@ public class Player : MonoBehaviour
         if (transform.position.y < -50) {
             transform.position = area1Position;
         }
+        
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
         // Physics + Rigidbodies/Colliders + Applying Input
+        GroundedChecker();
         PullChecker();
 
         if (!transformationBubble.gameObject.activeSelf) {
             MoveHandler();
-        } else {
-            isMoving = false;
-            // play idle animation
-            if (lastVerticalInput == Directions.DOWN) {
-                animator.Play("Idle Front");
-            } else {
-                animator.Play("Idle Back");
-            }
-        }
+        } 
     }
 
     void MoveHandler() {
@@ -238,18 +234,29 @@ public class Player : MonoBehaviour
     }
 
     void JumpHandler() {
-        if (isGrounded) {
-            if (lastVerticalInput == Directions.DOWN) animator.Play("Jump Front");
-            else animator.Play("Jump Back");
+        if (isGrounded && !coyoteTimeActive) {
+            isGrounded = false;
+            coyoteTimeActive = true;
+
+            if (lastVerticalInput == Directions.DOWN) animator.Play("Jump Front Start");
+            else animator.Play("Jump Back Start");
 
             rbody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
-            isGrounded = false;
+
+            // Start coroutine for coyote time
+            StartCoroutine(CoyoteTimeCoroutine());
         }
     }
 
+    IEnumerator CoyoteTimeCoroutine() {
+        yield return new WaitForSeconds(coyoteTimeDuration);
+        coyoteTimeActive = false;
+    }
+
     void GroundedChecker() {
+        if (coyoteTimeActive) return; // Skip grounded check during coyote time
+
         RaycastHit hit;
-        // Cast from transform.position + Y offset of 0.5f
         Debug.DrawRay(transform.position + new Vector3(0, 0.5f, 0), Vector3.down * raycastDistance, Color.green);
         if (Physics.Raycast(transform.position + new Vector3(0, yOffset, 0), Vector3.down * raycastDistance, out hit, raycastDistance)) {
             isGrounded = true;
@@ -304,7 +311,8 @@ public class Player : MonoBehaviour
         } else if (Input.GetKey(KeyCode.LeftShift) && transformation == Transformation.BULLDOZER) {
             rbody.mass = 1000;
             EventDispatcher.Raise<ShiftAbility>(new ShiftAbility() {
-                isEnabled = true
+                isEnabled = true,
+                transformation = Transformation.BULLDOZER
             });
         } 
 
@@ -451,20 +459,22 @@ public class Player : MonoBehaviour
         // if animator is null, return
         if (animator == null) return;
 
-        if (isMoving) {
-            if (lastVerticalInput == Directions.DOWN) {
-                animator.Play("Walk Front");
+        if (isGrounded) {
+            if (isMoving) {
+                if (lastVerticalInput == Directions.DOWN) {
+                    animator.Play("Walk Front");
+                }
+                else {
+                    animator.Play("Walk Back");
+                }
             }
             else {
-                animator.Play("Walk Back");
-            }
-        }
-        else {
-            if (lastVerticalInput == Directions.DOWN) {
-                animator.Play("Idle Front");
-            }
-            else {
-                animator.Play("Idle Back");
+                if (lastVerticalInput == Directions.DOWN) {
+                    animator.Play("Idle Front");
+                }
+                else {
+                    animator.Play("Idle Back");
+                }
             }
         }
     }

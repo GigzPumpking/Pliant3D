@@ -4,19 +4,26 @@ using UnityEngine;
 
 public class Pushable : MonoBehaviour
 {
-    // Only let the player push the object
+    void Start() {
+        // Add listener for ShiftAbility event
+        EventDispatcher.AddListener<ShiftAbility>(PushState);
+    }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    public void PushState(ShiftAbility e)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        // if event's transformation is bulldozer and event is enabled, set kinematic to false
+        if (e.transformation == Transformation.BULLDOZER && e.isEnabled)
         {
-            // if Player is bulldozer
-            if (Player.Instance.GetTransformation() == Transformation.BULLDOZER)
-            {
-                // Push the object
-                Rigidbody2D rb = GetComponent<Rigidbody2D>();
-                rb.velocity = collision.relativeVelocity;
-            }
+            GetComponent<Rigidbody>().isKinematic = false;
+        } else {
+            // if event's transformation is bulldozer and event is disabled, set kinematic to true
+            GetComponent<Rigidbody>().isKinematic = true;
         }
+    }
+
+    public void OnDestroy()
+    {
+        // Remove listener for ShiftAbility event
+        EventDispatcher.RemoveListener<ShiftAbility>(PushState);
     }
 }

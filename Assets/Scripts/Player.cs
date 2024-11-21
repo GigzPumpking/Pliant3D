@@ -41,13 +41,6 @@ public class Player : MonoBehaviour
     public float jumpForce = 8f;
     public bool canMove = true;
 
-    public static readonly string[] staticDirections = { "Idle Front", "Hurt Idle Front 1", "Hurt Idle Front 2", "Hurt Idle Front 3", "Idle Back", "Hurt Idle Back 1", "Hurt Idle Back 2", "Hurt Idle Back 3"};
-    public static readonly string[] staticFrogDirections = { "Idle Front Frog", "Idle Back Frog"};
-    public static readonly string[] jumpFrogDirections = { "Jump Front Frog", "Walk Front Frog", "Jump Back Frog", "Walk Back Frog"};
-    public static readonly string[] staticBulldozerDirections = { "Idle Front Bulldozer", "Idle Back Bulldozer"};
-    public static readonly string[] walkBulldozerDirections = { "Walk Front Bulldozer", "Walk Back Bulldozer"};
-    public static readonly string[] runDirections = {"Walk Front", "Hurt Walk Front 1", "Hurt Walk Front 2", "Hurt Walk Front 3", "Walk Back", "Hurt Walk Back 1", "Hurt Walk Back 2", "Hurt Walk Back 3"};
-
     // Transformation Variables
     public Transformation transformation = Transformation.TERRY;
     private Transform transformationBubble;
@@ -73,21 +66,22 @@ public class Player : MonoBehaviour
     [SerializeField] private float raycastDistance = 1f;
     [SerializeField] private float yOffset = 0.5f;
 
-    [SerializeField] private Vector3 area1Position = new Vector3(-14.63f, 0.89f, 0.83f);
-
-    [SerializeField] private Vector3 area2Position = new Vector3(8.93f, 0.89f, 69.6f);
-
-    [SerializeField] private Vector3 area3Position = new Vector3(64.8f, 0.89f, 33f);
-
-    [SerializeField] private Vector3 area4Position = new Vector3(88.29f, 0.89f, -18f);
+    [SerializeField] private Vector3[] areaPositions;
 
     public bool directionalMovement = true;
 
     [SerializeField] private float coyoteTimeDuration = 0.1f; // Time before grounded check resumes after jump
     private bool coyoteTimeActive = false;
-    void Start()
+
+    [SerializeField] private bool debug = false;
+    void OnEnable()
     {
         EventDispatcher.AddListener<StressDebuff>(StressDebuffHandler);
+    }
+
+    void OnDisable()
+    {
+        EventDispatcher.RemoveListener<StressDebuff>(StressDebuffHandler);
     }
 
     private void Awake()
@@ -98,6 +92,7 @@ public class Player : MonoBehaviour
         {
             // move correct instance to this instance's location before destroying
             instance.transform.position = this.transform.position;
+            instance.setAreas(areaPositions);
             Destroy(this.gameObject);
             return;
         }
@@ -122,10 +117,8 @@ public class Player : MonoBehaviour
         transformationBubble = transform.Find("Transformation Bubble");
 
         movementSpeed = baseSpeed;
-    }
-    private void OnDestroy()
-    {
-        EventDispatcher.RemoveListener<StressDebuff>(StressDebuffHandler);
+
+        animator.SetBool("isWalking", false);
     }
 
     public GameObject GetSmoke() {
@@ -135,7 +128,14 @@ public class Player : MonoBehaviour
     void Update() {
         // Animations + Input
         InputHandler();
-        AnimationHandler();
+
+        if (!transformationBubble.gameObject.activeSelf) {
+            MoveHandler();
+        } 
+
+        if (!debug) {
+            AnimationHandler();
+        }
         if (Input.GetKeyDown(KeyCode.T)) TransformationHandler();
 
         if (Input.GetKeyDown(KeyCode.G) && transformation == Transformation.FROG) {
@@ -150,9 +150,9 @@ public class Player : MonoBehaviour
             EventDispatcher.Raise<Interact>(new Interact());
         }
 
-        // If player is below -50 Y, reset to area 1
-        if (transform.position.y < -50) {
-            transform.position = area1Position;
+        // If player is below -30 Y, reset to area 1
+        if (transform.position.y < -30) {
+            transform.position = areaPositions[0];
         }
         
     }
@@ -163,10 +163,6 @@ public class Player : MonoBehaviour
         // Physics + Rigidbodies/Colliders + Applying Input
         GroundedChecker();
         PullChecker();
-
-        if (!transformationBubble.gameObject.activeSelf) {
-            MoveHandler();
-        } 
     }
 
     void MoveHandler() {
@@ -210,6 +206,11 @@ public class Player : MonoBehaviour
             desiredMoveDirection = Vector3.forward * verticalInput + Vector3.right * horizontalInput;
         } else {
             desiredMoveDirection = cameraForwards * verticalInput + cameraRight * horizontalInput;
+        }
+
+        if (animator != null) {
+            animator.SetFloat("MoveX", horizontalInput);
+            animator.SetFloat("MoveY", verticalInput);
         }
 
         desiredMoveDirection = desiredMoveDirection.normalized;
@@ -367,24 +368,11 @@ public class Player : MonoBehaviour
             EventDispatcher.Raise<StressAbility>(new StressAbility());
         }
 
-        // if 1 is pressed, move to area 1
-        if (Input.GetKeyDown(KeyCode.Alpha1)) {
-            Area1();
-        }
-
-        // if 2 is pressed, move to area 2
-        if (Input.GetKeyDown(KeyCode.Alpha2)) {
-            Area2();
-        }
-
-        // if 3 is pressed, move to area 3
-        if (Input.GetKeyDown(KeyCode.Alpha3)) {
-            Area3();
-        }
-
-        // if 4 is pressed, move to area 4
-        if (Input.GetKeyDown(KeyCode.Alpha4)) {
-            Area4();
+        // For each of the areas, check Alpha1, Alpha2, ... until area's length
+        for (int i = 1; i <= areaPositions.Length; i++) {
+            if (Input.GetKeyDown(KeyCode.Alpha0 + i)) {
+                moveToArea(i - 1);
+            }
         }
     }
 
@@ -461,18 +449,17 @@ public class Player : MonoBehaviour
 
         if (isGrounded) {
             if (isMoving) {
+                animator.SetBool("isWalking", true);
                 if (lastVerticalInput == Directions.DOWN) {
                     animator.Play("Walk Front");
-                }
-                else {
+                } else {
                     animator.Play("Walk Back");
                 }
-            }
-            else {
+            } else {
+                animator.SetBool("isWalking", false);
                 if (lastVerticalInput == Directions.DOWN) {
                     animator.Play("Idle Front");
-                }
-                else {
+                } else {
                     animator.Play("Idle Back");
                 }
             }
@@ -594,22 +581,12 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void Area1() {
-        Debug.Log("Area 1 Position: " + area1Position);
-        transform.position = area1Position;
+    public void moveToArea(int area) {
+        transform.position = areaPositions[area];
     }
 
-    public void Area2() {
-        Debug.Log("Area 2 Position: " + area2Position);
-        transform.position = area2Position;
-    }
-
-    public void Area3() {
-        transform.position = area3Position;
-    }
-
-    public void Area4() {
-        transform.position = area4Position;
+    private void setAreas(Vector3[] positions) {
+        areaPositions = positions;
     }
 
     public void ToggleMovement() {

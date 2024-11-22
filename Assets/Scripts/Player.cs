@@ -242,6 +242,7 @@ public class Player : MonoBehaviour
             else animator.Play("Jump Back Start");
 
             rbody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
+            EventDispatcher.Raise<StressAbility>(new StressAbility());
 
             // Start coroutine for coyote time
             StartCoroutine(CoyoteTimeCoroutine());

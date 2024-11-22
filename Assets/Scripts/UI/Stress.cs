@@ -49,9 +49,6 @@ public class Stress : MonoBehaviour
 
     void Start()
     {
-        // Possibly redundant can maybe remove if uneccessary.
-        EventDispatcher.RemoveListener<StressAbility>(StressAbilityHandler);
-
         EventDispatcher.AddListener<StressAbility>(StressAbilityHandler);
 
         EventDispatcher.AddListener<Heal>(HealHandler);

@@ -8,14 +8,18 @@ public class DialogueTrigger : MonoBehaviour
     private bool inRadius = false;
     private bool triggered = false;
     private Dialogue dialogue;
-    private void Start() {
+    
+    void OnEnable() {
         EventDispatcher.AddListener<Interact>(PlayerInteract);
         EventDispatcher.AddListener<EndDialogue>(EndDialogue);
         interactBubble.SetActive(false);
+    }
+
+    void Start() {
         dialogue = UIManager.Instance.returnDialogue();
     }
 
-    private void OnDestroy() {
+    void OnDisable() {
         EventDispatcher.RemoveListener<Interact>(PlayerInteract);
         EventDispatcher.RemoveListener<EndDialogue>(EndDialogue);
     }
@@ -40,6 +44,7 @@ public class DialogueTrigger : MonoBehaviour
         if (inRadius && !dialogue.isActive() && interactBubble.activeSelf && !triggered) {
             triggered = true;
             dialogue.Appear();
+            EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = false });
         }
 
         if (interactBubble.activeSelf) {  

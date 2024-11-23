@@ -77,11 +77,13 @@ public class Player : MonoBehaviour
     void OnEnable()
     {
         EventDispatcher.AddListener<StressDebuff>(StressDebuffHandler);
+        EventDispatcher.AddListener<TogglePlayerMovement>(e => canMoveToggle(e.isEnabled));
     }
 
     void OnDisable()
     {
         EventDispatcher.RemoveListener<StressDebuff>(StressDebuffHandler);
+        EventDispatcher.RemoveListener<TogglePlayerMovement>(e => canMoveToggle(e.isEnabled));
     }
 
     private void Awake()
@@ -127,11 +129,13 @@ public class Player : MonoBehaviour
 
     void Update() {
         // Animations + Input
-        InputHandler();
 
-        if (!transformationBubble.gameObject.activeSelf) {
+        if (canMove) {
+            InputHandler();
             MoveHandler();
-        } 
+        } else {
+            isMoving = false;
+        }
 
         if (!debug) {
             AnimationHandler();
@@ -379,6 +383,7 @@ public class Player : MonoBehaviour
     public void TransformationHandler() {
         if (!transformationBubble.gameObject.activeSelf) {
             transformationBubble.gameObject.SetActive(true);
+            canMove = false;
         }
     }
 
@@ -591,6 +596,10 @@ public class Player : MonoBehaviour
 
     public void ToggleMovement() {
         directionalMovement = !directionalMovement;
+    }
+
+    public void canMoveToggle(bool toggle) {
+        canMove = toggle;
     }
 
     public void Heal() {

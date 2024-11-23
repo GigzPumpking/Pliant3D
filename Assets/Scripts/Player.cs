@@ -43,7 +43,7 @@ public class Player : MonoBehaviour
 
     // Transformation Variables
     public Transformation transformation = Transformation.TERRY;
-    private Transform transformationBubble;
+    private Transform transformationWheel;
     private Transform smoke;
     private Transform shadow;
     private Transform terryGroup;
@@ -116,7 +116,7 @@ public class Player : MonoBehaviour
         sparklesAnimator = sparkles.GetComponent<Animator>();
         sparkles.gameObject.SetActive(false);
         smoke.gameObject.SetActive(false);
-        transformationBubble = transform.Find("Transformation Bubble");
+        transformationWheel = transform.Find("Transformation Wheel");
 
         movementSpeed = baseSpeed;
 
@@ -247,6 +247,7 @@ public class Player : MonoBehaviour
             else animator.Play("Jump Back Start");
 
             rbody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
+            EventDispatcher.Raise<StressAbility>(new StressAbility());
 
             // Start coroutine for coyote time
             StartCoroutine(CoyoteTimeCoroutine());
@@ -381,14 +382,14 @@ public class Player : MonoBehaviour
     }
 
     public void TransformationHandler() {
-        if (!transformationBubble.gameObject.activeSelf) {
-            transformationBubble.gameObject.SetActive(true);
+        if (!transformationWheel.gameObject.activeSelf) {
+            transformationWheel.gameObject.SetActive(true);
             canMove = false;
         }
     }
 
     public bool TransformationChecker() {
-        return (transformationBubble.gameObject.activeSelf);
+        return (transformationWheel.gameObject.activeSelf);
     }
 
     public void SetTransformation(Transformation newTransformation) {

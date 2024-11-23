@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,17 +10,23 @@ public class TransformationWheel : MonoBehaviour
     public float currentAngle;
     public int hoveredSelection;
     [SerializeField] private int previousHover;
-    private int numOfSelection = 4;
+    //private int numOfSelection = 4;
+    
+    [SerializeField] private GameObject transformWheel;
     
     public GameObject[] transformationItems;
     
     private TransformationItem transformation;
     private TransformationItem previousTransformation;
     
+    private GameObject smoke;
+    private Animator smokeAnimator;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        smoke = Player.Instance.transform.Find("Smoke").gameObject;
+        smokeAnimator = smoke.GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -37,7 +44,7 @@ public class TransformationWheel : MonoBehaviour
         currentAngle = Mathf.Clamp((currentAngle + 360)%360, 0, 359);
         
         //create index based off section of wheel over the number of selections
-        hoveredSelection = (int)currentAngle/(360/numOfSelection);
+        hoveredSelection = (int)currentAngle/(360/transformationItems.Length);
         
         // if hovered isn't the same as previous hovered then selection is made
         if (hoveredSelection != previousHover)
@@ -51,7 +58,17 @@ public class TransformationWheel : MonoBehaviour
             transformation = transformationItems[hoveredSelection].GetComponent<TransformationItem>();
             transformation.HoverEnter();
         }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            var form = transformation.GetForm();
+            
+            Player.Instance.SetTransformation(form.transformation);
+            transformWheel.SetActive(false);
+            
+        }
         
         Debug.Log(hoveredSelection);
     }
+    
 }

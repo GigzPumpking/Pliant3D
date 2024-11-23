@@ -43,7 +43,7 @@ public class Player : MonoBehaviour
 
     // Transformation Variables
     public Transformation transformation = Transformation.TERRY;
-    private Transform transformationBubble;
+    private Transform transformationWheel;
     private Transform smoke;
     private Transform shadow;
     private Transform terryGroup;
@@ -114,7 +114,7 @@ public class Player : MonoBehaviour
         sparklesAnimator = sparkles.GetComponent<Animator>();
         sparkles.gameObject.SetActive(false);
         smoke.gameObject.SetActive(false);
-        transformationBubble = transform.Find("Transformation Bubble");
+        transformationWheel = transform.Find("Transformation Wheel");
 
         movementSpeed = baseSpeed;
 
@@ -129,7 +129,7 @@ public class Player : MonoBehaviour
         // Animations + Input
         InputHandler();
 
-        if (!transformationBubble.gameObject.activeSelf) {
+        if (!transformationWheel.gameObject.activeSelf) {
             MoveHandler();
         } 
 
@@ -378,13 +378,13 @@ public class Player : MonoBehaviour
     }
 
     public void TransformationHandler() {
-        if (!transformationBubble.gameObject.activeSelf) {
-            transformationBubble.gameObject.SetActive(true);
+        if (!transformationWheel.gameObject.activeSelf) {
+            transformationWheel.gameObject.SetActive(true);
         }
     }
 
     public bool TransformationChecker() {
-        return (transformationBubble.gameObject.activeSelf);
+        return (transformationWheel.gameObject.activeSelf);
     }
 
     public void SetTransformation(Transformation newTransformation) {

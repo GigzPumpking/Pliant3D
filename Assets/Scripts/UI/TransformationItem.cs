@@ -4,6 +4,7 @@ public class TransformationItem : MonoBehaviour
 {
 
     private Animator animator;
+    [SerializeField] private Form transformation;
     
     // Start is called before the first frame update
     void Start()
@@ -19,5 +20,10 @@ public class TransformationItem : MonoBehaviour
     public void HoverExit()
     {
         animator.SetBool("Hover", false);
+    }
+
+    public Form GetForm()
+    {
+        return transformation;
     }
 }

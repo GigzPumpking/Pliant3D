@@ -49,8 +49,6 @@ public class FormManager : MonoBehaviour
         UpdateForm(selectedForm, nextForm, prevForm);
 
         thoughtBubble.SetActive(false);
-
-        EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
     }
 
     // Update is called once per frame
@@ -150,5 +148,7 @@ public class FormManager : MonoBehaviour
 
         // close thought bubble after selection.
         thoughtBubble.SetActive(false);
+
+        EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
     }
 }

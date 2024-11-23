@@ -148,5 +148,7 @@ public class FormManager : MonoBehaviour
 
         // close thought bubble after selection.
         thoughtBubble.SetActive(false);
+
+        EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
     }
 }

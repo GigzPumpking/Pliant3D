@@ -80,6 +80,11 @@ public class NewSceneLoaded : Event
     public string sceneName;
 }
 
+public class TogglePlayerMovement : Event
+{
+    public bool isEnabled = false;
+}
+
 public class EventDispatcher 
 {
     private static EventDispatcher _instance;

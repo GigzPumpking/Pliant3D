@@ -66,9 +66,17 @@ public class TransformationWheel : MonoBehaviour
             Player.Instance.SetTransformation(form.transformation);
             transformWheel.SetActive(false);
             
+            EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
+        }
+
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            transformWheel.SetActive(false);
+            
+            EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
         }
         
-        Debug.Log(hoveredSelection);
+        // Debug.Log(hoveredSelection);
     }
     
 }

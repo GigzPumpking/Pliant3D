@@ -223,8 +223,10 @@ public class Player : MonoBehaviour
 
         if (desiredMoveDirection != Vector3.zero) {
             isMoving = true;
+            animator.SetBool("isWalking", true);
         } else {
             isMoving = false;
+            animator.SetBool("isWalking", false);
         }
 
         rbody.velocity = new Vector3(desiredMoveDirection.x * movementSpeed, rbody.velocity.y, desiredMoveDirection.z * movementSpeed);

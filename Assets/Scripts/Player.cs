@@ -215,6 +215,13 @@ public class Player : MonoBehaviour
         if (animator != null) {
             animator.SetFloat("MoveX", horizontalInput);
             animator.SetFloat("MoveY", verticalInput);
+
+            // if MoveX is negative and MoveY is negative, set faceFront to true
+            if (horizontalInput < -0.01f && verticalInput < -0.01f) {
+                animator.SetBool("faceFront", true);
+            } else if (horizontalInput > 0.01f && verticalInput > 0.01f) {
+                animator.SetBool("faceFront", false);
+            }
         }
 
         desiredMoveDirection = desiredMoveDirection.normalized;

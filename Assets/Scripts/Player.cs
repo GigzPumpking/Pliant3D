@@ -44,6 +44,7 @@ public class Player : MonoBehaviour
     // Transformation Variables
     public Transformation transformation = Transformation.TERRY;
     private Transform transformationWheel;
+    private Dictionary<Transformation, (Transform group, SpriteRenderer sprite, Animator animator)> transformationMapping;
     private Transform smoke;
     private Transform shadow;
     private Transform terryGroup;
@@ -51,6 +52,7 @@ public class Player : MonoBehaviour
     private Transform bulldozerGroup;
     private Transform ballGroup;
     private Transform selectedGroup;
+    private SpriteRenderer selectedGroupSprite;
 
     public float transformationDuration = 10f;
 
@@ -66,13 +68,11 @@ public class Player : MonoBehaviour
     [SerializeField] private float raycastDistance = 1f;
     [SerializeField] private float yOffset = 0.5f;
 
+    [SerializeField] private float outOfBoundsY = -10f;
+
     [SerializeField] private Vector3[] areaPositions;
 
     public bool directionalMovement = true;
-
-    [SerializeField] private float coyoteTimeDuration = 0.1f; // Time before grounded check resumes after jump
-    private bool coyoteTimeActive = false;
-
     [SerializeField] private bool debug = false;
     void OnEnable()
     {
@@ -103,10 +103,7 @@ public class Player : MonoBehaviour
 
         rbody = GetComponent<Rigidbody>();
 
-        terryGroup = transform.Find("Terry");
-        frogGroup = transform.Find("Frog");
-        bulldozerGroup = transform.Find("Bulldozer");
-        ballGroup = transform.Find("Ball");
+        InitializeTransformations();
 
         SetTransformation(Transformation.TERRY);
 
@@ -120,7 +117,13 @@ public class Player : MonoBehaviour
 
         movementSpeed = baseSpeed;
 
-        animator.SetBool("isWalking", false);
+        if (animator != null) {
+            animator.SetBool("isWalking", false);
+
+            // Default to down
+            animator.SetFloat("MoveX", -1);
+            animator.SetFloat("MoveY", -1);
+        }
     }
 
     public GameObject GetSmoke() {
@@ -137,9 +140,6 @@ public class Player : MonoBehaviour
             isMoving = false;
         }
 
-        if (!debug) {
-            AnimationHandler();
-        }
         if (Input.GetKeyDown(KeyCode.T)) TransformationHandler();
 
         if (Input.GetKeyDown(KeyCode.G) && transformation == Transformation.FROG) {
@@ -154,11 +154,9 @@ public class Player : MonoBehaviour
             EventDispatcher.Raise<Interact>(new Interact());
         }
 
-        // If player is below -30 Y, reset to area 1
-        if (transform.position.y < -30) {
+        if (transform.position.y < outOfBoundsY) {
             transform.position = areaPositions[0];
         }
-        
     }
 
     // Update is called once per frame
@@ -188,10 +186,10 @@ public class Player : MonoBehaviour
             if (verticalInput != 0) {
                 if (verticalInput > 0) {
                     verticalInput = 1;
-                    selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
+                    selectedGroupSprite.flipX = false;
                 } else {
                     verticalInput = -1;
-                    selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = true;
+                    selectedGroupSprite.flipX = true;
                 }
 
                 horizontalInput = 0;
@@ -199,10 +197,10 @@ public class Player : MonoBehaviour
             if (horizontalInput != 0) {
                 if (horizontalInput > 0) {
                     horizontalInput = 1;
-                    selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = true;
+                    selectedGroupSprite.flipX = true;
                 } else {
                     horizontalInput = -1;
-                    selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
+                    selectedGroupSprite.flipX = false;
                 }
                 verticalInput = 0;
             }
@@ -217,26 +215,14 @@ public class Player : MonoBehaviour
                 animator.SetFloat("MoveX", horizontalInput);
                 animator.SetFloat("MoveY", verticalInput);
             }
-        
-
-            // if MoveX is negative and MoveY is negative, set faceFront to true
-            if (horizontalInput < -0.01f || verticalInput < -0.01f) {
-                animator.SetBool("faceFront", true);
-            } else if (horizontalInput > 0.01f || verticalInput > 0.01f) {
-                animator.SetBool("faceFront", false);
-            }
         }
 
         desiredMoveDirection = desiredMoveDirection.normalized;
 
-        // if there is Vertical Input and Horizontal Input
+        isMoving = desiredMoveDirection != Vector3.zero ? true : false;
 
-        if (desiredMoveDirection != Vector3.zero) {
-            isMoving = true;
-            animator.SetBool("isWalking", true);
-        } else {
-            isMoving = false;
-            animator.SetBool("isWalking", false);
+        if (animator != null) {
+            animator.SetBool("isWalking", isMoving);
         }
 
         rbody.velocity = new Vector3(desiredMoveDirection.x * movementSpeed, rbody.velocity.y, desiredMoveDirection.z * movementSpeed);
@@ -251,35 +237,31 @@ public class Player : MonoBehaviour
     }
 
     void JumpHandler() {
-        if (isGrounded && !coyoteTimeActive) {
+        if (isGrounded) {
             isGrounded = false;
-            coyoteTimeActive = true;
 
-            if (lastVerticalInput == Directions.DOWN) animator.Play("Jump Front Start");
-            else animator.Play("Jump Back Start");
+            if (animator != null) {
+                animator.SetTrigger("Jump");
+            }
 
             rbody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
             EventDispatcher.Raise<StressAbility>(new StressAbility());
-
-            // Start coroutine for coyote time
-            StartCoroutine(CoyoteTimeCoroutine());
         }
     }
 
-    IEnumerator CoyoteTimeCoroutine() {
-        yield return new WaitForSeconds(coyoteTimeDuration);
-        coyoteTimeActive = false;
-    }
-
     void GroundedChecker() {
-        if (coyoteTimeActive) return; // Skip grounded check during coyote time
-
         RaycastHit hit;
-        Debug.DrawRay(transform.position + new Vector3(0, 0.5f, 0), Vector3.down * raycastDistance, Color.green);
         if (Physics.Raycast(transform.position + new Vector3(0, yOffset, 0), Vector3.down * raycastDistance, out hit, raycastDistance)) {
             isGrounded = true;
         } else {
             isGrounded = false;
+        }
+    }
+
+    void OnDrawGizmos() {
+        if (debug) {
+            Gizmos.color = Color.red;
+            Gizmos.DrawRay(transform.position + new Vector3(0, yOffset, 0), Vector3.down * raycastDistance);
         }
     }
 
@@ -404,55 +386,65 @@ public class Player : MonoBehaviour
         return (transformationWheel.gameObject.activeSelf);
     }
 
-    public void SetTransformation(Transformation newTransformation) {
-        if (transformation != newTransformation) {
-            Smoke();
+    private void InitializeTransformations()
+    {
+        terryGroup = transform.Find("Terry");
+        frogGroup = transform.Find("Frog");
+        bulldozerGroup = transform.Find("Bulldozer");
+        ballGroup = transform.Find("Ball");
+
+        transformationMapping = new Dictionary<Transformation, (Transform, SpriteRenderer, Animator)>
+        {
+            { Transformation.TERRY, (terryGroup, terryGroup.GetComponentInChildren<SpriteRenderer>(), terryGroup.GetComponentInChildren<Animator>()) },
+            { Transformation.FROG, (frogGroup, frogGroup.GetComponentInChildren<SpriteRenderer>(), frogGroup.GetComponentInChildren<Animator>()) },
+            { Transformation.BULLDOZER, (bulldozerGroup, bulldozerGroup.GetComponentInChildren<SpriteRenderer>(), bulldozerGroup.GetComponentInChildren<Animator>()) },
+            { Transformation.BALL, (ballGroup, ballGroup.GetComponentInChildren<SpriteRenderer>(), ballGroup.GetComponentInChildren<Animator>()) },
+        };
+    }
+
+    public void SetTransformation(Transformation newTransformation)
+    {
+        if (transformation != newTransformation)
+        {
+            Smoke(); // Play transformation smoke effect
         }
+
         transformation = newTransformation;
 
-        switch(transformation) {
-            case Transformation.TERRY:
-                terryGroup.gameObject.SetActive(true);
-                frogGroup.gameObject.SetActive(false);
-                bulldozerGroup.gameObject.SetActive(false);
-                ballGroup.gameObject.SetActive(false);
-                selectedGroup = terryGroup;
-                animator = terryGroup.GetComponentInChildren<Animator>();
-                break;
-            case Transformation.FROG:
-                terryGroup.gameObject.SetActive(false);
-                frogGroup.gameObject.SetActive(true);
-                bulldozerGroup.gameObject.SetActive(false);
-                ballGroup.gameObject.SetActive(false);
-                selectedGroup = frogGroup;
-                animator = frogGroup.GetComponentInChildren<Animator>();
-                break;
-            case Transformation.BULLDOZER:
-                terryGroup.gameObject.SetActive(false);
-                frogGroup.gameObject.SetActive(false);
-                bulldozerGroup.gameObject.SetActive(true);
-                ballGroup.gameObject.SetActive(false);
-                selectedGroup = bulldozerGroup;
-                animator = bulldozerGroup.GetComponentInChildren<Animator>();
-                break;
-            case Transformation.BALL:
-                terryGroup.gameObject.SetActive(false);
-                frogGroup.gameObject.SetActive(false);
-                bulldozerGroup.gameObject.SetActive(false);
-                ballGroup.gameObject.SetActive(true);
-                selectedGroup = ballGroup;
-                animator = ballGroup.GetComponentInChildren<Animator>();
-                break;
-            default:
-            // Default to Terry
-                terryGroup.gameObject.SetActive(true);
-                frogGroup.gameObject.SetActive(false);
-                bulldozerGroup.gameObject.SetActive(false);
-                selectedGroup = terryGroup;
-                animator = terryGroup.GetComponentInChildren<Animator>();
-                break;
+        // Deactivate all groups
+        foreach (var entry in transformationMapping.Values)
+        {
+            entry.group.gameObject.SetActive(false);
+        }
+
+        // Activate the selected transformation group
+        if (transformationMapping.TryGetValue(transformation, out var selected))
+        {
+            selected.group.gameObject.SetActive(true);
+            selectedGroup = selected.group;
+            selectedGroupSprite = selected.sprite;
+            animator = selected.animator;
+        }
+        else
+        {
+            Debug.LogWarning($"Transformation {transformation} not found in mapping! Defaulting to TERRY.");
+            SetDefaultTransformation();
         }
     }
+
+    private void SetDefaultTransformation()
+    {
+        transformation = Transformation.TERRY;
+
+        if (transformationMapping.TryGetValue(Transformation.TERRY, out var defaultTransform))
+        {
+            defaultTransform.group.gameObject.SetActive(true);
+            selectedGroup = defaultTransform.group;
+            selectedGroupSprite = defaultTransform.sprite;
+            animator = defaultTransform.animator;
+        }
+    }
+
     public Transformation GetTransformation() {
         return transformation;
     }
@@ -462,26 +454,7 @@ public class Player : MonoBehaviour
     }
 
     void AnimationHandler() {
-        // if animator is null, return
-        if (animator == null) return;
 
-        if (isGrounded) {
-            if (isMoving) {
-                animator.SetBool("isWalking", true);
-                if (lastVerticalInput == Directions.DOWN) {
-                    animator.Play("Walk Front");
-                } else {
-                    animator.Play("Walk Back");
-                }
-            } else {
-                animator.SetBool("isWalking", false);
-                if (lastVerticalInput == Directions.DOWN) {
-                    animator.Play("Idle Front");
-                } else {
-                    animator.Play("Idle Back");
-                }
-            }
-        }
     }
 
     public void Smoke() {
@@ -492,6 +465,11 @@ public class Player : MonoBehaviour
     public void HealAnim() {
         sparkles.gameObject.SetActive(true);
         sparklesAnimator.Play("Heal Anim");
+    }
+
+    public void Heal() {
+        EventDispatcher.Raise<Heal>(new Heal());
+        HealAnim();
     }
 
     // Bulldozer Actions
@@ -613,10 +591,5 @@ public class Player : MonoBehaviour
 
     public void canMoveToggle(bool toggle) {
         canMove = toggle;
-    }
-
-    public void Heal() {
-        EventDispatcher.Raise<Heal>(new Heal());
-        HealAnim();
     }
 }

@@ -5,8 +5,8 @@ using UnityEngine;
 public class IsometricCamera : MonoBehaviour
 {
     public Transform followTarget;
-    private Vector3 targetPos;
-    public float moveSpeed = 1.0f;
+    [SerializeField] private Vector3 targetPos;
+    private float moveSpeed = 1.5f;
     public float xOffset = 0.0f;
     public float yOffset = 0.0f;
     public float zOffset = 0.0f;

@@ -25,7 +25,7 @@ public class Stress : MonoBehaviour
     [SerializeField] private float TickSpeed = 1f;
     private float currentTickTime = 0f;
     private float nextTickTime = 0f;
-    public Vector3 offset;
+    public Vector3 offset = new Vector3(-100, 200, 0);
 
     [Space(8f)]
     [Header("IMAGES")]

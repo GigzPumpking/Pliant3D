@@ -14,7 +14,7 @@ public class TransformationWheel : MonoBehaviour
     
     [SerializeField] private GameObject transformWheel;
     
-    public GameObject[] transformationItems;
+    public GameObject[]  transformationItems;
     
     private TransformationItem transformation;
     private TransformationItem previousTransformation;

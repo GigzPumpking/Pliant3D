@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.InputSystem;
 
 public class TransformationWheel : MonoBehaviour
 {
@@ -21,6 +22,30 @@ public class TransformationWheel : MonoBehaviour
     
     private GameObject smoke;
     private Animator smokeAnimator;
+
+    public PlayerControls playerControls;
+
+    private InputAction _transform;
+
+    void Awake()
+    {
+        playerControls = new PlayerControls();
+    }
+
+    void OnEnable()
+    {
+        _transform = playerControls.Player.Transform;
+        _transform.performed += ctx => DisableWheel();
+        _transform.performed += ctx => Transform();
+        _transform.Enable();
+    }
+
+    void OnDisable()
+    {
+        _transform.performed -= ctx => DisableWheel();
+        _transform.performed -= ctx => Transform();
+        _transform.Disable();
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -59,6 +84,8 @@ public class TransformationWheel : MonoBehaviour
             transformation.HoverEnter();
         }
 
+        /*
+
         if (Input.GetMouseButtonDown(0))
         {
             var form = transformation.GetForm();
@@ -69,14 +96,27 @@ public class TransformationWheel : MonoBehaviour
             EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
         }
 
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            transformWheel.SetActive(false);
-            
-            EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
-        }
+        */
+
         
         // Debug.Log(hoveredSelection);
+    }
+
+    private void DisableWheel()
+    {
+        transformWheel.SetActive(false);
+
+        EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
+    }
+
+    private void Transform()
+    {
+        var form = transformation.GetForm();
+        
+        Player.Instance.SetTransformation(form.transformation);
+        transformWheel.SetActive(false);
+        
+        EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
     }
     
 }

@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IKeyActionReceiver
 {
     // Instance 
     private static Player instance;
@@ -36,7 +37,7 @@ public class Player : MonoBehaviour
 
     [SerializeField] float baseSpeed = 5f;
     [SerializeField] float movementSpeed = 5f;
-    Vector3 movement;
+    private Vector2 movementInput;
     float timeElapsed = 0f;
     public float jumpForce = 8f;
     public bool canMove = true;
@@ -72,8 +73,9 @@ public class Player : MonoBehaviour
 
     [SerializeField] private Vector3[] areaPositions;
 
-    public bool directionalMovement = true;
-    [SerializeField] private bool debug = false;
+    public bool directionalMovement = false;
+    [SerializeField] private bool _dbug = false;
+
     void OnEnable()
     {
         EventDispatcher.AddListener<StressDebuff>(StressDebuffHandler);
@@ -124,6 +126,25 @@ public class Player : MonoBehaviour
             animator.SetFloat("MoveX", -1);
             animator.SetFloat("MoveY", -1);
         }
+
+        // Register actions with InputManager
+        RegisterInputActions();
+    }
+
+    private void RegisterInputActions()
+    {
+        InputManager.Instance.AddKeyBind(this, "Move", "Gameplay");
+        InputManager.Instance.AddKeyBind(this, "Jump", "Gameplay");
+        InputManager.Instance.AddKeyBind(this, "Transform", "Gameplay");
+        InputManager.Instance.AddKeyBind(this, "Interact", "Gameplay");
+    }
+
+    private void OnDestroy()
+    {
+        InputManager.Instance.RemoveKeyBind(this, "Move");
+        InputManager.Instance.RemoveKeyBind(this, "Jump");
+        InputManager.Instance.RemoveKeyBind(this, "Transform");
+        InputManager.Instance.RemoveKeyBind(this, "Interact");
     }
 
     public GameObject GetSmoke() {
@@ -139,8 +160,6 @@ public class Player : MonoBehaviour
         } else {
             isMoving = false;
         }
-
-        if (Input.GetKeyDown(KeyCode.T)) TransformationHandler();
 
         if (Input.GetKeyDown(KeyCode.G) && transformation == Transformation.FROG) {
             if (objectToHookTo != null) {
@@ -167,9 +186,62 @@ public class Player : MonoBehaviour
         PullChecker();
     }
 
+    public void OnKeyAction(string action, InputAction.CallbackContext context)
+    {
+        switch (action)
+        {
+            case "Move":
+
+                // Use InputManager or another source to get the current movement vector
+                Vector2 moveValue = InputManager.Instance.IsInputEnabled
+                    ? context.ReadValue<Vector2>()
+                    : Vector2.zero;
+
+                if (moveValue.x > 0.1f) {
+                    moveValue.x = 1;
+                } else if (moveValue.x < -0.1f) {
+                    moveValue.x = -1;
+                } else {
+                    moveValue.x = 0;
+                }
+
+                if (moveValue.y > 0.1f) {
+                    moveValue.y = 1;
+                } else if (moveValue.y < -0.1f) {
+                    moveValue.y = -1;
+                } else {
+                    moveValue.y = 0;
+                } 
+
+                movementInput = moveValue;
+
+                break;
+
+            case "Jump":
+                if (isGrounded)
+                {
+                    JumpHandler();
+                }
+                break;
+
+            case "Transform":
+                TransformationHandler();
+                break;
+
+            case "Interact":
+                EventDispatcher.Raise<Interact>(new Interact());
+                break;
+
+            default:
+                Debug.LogWarning($"Unhandled action: {action}");
+                break;
+        }
+    }
+
+
     void MoveHandler() {
-        float verticalInput = Input.GetAxis("Vertical");
-        float horizontalInput = Input.GetAxis("Horizontal");
+        float verticalInput = movementInput.y;
+        float horizontalInput = movementInput.x;
 
         Vector3 cameraForwards = Camera.main.transform.forward;
 
@@ -259,7 +331,7 @@ public class Player : MonoBehaviour
     }
 
     void OnDrawGizmos() {
-        if (debug) {
+        if (_dbug) {
             Gizmos.color = Color.red;
             Gizmos.DrawRay(transform.position + new Vector3(0, yOffset, 0), Vector3.down * raycastDistance);
         }
@@ -324,14 +396,14 @@ public class Player : MonoBehaviour
             });
         }
         
-        if (Input.GetKey(KeyCode.A)) {
+        if (Input.GetKey(KeyCode.W)) {
             if (!directionalMovement) {
                 selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
             }
             horizontal = -1f;
             lastHorizontalInput = Directions.LEFT;
             lastInput = Directions.LEFT;
-        } else if (Input.GetKey(KeyCode.D)) {
+        } else if (Input.GetKey(KeyCode.S)) {
             if (!directionalMovement) {
                 selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = true;
             }
@@ -340,11 +412,11 @@ public class Player : MonoBehaviour
             lastInput = Directions.RIGHT;
         }
 
-        if (Input.GetKey(KeyCode.W)) {
+        if (Input.GetKey(KeyCode.A)) {
             vertical = 1f;
             lastVerticalInput = Directions.UP;
             lastInput = Directions.UP;
-        } else if (Input.GetKey(KeyCode.S)) {
+        } else if (Input.GetKey(KeyCode.D)) {
             vertical = -1f;
             lastVerticalInput = Directions.DOWN;
             lastInput = Directions.DOWN;

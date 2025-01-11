@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI; // to make use of UI image class and sprite and make use of UI through code.
+using UnityEngine.InputSystem; // to make use of input system to get input from player
 
 /// <summary>
 /// This form manager script is used to navigate the transformation menu to the characters forms
@@ -31,6 +32,28 @@ public class FormManager : MonoBehaviour
     private int selectedForm = 0, nextForm = 0, prevForm = 0; //indexes for the selected, next, and previous forms
     [SerializeField] public Image[] formImages; //array of the form images to be used in the transformation menu
 
+    public PlayerControls playerControls; //player controls to get input from player
+
+    private InputAction _transform;
+
+    void Awake()
+    {
+        playerControls = new PlayerControls();
+    }
+
+    void OnEnable()
+    {
+        _transform = playerControls.Player.Transform;
+        _transform.performed += ctx => SelectChoice();
+        _transform.Enable();
+    }
+
+    void OnDisable()
+    {
+        _transform.performed -= ctx => SelectChoice();
+        _transform.Disable();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -59,10 +82,6 @@ public class FormManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
             NextChoice();
-
-        if (Input.GetKeyDown(KeyCode.T)) {
-            SelectChoice();
-        }
     }
 
     //When called will cycle to the next form in the order unless at the end of the form database in which case it loops around to start

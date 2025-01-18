@@ -44,6 +44,42 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Interact"",
+                    ""type"": ""Button"",
+                    ""id"": ""9f05cd3d-56ab-44ae-90e5-28d58baf1956"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Jump"",
+                    ""type"": ""Button"",
+                    ""id"": ""965fb4a3-88c1-4033-80a5-8777fed39c31"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Ability1"",
+                    ""type"": ""Button"",
+                    ""id"": ""8124abce-bd05-4383-8023-5e2b94e39002"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Ability2"",
+                    ""type"": ""Button"",
+                    ""id"": ""08cfbd58-cea6-4ba8-bc22-0b77027eb379"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -194,7 +230,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""name"": """",
                     ""id"": ""186a93f5-e428-4909-b4d2-20e367198f54"",
                     ""path"": ""<Keyboard>/t"",
-                    ""interactions"": """",
+                    ""interactions"": ""Press"",
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
                     ""action"": ""Transform"",
@@ -255,6 +291,312 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""Transform"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""791c8243-3ecc-4ce2-9a8c-b9ab186d6805"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0de11f02-4fec-46c0-9c91-b507d3f9dea5"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""41fcd54a-e249-4499-b753-6c492fdb5c18"",
+                    ""path"": ""<SwitchProControllerHID>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bb543da2-87e8-438f-9d9e-0b57b3f862fb"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f9e815e1-0efc-4490-914e-64790754c400"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8a2e783e-8a75-4fac-be49-33ae6347ad02"",
+                    ""path"": ""<SwitchProControllerHID>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5392caac-7087-4c23-8d80-c57220c3fba0"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Ability1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f61fac82-ffbd-46cc-94ea-cebb13cb46b6"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Ability1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6a09dcbc-504f-45a8-b795-bd189cfa6f0a"",
+                    ""path"": ""<SwitchProControllerHID>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Ability1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7a61f825-a709-47a1-bb71-2d4ce8fe3e71"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Ability2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c32128ca-8b11-4b89-b040-9173c2c39caa"",
+                    ""path"": ""<Gamepad>/buttonWest"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Ability2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""037e35f3-746f-4e32-beae-c33e7000b226"",
+                    ""path"": ""<SwitchProControllerHID>/buttonWest"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Ability2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""TransformationWheel"",
+            ""id"": ""bacd1144-eab2-4ec7-b3ce-2d0b28f1a245"",
+            ""actions"": [
+                {
+                    ""name"": ""Frog"",
+                    ""type"": ""Button"",
+                    ""id"": ""b0157d0a-bae5-4958-b275-f55f7ba2cb40"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Bulldozer"",
+                    ""type"": ""Button"",
+                    ""id"": ""086bc7cc-c805-44a4-b0cd-647e4f750715"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Ball"",
+                    ""type"": ""Button"",
+                    ""id"": ""638363a1-0578-460a-87db-888c6ed9effd"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Terry"",
+                    ""type"": ""Button"",
+                    ""id"": ""092debfc-9e44-4b89-825d-9dbe41070a75"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Confirm"",
+                    ""type"": ""Button"",
+                    ""id"": ""203a960b-2cad-4f7a-b328-e94e54293f53"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""4150237a-c3dc-4675-8eeb-3c6db4bc9d09"",
+                    ""path"": ""<SwitchProControllerHID>/dpad/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Frog"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""090d90b7-b8a8-44bf-97c6-09f198e214fd"",
+                    ""path"": ""<Gamepad>/dpad/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Frog"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""57126463-0d8d-4fcd-883e-7eec7c6bc3ac"",
+                    ""path"": ""<SwitchProControllerHID>/dpad/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Bulldozer"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e4eee76b-366c-4e2b-a61d-398164408b2e"",
+                    ""path"": ""<Gamepad>/dpad/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Bulldozer"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e020c03b-6f5a-4655-8d54-c239c3e44d0e"",
+                    ""path"": ""<SwitchProControllerHID>/dpad/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Ball"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""66ddb205-aaca-4dee-af4d-6c56f388e123"",
+                    ""path"": ""<Gamepad>/dpad/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Ball"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e4639aa3-2eab-40c0-81b2-5b959b929e83"",
+                    ""path"": ""<SwitchProControllerHID>/dpad/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Terry"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""845e500c-2999-4402-b9f9-575a766bfdee"",
+                    ""path"": ""<Gamepad>/dpad/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Terry"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b993edb6-9a62-4ec8-94af-71e6703a24a1"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": ""Press"",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Confirm"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a0305762-a7f4-4610-a32b-c1267d5e2efb"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Confirm"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5300aaa3-1064-4a87-9d17-7f8bdecd6edc"",
+                    ""path"": ""<SwitchProControllerHID>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Confirm"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -326,6 +668,17 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_Transform = m_Player.FindAction("Transform", throwIfNotFound: true);
+        m_Player_Interact = m_Player.FindAction("Interact", throwIfNotFound: true);
+        m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
+        m_Player_Ability1 = m_Player.FindAction("Ability1", throwIfNotFound: true);
+        m_Player_Ability2 = m_Player.FindAction("Ability2", throwIfNotFound: true);
+        // TransformationWheel
+        m_TransformationWheel = asset.FindActionMap("TransformationWheel", throwIfNotFound: true);
+        m_TransformationWheel_Frog = m_TransformationWheel.FindAction("Frog", throwIfNotFound: true);
+        m_TransformationWheel_Bulldozer = m_TransformationWheel.FindAction("Bulldozer", throwIfNotFound: true);
+        m_TransformationWheel_Ball = m_TransformationWheel.FindAction("Ball", throwIfNotFound: true);
+        m_TransformationWheel_Terry = m_TransformationWheel.FindAction("Terry", throwIfNotFound: true);
+        m_TransformationWheel_Confirm = m_TransformationWheel.FindAction("Confirm", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -389,12 +742,20 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_Transform;
+    private readonly InputAction m_Player_Interact;
+    private readonly InputAction m_Player_Jump;
+    private readonly InputAction m_Player_Ability1;
+    private readonly InputAction m_Player_Ability2;
     public struct PlayerActions
     {
         private @PlayerControls m_Wrapper;
         public PlayerActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_Player_Move;
         public InputAction @Transform => m_Wrapper.m_Player_Transform;
+        public InputAction @Interact => m_Wrapper.m_Player_Interact;
+        public InputAction @Jump => m_Wrapper.m_Player_Jump;
+        public InputAction @Ability1 => m_Wrapper.m_Player_Ability1;
+        public InputAction @Ability2 => m_Wrapper.m_Player_Ability2;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -410,6 +771,18 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Transform.started += instance.OnTransform;
             @Transform.performed += instance.OnTransform;
             @Transform.canceled += instance.OnTransform;
+            @Interact.started += instance.OnInteract;
+            @Interact.performed += instance.OnInteract;
+            @Interact.canceled += instance.OnInteract;
+            @Jump.started += instance.OnJump;
+            @Jump.performed += instance.OnJump;
+            @Jump.canceled += instance.OnJump;
+            @Ability1.started += instance.OnAbility1;
+            @Ability1.performed += instance.OnAbility1;
+            @Ability1.canceled += instance.OnAbility1;
+            @Ability2.started += instance.OnAbility2;
+            @Ability2.performed += instance.OnAbility2;
+            @Ability2.canceled += instance.OnAbility2;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -420,6 +793,18 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Transform.started -= instance.OnTransform;
             @Transform.performed -= instance.OnTransform;
             @Transform.canceled -= instance.OnTransform;
+            @Interact.started -= instance.OnInteract;
+            @Interact.performed -= instance.OnInteract;
+            @Interact.canceled -= instance.OnInteract;
+            @Jump.started -= instance.OnJump;
+            @Jump.performed -= instance.OnJump;
+            @Jump.canceled -= instance.OnJump;
+            @Ability1.started -= instance.OnAbility1;
+            @Ability1.performed -= instance.OnAbility1;
+            @Ability1.canceled -= instance.OnAbility1;
+            @Ability2.started -= instance.OnAbility2;
+            @Ability2.performed -= instance.OnAbility2;
+            @Ability2.canceled -= instance.OnAbility2;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -437,6 +822,84 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         }
     }
     public PlayerActions @Player => new PlayerActions(this);
+
+    // TransformationWheel
+    private readonly InputActionMap m_TransformationWheel;
+    private List<ITransformationWheelActions> m_TransformationWheelActionsCallbackInterfaces = new List<ITransformationWheelActions>();
+    private readonly InputAction m_TransformationWheel_Frog;
+    private readonly InputAction m_TransformationWheel_Bulldozer;
+    private readonly InputAction m_TransformationWheel_Ball;
+    private readonly InputAction m_TransformationWheel_Terry;
+    private readonly InputAction m_TransformationWheel_Confirm;
+    public struct TransformationWheelActions
+    {
+        private @PlayerControls m_Wrapper;
+        public TransformationWheelActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Frog => m_Wrapper.m_TransformationWheel_Frog;
+        public InputAction @Bulldozer => m_Wrapper.m_TransformationWheel_Bulldozer;
+        public InputAction @Ball => m_Wrapper.m_TransformationWheel_Ball;
+        public InputAction @Terry => m_Wrapper.m_TransformationWheel_Terry;
+        public InputAction @Confirm => m_Wrapper.m_TransformationWheel_Confirm;
+        public InputActionMap Get() { return m_Wrapper.m_TransformationWheel; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(TransformationWheelActions set) { return set.Get(); }
+        public void AddCallbacks(ITransformationWheelActions instance)
+        {
+            if (instance == null || m_Wrapper.m_TransformationWheelActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_TransformationWheelActionsCallbackInterfaces.Add(instance);
+            @Frog.started += instance.OnFrog;
+            @Frog.performed += instance.OnFrog;
+            @Frog.canceled += instance.OnFrog;
+            @Bulldozer.started += instance.OnBulldozer;
+            @Bulldozer.performed += instance.OnBulldozer;
+            @Bulldozer.canceled += instance.OnBulldozer;
+            @Ball.started += instance.OnBall;
+            @Ball.performed += instance.OnBall;
+            @Ball.canceled += instance.OnBall;
+            @Terry.started += instance.OnTerry;
+            @Terry.performed += instance.OnTerry;
+            @Terry.canceled += instance.OnTerry;
+            @Confirm.started += instance.OnConfirm;
+            @Confirm.performed += instance.OnConfirm;
+            @Confirm.canceled += instance.OnConfirm;
+        }
+
+        private void UnregisterCallbacks(ITransformationWheelActions instance)
+        {
+            @Frog.started -= instance.OnFrog;
+            @Frog.performed -= instance.OnFrog;
+            @Frog.canceled -= instance.OnFrog;
+            @Bulldozer.started -= instance.OnBulldozer;
+            @Bulldozer.performed -= instance.OnBulldozer;
+            @Bulldozer.canceled -= instance.OnBulldozer;
+            @Ball.started -= instance.OnBall;
+            @Ball.performed -= instance.OnBall;
+            @Ball.canceled -= instance.OnBall;
+            @Terry.started -= instance.OnTerry;
+            @Terry.performed -= instance.OnTerry;
+            @Terry.canceled -= instance.OnTerry;
+            @Confirm.started -= instance.OnConfirm;
+            @Confirm.performed -= instance.OnConfirm;
+            @Confirm.canceled -= instance.OnConfirm;
+        }
+
+        public void RemoveCallbacks(ITransformationWheelActions instance)
+        {
+            if (m_Wrapper.m_TransformationWheelActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(ITransformationWheelActions instance)
+        {
+            foreach (var item in m_Wrapper.m_TransformationWheelActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_TransformationWheelActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public TransformationWheelActions @TransformationWheel => new TransformationWheelActions(this);
     private int m_KeyboardMouseSchemeIndex = -1;
     public InputControlScheme KeyboardMouseScheme
     {
@@ -486,5 +949,17 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     {
         void OnMove(InputAction.CallbackContext context);
         void OnTransform(InputAction.CallbackContext context);
+        void OnInteract(InputAction.CallbackContext context);
+        void OnJump(InputAction.CallbackContext context);
+        void OnAbility1(InputAction.CallbackContext context);
+        void OnAbility2(InputAction.CallbackContext context);
+    }
+    public interface ITransformationWheelActions
+    {
+        void OnFrog(InputAction.CallbackContext context);
+        void OnBulldozer(InputAction.CallbackContext context);
+        void OnBall(InputAction.CallbackContext context);
+        void OnTerry(InputAction.CallbackContext context);
+        void OnConfirm(InputAction.CallbackContext context);
     }
 }

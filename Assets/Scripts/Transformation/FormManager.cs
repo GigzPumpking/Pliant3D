@@ -32,28 +32,6 @@ public class FormManager : MonoBehaviour
     private int selectedForm = 0, nextForm = 0, prevForm = 0; //indexes for the selected, next, and previous forms
     [SerializeField] public Image[] formImages; //array of the form images to be used in the transformation menu
 
-    public PlayerControls playerControls; //player controls to get input from player
-
-    private InputAction _transform;
-
-    void Awake()
-    {
-        playerControls = new PlayerControls();
-    }
-
-    void OnEnable()
-    {
-        _transform = playerControls.Player.Transform;
-        _transform.performed += ctx => SelectChoice();
-        _transform.Enable();
-    }
-
-    void OnDisable()
-    {
-        _transform.performed -= ctx => SelectChoice();
-        _transform.Disable();
-    }
-
     // Start is called before the first frame update
     void Start()
     {

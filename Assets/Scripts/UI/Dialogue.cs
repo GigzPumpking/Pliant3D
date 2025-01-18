@@ -13,6 +13,16 @@ public class Dialogue : MonoBehaviour
 
     [SerializeField] private Animator animator;
 
+    void OnEnable()
+    {
+        EventDispatcher.AddListener<Interact>(PlayerInteract);
+    }
+
+    void OnDisable()
+    {
+        EventDispatcher.RemoveListener<Interact>(PlayerInteract);
+    }
+
     void Awake()
     {
         textDisplay.text = string.Empty;
@@ -21,11 +31,9 @@ public class Dialogue : MonoBehaviour
         active = false;
     }
 
-    // Update is called once per frame
-    void Update()
+    void PlayerInteract(Interact e)
     {
-        // if E is pressed, check if the text is done typing
-        if (Input.GetKeyDown(KeyCode.E) && isActive()) 
+        if (isActive()) 
         {
             checkNext();
         }

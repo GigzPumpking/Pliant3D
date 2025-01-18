@@ -58,6 +58,8 @@ public class Player : MonoBehaviour, IKeyActionReceiver
     public float transformationDuration = 10f;
 
     // Other Variables
+
+    private bool pushState = false;
     public GameObject obstacleToBreak;
     public GameObject obstacleToPull;
     public Transform objectToHookTo;
@@ -74,6 +76,10 @@ public class Player : MonoBehaviour, IKeyActionReceiver
     [SerializeField] private Vector3[] areaPositions;
 
     public bool directionalMovement = false;
+
+    // Dictionary for mapping actions to functions
+    private Dictionary<string, System.Action<InputAction.CallbackContext>> actionMap;
+
     [SerializeField] private bool _dbug = false;
 
     void OnEnable()
@@ -127,24 +133,36 @@ public class Player : MonoBehaviour, IKeyActionReceiver
             animator.SetFloat("MoveY", -1);
         }
 
-        // Register actions with InputManager
+        InitializeActionMap();
         RegisterInputActions();
     }
 
     private void RegisterInputActions()
     {
-        InputManager.Instance.AddKeyBind(this, "Move", "Gameplay");
-        InputManager.Instance.AddKeyBind(this, "Jump", "Gameplay");
-        InputManager.Instance.AddKeyBind(this, "Transform", "Gameplay");
-        InputManager.Instance.AddKeyBind(this, "Interact", "Gameplay");
+        foreach (var action in actionMap.Keys)
+        {
+            InputManager.Instance.AddKeyBind(this, action, "Gameplay");
+        }
+    }
+
+    private void InitializeActionMap()
+    {
+        actionMap = new Dictionary<string, System.Action<InputAction.CallbackContext>>()
+        {
+            { "Move", ctx => { setMovementInput(ctx); } },
+            { "Jump", ctx => { if (ctx.performed) JumpHandler(); } },
+            { "Transform", ctx => { if (ctx.performed) TransformationHandler(); } },
+            { "Interact", ctx => { if (ctx.performed) EventDispatcher.Raise<Interact>(new Interact()); } },
+            { "Ability1", ctx => { Ability1Handler(ctx); } }
+        };
     }
 
     private void OnDestroy()
     {
-        InputManager.Instance.RemoveKeyBind(this, "Move");
-        InputManager.Instance.RemoveKeyBind(this, "Jump");
-        InputManager.Instance.RemoveKeyBind(this, "Transform");
-        InputManager.Instance.RemoveKeyBind(this, "Interact");
+        foreach (var action in actionMap.Keys)
+        {
+            InputManager.Instance.RemoveKeyBind(this, action);
+        }
     }
 
     public GameObject GetSmoke() {
@@ -159,18 +177,6 @@ public class Player : MonoBehaviour, IKeyActionReceiver
             MoveHandler();
         } else {
             isMoving = false;
-        }
-
-        if (Input.GetKeyDown(KeyCode.G) && transformation == Transformation.FROG) {
-            if (objectToHookTo != null) {
-                GrapplingHook(objectToHookTo);
-                EventDispatcher.Raise<StressAbility>(new StressAbility());
-            }
-        }
-
-        // if E is pressed, interact with object
-        if (Input.GetKeyDown(KeyCode.E)) {
-            EventDispatcher.Raise<Interact>(new Interact());
         }
 
         if (transform.position.y < outOfBoundsY) {
@@ -188,60 +194,51 @@ public class Player : MonoBehaviour, IKeyActionReceiver
 
     public void OnKeyAction(string action, InputAction.CallbackContext context)
     {
-        switch (action)
+        if (actionMap.TryGetValue(action, out var actionHandler))
         {
-            case "Move":
-
-                // Use InputManager or another source to get the current movement vector
-                Vector2 moveValue = InputManager.Instance.IsInputEnabled
-                    ? context.ReadValue<Vector2>()
-                    : Vector2.zero;
-
-                if (moveValue.x > 0.1f) {
-                    moveValue.x = 1;
-                } else if (moveValue.x < -0.1f) {
-                    moveValue.x = -1;
-                } else {
-                    moveValue.x = 0;
-                }
-
-                if (moveValue.y > 0.1f) {
-                    moveValue.y = 1;
-                } else if (moveValue.y < -0.1f) {
-                    moveValue.y = -1;
-                } else {
-                    moveValue.y = 0;
-                } 
-
-                movementInput = moveValue;
-
-                break;
-
-            case "Jump":
-                if (isGrounded)
-                {
-                    JumpHandler();
-                }
-                break;
-
-            case "Transform":
-                TransformationHandler();
-                break;
-
-            case "Interact":
-                EventDispatcher.Raise<Interact>(new Interact());
-                break;
-
-            default:
-                Debug.LogWarning($"Unhandled action: {action}");
-                break;
+            actionHandler(context);
         }
+        else
+        {
+            Debug.LogWarning($"Unhandled action: {action}");
+        }
+    }
+
+    void setMovementInput(InputAction.CallbackContext context) {
+        // Use InputManager or another source to get the current movement vector
+        Vector2 moveValue = InputManager.Instance.IsInputEnabled
+            ? context.ReadValue<Vector2>()
+            : Vector2.zero;
+
+        if (moveValue.x > 0.05f) {
+            moveValue.x = 1;
+        } else if (moveValue.x < -0.05f) {
+            moveValue.x = -1;
+        } else {
+            moveValue.x = 0;
+        }
+
+        if (moveValue.y > 0.05f) {
+            moveValue.y = 1;
+        } else if (moveValue.y < -0.05f) {
+            moveValue.y = -1;
+        } else {
+            moveValue.y = 0;
+        } 
+
+        movementInput = moveValue;
     }
 
 
     void MoveHandler() {
         float verticalInput = movementInput.y;
         float horizontalInput = movementInput.x;
+
+        if (!InputManager.Instance.IsInputEnabled) {
+            verticalInput = Input.GetAxis("Vertical");
+            horizontalInput = Input.GetAxis("Horizontal");
+            Debug.Log("Input System Disabled");
+        }
 
         Vector3 cameraForwards = Camera.main.transform.forward;
 
@@ -297,6 +294,28 @@ public class Player : MonoBehaviour, IKeyActionReceiver
             animator.SetBool("isWalking", isMoving);
         }
 
+        if (movementInput.x < 0) {
+            if (!directionalMovement) {
+                selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
+            }
+            lastHorizontalInput = Directions.LEFT;
+            lastInput = Directions.LEFT;
+        } else if (movementInput.x > 0) {
+            if (!directionalMovement) {
+                selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = true;
+            }
+            lastHorizontalInput = Directions.RIGHT;
+            lastInput = Directions.RIGHT;
+        }
+
+        if (movementInput.y < 0) {
+            lastVerticalInput = Directions.UP;
+            lastInput = Directions.UP;
+        } else if (movementInput.y > 0) {
+            lastVerticalInput = Directions.DOWN;
+            lastInput = Directions.DOWN;
+        }
+
         rbody.velocity = new Vector3(desiredMoveDirection.x * movementSpeed, rbody.velocity.y, desiredMoveDirection.z * movementSpeed);
     }
 
@@ -309,25 +328,65 @@ public class Player : MonoBehaviour, IKeyActionReceiver
     }
 
     void JumpHandler() {
-        if (isGrounded) {
-            isGrounded = false;
+        if (!isGrounded || transformation != Transformation.FROG) {
+            return;
+        }
 
-            if (animator != null) {
-                animator.SetTrigger("Jump");
+        isGrounded = false;
+
+        if (animator != null) {
+            animator.SetTrigger("Jump");
+        }
+
+        rbody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
+        EventDispatcher.Raise<StressAbility>(new StressAbility());
+    }
+
+    void Ability1Handler(InputAction.CallbackContext context) {
+        switch (transformation) {
+            case Transformation.TERRY:
+                break;
+            case Transformation.FROG:
+                break;
+            case Transformation.BULLDOZER:
+                if (context.performed) {
+                    setPushState(true);
+                } else if (context.canceled) {
+                    setPushState(false);
+                }
+                break;
+            case Transformation.BALL:
+                if (context.performed) {
+                    movementSpeed = baseSpeed * 2;
+                } else if (context.canceled) {
+                    movementSpeed = baseSpeed;
+                }
+                break;
+        }
+    }
+
+    private void setPushState(bool state) {
+        if (pushState != state) {
+            pushState = state;
+
+            if (state == true) {
+                rbody.mass = 1000;
+                EventDispatcher.Raise<ShiftAbility>(new ShiftAbility() {
+                    isEnabled = true,
+                    transformation = Transformation.BULLDOZER
+                });
+            } else {
+                rbody.mass = 1;
+                EventDispatcher.Raise<ShiftAbility>(new ShiftAbility() {
+                    isEnabled = false
+                });
             }
-
-            rbody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
-            EventDispatcher.Raise<StressAbility>(new StressAbility());
         }
     }
 
     void GroundedChecker() {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position + new Vector3(0, yOffset, 0), Vector3.down * raycastDistance, out hit, raycastDistance)) {
-            isGrounded = true;
-        } else {
-            isGrounded = false;
-        }
+        isGrounded = Physics.Raycast(transform.position + new Vector3(0, yOffset, 0), Vector3.down * raycastDistance, out hit, raycastDistance);
     }
 
     void OnDrawGizmos() {
@@ -375,8 +434,17 @@ public class Player : MonoBehaviour, IKeyActionReceiver
     }
 
     void InputHandler() {
-        float horizontal = 0f;
-        float vertical = 0f;
+        // For each of the areas, check Alpha1, Alpha2, ... until area's length
+        for (int i = 1; i <= areaPositions.Length; i++) {
+            if (Input.GetKeyDown(KeyCode.Alpha0 + i)) {
+                moveToArea(i - 1);
+            }
+        }
+
+        // If Input System is disabled, use Input.GetKey
+        if (InputManager.Instance.IsInputEnabled) {
+            return;
+        }
 
         if (Input.GetKey(KeyCode.LeftShift) && transformation == Transformation.BALL) {
             movementSpeed = baseSpeed * 2;
@@ -395,34 +463,20 @@ public class Player : MonoBehaviour, IKeyActionReceiver
                 isEnabled = false
             });
         }
-        
-        if (Input.GetKey(KeyCode.W)) {
-            if (!directionalMovement) {
-                selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
+
+        if (Input.GetKeyDown(KeyCode.G) && transformation == Transformation.FROG) {
+            if (objectToHookTo != null) {
+                GrapplingHook(objectToHookTo);
+                EventDispatcher.Raise<StressAbility>(new StressAbility());
             }
-            horizontal = -1f;
-            lastHorizontalInput = Directions.LEFT;
-            lastInput = Directions.LEFT;
-        } else if (Input.GetKey(KeyCode.S)) {
-            if (!directionalMovement) {
-                selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = true;
-            }
-            horizontal = 1f;
-            lastHorizontalInput = Directions.RIGHT;
-            lastInput = Directions.RIGHT;
         }
 
-        if (Input.GetKey(KeyCode.A)) {
-            vertical = 1f;
-            lastVerticalInput = Directions.UP;
-            lastInput = Directions.UP;
-        } else if (Input.GetKey(KeyCode.D)) {
-            vertical = -1f;
-            lastVerticalInput = Directions.DOWN;
-            lastInput = Directions.DOWN;
+        // if E is pressed, interact with object
+        if (Input.GetKeyDown(KeyCode.E)) {
+            EventDispatcher.Raise<Interact>(new Interact());
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) && transformation == Transformation.FROG) {
+        if (Input.GetKeyDown(KeyCode.Space)) {
             JumpHandler();
         }
 
@@ -438,20 +492,11 @@ public class Player : MonoBehaviour, IKeyActionReceiver
             PullObject(obstacleToPull);
             EventDispatcher.Raise<StressAbility>(new StressAbility());
         }
-
-        // For each of the areas, check Alpha1, Alpha2, ... until area's length
-        for (int i = 1; i <= areaPositions.Length; i++) {
-            if (Input.GetKeyDown(KeyCode.Alpha0 + i)) {
-                moveToArea(i - 1);
-            }
-        }
     }
 
     public void TransformationHandler() {
-        if (!transformationWheel.gameObject.activeSelf) {
-            transformationWheel.gameObject.SetActive(true);
-            canMove = false;
-        }
+        transformationWheel.gameObject.SetActive(!transformationWheel.gameObject.activeSelf);
+        canMove = !transformationWheel.gameObject.activeSelf;
     }
 
     public bool TransformationChecker() {

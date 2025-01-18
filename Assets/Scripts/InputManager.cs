@@ -9,15 +9,18 @@ public class InputManager : MonoBehaviour, IInputStateProvider
 
     private bool isListening = true;
 
+    private InputDevice activeDevice;
+    public string ActiveDeviceType => activeDevice?.displayName ?? "Unknown";
+
     [System.Serializable]
     public class KeyBindPair
     {
         public MonoBehaviour script; // Associated script
         public List<KeyBindAction> keyBindActions; // Actions for this script
 
-        public KeyBindPair(MonoBehaviour script)
+        public KeyBindPair(MonoBehaviour scriptObject)
         {
-            this.script = script;
+            this.script = scriptObject;
             this.keyBindActions = new List<KeyBindAction>();
         }
     }
@@ -32,7 +35,7 @@ public class InputManager : MonoBehaviour, IInputStateProvider
             UI         // For specific UI-related actions
         }
 
-        public string action; // InputAction name (e.g., "Jump", "Move")
+        public string action; 
         public ActionType actionType; // The type of action
 
         public KeyBindAction(string action, string actionTypeString = "Gameplay")
@@ -55,6 +58,7 @@ public class InputManager : MonoBehaviour, IInputStateProvider
             return ActionType.Gameplay;
         }
     }
+
 
     [SerializeField]
     private List<KeyBindPair> keyBindPairs = new List<KeyBindPair>();
@@ -79,6 +83,9 @@ public class InputManager : MonoBehaviour, IInputStateProvider
         }
 
         InitializeInputActions();
+
+        // Listen for device changes
+        InputSystem.onDeviceChange += OnDeviceChange;
     }
 
     private void InitializeInputActions()
@@ -96,8 +103,11 @@ public class InputManager : MonoBehaviour, IInputStateProvider
         }
     }
 
+
     private void OnDestroy()
     {
+        InputSystem.onDeviceChange -= OnDeviceChange;
+
         foreach (var action in actionMap.Values)
         {
             action.performed -= OnActionPerformed;
@@ -106,21 +116,37 @@ public class InputManager : MonoBehaviour, IInputStateProvider
         }
     }
 
+
+    // Called whenever a device is connected, disconnected, or changed
+    private void OnDeviceChange(InputDevice device, InputDeviceChange change)
+    {
+        if (change == InputDeviceChange.UsageChanged || change == InputDeviceChange.Added)
+        {
+            activeDevice = device;
+            Debug.Log($"Active device changed to: {device.displayName}");
+        }
+    }
+
     private void OnActionPerformed(InputAction.CallbackContext context)
     {
         if (!isListening) return;
 
+        activeDevice = context.control.device; // Update active device
         string actionName = context.action.name;
+        string actionMapName = context.action.actionMap.name; // Get the action map name
 
         foreach (KeyBindPair pair in keyBindPairs)
         {
-            foreach (KeyBindAction keyBindAction in pair.keyBindActions)
+            if (pair.script.GetType().Name == actionMapName) // Match the script name to the action map name
             {
-                if (keyBindAction.action == actionName && ShouldProcessAction(keyBindAction))
+                foreach (KeyBindAction keyBindAction in pair.keyBindActions)
                 {
-                    if (pair.script is IKeyActionReceiver receiver)
+                    if (keyBindAction.action == actionName && ShouldProcessAction(keyBindAction))
                     {
-                        receiver.OnKeyAction(keyBindAction.action, context);
+                        if (pair.script is IKeyActionReceiver receiver)
+                        {
+                            receiver.OnKeyAction(keyBindAction.action, context);
+                        }
                     }
                 }
             }

@@ -34,18 +34,15 @@ public class Player : MonoBehaviour, IKeyActionReceiver
     [SerializeField] bool isGrounded = true;
 
     // Jumping and Movement Variables
-
-    [SerializeField] float baseSpeed = 5f;
     [SerializeField] float movementSpeed = 5f;
     private Vector2 movementInput;
     float timeElapsed = 0f;
-    public float jumpForce = 8f;
     public bool canMove = true;
 
     // Transformation Variables
     public Transformation transformation = Transformation.TERRY;
     private Transform transformationWheel;
-    private Dictionary<Transformation, (Transform group, SpriteRenderer sprite, Animator animator)> transformationMapping;
+    private Dictionary<Transformation, (Transform group, SpriteRenderer sprite, Animator animator, FormScript script)> transformationMapping;
     private Transform smoke;
     private Transform shadow;
     private Transform terryGroup;
@@ -54,6 +51,7 @@ public class Player : MonoBehaviour, IKeyActionReceiver
     private Transform ballGroup;
     private Transform selectedGroup;
     private SpriteRenderer selectedGroupSprite;
+    private FormScript selectedGroupScript;
 
     public float transformationDuration = 10f;
 
@@ -67,10 +65,6 @@ public class Player : MonoBehaviour, IKeyActionReceiver
     public float hookDuration = 3f;
     public bool usePhysicsHooking = false;
     public Color obstacleToPullColor;
-
-    [SerializeField] private float raycastDistance = 1f;
-    [SerializeField] private float yOffset = 0.5f;
-
     [SerializeField] private float outOfBoundsY = -10f;
 
     [SerializeField] private Vector3[] areaPositions;
@@ -123,8 +117,6 @@ public class Player : MonoBehaviour, IKeyActionReceiver
         smoke.gameObject.SetActive(false);
         transformationWheel = transform.Find("Transformation Wheel");
 
-        movementSpeed = baseSpeed;
-
         if (animator != null) {
             animator.SetBool("isWalking", false);
 
@@ -150,10 +142,10 @@ public class Player : MonoBehaviour, IKeyActionReceiver
         actionMap = new Dictionary<string, System.Action<InputAction.CallbackContext>>()
         {
             { "Move", ctx => { setMovementInput(ctx); } },
-            { "Jump", ctx => { if (ctx.performed) JumpHandler(); } },
             { "Transform", ctx => { if (ctx.performed) TransformationHandler(); } },
             { "Interact", ctx => { if (ctx.performed) EventDispatcher.Raise<Interact>(new Interact()); } },
-            { "Ability1", ctx => { Ability1Handler(ctx); } }
+            { "Ability1", ctx => { Ability1Handler(ctx); } },
+            { "Ability2", ctx => { Ability2Handler(ctx); } }
         };
     }
 
@@ -188,7 +180,6 @@ public class Player : MonoBehaviour, IKeyActionReceiver
     void FixedUpdate()
     {
         // Physics + Rigidbodies/Colliders + Applying Input
-        GroundedChecker();
         PullChecker();
     }
 
@@ -324,45 +315,15 @@ public class Player : MonoBehaviour, IKeyActionReceiver
     }
 
     public void SetSpeed(float speed) {
-        baseSpeed = speed;
-    }
-
-    void JumpHandler() {
-        if (!isGrounded || transformation != Transformation.FROG) {
-            return;
-        }
-
-        isGrounded = false;
-
-        if (animator != null) {
-            animator.SetTrigger("Jump");
-        }
-
-        rbody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
-        EventDispatcher.Raise<StressAbility>(new StressAbility());
+        movementSpeed = speed;
     }
 
     void Ability1Handler(InputAction.CallbackContext context) {
-        switch (transformation) {
-            case Transformation.TERRY:
-                break;
-            case Transformation.FROG:
-                break;
-            case Transformation.BULLDOZER:
-                if (context.performed) {
-                    setPushState(true);
-                } else if (context.canceled) {
-                    setPushState(false);
-                }
-                break;
-            case Transformation.BALL:
-                if (context.performed) {
-                    movementSpeed = baseSpeed * 2;
-                } else if (context.canceled) {
-                    movementSpeed = baseSpeed;
-                }
-                break;
-        }
+        selectedGroup.GetComponent<FormScript>().Ability1(context);
+    }
+
+    void Ability2Handler(InputAction.CallbackContext context) {
+
     }
 
     private void setPushState(bool state) {
@@ -381,18 +342,6 @@ public class Player : MonoBehaviour, IKeyActionReceiver
                     isEnabled = false
                 });
             }
-        }
-    }
-
-    void GroundedChecker() {
-        RaycastHit hit;
-        isGrounded = Physics.Raycast(transform.position + new Vector3(0, yOffset, 0), Vector3.down * raycastDistance, out hit, raycastDistance);
-    }
-
-    void OnDrawGizmos() {
-        if (_dbug) {
-            Gizmos.color = Color.red;
-            Gizmos.DrawRay(transform.position + new Vector3(0, yOffset, 0), Vector3.down * raycastDistance);
         }
     }
 
@@ -446,24 +395,6 @@ public class Player : MonoBehaviour, IKeyActionReceiver
             return;
         }
 
-        if (Input.GetKey(KeyCode.LeftShift) && transformation == Transformation.BALL) {
-            movementSpeed = baseSpeed * 2;
-        } else if (Input.GetKey(KeyCode.LeftShift) && transformation == Transformation.BULLDOZER) {
-            rbody.mass = 1000;
-            EventDispatcher.Raise<ShiftAbility>(new ShiftAbility() {
-                isEnabled = true,
-                transformation = Transformation.BULLDOZER
-            });
-        } 
-
-        if (Input.GetKeyUp(KeyCode.LeftShift)) {
-            movementSpeed = baseSpeed;
-            rbody.mass = 1;
-            EventDispatcher.Raise<ShiftAbility>(new ShiftAbility() {
-                isEnabled = false
-            });
-        }
-
         if (Input.GetKeyDown(KeyCode.G) && transformation == Transformation.FROG) {
             if (objectToHookTo != null) {
                 GrapplingHook(objectToHookTo);
@@ -474,10 +405,6 @@ public class Player : MonoBehaviour, IKeyActionReceiver
         // if E is pressed, interact with object
         if (Input.GetKeyDown(KeyCode.E)) {
             EventDispatcher.Raise<Interact>(new Interact());
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space)) {
-            JumpHandler();
         }
 
         // if F is pressed while in Bulldozer form, break the obstacle
@@ -510,12 +437,12 @@ public class Player : MonoBehaviour, IKeyActionReceiver
         bulldozerGroup = transform.Find("Bulldozer");
         ballGroup = transform.Find("Ball");
 
-        transformationMapping = new Dictionary<Transformation, (Transform, SpriteRenderer, Animator)>
+        transformationMapping = new Dictionary<Transformation, (Transform, SpriteRenderer, Animator, FormScript)>()
         {
-            { Transformation.TERRY, (terryGroup, terryGroup.GetComponentInChildren<SpriteRenderer>(), terryGroup.GetComponentInChildren<Animator>()) },
-            { Transformation.FROG, (frogGroup, frogGroup.GetComponentInChildren<SpriteRenderer>(), frogGroup.GetComponentInChildren<Animator>()) },
-            { Transformation.BULLDOZER, (bulldozerGroup, bulldozerGroup.GetComponentInChildren<SpriteRenderer>(), bulldozerGroup.GetComponentInChildren<Animator>()) },
-            { Transformation.BALL, (ballGroup, ballGroup.GetComponentInChildren<SpriteRenderer>(), ballGroup.GetComponentInChildren<Animator>()) },
+            { Transformation.TERRY, (terryGroup, terryGroup.GetComponentInChildren<SpriteRenderer>(), terryGroup.GetComponentInChildren<Animator>(), terryGroup.GetComponentInChildren<FormScript>()) },
+            { Transformation.FROG, (frogGroup, frogGroup.GetComponentInChildren<SpriteRenderer>(), frogGroup.GetComponentInChildren<Animator>(), frogGroup.GetComponentInChildren<FormScript>()) },
+            { Transformation.BULLDOZER, (bulldozerGroup, bulldozerGroup.GetComponentInChildren<SpriteRenderer>(), bulldozerGroup.GetComponentInChildren<Animator>(), bulldozerGroup.GetComponentInChildren<FormScript>()) },
+            { Transformation.BALL, (ballGroup, ballGroup.GetComponentInChildren<SpriteRenderer>(), ballGroup.GetComponentInChildren<Animator>(), ballGroup.GetComponentInChildren<FormScript>()) },
         };
     }
 
@@ -541,24 +468,13 @@ public class Player : MonoBehaviour, IKeyActionReceiver
             selectedGroup = selected.group;
             selectedGroupSprite = selected.sprite;
             animator = selected.animator;
+            selectedGroupScript = selected.script;
+            movementSpeed = selectedGroupScript.GetSpeed();
         }
         else
         {
             Debug.LogWarning($"Transformation {transformation} not found in mapping! Defaulting to TERRY.");
-            SetDefaultTransformation();
-        }
-    }
-
-    private void SetDefaultTransformation()
-    {
-        transformation = Transformation.TERRY;
-
-        if (transformationMapping.TryGetValue(Transformation.TERRY, out var defaultTransform))
-        {
-            defaultTransform.group.gameObject.SetActive(true);
-            selectedGroup = defaultTransform.group;
-            selectedGroupSprite = defaultTransform.sprite;
-            animator = defaultTransform.animator;
+            SetTransformation(Transformation.TERRY);
         }
     }
 

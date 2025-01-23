@@ -1,28 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Bulldozer : FormScript
 {
-    public float speed = 3.0f;
+    protected override float baseSpeed { get; set; } = 3.0f;
     private int playerLayer = 3;
     private int walkableLayer = 7;
 
-    void Start()
-    {
-        EventDispatcher.AddListener<ShiftAbility>(PushState);
-
-    }
-
     public override void OnEnable()
     {
+        base.OnEnable();
         PlayAudio("Bulldozer");
-        Player.Instance.SetSpeed(speed);
     }
 
-    public void PushState(ShiftAbility e)
+    public void PushState(bool state)
     {
-        Physics.IgnoreLayerCollision(playerLayer, walkableLayer, e.isEnabled);
+        Debug.Log("PushState: " + state);
+
+        Physics.IgnoreLayerCollision(playerLayer, walkableLayer, state);
+        
+        rb.mass = state ? 1000 : 1;
     }
 
     public void OnDisable()
@@ -30,8 +29,22 @@ public class Bulldozer : FormScript
         Physics.IgnoreLayerCollision(playerLayer, walkableLayer, false);
     }
 
-    public void OnDestroy()
+    public override void Ability1(InputAction.CallbackContext context)
     {
-        EventDispatcher.RemoveListener<ShiftAbility>(PushState);
+        Debug.Log("Bulldozer Ability 1");
+
+        if (context.performed)
+        {
+            PushState(true);
+        }
+        else if (context.canceled)
+        {
+            PushState(false);
+        }
+    }
+
+    public override void Ability2(InputAction.CallbackContext context)
+    {
+        
     }
 }

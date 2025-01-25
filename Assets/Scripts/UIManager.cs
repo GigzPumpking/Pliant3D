@@ -10,6 +10,7 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance { get { return instance; } }
     private Dialogue dialogueScript;
     public GameObject sceneTransition;
+    private GameObject pauseMenu;
 
     void Awake()
     {
@@ -26,7 +27,28 @@ public class UIManager : MonoBehaviour
 
         dialogueScript = transform.Find("DialogueBox").GetComponent<Dialogue>();
 
+        pauseMenu = transform.Find("Pause Menu").gameObject;
+
         EventDispatcher.AddListener<NewSceneLoaded>(FadeOut);
+    }
+
+    void Update() {
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            Pause();
+        }
+    }
+
+    public void Pause() {
+        // Pause the game
+        // play Crumple Select sound
+        EventDispatcher.Raise<PlaySound>(new PlaySound { soundName = "Crumple Select", source = null });
+        if (pauseMenu.activeSelf) {
+            pauseMenu.SetActive(false);
+            Time.timeScale = 1;
+        } else {
+            pauseMenu.SetActive(true);
+            Time.timeScale = 0;
+        }
     }
 
     private void OnDestroy()
@@ -61,5 +83,10 @@ public class UIManager : MonoBehaviour
     public Dialogue returnDialogue()
     {
         return dialogueScript;
+    }
+
+    public GameObject returnPauseMenu()
+    {
+        return pauseMenu;
     }
 }

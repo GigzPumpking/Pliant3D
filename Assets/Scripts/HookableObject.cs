@@ -17,9 +17,8 @@ public class HookableObject : MonoBehaviour
         if (Player.Instance.GetTransformation() == Transformation.FROG) {
             // Raycast towards the player if they are within range
             RaycastHit hit;
-            if (Physics.Raycast(transform.position, GameManager.Instance.player.position - transform.position, out hit, range)) {
-                if (hit.transform == GameManager.Instance.player) {
-                    Debug.DrawRay(transform.position, GameManager.Instance.player.position - transform.position, Color.green);
+            if (Physics.Raycast(transform.position, Player.Instance.transform.position - transform.position, out hit, range)) {
+                if (hit.transform == Player.Instance.transform) {
                     Player.Instance.SetHookingTarget(transform);
                     // Change the color of all renderers to green
                     foreach (Renderer rend in renderers) {
@@ -27,7 +26,6 @@ public class HookableObject : MonoBehaviour
                     }
 
                 } else {
-                    Debug.DrawRay(transform.position, GameManager.Instance.player.position - transform.position, Color.red);
                     if (Player.Instance.GetHookingTarget() == transform) {
                         Player.Instance.SetHookingTarget(null);
                         // Change the color of all renderers to original color
@@ -37,7 +35,7 @@ public class HookableObject : MonoBehaviour
                     }
                 }
             } else {
-                Debug.DrawRay(transform.position, GameManager.Instance.player.position - transform.position, Color.red);
+                Debug.DrawRay(transform.position, Player.Instance.transform.position - transform.position, Color.red);
                 if (Player.Instance.GetHookingTarget() == transform) {
                     Player.Instance.SetHookingTarget(null);
                     // Change the color of all renderers to original color

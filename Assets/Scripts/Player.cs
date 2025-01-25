@@ -323,7 +323,7 @@ public class Player : MonoBehaviour, IKeyActionReceiver
     }
 
     void Ability2Handler(InputAction.CallbackContext context) {
-
+        selectedGroup.GetComponent<FormScript>().Ability2(context);
     }
 
     private void setPushState(bool state) {

@@ -7,8 +7,7 @@ public class GameManager : MonoBehaviour
 {
     private static GameManager instance;
     public static GameManager Instance { get { return instance; } }
-    public Transform player;
-    public GameObject pauseMenu;
+    private Transform player;
 
     private void Awake()
     {
@@ -33,23 +32,6 @@ public class GameManager : MonoBehaviour
             // set Player velocity to 0
             Player.Instance.SetVelocity(Vector3.zero);
         }
-
-        if (Input.GetKeyDown(KeyCode.Escape)) {
-            Pause();
-        }
-    }
-
-    public void Pause() {
-        // Pause the game
-        // play Crumple Select sound
-        EventDispatcher.Raise<PlaySound>(new PlaySound { soundName = "Crumple Select", source = null });
-        if (pauseMenu.activeSelf) {
-            pauseMenu.SetActive(false);
-            Time.timeScale = 1;
-        } else {
-            pauseMenu.SetActive(true);
-            Time.timeScale = 0;
-        }
     }
 
     public void SetPlayer(Transform player)
@@ -59,6 +41,11 @@ public class GameManager : MonoBehaviour
 
     public Transform GetPlayer()
     {
+        if (player == null)
+        {
+            player = Player.Instance.transform;
+        }
+
         return player;
     }
 

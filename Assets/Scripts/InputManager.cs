@@ -103,9 +103,10 @@ public class InputManager : MonoBehaviour, IInputStateProvider
         }
     }
 
-
     private void OnDestroy()
     {
+        if (Instance != this) return;
+
         InputSystem.onDeviceChange -= OnDeviceChange;
 
         foreach (var action in actionMap.Values)
@@ -129,6 +130,7 @@ public class InputManager : MonoBehaviour, IInputStateProvider
 
     private void OnActionPerformed(InputAction.CallbackContext context)
     {
+        Debug.Log($"Action performed: {context.action.name}, isListening: {isListening}");
         if (!isListening) return;
 
         activeDevice = context.control.device; // Update active device

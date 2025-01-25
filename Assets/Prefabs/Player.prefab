@@ -498,7 +498,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4e57bf8e72d24719bf031c2ea9d4dee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 7
 --- !u!1 &5554935717346506947
 GameObject:
   m_ObjectHideFlags: 0
@@ -722,7 +721,6 @@ GameObject:
   - component: {fileID: 5554935717656047752}
   - component: {fileID: 5554935717656047753}
   - component: {fileID: 5554935717656047758}
-  - component: {fileID: 7014334726276973039}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -766,21 +764,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isGrounded: 1
-  baseSpeed: 5
   movementSpeed: 3
-  jumpForce: 6
   canMove: 1
   transformation: 0
   transformationDuration: 10
-  obstacleToBreak: {fileID: 0}
-  obstacleToPull: {fileID: 0}
-  objectToHookTo: {fileID: 0}
-  hookForce: 0.5
-  hookDuration: 3
-  usePhysicsHooking: 0
-  obstacleToPullColor: {r: 0, g: 0, b: 0, a: 0}
-  raycastDistance: 1
-  yOffset: 0.5
   outOfBoundsY: -10
   areaPositions: []
   directionalMovement: 0
@@ -801,37 +788,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
---- !u!114 &7014334726276973039
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5554935717656047755}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: 11519be8ce8774b068b03e21beb29194,
-    type: 3}
-  m_NotificationBehavior: 0
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents: []
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: 
-  m_DefaultActionMap: Player
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
 --- !u!1 &5554935718065096685
 GameObject:
   m_ObjectHideFlags: 0
@@ -1128,7 +1084,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a95dd5783064d3ab04f8240f896a38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 4
+  detectionRange: 5
 --- !u!1 &5554935718531090984
 GameObject:
   m_ObjectHideFlags: 0
@@ -1273,7 +1229,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3b093bb8f33f45e5a85982c5c08afa7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
 --- !u!1 &5554935718921339229
 GameObject:
   m_ObjectHideFlags: 0
@@ -1419,7 +1374,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c893a2921c7d44b29886e2cc4abda98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 6
+  jumpForce: 6
+  raycastDistance: 1
+  yOffset: 0.5
+  detectionRange: 5
+  hookDuration: 1
+  hookForce: 10
 --- !u!1 &5554935719030741615
 GameObject:
   m_ObjectHideFlags: 0

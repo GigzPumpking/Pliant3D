@@ -11,9 +11,9 @@ public class Frog : FormScript
     private bool isGrounded = true;
     [SerializeField] private float raycastDistance = 1f;
     [SerializeField] private float yOffset = 0.5f;
-    [SerializeField] private float hookDetectionRange = 5f; // Range to detect hookable objects
-    private Hookable highlightedHookable; // Currently highlighted Hookable object
-    private Transform hookableObject;
+    [SerializeField] private float detectionRange = 5f; // Range to detect objects
+    private Interactable highlightedObject; // Currently highlighted object
+    private Transform closestObject; // The closest hookable or pullable object
 
     [SerializeField] private float hookDuration = 1f;   
     [SerializeField] private float hookForce = 10f;
@@ -21,6 +21,16 @@ public class Frog : FormScript
     public override void OnEnable()
     {
         base.OnEnable();
+    }
+
+    public void OnDisable()
+    {
+        // Unhighlight the highlighted object
+        if (highlightedObject != null)
+        {
+            highlightedObject.IsHighlighted = false;
+            highlightedObject = null;
+        }
     }
 
     public override void Ability1(InputAction.CallbackContext context)
@@ -47,12 +57,25 @@ public class Frog : FormScript
     {
         Debug.Log("Frog Ability 2");
 
-        if (!context.performed)
+        if (!context.performed || closestObject == null)
         {
             return;
         }
 
-        GrapplingHook(hookableObject);
+        // Check for properties to decide the appropriate action
+        Interactable interactable = closestObject.GetComponent<Interactable>();
+        if (interactable != null)
+        {
+            if (interactable.HasProperty("Hookable"))
+            {
+                GrapplingHook(closestObject);
+            }
+            else if (interactable.HasProperty("Pullable"))
+            {
+                PullObject(closestObject);
+            }
+        }
+
         EventDispatcher.Raise<StressAbility>(new StressAbility());
     }
 
@@ -62,43 +85,43 @@ public class Frog : FormScript
         isGrounded = Physics.Raycast(transform.position + new Vector3(0, yOffset, 0), Vector3.down * raycastDistance, out hit, raycastDistance);
     }
 
-    private void DetectAndHighlightHookables()
+    private void DetectAndHighlightObjects()
     {
-        // Detect all colliders within the hook detection range
-        Collider[] colliders = Physics.OverlapSphere(transform.position, hookDetectionRange);
+        // Detect all colliders within the detection range
+        Collider[] colliders = Physics.OverlapSphere(transform.position, detectionRange);
 
-        // Filter for Hookable objects
-        var hookables = colliders
-            .Select(c => c.GetComponent<Hookable>())
-            .Where(h => h != null && h.isInteractable)
+        // Filter for interactable objects with "Hookable" or "Pullable" properties
+        var interactables = colliders
+            .Select(c => c.GetComponent<Interactable>())
+            .Where(i => i != null && i.isInteractable && (i.HasProperty("Hookable") || i.HasProperty("Pullable")))
             .ToList();
 
-        // Find the closest Hookable
-        Hookable closestHookable = hookables
-            .OrderBy(h => Vector3.Distance(transform.position, h.transform.position))
+        // Find the closest object
+        Interactable closestInteractable = interactables
+            .OrderBy(i => Vector3.Distance(transform.position, i.transform.position))
             .FirstOrDefault();
 
-        // Highlight the closest Hookable if it's not already highlighted
-        if (closestHookable != highlightedHookable)
+        // Highlight the closest object if it's not already highlighted
+        if (closestInteractable != highlightedObject)
         {
-            // Unhighlight the previously highlighted Hookable
-            if (highlightedHookable != null)
+            // Unhighlight the previously highlighted object
+            if (highlightedObject != null)
             {
-                highlightedHookable.IsHighlighted = false;
+                highlightedObject.IsHighlighted = false;
             }
 
-            // Highlight the new closest Hookable
-            if (closestHookable != null)
+            // Highlight the new closest object
+            if (closestInteractable != null)
             {
-                closestHookable.IsHighlighted = true;
-                hookableObject = closestHookable.transform; // Set the closest hookable object for grappling
+                closestInteractable.IsHighlighted = true;
+                closestObject = closestInteractable.transform; // Set the closest object
             }
             else
             {
-                hookableObject = null; // Reset hookable object if none is found
+                closestObject = null; // Reset closest object if none are found
             }
 
-            highlightedHookable = closestHookable;
+            highlightedObject = closestInteractable;
         }
     }
 
@@ -130,6 +153,29 @@ public class Frog : FormScript
         }
     }
 
+    private void PullObject(Transform objectToPull)
+    {
+        if (objectToPull == null) return;
+
+        // Add logic to pull the object towards the player
+        StartCoroutine(PullObjectCoroutine(objectToPull));
+    }
+
+    IEnumerator PullObjectCoroutine(Transform objectToPull)
+    {
+        float timeElapsed = 0f;
+        float duration = hookDuration;
+        Vector3 originalPosition = objectToPull.position;
+        Vector3 targetPosition = player.transform.position;
+
+        while (timeElapsed < duration)
+        {
+            objectToPull.position = Vector3.Lerp(originalPosition, targetPosition, timeElapsed / duration);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
+    }
+
     private void FixedUpdate()
     {
         GroundedChecker();
@@ -137,6 +183,6 @@ public class Frog : FormScript
 
     private void Update()
     {
-        DetectAndHighlightHookables();
+        DetectAndHighlightObjects();
     }
 }

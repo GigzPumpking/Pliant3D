@@ -42,6 +42,7 @@ public class Player : MonoBehaviour, IKeyActionReceiver
     // Transformation Variables
     public Transformation transformation = Transformation.TERRY;
     private Transform transformationWheel;
+    private TransformationWheel transformationWheelScript;
     private Dictionary<Transformation, (Transform group, SpriteRenderer sprite, Animator animator, FormScript script)> transformationMapping;
     private Transform smoke;
     private Transform shadow;
@@ -56,15 +57,6 @@ public class Player : MonoBehaviour, IKeyActionReceiver
     public float transformationDuration = 10f;
 
     // Other Variables
-
-    private bool pushState = false;
-    public GameObject obstacleToBreak;
-    public GameObject obstacleToPull;
-    public Transform objectToHookTo;
-    public float hookForce = 0.5f;
-    public float hookDuration = 3f;
-    public bool usePhysicsHooking = false;
-    public Color obstacleToPullColor;
     [SerializeField] private float outOfBoundsY = -10f;
 
     [SerializeField] private Vector3[] areaPositions;
@@ -78,8 +70,13 @@ public class Player : MonoBehaviour, IKeyActionReceiver
 
     void OnEnable()
     {
+        Debug.Log("Player Enabled");
+
         EventDispatcher.AddListener<StressDebuff>(StressDebuffHandler);
         EventDispatcher.AddListener<TogglePlayerMovement>(e => canMoveToggle(e.isEnabled));
+
+        InitializeActionMap();
+        transformationWheelScript.InitializeActionMap();
     }
 
     void OnDisable()
@@ -116,6 +113,7 @@ public class Player : MonoBehaviour, IKeyActionReceiver
         sparkles.gameObject.SetActive(false);
         smoke.gameObject.SetActive(false);
         transformationWheel = transform.Find("Transformation Wheel");
+        transformationWheelScript = transformationWheel.GetComponentInChildren<TransformationWheel>();
 
         if (animator != null) {
             animator.SetBool("isWalking", false);
@@ -123,17 +121,6 @@ public class Player : MonoBehaviour, IKeyActionReceiver
             // Default to down
             animator.SetFloat("MoveX", -1);
             animator.SetFloat("MoveY", -1);
-        }
-
-        InitializeActionMap();
-        RegisterInputActions();
-    }
-
-    private void RegisterInputActions()
-    {
-        foreach (var action in actionMap.Keys)
-        {
-            InputManager.Instance.AddKeyBind(this, action, "Gameplay");
         }
     }
 
@@ -147,13 +134,10 @@ public class Player : MonoBehaviour, IKeyActionReceiver
             { "Ability1", ctx => { Ability1Handler(ctx); } },
             { "Ability2", ctx => { Ability2Handler(ctx); } }
         };
-    }
 
-    private void OnDestroy()
-    {
         foreach (var action in actionMap.Keys)
         {
-            InputManager.Instance.RemoveKeyBind(this, action);
+            InputManager.Instance.AddKeyBind(this, action, "Gameplay");
         }
     }
 
@@ -174,13 +158,6 @@ public class Player : MonoBehaviour, IKeyActionReceiver
         if (transform.position.y < outOfBoundsY) {
             transform.position = areaPositions[0];
         }
-    }
-
-    // Update is called once per frame
-    void FixedUpdate()
-    {
-        // Physics + Rigidbodies/Colliders + Applying Input
-        PullChecker();
     }
 
     public void OnKeyAction(string action, InputAction.CallbackContext context)
@@ -326,62 +303,6 @@ public class Player : MonoBehaviour, IKeyActionReceiver
         selectedGroup.GetComponent<FormScript>().Ability2(context);
     }
 
-    private void setPushState(bool state) {
-        if (pushState != state) {
-            pushState = state;
-
-            if (state == true) {
-                rbody.mass = 1000;
-                EventDispatcher.Raise<ShiftAbility>(new ShiftAbility() {
-                    isEnabled = true,
-                    transformation = Transformation.BULLDOZER
-                });
-            } else {
-                rbody.mass = 1;
-                EventDispatcher.Raise<ShiftAbility>(new ShiftAbility() {
-                    isEnabled = false
-                });
-            }
-        }
-    }
-
-    void PullChecker() {
-        // Pullable Layer
-        int layerMask = 1 << 6;
-
-        RaycastHit hit;
-
-        Vector3 position = transform.position;
-        position.y += 0.5f;
-
-        Vector3 facingDirection = transform.TransformDirection(Vector3.forward);
-        switch (lastInput) {
-            case Directions.UP:
-                facingDirection = transform.TransformDirection(Vector3.forward);
-                break;
-            case Directions.DOWN:
-                facingDirection = transform.TransformDirection(Vector3.back);
-                break;
-            case Directions.LEFT:
-                facingDirection = transform.TransformDirection(Vector3.left);
-                break;
-            case Directions.RIGHT:
-                facingDirection = transform.TransformDirection(Vector3.right);
-                break;
-        }
-
-        if (Physics.Raycast(position, facingDirection, out hit, 10f, layerMask)) 
-        {
-            Debug.DrawRay(position, facingDirection * hit.distance, Color.red);
-            if (hit.collider.gameObject != obstacleToPull && transformation == Transformation.FROG) {
-                SetPullingTarget(hit.collider.gameObject);
-            }
-        } else {
-            Debug.DrawRay(position, facingDirection * hit.distance, Color.red);
-            SetPullingTarget(null);
-        }
-    }
-
     void InputHandler() {
         // For each of the areas, check Alpha1, Alpha2, ... until area's length
         for (int i = 1; i <= areaPositions.Length; i++) {
@@ -395,29 +316,9 @@ public class Player : MonoBehaviour, IKeyActionReceiver
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.G) && transformation == Transformation.FROG) {
-            if (objectToHookTo != null) {
-                GrapplingHook(objectToHookTo);
-                EventDispatcher.Raise<StressAbility>(new StressAbility());
-            }
-        }
-
         // if E is pressed, interact with object
         if (Input.GetKeyDown(KeyCode.E)) {
             EventDispatcher.Raise<Interact>(new Interact());
-        }
-
-        // if F is pressed while in Bulldozer form, break the obstacle
-        if (Input.GetKeyDown(KeyCode.F) && transformation == Transformation.BULLDOZER && obstacleToBreak != null) {
-            obstacleToBreak.SetActive(false);
-            obstacleToBreak = null;
-            EventDispatcher.Raise<StressAbility>(new StressAbility());
-        }
-
-        // if F is pressed while in Frog form, pull the obstacle
-        if (Input.GetKeyDown(KeyCode.F) && transformation == Transformation.FROG && obstacleToPull != null) {
-            PullObject(obstacleToPull);
-            EventDispatcher.Raise<StressAbility>(new StressAbility());
         }
     }
 
@@ -486,10 +387,6 @@ public class Player : MonoBehaviour, IKeyActionReceiver
         SetTransformation(Transformation.TERRY);
     }
 
-    void AnimationHandler() {
-
-    }
-
     public void Smoke() {
         smoke.gameObject.SetActive(true);
         smokeAnimator.Play("Smoke");
@@ -503,111 +400,6 @@ public class Player : MonoBehaviour, IKeyActionReceiver
     public void Heal() {
         EventDispatcher.Raise<Heal>(new Heal());
         HealAnim();
-    }
-
-    // Bulldozer Actions
-
-    public void SetBreakingTarget(GameObject target) {
-        obstacleToBreak = target;
-    }
-
-    public GameObject GetBreakingTarget() {
-        return obstacleToBreak;
-    }
-
-    // Frog Actions
-
-    public void SetPullingTarget(GameObject target) {
-        if (target == null) {
-            if (obstacleToPull != null) {
-                if (obstacleToPullColor != null) {
-                    obstacleToPull.GetComponent<Renderer>().material.color = obstacleToPullColor;
-                } else {
-                    obstacleToPull.GetComponent<Renderer>().material.color = Color.white;
-                }
-            }
-        }
-
-        obstacleToPull = target;
-
-        // set obstacle color to red
-        if (obstacleToPull != null) {
-            obstacleToPullColor = obstacleToPull.GetComponent<Renderer>().material.color;
-            obstacleToPull.GetComponent<Renderer>().material.color = Color.red;
-        }
-    }
-
-    public GameObject GetPullingTarget() {
-        return obstacleToPull;
-    }
-
-    public void PullObject(GameObject target) {
-        Debug.Log("Target: " + target);
-        StartCoroutine(PullObjectCoroutine(target));
-    }
-
-    IEnumerator PullObjectCoroutine(GameObject target) {
-        float timeElapsed = 0f;
-        float duration = 1.5f;
-        Vector3 originalPosition = target.transform.position;
-        Vector3 targetPosition = transform.position;
-        // if target position is below original position, match the y position
-        if (targetPosition.y < originalPosition.y) {
-            targetPosition.y = originalPosition.y;
-        }
-
-        while (timeElapsed < duration) {
-            target.transform.position = Vector3.Lerp(originalPosition, targetPosition, timeElapsed / duration);
-            timeElapsed += Time.deltaTime;
-            yield return null;
-        }
-    }
-
-    public void SetHookingTarget(Transform target) {
-        objectToHookTo = target;
-    }
-
-    public Transform GetHookingTarget() {
-        return objectToHookTo;
-    }
-
-    void GrapplingHook(Transform objectToHookTo) {
-        // Grappling Hook
-
-        // Start Coroutine
-        if (!usePhysicsHooking) StartCoroutine(GrapplingHookCoroutine(objectToHookTo));
-        else StartCoroutine(GrapplingHookPhysicsCoroutine(objectToHookTo));
-    }
-    IEnumerator GrapplingHookCoroutine(Transform objectToHookTo) {
-        // hook and move towards objectToHookTo
-        float timeElapsed = 0f;
-        float duration = hookDuration;
-        Vector3 originalPosition = transform.position;
-        Vector3 targetPosition = objectToHookTo.position;
-
-        // if target position is below original position, match the y position
-        if (targetPosition.y < originalPosition.y) {
-            targetPosition.y = originalPosition.y;
-        }
-
-        while (timeElapsed < duration) {
-            transform.position = Vector3.Lerp(originalPosition, targetPosition, timeElapsed / duration);
-            timeElapsed += Time.deltaTime;
-            yield return null;
-        }
-    }
-
-    IEnumerator GrapplingHookPhysicsCoroutine(Transform objectToHookTo) {
-        // Loop the following until the object is close enough to the target or 3 seconds have passed
-
-        float timeElapsed = 0f;
-
-        while (Vector3.Distance(transform.position, objectToHookTo.position) > 1f && timeElapsed < hookDuration) {
-            Vector3 direction = objectToHookTo.position - transform.position;
-            rbody.AddForce(direction.normalized * hookForce, ForceMode.Impulse);
-            timeElapsed += Time.deltaTime;
-            yield return null;
-        }
     }
 
     public void moveToArea(int area) {

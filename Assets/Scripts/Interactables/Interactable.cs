@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public abstract class Interactable : MonoBehaviour
 {
@@ -41,6 +42,34 @@ public abstract class Interactable : MonoBehaviour
                 }
             }
         }
+    }
+
+    // List of properties this object supports (e.g., Hookable, Pullable, Breakable)
+    [SerializeField]
+    private List<InteractableProperty> properties = new List<InteractableProperty>();
+    public List<InteractableProperty> Properties => properties;
+
+    public bool HasProperty(string propertyName)
+    {
+        return properties.Exists(p => p.PropertyName == propertyName);
+    }
+
+    public InteractableProperty GetProperty(string propertyName)
+    {
+        return properties.Find(p => p.PropertyName == propertyName);
+    }
+
+    public void AddProperty(InteractableProperty property)
+    {
+        if (!HasProperty(property.PropertyName))
+        {
+            properties.Add(property);
+        }
+    }
+
+    public void RemoveProperty(string propertyName)
+    {
+        properties.RemoveAll(p => p.PropertyName == propertyName);
     }
 
     public abstract void Interact();

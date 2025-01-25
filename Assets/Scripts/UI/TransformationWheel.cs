@@ -28,23 +28,7 @@ public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
 
     [SerializeField] private bool _dbug = false;
 
-    private void RegisterInputActions()
-    {
-        foreach (var action in actionMap.Keys)
-        {
-            InputManager.Instance.AddKeyBind(this, action, "Gameplay");
-        }
-    }
-
-    private void OnDestroy()
-    {
-        foreach (var action in actionMap.Keys)
-        {
-            InputManager.Instance.RemoveKeyBind(this, action);
-        }
-    }
-
-    private void InitializeActionMap()
+    public void InitializeActionMap()
     {
         actionMap = new Dictionary<string, Action<InputAction.CallbackContext>>()
         {
@@ -54,12 +38,11 @@ public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
             { "Terry", ctx => controllerSelect(3) },
             { "Confirm", ctx => { if (ctx.performed) Transform(); } }
         };
-    }
 
-    void Awake()
-    {
-        InitializeActionMap();
-        RegisterInputActions();
+        foreach (var action in actionMap.Keys)
+        {
+            InputManager.Instance.AddKeyBind(this, action, "Gameplay");
+        }
     }
 
     // Start is called before the first frame update

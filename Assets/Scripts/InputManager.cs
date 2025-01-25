@@ -130,19 +130,22 @@ public class InputManager : MonoBehaviour, IInputStateProvider
 
     private void OnActionPerformed(InputAction.CallbackContext context)
     {
-        Debug.Log($"Action performed: {context.action.name}, isListening: {isListening}");
         if (!isListening) return;
 
         activeDevice = context.control.device; // Update active device
         string actionName = context.action.name;
         string actionMapName = context.action.actionMap.name; // Get the action map name
 
+        EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = $"Action map: {actionMapName}, Action: {actionName}" });
+
         foreach (KeyBindPair pair in keyBindPairs)
         {
+            EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = $"Script: {pair.script.GetType().Name}" });
             if (pair.script.GetType().Name == actionMapName) // Match the script name to the action map name
             {
                 foreach (KeyBindAction keyBindAction in pair.keyBindActions)
                 {
+                    EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = $"KeyBindAction: {keyBindAction.action}" });
                     if (keyBindAction.action == actionName && ShouldProcessAction(keyBindAction))
                     {
                         if (pair.script is IKeyActionReceiver receiver)

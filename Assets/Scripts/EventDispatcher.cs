@@ -59,15 +59,9 @@ public class StressDebuff : Event
 
 }
 
-public class StressAbility : Event
-{
+public class StressAbility : Event {}
 
-}
-
-public class Heal : Event
-{
-    
-}
+public class Heal : Event {}
 public class ShiftAbility : Event
 {
     public bool isEnabled = false;
@@ -83,6 +77,11 @@ public class NewSceneLoaded : Event
 public class TogglePlayerMovement : Event
 {
     public bool isEnabled = false;
+}
+
+public class DebugMessage : Event
+{
+    public string message;
 }
 
 public class EventDispatcher 

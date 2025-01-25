@@ -70,13 +70,8 @@ public class Player : MonoBehaviour, IKeyActionReceiver
 
     void OnEnable()
     {
-        Debug.Log("Player Enabled");
-
         EventDispatcher.AddListener<StressDebuff>(StressDebuffHandler);
         EventDispatcher.AddListener<TogglePlayerMovement>(e => canMoveToggle(e.isEnabled));
-
-        InitializeActionMap();
-        transformationWheelScript.InitializeActionMap();
     }
 
     void OnDisable()
@@ -122,10 +117,17 @@ public class Player : MonoBehaviour, IKeyActionReceiver
             animator.SetFloat("MoveX", -1);
             animator.SetFloat("MoveY", -1);
         }
+
+        InitializeActionMap();
+        transformationWheelScript.InitializeActionMap();
+
+        EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = "Player Initialized" });
     }
 
     private void InitializeActionMap()
     {
+        EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = "Initializing Player Input" });
+
         actionMap = new Dictionary<string, System.Action<InputAction.CallbackContext>>()
         {
             { "Move", ctx => { setMovementInput(ctx); } },
@@ -137,6 +139,7 @@ public class Player : MonoBehaviour, IKeyActionReceiver
 
         foreach (var action in actionMap.Keys)
         {
+            EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = $"Adding keybind for {action} to action map" });
             InputManager.Instance.AddKeyBind(this, action, "Gameplay");
         }
     }
@@ -173,6 +176,8 @@ public class Player : MonoBehaviour, IKeyActionReceiver
     }
 
     void setMovementInput(InputAction.CallbackContext context) {
+        EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = $"Setting movement input: {context.ReadValue<Vector2>()}" });
+
         // Use InputManager or another source to get the current movement vector
         Vector2 moveValue = InputManager.Instance.IsInputEnabled
             ? context.ReadValue<Vector2>()

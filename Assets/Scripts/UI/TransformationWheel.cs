@@ -23,6 +23,10 @@ public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
     private GameObject smoke;
     private Animator smokeAnimator;
 
+    public float maxLockoutCharge = 100f; //default amount of max charge the player has for transforms
+    public float lockoutProgress; //the amount of "charge" the player has to transform
+    public float transformCost = 25f; //the amount of "charge" it takes to transform
+
     // Dictionary for mapping actions to functions
     private Dictionary<string, System.Action<InputAction.CallbackContext>> actionMap;
 
@@ -50,6 +54,8 @@ public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
     {
         smoke = Player.Instance.transform.Find("Smoke").gameObject;
         smokeAnimator = smoke.GetComponent<Animator>();
+
+        lockoutProgress = maxLockoutCharge;
     }
 
     // Update is called once per frame
@@ -100,6 +106,9 @@ public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
 
     private void Transform()
     {
+        if (lockoutProgress <= 0) return;
+
+
         if (!transformWheel.activeSelf) {
             return;
         }
@@ -114,6 +123,7 @@ public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
         
         Player.Instance.SetTransformation(form.transformation);
         transformWheel.SetActive(false);
+        SubtractProgress(transformCost);
         
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
     }
@@ -145,5 +155,29 @@ public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
         hoverSelect();
         hoveredSelection = selection;
     }
-    
+
+    void SubtractProgress(float amt)
+    {
+        Debug.Log("Subtracting from lockout: " + amt);
+        lockoutProgress -= amt;
+
+        if (lockoutProgress <= 0f)
+        {
+            Locked();
+        }
+    }
+
+    void AddProgress(float amt)
+    {
+        Debug.Log("Adding to lockout: " + amt);
+        lockoutProgress += amt;
+
+        if (lockoutProgress <= maxLockoutCharge) lockoutProgress = maxLockoutCharge;
+    }
+
+    void Locked()
+    {
+        //handle any extra functionalities here
+        Debug.LogWarning("Locked Out!");
+    }
 }

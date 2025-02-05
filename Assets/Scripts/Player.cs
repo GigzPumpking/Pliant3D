@@ -59,9 +59,9 @@ public class Player : MonoBehaviour, IKeyActionReceiver
     // Other Variables
     [SerializeField] private float outOfBoundsY = -10f;
 
-    [SerializeField] private Vector3[] areaPositions;
+    [SerializeField] private float minMoveThreshold = 0.05f;
 
-    public bool directionalMovement = false;
+    [SerializeField] private Vector3[] areaPositions;
 
     // Dictionary for mapping actions to functions
     private Dictionary<string, System.Action<InputAction.CallbackContext>> actionMap;
@@ -183,21 +183,13 @@ public class Player : MonoBehaviour, IKeyActionReceiver
             ? context.ReadValue<Vector2>()
             : Vector2.zero;
 
-        if (moveValue.x > 0.05f) {
-            moveValue.x = 1;
-        } else if (moveValue.x < -0.05f) {
-            moveValue.x = -1;
-        } else {
+        if (moveValue.x < minMoveThreshold && moveValue.x > -minMoveThreshold) {
             moveValue.x = 0;
-        }
-
-        if (moveValue.y > 0.05f) {
-            moveValue.y = 1;
-        } else if (moveValue.y < -0.05f) {
-            moveValue.y = -1;
-        } else {
-            moveValue.y = 0;
         } 
+
+        if (moveValue.y < minMoveThreshold && moveValue.y > -minMoveThreshold) {
+            moveValue.y = 0;
+        }
 
         movementInput = moveValue;
     }
@@ -207,7 +199,7 @@ public class Player : MonoBehaviour, IKeyActionReceiver
         float verticalInput = movementInput.y;
         float horizontalInput = movementInput.x;
 
-        if (!InputManager.Instance.IsInputEnabled) {
+        if (!InputManager.Instance || !InputManager.Instance.IsInputEnabled) {
             verticalInput = Input.GetAxis("Vertical");
             horizontalInput = Input.GetAxis("Horizontal");
             Debug.Log("Input System Disabled");
@@ -224,33 +216,8 @@ public class Player : MonoBehaviour, IKeyActionReceiver
 
         Vector3 desiredMoveDirection = Vector3.zero;
 
-        if (directionalMovement) {
-            if (verticalInput != 0) {
-                if (verticalInput > 0) {
-                    verticalInput = 1;
-                    selectedGroupSprite.flipX = false;
-                } else {
-                    verticalInput = -1;
-                    selectedGroupSprite.flipX = true;
-                }
 
-                horizontalInput = 0;
-            }
-            if (horizontalInput != 0) {
-                if (horizontalInput > 0) {
-                    horizontalInput = 1;
-                    selectedGroupSprite.flipX = true;
-                } else {
-                    horizontalInput = -1;
-                    selectedGroupSprite.flipX = false;
-                }
-                verticalInput = 0;
-            }
-
-            desiredMoveDirection = Vector3.forward * verticalInput + Vector3.right * horizontalInput;
-        } else {
-            desiredMoveDirection = cameraForwards * verticalInput + cameraRight * horizontalInput;
-        }
+        desiredMoveDirection = cameraForwards * verticalInput + cameraRight * horizontalInput;
 
         if (animator != null) {
             if (horizontalInput != 0 || verticalInput != 0){
@@ -268,15 +235,11 @@ public class Player : MonoBehaviour, IKeyActionReceiver
         }
 
         if (movementInput.x < 0) {
-            if (!directionalMovement) {
-                selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
-            }
+            selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
             lastHorizontalInput = Directions.LEFT;
             lastInput = Directions.LEFT;
         } else if (movementInput.x > 0) {
-            if (!directionalMovement) {
-                selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = true;
-            }
+            selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = true;
             lastHorizontalInput = Directions.RIGHT;
             lastInput = Directions.RIGHT;
         }
@@ -317,7 +280,7 @@ public class Player : MonoBehaviour, IKeyActionReceiver
         }
 
         // If Input System is disabled, use Input.GetKey
-        if (InputManager.Instance.IsInputEnabled) {
+        if (InputManager.Instance && InputManager.Instance.IsInputEnabled) {
             return;
         }
 
@@ -413,10 +376,6 @@ public class Player : MonoBehaviour, IKeyActionReceiver
 
     private void setAreas(Vector3[] positions) {
         areaPositions = positions;
-    }
-
-    public void ToggleMovement() {
-        directionalMovement = !directionalMovement;
     }
 
     public void canMoveToggle(bool toggle) {

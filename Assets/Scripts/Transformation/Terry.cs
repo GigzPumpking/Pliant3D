@@ -14,11 +14,9 @@ public class Terry : FormScript
 
     public override void Ability1(InputAction.CallbackContext context)
     {
-        
     }
 
     public override void Ability2(InputAction.CallbackContext context)
     {
-        
     }
 }

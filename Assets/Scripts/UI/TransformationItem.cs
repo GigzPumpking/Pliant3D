@@ -14,12 +14,12 @@ public class TransformationItem : MonoBehaviour
 
     public void HoverEnter()
     {
-        animator.SetBool("Hover", true);
+        animator?.SetBool("Hover", true);
     }
 
     public void HoverExit()
     {
-        animator.SetBool("Hover", false);
+        animator?.SetBool("Hover", false);
     }
 
     public Form GetForm()

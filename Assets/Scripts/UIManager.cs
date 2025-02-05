@@ -55,14 +55,6 @@ public class UIManager : MonoBehaviour
     {
         EventDispatcher.RemoveListener<NewSceneLoaded>(FadeOut);
     }
-    
-    public void ToggleButton(GameObject button)
-    {
-        if (button.GetComponent<Image>().color == Color.red)
-            button.GetComponent<Image>().color = Color.green;
-        else
-            button.GetComponent<Image>().color = Color.red;
-    }
 
     public void FadeOut()
     {

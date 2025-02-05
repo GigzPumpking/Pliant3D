@@ -11,6 +11,7 @@ public class InputManager : MonoBehaviour, IInputStateProvider
 
     private InputDevice activeDevice;
     public string ActiveDeviceType => activeDevice?.displayName ?? "Unknown";
+    private readonly HashSet<string> validDeviceTypes = new HashSet<string> { "Keyboard", "Gamepad", "Mouse" };
 
     [System.Serializable]
     public class KeyBindPair
@@ -221,5 +222,65 @@ public class InputManager : MonoBehaviour, IInputStateProvider
     public void ToggleListening(bool listen)
     {
         isListening = listen;
+    }
+
+    public string ReturnActionBinding(string actionName, string deviceType)
+    {
+        if (!validDeviceTypes.Contains(deviceType))
+        {
+            throw new ArgumentException($"Invalid device type: {deviceType}. Valid types are: {string.Join(", ", validDeviceTypes)}");
+        }
+
+        if (actionMap.TryGetValue(actionName, out var action))
+        {
+            foreach (var binding in action.bindings)
+            {
+                if (binding.groups.Contains(deviceType, StringComparison.OrdinalIgnoreCase))
+                {
+                    return binding.effectivePath;
+                }
+            }
+        }
+        return "Binding not found";
+    }
+
+    public void RemapActionBinding(string actionName, string deviceType, string oldKeybind, string newKeybind)
+    {
+        if (!validDeviceTypes.Contains(deviceType))
+        {
+            Debug.LogError($"Invalid device type: {deviceType}. Valid types are: {string.Join(", ", validDeviceTypes)}");
+            return;
+        }
+
+        if (actionMap.TryGetValue(actionName, out InputAction action))
+        {
+            bool bindingFound = false;
+            // Iterate through each binding to find one that matches the given device type and current keybind.
+            for (int i = 0; i < action.bindings.Count; i++)
+            {
+                InputBinding binding = action.bindings[i];
+                // Check if the binding's groups contain the given device type.
+                if (binding.groups.Contains(deviceType, StringComparison.OrdinalIgnoreCase))
+                {
+                    // Compare the current effective path with the provided oldKeybind.
+                    if (binding.effectivePath.Equals(oldKeybind, StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Apply the override with the new keybind.
+                        action.ApplyBindingOverride(i, newKeybind);
+                        Debug.Log($"Remapped action '{actionName}' for device '{deviceType}' from '{oldKeybind}' to '{newKeybind}'.");
+                        bindingFound = true;
+                        break;
+                    }
+                }
+            }
+            if (!bindingFound)
+            {
+                Debug.LogWarning($"No binding found for action '{actionName}' on device type '{deviceType}' with keybind '{oldKeybind}'.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"Action '{actionName}' not found in the input map.");
+        }
     }
 }

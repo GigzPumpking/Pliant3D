@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
 {
@@ -14,6 +15,7 @@ public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
     //private int numOfSelection = 4;
     
     [SerializeField] private GameObject transformWheel;
+    [SerializeField] private Image lockoutBar;
     
     public GameObject[]  transformationItems;
     
@@ -160,17 +162,16 @@ public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
     {
         Debug.Log("Subtracting from lockout: " + amt);
         lockoutProgress -= amt;
+        lockoutBar.fillAmount -= amt / 100;
 
-        if (lockoutProgress <= 0f)
-        {
-            Locked();
-        }
+        if (lockoutProgress <= 0f) Locked();
     }
 
     void AddProgress(float amt)
     {
         Debug.Log("Adding to lockout: " + amt);
         lockoutProgress += amt;
+        lockoutBar.fillAmount += amt / 100;
 
         if (lockoutProgress <= maxLockoutCharge) lockoutProgress = maxLockoutCharge;
     }

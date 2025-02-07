@@ -10,7 +10,9 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance { get { return instance; } }
     private Dialogue dialogueScript;
     public GameObject sceneTransition;
-    private GameObject pauseMenu;
+    [SerializeField] GameObject pauseMenu;
+    [SerializeField] GameObject pauseButton;
+    [SerializeField] GameObject resumeButton;
 
     void Awake()
     {
@@ -27,9 +29,12 @@ public class UIManager : MonoBehaviour
 
         dialogueScript = transform.Find("DialogueBox").GetComponent<Dialogue>();
 
-        pauseMenu = transform.Find("Pause Menu").gameObject;
+        if(!pauseMenu) pauseMenu = transform.Find("Pause Menu").gameObject;
 
         EventDispatcher.AddListener<NewSceneLoaded>(FadeOut);
+
+        if(!resumeButton) resumeButton = GameObject.Find("Resume Button");
+        if(!pauseButton)  pauseButton = GameObject.Find("Pause Button");
     }
 
     void Update() {
@@ -42,11 +47,17 @@ public class UIManager : MonoBehaviour
         // Pause the game
         // play Crumple Select sound
         EventDispatcher.Raise<PlaySound>(new PlaySound { soundName = "Crumple Select", source = null });
+
+        //no null checks here since I want to know if there is something not being found
         if (pauseMenu.activeSelf) {
+            pauseButton.SetActive(true);
+            resumeButton.SetActive(false);
             pauseMenu.SetActive(false);
             Time.timeScale = 1;
         } else {
             pauseMenu.SetActive(true);
+            pauseButton.SetActive(false);
+            resumeButton.SetActive(true);
             Time.timeScale = 0;
         }
     }

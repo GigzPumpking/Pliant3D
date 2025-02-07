@@ -25,6 +25,7 @@ public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
     private GameObject smoke;
     private Animator smokeAnimator;
 
+    [Header("Lockout Settings")]
     public float maxLockoutCharge = 100f; //default amount of max charge the player has for transforms
     public float lockoutProgress; //the amount of "charge" the player has to transform
     public float transformCost = 25f; //the amount of "charge" it takes to transform

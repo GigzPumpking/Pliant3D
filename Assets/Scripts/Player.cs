@@ -421,6 +421,5 @@ public class Player : MonoBehaviour, IKeyActionReceiver
 
     public void canMoveToggle(bool toggle) {
         canMove = toggle;
-        animator.SetBool("isWalking", false);
     }
 }

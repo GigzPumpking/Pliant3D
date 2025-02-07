@@ -125,7 +125,9 @@ public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
         
         Player.Instance.SetTransformation(form.transformation);
         transformWheel.SetActive(false);
-        SubtractProgress(transformCost);
+
+        if(previousTransformation != transformation)
+            SubtractProgress(transformCost);
         
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
     }

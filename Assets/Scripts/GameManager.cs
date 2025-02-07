@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour
 {
     private static GameManager instance;
     public static GameManager Instance { get { return instance; } }
-    private Transform player;
+    [SerializeField] private Transform player;
 
     private void Awake()
     {
@@ -23,19 +23,20 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
+    [SerializeField] TransformationWheel transformWheel;
     private void Update() {
+        if (!transformWheel) transformWheel = GameObject.FindObjectOfType<TransformationWheel>();
+
         // Backspace to restart the game
         if (Input.GetKeyDown(KeyCode.Backspace)) {
             // Restart the game
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
-            //Reset lockout charge
-            Player.Instance.TryGetComponent<TransformationWheel>(out TransformationWheel transformWheel);
-            transformWheel.lockoutProgress = transformWheel.maxLockoutCharge;
-
             Player.Instance.SetTransformation(Transformation.TERRY);
             // set Player velocity to 0
             Player.Instance.SetVelocity(Vector3.zero);
+            if (transformWheel != null) transformWheel.ResetProgress();
+            else Debug.LogWarning("Could not reset lockout charge");
         }
     }
 

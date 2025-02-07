@@ -178,6 +178,12 @@ public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
         if (lockoutProgress <= maxLockoutCharge) lockoutProgress = maxLockoutCharge;
     }
 
+    public void ResetProgress()
+    {
+        lockoutProgress = maxLockoutCharge;
+        lockoutBar.fillAmount = 1;
+    }
+
     void Locked()
     {
         //handle any extra functionalities here

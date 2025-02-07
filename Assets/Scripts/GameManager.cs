@@ -28,6 +28,11 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Backspace)) {
             // Restart the game
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
+            //Reset lockout charge
+            Player.Instance.TryGetComponent<TransformationWheel>(out TransformationWheel transformWheel);
+            transformWheel.lockoutProgress = transformWheel.maxLockoutCharge;
+
             Player.Instance.SetTransformation(Transformation.TERRY);
             // set Player velocity to 0
             Player.Instance.SetVelocity(Vector3.zero);

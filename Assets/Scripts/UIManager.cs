@@ -1,7 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
@@ -10,7 +13,22 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance { get { return instance; } }
     private Dialogue dialogueScript;
     public GameObject sceneTransition;
-    private GameObject pauseMenu;
+    [SerializeField] private GameObject pauseMenu;
+    [SerializeField] private GameObject pauseMain;
+    [SerializeField] private GameObject controls;
+    [SerializeField] private GameObject settings;
+    [SerializeField] private GameObject pauseButton;
+    private TextMeshProUGUI pauseButtonText;
+
+    [SerializeField] private string pauseButtonTextKb = "PAUSE (ESC)";
+    [SerializeField] private string pauseButtonTextController = "PAUSE (START)";
+    [SerializeField] private GameObject resumeButton;
+
+    public bool isPaused {
+        get {
+            return pauseMenu.activeSelf;
+        }
+    }
 
     void Awake()
     {
@@ -27,14 +45,25 @@ public class UIManager : MonoBehaviour
 
         dialogueScript = transform.Find("DialogueBox").GetComponent<Dialogue>();
 
-        pauseMenu = transform.Find("Pause Menu").gameObject;
+        if(!pauseMenu) pauseMenu = transform.Find("Pause Menu").gameObject;
+        pauseMain = pauseMenu.transform.Find("Pause Main").gameObject;
+        controls = pauseMenu.transform.Find("Controls").gameObject;
+        settings = pauseMenu.transform.Find("Settings").gameObject;
+        if(!pauseButton) pauseButton = transform.Find("Pause Button").gameObject;
+        pauseButtonText = pauseButton.GetComponentInChildren<TextMeshProUGUI>();
+        if(!resumeButton) resumeButton = pauseMenu.transform.Find("Resume Button").gameObject;
+
+        pauseMenu.SetActive(false);
+        pauseButton.SetActive(true);
 
         EventDispatcher.AddListener<NewSceneLoaded>(FadeOut);
     }
 
     void Update() {
-        if (Input.GetKeyDown(KeyCode.Escape)) {
-            Pause();
+        if (InputManager.Instance?.ActiveDeviceType == "Keyboard" || InputManager.Instance?.ActiveDeviceType == "Mouse") {
+            pauseButtonText.text = pauseButtonTextKb;
+        } else {
+            pauseButtonText.text = pauseButtonTextController;
         }
     }
 
@@ -42,12 +71,29 @@ public class UIManager : MonoBehaviour
         // Pause the game
         // play Crumple Select sound
         EventDispatcher.Raise<PlaySound>(new PlaySound { soundName = "Crumple Select", source = null });
+
+        //no null checks here since I want to know if there is something not being found
         if (pauseMenu.activeSelf) {
-            pauseMenu.SetActive(false);
+            pauseButton?.SetActive(true);
+            resumeButton?.SetActive(false);
+            pauseMenu?.SetActive(false);
             Time.timeScale = 1;
         } else {
-            pauseMenu.SetActive(true);
+            pauseMenu?.SetActive(true);
+            pauseMain?.SetActive(true);
+            controls?.SetActive(false);
+            settings?.SetActive(false);
+            pauseButton?.SetActive(false);
+            resumeButton?.SetActive(true);
             Time.timeScale = 0;
+        }
+    }
+
+    public void Quit() {
+        if (GameManager.Instance != null) {
+            GameManager.Instance.Quit();
+        } else {
+            Application.Quit();
         }
     }
 

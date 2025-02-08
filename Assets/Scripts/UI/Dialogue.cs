@@ -2,14 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.InputSystem;
 
 public class Dialogue : MonoBehaviour
 {
     public TextMeshProUGUI textDisplay;
+    [SerializeField] TextMeshProUGUI continueButton;
     public string[] sentences;
     public float textSpeed;
     private int index;
     private bool active = false;
+
+    [SerializeField] InputActionAsset inputActionAsset;
+    string kbText = "Press 'E' to continue";
+    string controllerText = "Press (B) to continue";
 
     [SerializeField] private Animator animator;
 
@@ -41,8 +47,13 @@ public class Dialogue : MonoBehaviour
 
     void StartDialogue() 
     {
+        inputActionAsset.Enable();
+        Player.Instance.canMoveToggle(false);
+
         active = true;
         index = 0;
+        inputActionAsset.FindAction("Interact").performed += SetContinueText;
+
         StartCoroutine(TypeLine());
     }
 
@@ -55,7 +66,7 @@ public class Dialogue : MonoBehaviour
             StartCoroutine(TypeLine());
         }
         else 
-        {
+        {    
             textDisplay.text = "";
             animator.Play("DialogueHide");
             EventDispatcher.Raise<EndDialogue>(new EndDialogue());
@@ -111,5 +122,13 @@ public class Dialogue : MonoBehaviour
             StopAllCoroutines();
             textDisplay.text = sentences[index];
         }
+    }
+
+    void SetContinueText(InputAction.CallbackContext ctx)
+    {
+        if (!active) return;
+
+        if(ctx.control.device is Keyboard || ctx.control.device is Mouse) continueButton.text = kbText;
+        else continueButton.text = controllerText;
     }
 }

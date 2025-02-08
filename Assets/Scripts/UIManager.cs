@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
@@ -17,6 +18,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject controls;
     [SerializeField] private GameObject settings;
     [SerializeField] private GameObject pauseButton;
+    private TextMeshProUGUI pauseButtonText;
+
+    [SerializeField] private string pauseButtonTextKb = "PAUSE (ESC)";
+    [SerializeField] private string pauseButtonTextController = "PAUSE (START)";
     [SerializeField] private GameObject resumeButton;
 
     public bool isPaused {
@@ -45,12 +50,21 @@ public class UIManager : MonoBehaviour
         controls = pauseMenu.transform.Find("Controls").gameObject;
         settings = pauseMenu.transform.Find("Settings").gameObject;
         if(!pauseButton) pauseButton = transform.Find("Pause Button").gameObject;
+        pauseButtonText = pauseButton.GetComponentInChildren<TextMeshProUGUI>();
         if(!resumeButton) resumeButton = pauseMenu.transform.Find("Resume Button").gameObject;
 
         pauseMenu.SetActive(false);
         pauseButton.SetActive(true);
 
         EventDispatcher.AddListener<NewSceneLoaded>(FadeOut);
+    }
+
+    void Update() {
+        if (InputManager.Instance?.ActiveDeviceType == "Keyboard" || InputManager.Instance?.ActiveDeviceType == "Mouse") {
+            pauseButtonText.text = pauseButtonTextKb;
+        } else {
+            pauseButtonText.text = pauseButtonTextController;
+        }
     }
 
     public void Pause() {

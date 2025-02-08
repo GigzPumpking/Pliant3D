@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI; // to make use of UI image class and sprite and make use of UI through code.
+using UnityEngine.InputSystem; // to make use of input system to get input from player
 
 /// <summary>
 /// This form manager script is used to navigate the transformation menu to the characters forms
@@ -29,6 +30,7 @@ public class FormManager : MonoBehaviour
     public Image prevSprite; //the icon for the transformation menu icon of previous select
 
     private int selectedForm = 0, nextForm = 0, prevForm = 0; //indexes for the selected, next, and previous forms
+    [SerializeField] public Image[] formImages; //array of the form images to be used in the transformation menu
 
     // Start is called before the first frame update
     void Start()
@@ -58,14 +60,6 @@ public class FormManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
             NextChoice();
-
-        if (Input.GetKeyDown(KeyCode.T)) {
-            SelectChoice();
-        }
-
-        // follow player
-
-        Debug.Log("Player position: " + Player.Instance.transform.position);
     }
 
     //When called will cycle to the next form in the order unless at the end of the form database in which case it loops around to start
@@ -144,22 +138,14 @@ public class FormManager : MonoBehaviour
     {
         // Set get form variable based off current form index
         Form form = characterForm.GetForm(selectedForm);
-        Debug.Log("Selected Form: " + selectedForm);
 
-        //Set sprite and transformation corresponding to form information.
-        formSprite.sprite = form.formSprite;
+        //Set transformation corresponding to form information.
 
-        if (Player.Instance.transformation != form.transformation) {
-            Player.Instance.Smoke();
-        }
-
-        if (!Player.Instance.onRamp || form.transformation != Transformation.BULLDOZER) {
-            Player.Instance.transformation = form.transformation;
-        } else {
-            Debug.Log("Player cannot transform into Bulldozer while on ramp");
-        }
+        Player.Instance.SetTransformation(form.transformation);
 
         // close thought bubble after selection.
         thoughtBubble.SetActive(false);
+
+        EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
     }
 }

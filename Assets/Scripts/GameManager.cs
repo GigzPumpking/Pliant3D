@@ -1,13 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     private static GameManager instance;
     public static GameManager Instance { get { return instance; } }
-
-    public Transform player;
+    private Transform player;
 
     private void Awake()
     {
@@ -23,6 +23,17 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
+    private void Update() {
+        // Backspace to restart the game
+        if (Input.GetKeyDown(KeyCode.Backspace)) {
+            // Restart the game
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            Player.Instance.SetTransformation(Transformation.TERRY);
+            // set Player velocity to 0
+            Player.Instance.SetVelocity(Vector3.zero);
+        }
+    }
+
     public void SetPlayer(Transform player)
     {
         this.player = player;
@@ -30,6 +41,11 @@ public class GameManager : MonoBehaviour
 
     public Transform GetPlayer()
     {
+        if (player == null)
+        {
+            player = Player.Instance.transform;
+        }
+
         return player;
     }
 

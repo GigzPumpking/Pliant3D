@@ -149,7 +149,7 @@ public class InputManager : MonoBehaviour, IInputStateProvider
                     EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = $"KeyBindAction: {keyBindAction.action}" });
                     if (keyBindAction.action == actionName && ShouldProcessAction(keyBindAction))
                     {
-                        if (pair.script is IKeyActionReceiver receiver)
+                        if (pair.script is KeyActionReceiver receiver)
                         {
                             receiver.OnKeyAction(keyBindAction.action, context);
                         }

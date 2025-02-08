@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Player : MonoBehaviour, IKeyActionReceiver
+public class Player : KeyActionReceiver
 {
     // Instance 
     private static Player instance;
@@ -62,9 +62,6 @@ public class Player : MonoBehaviour, IKeyActionReceiver
     [SerializeField] private float minMoveThreshold = 0.05f;
 
     [SerializeField] private Vector3[] areaPositions;
-
-    // Dictionary for mapping actions to functions
-    private Dictionary<string, System.Action<InputAction.CallbackContext>> actionMap;
 
     [SerializeField] private bool _dbug = false;
 
@@ -163,18 +160,6 @@ public class Player : MonoBehaviour, IKeyActionReceiver
         }
     }
 
-    public void OnKeyAction(string action, InputAction.CallbackContext context)
-    {
-        if (actionMap.TryGetValue(action, out var actionHandler))
-        {
-            actionHandler(context);
-        }
-        else
-        {
-            Debug.LogWarning($"Unhandled action: {action}");
-        }
-    }
-
     void setMovementInput(InputAction.CallbackContext context) {
         EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = $"Setting movement input: {context.ReadValue<Vector2>()}" });
 
@@ -264,10 +249,12 @@ public class Player : MonoBehaviour, IKeyActionReceiver
     }
 
     void Ability1Handler(InputAction.CallbackContext context) {
+        if (UIManager.Instance && UIManager.Instance.isPaused) return;
         selectedGroup.GetComponent<FormScript>().Ability1(context);
     }
 
     void Ability2Handler(InputAction.CallbackContext context) {
+        if (UIManager.Instance && UIManager.Instance.isPaused) return;
         selectedGroup.GetComponent<FormScript>().Ability2(context);
     }
 
@@ -291,6 +278,7 @@ public class Player : MonoBehaviour, IKeyActionReceiver
     }
 
     public void TransformationHandler() {
+        if (UIManager.Instance && UIManager.Instance.isPaused) return;
         transformationWheel.gameObject.SetActive(!transformationWheel.gameObject.activeSelf);
         canMove = !transformationWheel.gameObject.activeSelf;
     }

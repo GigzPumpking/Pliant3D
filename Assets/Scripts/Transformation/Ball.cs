@@ -31,6 +31,7 @@ public class Ball : FormScript
 
     public override void Ability2(InputAction.CallbackContext context)
     {
+        /*
         Debug.Log("Ball using Frog Ability 1");
 
         if (!isGrounded || !context.performed)
@@ -47,6 +48,7 @@ public class Ball : FormScript
 
         rb.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
         EventDispatcher.Raise<StressAbility>(new StressAbility());
+        */
     }
 
     private void GroundedChecker()

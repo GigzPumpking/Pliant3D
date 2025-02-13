@@ -15,7 +15,7 @@ public class Dialogue : MonoBehaviour
 
     [SerializeField] InputActionAsset inputActionAsset;
     string kbText = "Press 'E' to continue";
-    string controllerText = "Press (B) to continue";
+    string controllerText = "Press 'Y' to continue";
 
     [SerializeField] private Animator animator;
 

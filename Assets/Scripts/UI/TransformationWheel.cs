@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
-public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
+public class TransformationWheel : KeyActionReceiver
 {
     public Vector2 normalisedMousePosition;
     public float currentAngle;
@@ -14,6 +15,7 @@ public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
     //private int numOfSelection = 4;
     
     [SerializeField] private GameObject transformWheel;
+    [SerializeField] private Image lockoutBar;
     
     public GameObject[]  transformationItems;
     
@@ -23,8 +25,10 @@ public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
     private GameObject smoke;
     private Animator smokeAnimator;
 
-    // Dictionary for mapping actions to functions
-    private Dictionary<string, System.Action<InputAction.CallbackContext>> actionMap;
+    [Header("Lockout Settings")]
+    public float maxLockoutCharge = 100f; //default amount of max charge the player has for transforms
+    public float lockoutProgress; //the amount of "charge" the player has to transform
+    public float transformCost = 25f; //the amount of "charge" it takes to transform
 
     [SerializeField] private bool _dbug = false;
 
@@ -50,6 +54,8 @@ public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
     {
         smoke = Player.Instance.transform.Find("Smoke").gameObject;
         smokeAnimator = smoke.GetComponent<Animator>();
+
+        lockoutProgress = maxLockoutCharge;
     }
 
     // Update is called once per frame
@@ -100,6 +106,9 @@ public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
 
     private void Transform()
     {
+        // if (lockoutProgress <= 0) return;
+
+
         if (!transformWheel.activeSelf) {
             return;
         }
@@ -114,20 +123,10 @@ public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
         
         Player.Instance.SetTransformation(form.transformation);
         transformWheel.SetActive(false);
+
+        // if(previousTransformation != transformation) SubtractProgress(transformCost);
         
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
-    }
-
-    public void OnKeyAction(string action, InputAction.CallbackContext context)
-    {
-        if (actionMap.TryGetValue(action, out var actionHandler))
-        {
-            actionHandler(context);
-        }
-        else
-        {
-            Debug.LogWarning($"Unhandled action: {action}");
-        }
     }
 
     private void hoverSelect() {
@@ -145,5 +144,34 @@ public class TransformationWheel : MonoBehaviour, IKeyActionReceiver
         hoverSelect();
         hoveredSelection = selection;
     }
-    
+
+    void SubtractProgress(float amt)
+    {
+        Debug.Log("Subtracting from lockout: " + amt);
+        lockoutProgress -= amt;
+        lockoutBar.fillAmount -= amt / 100;
+
+        if (lockoutProgress <= 0f) Locked();
+    }
+
+    void AddProgress(float amt)
+    {
+        Debug.Log("Adding to lockout: " + amt);
+        lockoutProgress += amt;
+        lockoutBar.fillAmount += amt / 100;
+
+        if (lockoutProgress <= maxLockoutCharge) lockoutProgress = maxLockoutCharge;
+    }
+
+    public void ResetProgress()
+    {
+        lockoutProgress = maxLockoutCharge;
+        lockoutBar.fillAmount = 1;
+    }
+
+    void Locked()
+    {
+        //handle any extra functionalities here
+        Debug.LogWarning("Locked Out!");
+    }
 }

@@ -5,6 +5,8 @@ public class DialogueTrigger : MonoBehaviour
 {
     public string[] dialogueLines;
     public GameObject interactBubble;
+    [SerializeField] private Sprite keyboardSprite;
+    [SerializeField] private Sprite controllerSprite;
     private bool inRadius = false;
     private bool triggered = false;
     private Dialogue dialogue;
@@ -55,6 +57,18 @@ public class DialogueTrigger : MonoBehaviour
     void EndDialogue(EndDialogue e) {
         if (!interactBubble.activeSelf && inRadius) {
             interactBubble.SetActive(true);
+        }
+    }
+
+    void Update() {
+        if (InputManager.Instance?.ActiveDeviceType == "Keyboard" || InputManager.Instance?.ActiveDeviceType == "Mouse") {
+            interactBubble.GetComponent<SpriteRenderer>().sprite = keyboardSprite;
+            // reset scale of interactBubble
+            interactBubble.transform.localScale = new Vector3(1, 1, 1);
+        } else {
+            interactBubble.GetComponent<SpriteRenderer>().sprite = controllerSprite;
+            // scale interactBubble to 0.333
+            interactBubble.transform.localScale = new Vector3(0.333f, 0.333f, 1f);
         }
     }
 

@@ -16,7 +16,7 @@ public class Bulldozer : FormScript
     public override void OnEnable()
     {
         base.OnEnable();
-        PlayAudio("Bulldozer");
+        audioPlayer?.PlayOneShot("Bulldozer");
     }
 
     public void OnDisable()

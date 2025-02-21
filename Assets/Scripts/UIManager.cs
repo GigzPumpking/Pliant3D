@@ -11,18 +11,24 @@ public class UIManager : MonoBehaviour
     private static UIManager instance;
 
     public static UIManager Instance { get { return instance; } }
+
     private Dialogue dialogueScript;
+
     public GameObject sceneTransition;
+
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject pauseMain;
     [SerializeField] private GameObject controls;
     [SerializeField] private GameObject settings;
     [SerializeField] private GameObject pauseButton;
+    
     private TextMeshProUGUI pauseButtonText;
 
     [SerializeField] private string pauseButtonTextKb = "PAUSE (ESC)";
     [SerializeField] private string pauseButtonTextController = "PAUSE (START)";
     [SerializeField] private GameObject resumeButton;
+
+    private AudioPlayer audioPlayer;
 
     public bool isPaused {
         get {
@@ -44,6 +50,8 @@ public class UIManager : MonoBehaviour
         DontDestroyOnLoad(this);
 
         dialogueScript = transform.Find("DialogueBox").GetComponent<Dialogue>();
+
+        audioPlayer = GetComponent<AudioPlayer>();
 
         if(!pauseMenu) pauseMenu = transform.Find("Pause Menu").gameObject;
         pauseMain = pauseMenu.transform.Find("Pause Main").gameObject;
@@ -70,7 +78,7 @@ public class UIManager : MonoBehaviour
     public void Pause() {
         // Pause the game
         // play Crumple Select sound
-        EventDispatcher.Raise<PlaySound>(new PlaySound { soundName = "Crumple Select", source = null });
+        audioPlayer?.PlayOneShot("Crumple Select");
 
         //no null checks here since I want to know if there is something not being found
         if (pauseMenu.activeSelf) {

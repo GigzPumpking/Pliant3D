@@ -106,7 +106,7 @@ public class TransformationWheel : KeyActionReceiver
 
     private void Transform()
     {
-        // if (lockoutProgress <= 0) return;
+        if (lockoutProgress <= 0) return;
 
 
         if (!transformWheel.activeSelf) {
@@ -124,7 +124,7 @@ public class TransformationWheel : KeyActionReceiver
         Player.Instance.SetTransformation(form.transformation);
         transformWheel.SetActive(false);
 
-        // if(previousTransformation != transformation) SubtractProgress(transformCost);
+        if(previousTransformation != transformation) SubtractProgress(transformCost);
         
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
     }

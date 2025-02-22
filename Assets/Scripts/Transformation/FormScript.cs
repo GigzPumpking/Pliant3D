@@ -49,6 +49,7 @@ public abstract class FormScript : MonoBehaviour
 
     public virtual void OnEnable() {
         speed = baseSpeed;
+        AudioManager.Instance?.PlayOneShot(initialSound);
     }
 
     public abstract void Ability1(InputAction.CallbackContext context);

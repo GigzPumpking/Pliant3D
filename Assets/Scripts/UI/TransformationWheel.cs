@@ -34,6 +34,8 @@ public class TransformationWheel : KeyActionReceiver
 
     [SerializeField] private bool _dbug = false;
 
+    [SerializeField] private AudioData transformationSound;
+
     public void InitializeActionMap()
     {
         actionMap = new Dictionary<string, Action<InputAction.CallbackContext>>()
@@ -119,15 +121,20 @@ public class TransformationWheel : KeyActionReceiver
         }
 
         var form = transformation.GetForm();
-        //if no charge left, and you're not trying to turn into terry, you can't transform
-        if (LockoutProgresses[transformation.GetForm().transformation] <= 0 &&
-            form.transformation != Transformation.TERRY) return;
+        // Commented out Lockout functionality:
+        // if no charge left, and you're not trying to turn into terry, you can't transform
+        // if (LockoutProgresses[transformation.GetForm().transformation] <= 0 &&
+        //     form.transformation != Transformation.TERRY) return;
+
+        // Play a random transformation sound from the list
+        AudioManager.Instance?.PlayOneShot(transformationSound);
 
         Player.Instance.SetTransformation(form.transformation);
         transformWheel.SetActive(false);
 
-        //now, check that you're not substracting from the same transformation
-        if (previousTransformation != transformation) SubtractProgress(form.transformation, transformCost);
+        // Commented out subtracting lockout progress:
+        // now, check that you're not substracting from the same transformation
+        // if (previousTransformation != transformation) SubtractProgress(form.transformation, transformCost);
 
         Debug.Log("Current: " + transformation.GetForm().transformation + " Previous: " + previousTransformation.GetForm().transformation);
         
@@ -161,60 +168,61 @@ public class TransformationWheel : KeyActionReceiver
         else return 3;
     }
 
-    void SubtractProgress(Transformation t,float amt)
+    void SubtractProgress(Transformation t, float amt)
     {
-        if (t == Transformation.TERRY)
-        {
-            lockoutBar.fillAmount = 100;
-            return;
-        }
+        // Commented out Lockout functionality:
+        // if (t == Transformation.TERRY)
+        // {
+        //     lockoutBar.fillAmount = 100;
+        //     return;
+        // }
         
-        Debug.Log("Subtracting from lockout: " + amt + " Current Lockout Charge for " + t + " : " + LockoutProgresses[t]);
-        LockoutProgresses[t] -= amt;
-        lockoutBar.fillAmount = LockoutProgresses[t] / 100;
-
-        transformationFills[GetIntTransform()].fillAmount = LockoutProgresses[t] / 100;
-
-        if (LockoutProgresses[t] <= 0f) Locked();
+        // Debug.Log("Subtracting from lockout: " + amt + " Current Lockout Charge for " + t + " : " + LockoutProgresses[t]);
+        // LockoutProgresses[t] -= amt;
+        // lockoutBar.fillAmount = LockoutProgresses[t] / 100;
+        // transformationFills[GetIntTransform()].fillAmount = LockoutProgresses[t] / 100;
+        // if (LockoutProgresses[t] <= 0f) Locked();
     }
 
     void AddProgress(Transformation t, float amt)
     {
-        if (t == Transformation.TERRY)
-        {
-            lockoutBar.fillAmount = 100;
-            return;
-        }
+        // Commented out Lockout functionality:
+        // if (t == Transformation.TERRY)
+        // {
+        //     lockoutBar.fillAmount = 100;
+        //     return;
+        // }
 
-        Debug.Log("Adding to lockout: " + amt + " Current Lockout Charge for " + t + " : " + LockoutProgresses[t]);
-        LockoutProgresses[t] += amt;
-        lockoutBar.fillAmount = LockoutProgresses[t] / 100;
-        transformationFills[(int)t].fillAmount = LockoutProgresses[t] / 100;
-
-        if (LockoutProgresses[t] <= maxLockoutCharge) LockoutProgresses[t] = maxLockoutCharge;
+        // Debug.Log("Adding to lockout: " + amt + " Current Lockout Charge for " + t + " : " + LockoutProgresses[t]);
+        // LockoutProgresses[t] += amt;
+        // lockoutBar.fillAmount = LockoutProgresses[t] / 100;
+        // transformationFills[(int)t].fillAmount = LockoutProgresses[t] / 100;
+        // if (LockoutProgresses[t] <= maxLockoutCharge) LockoutProgresses[t] = maxLockoutCharge;
     }
 
     public void ResetProgress()
     {
-        foreach (var key in LockoutProgresses.Keys)
-        {
-            LockoutProgresses[key] = maxLockoutCharge;
-        }
-
-        lockoutBar.fillAmount = 1;
+        // Commented out Lockout functionality:
+        // foreach (var key in LockoutProgresses.Keys)
+        // {
+        //     LockoutProgresses[key] = maxLockoutCharge;
+        // }
+        // lockoutBar.fillAmount = 1;
     }
 
     void SetWheel()
     {
-        LockoutProgresses[Transformation.FROG] = maxLockoutCharge;
-        LockoutProgresses[Transformation.TERRY] = maxLockoutCharge;
-        LockoutProgresses[Transformation.BULLDOZER] = maxLockoutCharge;
-        LockoutProgresses[Transformation.BALL] = maxLockoutCharge;
+        // Commented out Lockout functionality:
+        // LockoutProgresses[Transformation.FROG] = maxLockoutCharge;
+        // LockoutProgresses[Transformation.TERRY] = maxLockoutCharge;
+        // LockoutProgresses[Transformation.BULLDOZER] = maxLockoutCharge;
+        // LockoutProgresses[Transformation.BALL] = maxLockoutCharge;
     }
 
     void Locked()
     {
-        //handle any extra functionalities here
-        Debug.LogWarning("Locked Out!");
+        // Commented out Lockout functionality:
+        // handle any extra functionalities here
+        // Debug.LogWarning("Locked Out!");
     }
 }

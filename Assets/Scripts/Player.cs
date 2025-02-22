@@ -357,6 +357,7 @@ public class Player : KeyActionReceiver
     }
 
     public void Smoke() {
+        if (!smoke) return;
         smoke.gameObject.SetActive(true);
         smokeAnimator.Play("Smoke");
     }

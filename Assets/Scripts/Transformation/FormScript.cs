@@ -5,8 +5,6 @@ using UnityEngine.InputSystem;
 
 public abstract class FormScript : MonoBehaviour
 {
-    protected AudioPlayer audioPlayer;
-
     protected Transform player;
 
     protected Player playerScript;
@@ -14,6 +12,8 @@ public abstract class FormScript : MonoBehaviour
     protected Rigidbody rb;
 
     protected Animator animator;
+
+    [SerializeField] protected AudioData initialSound;
 
     [SerializeField] protected abstract float baseSpeed { get; set; }
 
@@ -45,12 +45,11 @@ public abstract class FormScript : MonoBehaviour
         rb = player.GetComponent<Rigidbody>();
 
         animator = GetComponentInChildren<Animator>();
-
-        audioPlayer = GetComponent<AudioPlayer>();
     }
 
     public virtual void OnEnable() {
         speed = baseSpeed;
+        AudioManager.Instance?.PlayOneShot(initialSound);
     }
 
     public abstract void Ability1(InputAction.CallbackContext context);

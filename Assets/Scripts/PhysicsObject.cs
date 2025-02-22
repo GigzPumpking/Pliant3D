@@ -1,14 +1,15 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PhysicsObject : MonoBehaviour
 {
-    // Obtains the location of the object within the scene when the game starts, and sets it as the initial position.
+    // Event to notify subscribers when the object is reset.
+    public event Action OnResetEvent;
+
     private Vector3 initialPosition;
     private Quaternion initialRotation;
-
-    [SerializeField] private float resetYValue = -10f;
 
     void Start()
     {
@@ -16,25 +17,22 @@ public class PhysicsObject : MonoBehaviour
         initialRotation = transform.rotation;
     }
 
-    // Resets the object's position and rotation to the initial position and rotation.
+    // Resets the object's position and rotation, and notifies listeners.
     public void ResetObject()
     {
         transform.position = initialPosition;
         transform.rotation = initialRotation;
+
+        // Notify subscribers that a reset occurred.
+        OnResetEvent?.Invoke();
     }
 
-    // Reset the object when its below a specific y value.
-    public void ResetObjectBelowY(float yValue)
+    // Reset the object if it collides with an object tagged "Floor"
+    private void OnCollisionEnter(Collision collision)
     {
-        if (transform.position.y < yValue)
+        if (collision.gameObject.CompareTag("Floor"))
         {
             ResetObject();
         }
     }
-
-    void Update()
-    {
-        // Reset the object when its below a specific y value.
-        ResetObjectBelowY(resetYValue);
-    }
-}   
+}

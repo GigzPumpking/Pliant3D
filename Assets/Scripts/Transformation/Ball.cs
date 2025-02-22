@@ -55,6 +55,11 @@ public class Ball : FormScript
         isGrounded = Physics.Raycast(transform.position + new Vector3(0, yOffset, 0), Vector3.down * raycastDistance, out hit, raycastDistance);
     }
 
+    private void CheckDoubleJump()
+    {
+
+    }
+
     private void FixedUpdate()
     {
         GroundedChecker();

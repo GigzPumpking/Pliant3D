@@ -14,6 +14,8 @@ public class UIManager : MonoBehaviour
 
     private Dialogue dialogueScript;
 
+    public bool isDialogueActive = false;
+
     public GameObject sceneTransition;
 
     [SerializeField] private GameObject pauseMenu;

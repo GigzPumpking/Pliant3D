@@ -35,8 +35,6 @@ public class Frog : FormScript
 
     public override void Ability1(InputAction.CallbackContext context)
     {
-        Debug.Log("Frog Ability 1");
-
         if (!isGrounded || !context.performed)
         {
             return;
@@ -55,8 +53,6 @@ public class Frog : FormScript
 
     public override void Ability2(InputAction.CallbackContext context)
     {
-        Debug.Log("Frog Ability 2");
-
         if (!context.performed || closestObject == null)
         {
             return;

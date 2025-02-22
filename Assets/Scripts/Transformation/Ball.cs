@@ -45,12 +45,11 @@ public class Ball : FormScript
         if (!canDoubleJump)
         {
             jumpCount++;
-            Debug.Log("Double Jump");
             Vector3 rbDBJump = new Vector3(rb.velocity.x, 0, rb.velocity.z);
             rb.drag = 0;
             rb.useGravity = false;
             rb.velocity = rbDBJump;
-            rb.AddForce(new Vector3(0, jumpForceDoubleJump, 0), ForceMode.Impulse);
+            rb.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
             rb.useGravity = true;
             canDoubleJump = true;
 
@@ -69,8 +68,7 @@ public class Ball : FormScript
 
         if (!isGrounded && canDoubleJump)
         {
-            Debug.Log("Regular Jump");
-            rb.AddForce(new Vector3(0, jumpForceDoubleJump, 0), ForceMode.Impulse);
+            rb.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
         }
 
         EventDispatcher.Raise<StressAbility>(new StressAbility());

@@ -6,14 +6,31 @@ public class DecayTrigger : MonoBehaviour
 {
     private Rigidbody rb;
     [SerializeField] private float decayTime = 0.2f;
+
+    private PhysicsObject physicsScript;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        physicsScript = GetComponent<PhysicsObject>();
+
+        // Subscribe to the reset event.
+        if (physicsScript != null)
+        {
+            physicsScript.OnResetEvent += HandleReset;
+        }
+    }
+
+    // When the reset event is fired, set kinematic to true.
+    private void HandleReset()
+    {
+        rb.isKinematic = true;
     }
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player")) {
+        if (other.CompareTag("Player"))
+        {
             StartCoroutine(UnfreezeYAxis());
         }
     }
@@ -21,7 +38,16 @@ public class DecayTrigger : MonoBehaviour
     IEnumerator UnfreezeYAxis()
     {
         yield return new WaitForSeconds(decayTime);
-        // set kinematic to false to allow gravity to take effect
+        // Allow gravity to take effect by making the rigidbody non-kinematic.
         rb.isKinematic = false;
+    }
+
+    // Don't forget to unsubscribe when the object is destroyed!
+    private void OnDestroy()
+    {
+        if (physicsScript != null)
+        {
+            physicsScript.OnResetEvent -= HandleReset;
+        }
     }
 }

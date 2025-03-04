@@ -16,10 +16,12 @@ public class TransformationWheel : KeyActionReceiver
     //private int numOfSelection = 4;
     
     [SerializeField] private GameObject transformWheel;
+
+    [SerializeField] private GameObject lockout;
     [SerializeField] private Image lockoutBar;
     
-    public GameObject[]  transformationItems; //0[BULLDOZER], 1[FROG], 2[BALL], 3[TERRY]
-    public Image[] transformationFills; //0[BULLDOZER], 1[FROG], 2[BALL], 3[TERRY] PARRALLALE WITH transformationItems
+    public GameObject[] transformationItems; //0[BULLDOZER], 1[FROG], 2[BALL], 3[TERRY]
+    public Image[] transformationFills; //0[BULLDOZER], 1[FROG], 2[BALL], 3[TERRY] parallel with transformationItems
     
     private TransformationItem transformation;
     private TransformationItem previousTransformation;
@@ -33,6 +35,9 @@ public class TransformationWheel : KeyActionReceiver
     public float transformCost = 25f; //the amount of "charge" it takes to transform
 
     [SerializeField] private bool _dbug = false;
+
+    // Toggle for lockout system functionality.
+    [SerializeField] private bool lockoutEnabled = true;
 
     [SerializeField] private AudioData transformationSound;
 
@@ -59,6 +64,16 @@ public class TransformationWheel : KeyActionReceiver
         smoke = Player.Instance.transform.Find("Smoke").gameObject;
         smokeAnimator = smoke.GetComponent<Animator>();
 
+        // Enable or disable the lockoutBar based on lockoutEnabled.
+        if (!lockoutEnabled)
+        {
+            lockout.gameObject.SetActive(false);
+        }
+        else
+        {
+            lockout.gameObject.SetActive(true);
+        }
+
         SetWheel();
     }
 
@@ -76,19 +91,19 @@ public class TransformationWheel : KeyActionReceiver
             return;
         }
         
-        //Radial unit circle based off of screen and mouse position
+        // Radial unit circle based off of screen and mouse position.
         normalisedMousePosition = new Vector2(Input.mousePosition.x - Screen.width/2, 
             Input.mousePosition.y - Screen.height/2);
         
-        // Because wheel is rotated add 45 to offset angle. Remove 45 at end if changed
+        // Because wheel is rotated add 45 to offset angle.
         currentAngle = Mathf.Atan2(normalisedMousePosition.y, 
             normalisedMousePosition.x) * Mathf.Rad2Deg + 45;
         
-        //bind angle to between 0 and 360 and clamp range between 0 and 359 to 
-        currentAngle = Mathf.Clamp((currentAngle + 360)%360, 0, 359);
+        // Bind angle between 0 and 360.
+        currentAngle = Mathf.Clamp((currentAngle + 360) % 360, 0, 359);
         
-        //create index based off section of wheel over the number of selections
-        hoveredSelection = (int)currentAngle/(360/transformationItems.Length);
+        // Create index based off section of wheel over the number of selections.
+        hoveredSelection = (int)currentAngle / (360 / transformationItems.Length);
 
         if (hoveredSelection != previousHover)
         {
@@ -121,33 +136,40 @@ public class TransformationWheel : KeyActionReceiver
         }
 
         var form = transformation.GetForm();
-        // Commented out Lockout functionality:
-        // if no charge left, and you're not trying to turn into terry, you can't transform
-        // if (LockoutProgresses[transformation.GetForm().transformation] <= 0 &&
-        //     form.transformation != Transformation.TERRY) return;
 
-        // Play a random transformation sound from the list
+        // Lockout functionality: if enabled, prevent transforming when charge is 0 (except for TERRY).
+        if (lockoutEnabled)
+        {
+            if (LockoutProgresses[transformation.GetForm().transformation] <= 0 &&
+                form.transformation != Transformation.TERRY)
+                return;
+        }
+
+        // Play a random transformation sound.
         AudioManager.Instance?.PlayOneShot(transformationSound);
 
         Player.Instance.SetTransformation(form.transformation);
         transformWheel.SetActive(false);
 
-        // Commented out subtracting lockout progress:
-        // now, check that you're not substracting from the same transformation
-        // if (previousTransformation != transformation) SubtractProgress(form.transformation, transformCost);
-
+        // Lockout functionality: subtract lockout progress if not the same transformation.
+        if (lockoutEnabled)
+        {
+            if (previousTransformation != transformation)
+                SubtractProgress(form.transformation, transformCost);
+        }
+        
         Debug.Log("Current: " + transformation.GetForm().transformation + " Previous: " + previousTransformation.GetForm().transformation);
         
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
     }
 
     private void hoverSelect() {
-        //activate previous hover's animation
+        // Activate previous hover's animation.
         previousTransformation = transformationItems[previousHover].GetComponent<TransformationItem>();
         previousTransformation.HoverExit();
         previousHover = hoveredSelection;
         
-        //activate current hover's animaton.
+        // Activate current hover's animation.
         transformation = transformationItems[hoveredSelection].GetComponent<TransformationItem>();
         transformation.HoverEnter();
     }
@@ -170,59 +192,67 @@ public class TransformationWheel : KeyActionReceiver
 
     void SubtractProgress(Transformation t, float amt)
     {
-        // Commented out Lockout functionality:
-        // if (t == Transformation.TERRY)
-        // {
-        //     lockoutBar.fillAmount = 100;
-        //     return;
-        // }
+        // If lockout is disabled, do nothing.
+        if (!lockoutEnabled) return;
+
+        if (t == Transformation.TERRY)
+        {
+            lockoutBar.fillAmount = 100;
+            return;
+        }
         
-        // Debug.Log("Subtracting from lockout: " + amt + " Current Lockout Charge for " + t + " : " + LockoutProgresses[t]);
-        // LockoutProgresses[t] -= amt;
-        // lockoutBar.fillAmount = LockoutProgresses[t] / 100;
-        // transformationFills[GetIntTransform()].fillAmount = LockoutProgresses[t] / 100;
-        // if (LockoutProgresses[t] <= 0f) Locked();
+        Debug.Log("Subtracting from lockout: " + amt + " Current Lockout Charge for " + t + " : " + LockoutProgresses[t]);
+        LockoutProgresses[t] -= amt;
+        lockoutBar.fillAmount = LockoutProgresses[t] / 100;
+        transformationFills[GetIntTransform()].fillAmount = LockoutProgresses[t] / 100;
+        if (LockoutProgresses[t] <= 0f) Locked();
     }
 
     void AddProgress(Transformation t, float amt)
     {
-        // Commented out Lockout functionality:
-        // if (t == Transformation.TERRY)
-        // {
-        //     lockoutBar.fillAmount = 100;
-        //     return;
-        // }
+        // If lockout is disabled, do nothing.
+        if (!lockoutEnabled) return;
 
-        // Debug.Log("Adding to lockout: " + amt + " Current Lockout Charge for " + t + " : " + LockoutProgresses[t]);
-        // LockoutProgresses[t] += amt;
-        // lockoutBar.fillAmount = LockoutProgresses[t] / 100;
-        // transformationFills[(int)t].fillAmount = LockoutProgresses[t] / 100;
-        // if (LockoutProgresses[t] <= maxLockoutCharge) LockoutProgresses[t] = maxLockoutCharge;
+        if (t == Transformation.TERRY)
+        {
+            lockoutBar.fillAmount = 100;
+            return;
+        }
+
+        Debug.Log("Adding to lockout: " + amt + " Current Lockout Charge for " + t + " : " + LockoutProgresses[t]);
+        LockoutProgresses[t] += amt;
+        lockoutBar.fillAmount = LockoutProgresses[t] / 100;
+        transformationFills[(int)t].fillAmount = LockoutProgresses[t] / 100;
+        if (LockoutProgresses[t] <= maxLockoutCharge) LockoutProgresses[t] = maxLockoutCharge;
     }
 
     public void ResetProgress()
     {
-        // Commented out Lockout functionality:
-        // foreach (var key in LockoutProgresses.Keys)
-        // {
-        //     LockoutProgresses[key] = maxLockoutCharge;
-        // }
-        // lockoutBar.fillAmount = 1;
+        // If lockout is disabled, do nothing.
+        if (!lockoutEnabled) return;
+
+        foreach (var key in LockoutProgresses.Keys.ToList())
+        {
+            LockoutProgresses[key] = maxLockoutCharge;
+        }
+        lockoutBar.fillAmount = 1;
     }
 
     void SetWheel()
     {
-        // Commented out Lockout functionality:
-        // LockoutProgresses[Transformation.FROG] = maxLockoutCharge;
-        // LockoutProgresses[Transformation.TERRY] = maxLockoutCharge;
-        // LockoutProgresses[Transformation.BULLDOZER] = maxLockoutCharge;
-        // LockoutProgresses[Transformation.BALL] = maxLockoutCharge;
+        // Initialize lockout charges if the lockout system is enabled.
+        if (lockoutEnabled)
+        {
+            LockoutProgresses[Transformation.FROG] = maxLockoutCharge;
+            LockoutProgresses[Transformation.TERRY] = maxLockoutCharge;
+            LockoutProgresses[Transformation.BULLDOZER] = maxLockoutCharge;
+            LockoutProgresses[Transformation.BALL] = maxLockoutCharge;
+        }
     }
 
     void Locked()
     {
-        // Commented out Lockout functionality:
-        // handle any extra functionalities here
-        // Debug.LogWarning("Locked Out!");
+        // Handle any extra functionalities when locked out.
+        Debug.LogWarning("Locked Out!");
     }
 }

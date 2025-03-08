@@ -23,7 +23,10 @@ public class AudioManager : MonoBehaviour
 
     [SerializeField] private AudioSource musicSource; // Dedicated music AudioSource
     [SerializeField, Range(0f, 1f)]
-    private float overallMusicVolume = 1f; 
+    private float overallMusicVolume = 1f;
+    public bool randomizePitch = true;
+    [SerializeField] float lowestPitch  = .95f;
+    [SerializeField] float highestPitch = 1.05f;
 
     [SerializeField, Range(0f, 1f)]
     private float overallSFXVolume = 1f;  
@@ -86,6 +89,7 @@ public class AudioManager : MonoBehaviour
         AudioSource source = AudioPool.Instance.GetAudioSource(parent);
         if (source != null)
         {
+            source.pitch = randomizePitch ? UnityEngine.Random.Range(lowestPitch, highestPitch) : 1f;
             source.spatialBlend = 1.0f;
             source.volume = data.volume * overallSFXVolume;
             source.PlayOneShot(data.clip);
@@ -105,6 +109,7 @@ public class AudioManager : MonoBehaviour
         AudioSource source = AudioPool.Instance.GetAudioSource(null);
         if (source != null)
         {
+            source.pitch = randomizePitch ? UnityEngine.Random.Range(lowestPitch, highestPitch) : 1f;
             source.spatialBlend = 0.0f;
             source.volume = data.volume * overallSFXVolume;
             source.PlayOneShot(data.clip);
@@ -124,6 +129,7 @@ public class AudioManager : MonoBehaviour
         AudioSource source = AudioPool.Instance.GetAudioSource(parent);
         if (source != null)
         {
+            source.pitch = randomizePitch ? UnityEngine.Random.Range(lowestPitch, highestPitch) : 1f;
             source.clip = data.clip;
             source.volume = data.volume * overallSFXVolume;
             source.loop = data.loop;
@@ -149,6 +155,7 @@ public class AudioManager : MonoBehaviour
         AudioSource source = AudioPool.Instance.GetAudioSource(null);
         if (source != null)
         {
+            source.pitch = randomizePitch ? UnityEngine.Random.Range(lowestPitch, highestPitch) : 1f;
             source.clip = data.clip;
             source.volume = data.volume * overallSFXVolume;
             source.loop = data.loop;

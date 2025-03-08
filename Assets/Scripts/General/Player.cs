@@ -284,7 +284,7 @@ public class Player : KeyActionReceiver<Player>
     }
 
     public void TransformationHandler() {
-        if (UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive)) return;
+        if (!isGrounded || (UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive))) return;
 
         transformationWheel.gameObject.SetActive(!transformationWheel.gameObject.activeSelf);
         canMoveToggle(!transformationWheel.gameObject.activeSelf);

@@ -109,7 +109,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
 
     private void InputHandler()
     {
-        if (InputManager.Instance.isListening) {
+        if (InputManager.Instance && InputManager.Instance.isListening) {
             return;
         }
 
@@ -247,10 +247,12 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         // Initialize lockout charges if the lockout system is enabled.
         if (lockoutEnabled)
         {
-            LockoutProgresses[Transformation.FROG] = maxLockoutCharge;
-            LockoutProgresses[Transformation.TERRY] = maxLockoutCharge;
-            LockoutProgresses[Transformation.BULLDOZER] = maxLockoutCharge;
-            LockoutProgresses[Transformation.BALL] = maxLockoutCharge;
+            LockoutProgresses.Add(Transformation.BULLDOZER, maxLockoutCharge);
+            LockoutProgresses.Add(Transformation.FROG, maxLockoutCharge);
+            LockoutProgresses.Add(Transformation.BALL, maxLockoutCharge);
+            LockoutProgresses.Add(Transformation.TERRY, maxLockoutCharge);
+
+            HandleNulls();
         }
     }
 
@@ -258,5 +260,51 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     {
         // Handle any extra functionalities when locked out.
         Debug.LogWarning("Locked Out!");
+    }
+
+    void HandleNulls()
+    {
+        if (lockout.gameObject == null)
+        {
+            try
+            {
+                lockout = GameObject.Find("Lockout Bar Canvas");
+            }
+            catch
+            {
+                Debug.LogError("Lockout Bar not set in the inspector");
+            }
+
+        }
+
+        if (transformationItems.Length == 0)
+        {
+            try
+            {
+                transformationItems[0] = GameObject.Find("Bulldozer Menu Form");
+                transformationItems[1] = GameObject.Find("Frog Menu Form");
+                transformationItems[2] = GameObject.Find("Boulder Menu Form");
+                transformationItems[3] = GameObject.Find("Terry Menu Form");
+            }
+            catch
+            {
+                Debug.LogError("Transformation Items not set in the inspector");
+            }
+        }
+
+        if (transformationFills.Length == 0)
+        {
+            try
+            {
+                transformationFills[0] = GameObject.Find("Fill Charge Bulldozer").GetComponent<Image>();
+                transformationFills[1] = GameObject.Find("Fill Charge Frog").GetComponent<Image>();
+                transformationFills[2] = GameObject.Find("Fill Charge Boulder").GetComponent<Image>();
+                transformationFills[3] = GameObject.Find("Fill Charge Terry").GetComponent<Image>();
+            }
+            catch
+            {
+                Debug.LogError("Transformation Fills not set in the inspector");
+            }
+        }
     }
 }

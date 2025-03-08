@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using System.Linq;
 
-public class TransformationWheel : KeyActionReceiver
+public class TransformationWheel : KeyActionReceiver<TransformationWheel>
 {
     public Vector2 normalisedMousePosition;
     public float currentAngle;
@@ -41,22 +41,18 @@ public class TransformationWheel : KeyActionReceiver
 
     [SerializeField] private AudioData transformationSound;
 
-    public void InitializeActionMap()
-    {
-        actionMap = new Dictionary<string, Action<InputAction.CallbackContext>>()
+    // Static key mapping shared across all TransformationWheel instances.
+    public static Dictionary<string, Action<TransformationWheel, InputAction.CallbackContext>> staticKeyMapping =
+        new Dictionary<string, Action<TransformationWheel, InputAction.CallbackContext>>()
         {
-            { "Ball", ctx => controllerSelect(0) },
-            { "Frog", ctx => controllerSelect(1) },
-            { "Bulldozer", ctx => controllerSelect(2) },
-            { "Terry", ctx => controllerSelect(3) },
-            { "Confirm", ctx => { if (ctx.performed) Transform(); } }
+            { "Ball", (wheel, ctx) => wheel.controllerSelect(0) },
+            { "Frog", (wheel, ctx) => wheel.controllerSelect(1) },
+            { "Bulldozer", (wheel, ctx) => wheel.controllerSelect(2) },
+            { "Terry", (wheel, ctx) => wheel.controllerSelect(3) },
+            { "Confirm", (wheel, ctx) => wheel.Transform(ctx) }
         };
 
-        foreach (var action in actionMap.Keys)
-        {
-            InputManager.Instance.AddKeyBind(this, action, "Gameplay");
-        }
-    }
+    protected override Dictionary<string, Action<TransformationWheel, InputAction.CallbackContext>> KeyMapping => staticKeyMapping;
 
     // Start is called before the first frame update
     void Start()
@@ -113,7 +109,7 @@ public class TransformationWheel : KeyActionReceiver
 
     private void InputHandler()
     {
-        if (InputManager.Instance.IsInputEnabled) {
+        if (InputManager.Instance.isListening) {
             return;
         }
 
@@ -161,6 +157,14 @@ public class TransformationWheel : KeyActionReceiver
         Debug.Log("Current: " + transformation.GetForm().transformation + " Previous: " + previousTransformation.GetForm().transformation);
         
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
+    }
+
+    private void Transform(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            Transform();
+        }
     }
 
     private void hoverSelect() {

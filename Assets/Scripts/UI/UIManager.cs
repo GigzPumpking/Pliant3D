@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,16 +7,14 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-public class UIManager : MonoBehaviour
+public class UIManager : KeyActionReceiver<UIManager>
 {
     private static UIManager instance;
-
     public static UIManager Instance { get { return instance; } }
 
     private Dialogue dialogueScript;
 
     public bool isDialogueActive = false;
-
     public GameObject sceneTransition;
 
     private GameObject pauseMenu;
@@ -37,6 +36,18 @@ public class UIManager : MonoBehaviour
             return pauseMenu.activeSelf;
         }
     }
+
+    // Serialized list of back button GameObjects representing different menus.
+    [SerializeField] private List<GameObject> backButtons = new List<GameObject>();
+
+    // Static key mapping shared across all UIManager instances.
+    public static Dictionary<string, Action<UIManager, InputAction.CallbackContext>> staticKeyMapping =
+        new Dictionary<string, Action<UIManager, InputAction.CallbackContext>>()
+        {
+            { "Cancel", (instance, ctx) => instance.Cancel(ctx) }
+        };
+
+    protected override Dictionary<string, Action<UIManager, InputAction.CallbackContext>> KeyMapping => staticKeyMapping;
 
     void Awake()
     {
@@ -81,7 +92,7 @@ public class UIManager : MonoBehaviour
         // Pause the game
         AudioManager.Instance?.PlayOneShot(pauseSound);
 
-        //no null checks here since I want to know if there is something not being found
+        // no null checks here since I want to know if there is something not being found
         if (pauseMenu.activeSelf) {
             pauseButton?.SetActive(true);
             resumeButton?.SetActive(false);
@@ -135,5 +146,33 @@ public class UIManager : MonoBehaviour
     public GameObject returnPauseMenu()
     {
         return pauseMenu;
+    }
+
+    // Overload to support InputAction.CallbackContext.
+    public void Cancel(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            Cancel();
+        }
+    }
+
+    // This Cancel method loops through the backButtons list in reverse order.
+    // When it finds the most recent button that is active in the hierarchy,
+    // it invokes its onClick event.
+    public void Cancel()
+    {
+        for (int i = backButtons.Count - 1; i >= 0; i--)
+        {
+            if (backButtons[i] != null && backButtons[i].activeInHierarchy)
+            {
+                Button backButtonComponent = backButtons[i].GetComponent<Button>();
+                if (backButtonComponent != null)
+                {
+                    backButtonComponent.onClick.Invoke();
+                    return;
+                }
+            }
+        }
     }
 }

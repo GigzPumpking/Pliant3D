@@ -1,9 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Player : KeyActionReceiver
+public class Player : KeyActionReceiver<Player>
 {
     // Instance 
     private static Player instance;
@@ -65,14 +66,29 @@ public class Player : KeyActionReceiver
 
     [SerializeField] private bool _dbug = false;
 
-    void OnEnable()
+    // Static key mapping shared across all Player instances.
+    public static Dictionary<string, Action<Player, InputAction.CallbackContext>> staticKeyMapping =
+        new Dictionary<string, Action<Player, InputAction.CallbackContext>>()
+        {
+            { "Move", (instance, ctx) => instance.setMovementInput(ctx) },
+            { "Transform", (instance, ctx) => instance.TransformationHandler(ctx) },
+            { "Interact", (instance, ctx) => instance.InteractHandler(ctx) },
+            { "Ability1", (instance, ctx) => instance.Ability1Handler(ctx) },
+            { "Ability2", (instance, ctx) => instance.Ability2Handler(ctx) }
+        };
+
+    protected override Dictionary<string, Action<Player, InputAction.CallbackContext>> KeyMapping => staticKeyMapping;
+
+    protected override void OnEnable()
     {
+        base.OnEnable();
         EventDispatcher.AddListener<StressDebuff>(StressDebuffHandler);
         EventDispatcher.AddListener<TogglePlayerMovement>(e => canMoveToggle(e.isEnabled));
     }
 
-    void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
         EventDispatcher.RemoveListener<StressDebuff>(StressDebuffHandler);
         EventDispatcher.RemoveListener<TogglePlayerMovement>(e => canMoveToggle(e.isEnabled));
     }
@@ -115,9 +131,6 @@ public class Player : KeyActionReceiver
             animator.SetFloat("MoveY", -1);
         }
 
-        InitializeActionMap();
-        transformationWheelScript.InitializeActionMap();
-
         EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = "Player Initialized" });
     }
 
@@ -126,26 +139,6 @@ public class Player : KeyActionReceiver
         movementInput = Vector2.zero;
 
         animator?.SetBool("isWalking", false);
-    }
-
-    private void InitializeActionMap()
-    {
-        EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = "Initializing Player Input" });
-
-        actionMap = new Dictionary<string, System.Action<InputAction.CallbackContext>>()
-        {
-            { "Move", ctx => { setMovementInput(ctx); } },
-            { "Transform", ctx => { if (ctx.performed) TransformationHandler(); } },
-            { "Interact", ctx => { InteractHandler(ctx); } },
-            { "Ability1", ctx => { Ability1Handler(ctx); } },
-            { "Ability2", ctx => { Ability2Handler(ctx); } }
-        };
-
-        foreach (var action in actionMap.Keys)
-        {
-            EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = $"Adding keybind for {action} to action map" });
-            InputManager.Instance.AddKeyBind(this, action, "Gameplay");
-        }
     }
 
     public GameObject GetSmoke() {
@@ -177,7 +170,7 @@ public class Player : KeyActionReceiver
         EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = $"Setting movement input: {context.ReadValue<Vector2>()}" });
 
         // Use InputManager or another source to get the current movement vector
-        Vector2 moveValue = InputManager.Instance.IsInputEnabled
+        Vector2 moveValue = InputManager.Instance.isListening
             ? context.ReadValue<Vector2>()
             : Vector2.zero;
 
@@ -197,7 +190,7 @@ public class Player : KeyActionReceiver
         float verticalInput = movementInput.y;
         float horizontalInput = movementInput.x;
 
-        if (!InputManager.Instance || !InputManager.Instance.IsInputEnabled) {
+        if (!InputManager.Instance || !InputManager.Instance.isListening) {
             verticalInput = Input.GetAxis("Vertical");
             horizontalInput = Input.GetAxis("Horizontal");
             Debug.Log("Input System Disabled");
@@ -280,7 +273,7 @@ public class Player : KeyActionReceiver
         }
 
         // If Input System is disabled, use Input.GetKey
-        if (InputManager.Instance && InputManager.Instance.IsInputEnabled) {
+        if (InputManager.Instance && InputManager.Instance.isListening) {
             return;
         }
 
@@ -292,8 +285,15 @@ public class Player : KeyActionReceiver
 
     public void TransformationHandler() {
         if (UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive)) return;
+
         transformationWheel.gameObject.SetActive(!transformationWheel.gameObject.activeSelf);
         canMoveToggle(!transformationWheel.gameObject.activeSelf);
+    }
+
+    public void TransformationHandler(InputAction.CallbackContext context) {
+        if (context.performed) {
+            TransformationHandler();
+        }
     }
 
     public bool TransformationChecker() {

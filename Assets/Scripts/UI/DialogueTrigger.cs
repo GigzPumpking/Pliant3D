@@ -33,17 +33,34 @@ public class DialogueTrigger : MonoBehaviour
 
     void OnTriggerEnter(Collider other) {
         if (other.CompareTag("Player")) {
-            // If dialogueLines has been set, convert it into DialogueEntry objects.
-            if (dialogueLines != null && dialogueLines.Length > 0)
+            // Determine the maximum length among all three arrays.
+            int maxLength = 0;
+            if (dialogueLines != null) {
+                maxLength = Mathf.Max(maxLength, dialogueLines.Length);
+            }
+            if (keyboardDialogueLines != null) {
+                maxLength = Mathf.Max(maxLength, keyboardDialogueLines.Length);
+            }
+            if (controllerDialogueLines != null) {
+                maxLength = Mathf.Max(maxLength, controllerDialogueLines.Length);
+            }
+
+            if (maxLength > 0)
             {
-                DialogueEntry[] entries = new DialogueEntry[dialogueLines.Length];
-                for (int i = 0; i < dialogueLines.Length; i++)
+                DialogueEntry[] entries = new DialogueEntry[maxLength];
+                for (int i = 0; i < maxLength; i++)
                 {
                     entries[i] = new DialogueEntry();
-                    // Set default text, and optionally copy into device-specific fields.
-                    entries[i].defaultText = dialogueLines[i];
-                    entries[i].keyboardText = keyboardDialogueLines != null && keyboardDialogueLines.Length > i ? keyboardDialogueLines[i] : dialogueLines[i];
-                    entries[i].controllerText = controllerDialogueLines != null && controllerDialogueLines.Length > i ? controllerDialogueLines[i] : dialogueLines[i];
+                    // Use dialogueLines if available, otherwise fallback to empty.
+                    entries[i].defaultText = (dialogueLines != null && dialogueLines.Length > i) ? dialogueLines[i] : "";
+                    // For keyboard text, use keyboardDialogueLines if available; if not, fall back to dialogueLines.
+                    entries[i].keyboardText = (keyboardDialogueLines != null && keyboardDialogueLines.Length > i) 
+                        ? keyboardDialogueLines[i] 
+                        : ((dialogueLines != null && dialogueLines.Length > i) ? dialogueLines[i] : "");
+                    // For controller text, use controllerDialogueLines if available; if not, fall back to dialogueLines.
+                    entries[i].controllerText = (controllerDialogueLines != null && controllerDialogueLines.Length > i) 
+                        ? controllerDialogueLines[i] 
+                        : ((dialogueLines != null && dialogueLines.Length > i) ? dialogueLines[i] : "");
                 }
                 dialogue.SetDialogueEntries(entries);
             }

@@ -28,7 +28,7 @@ public class InputManagerEditor : Editor
             {
                 foreach (var kvp in typeDispatchers)
                 {
-                    EditorGUILayout.LabelField($"Type: {kvp.Key} - Dispatcher Registered", EditorStyles.boldLabel);
+                    EditorGUILayout.LabelField($"{kvp.Key}", EditorStyles.boldLabel);
                     EditorGUI.indentLevel++;
 
                     // Locate the receiver type by name.
@@ -54,7 +54,7 @@ public class InputManagerEditor : Editor
                                 {
                                     if (instance is MonoBehaviour mb)
                                     {
-                                        EditorGUILayout.LabelField($"{mb.GetType().Name} (ID: {mb.GetInstanceID()})");
+                                        EditorGUILayout.LabelField($"(ID: {mb.GetInstanceID()})");
                                     }
                                     else
                                     {

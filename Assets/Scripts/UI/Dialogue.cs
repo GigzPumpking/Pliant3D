@@ -2,31 +2,42 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using UnityEngine.InputSystem;
+
+[System.Serializable]
+public class DialogueEntry
+{
+    [TextArea]
+    public string defaultText;
+    [TextArea]
+    public string keyboardText;
+    [TextArea]
+    public string controllerText;
+}
 
 public class Dialogue : MonoBehaviour
 {
     public TextMeshProUGUI textDisplay;
     [SerializeField] TextMeshProUGUI continueButton;
-    public string[] sentences;
+    public DialogueEntry[] dialogueEntries;
     public float textSpeed;
     private int index;
     private bool active = false;
     
-    // New property that updates UIManager when changed
-    private bool Active {
+    // New property that updates UIManager when changed.
+    private bool Active
+    {
         get { return active; }
-        set {
+        set
+        {
             active = value;
-            if (UIManager.Instance != null) UIManager.Instance.isDialogueActive = value;
+            if (UIManager.Instance != null)
+                UIManager.Instance.isDialogueActive = value;
         }
     }
 
-    [SerializeField] InputActionAsset inputActionAsset;
+    [SerializeField] private Animator animator;
     string kbText = "Press 'E' to continue";
     string controllerText = "Press 'Y' to continue";
-
-    [SerializeField] private Animator animator;
 
     void OnEnable()
     {
@@ -50,98 +61,113 @@ public class Dialogue : MonoBehaviour
     {
         if (Active)
         {
-            checkNext();
+            CheckNext();
         }
     }
 
-    void StartDialogue() 
+    // Starts the dialogue. Note that any InputActionAsset references have been removed.
+    void StartDialogue()
     {
-        inputActionAsset.Enable();
+        // Optionally disable player movement here.
         Player.Instance.canMoveToggle(false);
 
-        Active = true;  // Use the property so UIManager is updated
+        Active = true;
         index = 0;
-        inputActionAsset.FindAction("Interact").performed += SetContinueText;
-
         StartCoroutine(TypeLine());
     }
 
-    void NextLine() 
+    void NextLine()
     {
-        if (index < sentences.Length - 1) 
+        if (index < dialogueEntries.Length - 1)
         {
             index++;
             textDisplay.text = string.Empty;
             StartCoroutine(TypeLine());
         }
-        else 
-        {    
+        else
+        {
             textDisplay.text = "";
             animator.Play("DialogueHide");
             EventDispatcher.Raise<EndDialogue>(new EndDialogue());
             EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
-            Active = false;  // Use the property so UIManager is updated
+            Active = false;
         }
     }
 
-    IEnumerator TypeLine() 
+    IEnumerator TypeLine()
     {
-        foreach (char letter in sentences[index].ToCharArray()) 
+        string sentence = GetCurrentSentence();
+        foreach (char letter in sentence.ToCharArray())
         {
             textDisplay.text += letter;
             yield return new WaitForSeconds(textSpeed);
         }
     }
 
-    public void setSentences(string[] sentences) 
+    public void SetDialogueEntries(DialogueEntry[] entries)
     {
-        this.sentences = sentences;
+        this.dialogueEntries = entries;
     }
 
-    public bool isActive() 
+    public bool IsActive()
     {
         return Active;
     }
 
-    public void Appear() 
+    public void Appear()
     {
-        if (!validSentences()) 
-        {
+        if (!ValidEntries())
             return;
-        }
 
-        // Play Dialogue Appear animation
         animator.Play("DialogueAppear");
         textDisplay.text = string.Empty;
-        // Start Dialogue after 1 second
+        // Start the dialogue after 1 second.
         Invoke("StartDialogue", 1.0f);
     }
 
-    public bool validSentences() 
+    public bool ValidEntries()
     {
-        return !(sentences == null || sentences.Length == 0);
+        return !(dialogueEntries == null || dialogueEntries.Length == 0);
     }
 
-    public void checkNext() 
+    public void CheckNext()
     {
-        if (textDisplay.text == sentences[index]) 
+        if (textDisplay.text == GetCurrentSentence())
         {
             NextLine();
-        } 
-        else 
+        }
+        else
         {
             StopAllCoroutines();
-            textDisplay.text = sentences[index];
+            textDisplay.text = GetCurrentSentence();
         }
     }
 
-    void SetContinueText(InputAction.CallbackContext ctx)
+    // Returns the sentence text for the current index based on the active device.
+    private string GetCurrentSentence()
     {
-        if (!Active) return;
+        if (dialogueEntries == null || dialogueEntries.Length <= index)
+            return "";
 
-        if(ctx.control.device is Keyboard || ctx.control.device is Mouse) 
+        DialogueEntry entry = dialogueEntries[index];
+        string activeDevice = InputManager.Instance?.ActiveDeviceType;
+        if ((activeDevice == "Keyboard" || activeDevice == "Mouse") && !string.IsNullOrEmpty(entry.keyboardText))
+        {
+            return entry.keyboardText;
+        }
+        else if (!string.IsNullOrEmpty(entry.controllerText) && activeDevice != "Keyboard" && activeDevice != "Mouse")
+        {
+            return entry.controllerText;
+        }
+        return entry.defaultText;
+    }
+
+    void Update()
+    {
+        // Update the continue button text based on the current active device.
+        if (InputManager.Instance?.ActiveDeviceType == "Keyboard" || InputManager.Instance?.ActiveDeviceType == "Mouse")
             continueButton.text = kbText;
-        else 
+        else
             continueButton.text = controllerText;
     }
 }

@@ -1,9 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 public class DialogueTrigger : MonoBehaviour
 {
+    // Existing field maintained for backwards compatibility.
     public string[] dialogueLines;
+    public string[] keyboardDialogueLines;
+    public string[] controllerDialogueLines;
     public GameObject interactBubble;
     [SerializeField] private Sprite keyboardSprite;
     [SerializeField] private Sprite controllerSprite;
@@ -14,7 +18,8 @@ public class DialogueTrigger : MonoBehaviour
     void OnEnable() {
         EventDispatcher.AddListener<Interact>(PlayerInteract);
         EventDispatcher.AddListener<EndDialogue>(EndDialogue);
-        interactBubble.SetActive(false);
+        if (interactBubble != null)
+            interactBubble.SetActive(false);
     }
 
     void Start() {
@@ -28,7 +33,20 @@ public class DialogueTrigger : MonoBehaviour
 
     void OnTriggerEnter(Collider other) {
         if (other.CompareTag("Player")) {
-            UIManager.Instance.returnDialogue().setSentences(dialogueLines);
+            // If dialogueLines has been set, convert it into DialogueEntry objects.
+            if (dialogueLines != null && dialogueLines.Length > 0)
+            {
+                DialogueEntry[] entries = new DialogueEntry[dialogueLines.Length];
+                for (int i = 0; i < dialogueLines.Length; i++)
+                {
+                    entries[i] = new DialogueEntry();
+                    // Set default text, and optionally copy into device-specific fields.
+                    entries[i].defaultText = dialogueLines[i];
+                    entries[i].keyboardText = keyboardDialogueLines != null && keyboardDialogueLines.Length > i ? keyboardDialogueLines[i] : dialogueLines[i];
+                    entries[i].controllerText = controllerDialogueLines != null && controllerDialogueLines.Length > i ? controllerDialogueLines[i] : dialogueLines[i];
+                }
+                dialogue.SetDialogueEntries(entries);
+            }
             interactBubble.SetActive(true);
             inRadius = true;
         }
@@ -43,7 +61,7 @@ public class DialogueTrigger : MonoBehaviour
     }
 
     void PlayerInteract(Interact e) {
-        if (inRadius && !dialogue.isActive() && interactBubble.activeSelf && !triggered) {
+        if (inRadius && !dialogue.IsActive() && interactBubble.activeSelf && !triggered) {
             triggered = true;
             dialogue.Appear();
             EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = false });
@@ -62,15 +80,17 @@ public class DialogueTrigger : MonoBehaviour
 
     void Update() {
         if (InputManager.Instance?.ActiveDeviceType == "Keyboard" || InputManager.Instance?.ActiveDeviceType == "Mouse") {
-            interactBubble.GetComponent<SpriteRenderer>().sprite = keyboardSprite;
-            // reset scale of interactBubble
-            interactBubble.transform.localScale = new Vector3(1, 1, 1);
+            SpriteRenderer sr = interactBubble.GetComponent<SpriteRenderer>();
+            if (sr != null) {
+                sr.sprite = keyboardSprite;
+                interactBubble.transform.localScale = new Vector3(1, 1, 1);
+            }
         } else {
-            interactBubble.GetComponent<SpriteRenderer>().sprite = controllerSprite;
-            // scale interactBubble to 0.333
-            interactBubble.transform.localScale = new Vector3(0.333f, 0.333f, 1f);
+            SpriteRenderer sr = interactBubble.GetComponent<SpriteRenderer>();
+            if (sr != null) {
+                sr.sprite = controllerSprite;
+                interactBubble.transform.localScale = new Vector3(0.333f, 0.333f, 1f);
+            }
         }
     }
-
-    
 }

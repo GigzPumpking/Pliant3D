@@ -2018,7 +2018,6 @@ GameObject:
   - component: {fileID: 2688863441274748362}
   - component: {fileID: 2688863441274748363}
   - component: {fileID: 2688863441274748367}
-  - component: {fileID: 2161925056075195604}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -2124,30 +2123,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1133085b4592d4ed08b268012486d86d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isDialogueActive: 0
   sceneTransition: {fileID: 2688863442407292815}
-  pauseMenu: {fileID: 0}
-  pauseMain: {fileID: 0}
-  controls: {fileID: 0}
-  settings: {fileID: 0}
-  pauseButton: {fileID: 0}
   pauseButtonTextKb: PAUSE (ESC)
   pauseButtonTextController: PAUSE (START)
-  resumeButton: {fileID: 0}
---- !u!114 &2161925056075195604
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2688863441274748360}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 08779d7bfb0e342f4b5c92815845eeab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  audioClips:
-  - clip: {fileID: 8300000, guid: c8dbfa328b96842baa58fe3b133db82c, type: 3}
-    name: Crumple Select
+  pauseSound:
+    clip: {fileID: 8300000, guid: c8dbfa328b96842baa58fe3b133db82c, type: 3}
+    name: 
     volume: 1
     pitch: 1
     loop: 0
@@ -4241,6 +4223,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8242732473923773689}
   - component: {fileID: 7820872184356520937}
+  - component: {fileID: 6453524735044416305}
   m_Layer: 5
   m_Name: Slider
   m_TagString: Untagged
@@ -4321,20 +4304,19 @@ MonoBehaviour:
   m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 3573068608414637599, guid: 8e33bf64478c2ae4aa075aa9d6bef480,
-          type: 3}
-        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
-        m_MethodName: SetMusicVolume
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 1
+      m_Calls: []
+--- !u!114 &6453524735044416305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4373497683436548497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a25b9a82043142ed9808929bea30376, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4455399201133880977
 GameObject:
   m_ObjectHideFlags: 0
@@ -6972,6 +6954,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2056987501752857469}
   - component: {fileID: 338909730498398299}
+  - component: {fileID: 8355386053977798162}
   m_Layer: 5
   m_Name: Slider
   m_TagString: Untagged
@@ -7052,20 +7035,19 @@ MonoBehaviour:
   m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 3573068608414637599, guid: 8e33bf64478c2ae4aa075aa9d6bef480,
-          type: 3}
-        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
-        m_MethodName: SetSFXVolume
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 1
+      m_Calls: []
+--- !u!114 &8355386053977798162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8011287617927920197}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d50ef9a64bd984356a23dd8d0ca7dbad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8215304151609218596
 GameObject:
   m_ObjectHideFlags: 0

@@ -16,12 +16,11 @@ public class Bulldozer : FormScript
     public override void OnEnable()
     {
         base.OnEnable();
-        audioPlayer?.PlayOneShot("Bulldozer");
     }
 
     public void OnDisable()
     {
-        Physics.IgnoreLayerCollision(playerLayer, walkableLayer, false);
+        PushState(false);
 
         // Unhighlight the highlighted Interactable
         if (highlightedInteractable != null)
@@ -33,8 +32,6 @@ public class Bulldozer : FormScript
 
     public void PushState(bool state)
     {
-        Debug.Log("PushState: " + state);
-
         Physics.IgnoreLayerCollision(playerLayer, walkableLayer, state);
 
         rb.mass = state ? 1000 : 1;
@@ -42,8 +39,6 @@ public class Bulldozer : FormScript
 
     public override void Ability1(InputAction.CallbackContext context)
     {
-        Debug.Log("Bulldozer Ability 1");
-
         if (context.performed)
         {
             PushState(true);

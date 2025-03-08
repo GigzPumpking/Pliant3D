@@ -121,6 +121,13 @@ public class Player : KeyActionReceiver
         EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = "Player Initialized" });
     }
 
+    public void stopMovement() {
+        rbody.velocity = Vector3.zero;
+        movementInput = Vector2.zero;
+
+        animator?.SetBool("isWalking", false);
+    }
+
     private void InitializeActionMap()
     {
         EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = "Initializing Player Input" });
@@ -129,7 +136,7 @@ public class Player : KeyActionReceiver
         {
             { "Move", ctx => { setMovementInput(ctx); } },
             { "Transform", ctx => { if (ctx.performed) TransformationHandler(); } },
-            { "Interact", ctx => { if (ctx.performed) EventDispatcher.Raise<Interact>(new Interact()); } },
+            { "Interact", ctx => { InteractHandler(ctx); } },
             { "Ability1", ctx => { Ability1Handler(ctx); } },
             { "Ability2", ctx => { Ability2Handler(ctx); } }
         };
@@ -143,6 +150,12 @@ public class Player : KeyActionReceiver
 
     public GameObject GetSmoke() {
         return smoke.gameObject;
+    }
+
+    void InteractHandler(InputAction.CallbackContext context) {
+        if (context.performed && transformation == Transformation.TERRY) {
+            EventDispatcher.Raise<Interact>(new Interact());
+        }
     }
 
     void Update() {
@@ -278,9 +291,9 @@ public class Player : KeyActionReceiver
     }
 
     public void TransformationHandler() {
-        if (UIManager.Instance && UIManager.Instance.isPaused) return;
+        if (UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive)) return;
         transformationWheel.gameObject.SetActive(!transformationWheel.gameObject.activeSelf);
-        canMove = !transformationWheel.gameObject.activeSelf;
+        canMoveToggle(!transformationWheel.gameObject.activeSelf);
     }
 
     public bool TransformationChecker() {
@@ -369,5 +382,8 @@ public class Player : KeyActionReceiver
 
     public void canMoveToggle(bool toggle) {
         canMove = toggle;
+        if (!canMove) {
+            stopMovement();
+        }
     }
 }

@@ -4,22 +4,16 @@ using UnityEngine;
 
 public class MatchObject : MonoBehaviour
 {
-    public GameObject matchObject;
+    // List of objects to match
+    public List<GameObject> matchObjects;
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject == matchObject)
+        if (matchObjects.Contains(other.gameObject))
         {
             Debug.Log("Matched!");
-            matchObject.SetActive(false);
-        }
-    }
 
-    void OnTriggerExit(Collider other)
-    {
-        if (other.gameObject == matchObject)
-        {
-            Debug.Log("Unmatched!");
+            other.gameObject.SetActive(false);
         }
     }
 }

@@ -11,6 +11,8 @@ public class GameManager : KeyActionReceiver
     [SerializeField] private Transform player;
     private TransformationWheel transformWheel;
 
+    [SerializeField] private AudioData mainTheme;
+
     private void InitializeActionMap()
     {
         actionMap = new Dictionary<string, System.Action<InputAction.CallbackContext>>()
@@ -38,6 +40,11 @@ public class GameManager : KeyActionReceiver
         DontDestroyOnLoad(this.gameObject);
 
         InitializeActionMap();
+    }
+
+    void Start()
+    {
+        AudioManager.Instance?.PlayMusic(mainTheme);
     }
 
     public void SetPlayer(Transform player)

@@ -442,7 +442,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3430364011209676718}
   - component: {fileID: 988260398720856470}
-  - component: {fileID: 426618590570956564}
   m_Layer: 3
   m_Name: Ball
   m_TagString: Player
@@ -479,22 +478,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4e57bf8e72d24719bf031c2ea9d4dee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  raycastDistance: 1
+  initialSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  raycastDistanceDef: 1
   yOffset: 0.5
   jumpForce: 6
---- !u!114 &426618590570956564
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2025178615696767744}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 08779d7bfb0e342f4b5c92815845eeab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  audioClips: []
+  jumpForceDoubleJump: 3
+  doubleJumpForgivenessTimeAfter: 0.25
+  doubleJumpForgivenessDistBefore: 0.5
 --- !u!1 &5282580748817037146
 GameObject:
   m_ObjectHideFlags: 0
@@ -987,7 +981,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5554935718480476514}
   - component: {fileID: 1117230621019193541}
-  - component: {fileID: 5206915744340330859}
   m_Layer: 3
   m_Name: Bulldozer
   m_TagString: Player
@@ -1025,25 +1018,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a95dd5783064d3ab04f8240f896a38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  detectionRange: 5
---- !u!114 &5206915744340330859
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5554935718480476445}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 08779d7bfb0e342f4b5c92815845eeab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  audioClips:
-  - clip: {fileID: 8300000, guid: 9455992d30553445dbc3ca96fb7221de, type: 3}
-    name: Bulldozer
+  initialSound:
+    clip: {fileID: 8300000, guid: 9455992d30553445dbc3ca96fb7221de, type: 3}
     volume: 1
     pitch: 1
     loop: 0
+  detectionRange: 5
 --- !u!1 &5554935718531090984
 GameObject:
   m_ObjectHideFlags: 0
@@ -1054,7 +1034,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5554935718531090985}
   - component: {fileID: 623297482}
-  - component: {fileID: 2275175971266902757}
   m_Layer: 3
   m_Name: Terry
   m_TagString: Player
@@ -1092,19 +1071,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3b093bb8f33f45e5a85982c5c08afa7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &2275175971266902757
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5554935718531090984}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 08779d7bfb0e342f4b5c92815845eeab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  audioClips: []
+  initialSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
 --- !u!1 &5554935718921339229
 GameObject:
   m_ObjectHideFlags: 0
@@ -1115,7 +1086,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5554935718921339554}
   - component: {fileID: 135021753469456430}
-  - component: {fileID: 3593954799270076600}
   m_Layer: 3
   m_Name: Frog
   m_TagString: Player
@@ -1154,25 +1124,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c893a2921c7d44b29886e2cc4abda98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  initialSound:
+    clip: {fileID: 8300000, guid: ad432114f38d24af793ed1aa4d6e4ef9, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
   jumpForce: 6
   raycastDistance: 1
   yOffset: 0.5
   detectionRange: 5
   hookDuration: 1
   hookForce: 10
---- !u!114 &3593954799270076600
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5554935718921339229}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 08779d7bfb0e342f4b5c92815845eeab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  audioClips: []
 --- !u!1 &5554935719030741615
 GameObject:
   m_ObjectHideFlags: 0
@@ -1862,7 +1824,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2888137262091370360
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2176,6 +2138,51 @@ PrefabInstance:
       propertyPath: lockoutBar
       value: 
       objectReference: {fileID: 5985399260397143552}
+    - target: {fileID: 1165598314087867329, guid: 0dea42d2347518b40a53a43893b962d1,
+        type: 3}
+      propertyPath: transformationSound.clip
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1165598314087867329, guid: 0dea42d2347518b40a53a43893b962d1,
+        type: 3}
+      propertyPath: transformationSound.volume
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1165598314087867329, guid: 0dea42d2347518b40a53a43893b962d1,
+        type: 3}
+      propertyPath: transformationSounds.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1165598314087867329, guid: 0dea42d2347518b40a53a43893b962d1,
+        type: 3}
+      propertyPath: transformationSounds.Array.data[0].clip
+      value: 
+      objectReference: {fileID: 8300000, guid: fe702f81c907f45339f7f5d71d1eaa5e, type: 3}
+    - target: {fileID: 1165598314087867329, guid: 0dea42d2347518b40a53a43893b962d1,
+        type: 3}
+      propertyPath: transformationSounds.Array.data[1].clip
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1165598314087867329, guid: 0dea42d2347518b40a53a43893b962d1,
+        type: 3}
+      propertyPath: transformationSounds.Array.data[0].pitch
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1165598314087867329, guid: 0dea42d2347518b40a53a43893b962d1,
+        type: 3}
+      propertyPath: transformationSounds.Array.data[1].pitch
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1165598314087867329, guid: 0dea42d2347518b40a53a43893b962d1,
+        type: 3}
+      propertyPath: transformationSounds.Array.data[0].volume
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1165598314087867329, guid: 0dea42d2347518b40a53a43893b962d1,
+        type: 3}
+      propertyPath: transformationSounds.Array.data[1].volume
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5863170328248345306, guid: 0dea42d2347518b40a53a43893b962d1,
         type: 3}
       propertyPath: m_Pivot.x

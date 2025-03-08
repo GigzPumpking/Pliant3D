@@ -7,18 +7,12 @@ using System.Collections.Generic;
 public class AudioData
 {
     public AudioClip clip;
-    public string name;
+
     [Range(0f, 1f)]
     public float volume = 1f;
     [Range(.1f, 3f)]
     public float pitch = 1f;
     public bool loop;
-
-    public string Name
-    {
-        get { return string.IsNullOrEmpty(name) && clip != null ? clip.name : name; }
-        set { name = value; }
-    }
 }
 
 public class AudioManager : MonoBehaviour
@@ -58,6 +52,8 @@ public class AudioManager : MonoBehaviour
         {
             musicSource = gameObject.AddComponent<AudioSource>();
         }
+        // instance ID
+        Debug.Log("AudioManager instance ID: " + GetInstanceID());
     }
 
     private void OnDestroy()
@@ -79,6 +75,8 @@ public class AudioManager : MonoBehaviour
                 activeSources.RemoveAt(i);
             }
         }
+
+        Debug.Log("Music Volume: " + musicSource.volume);
     }
 
     public void PlayOneShot(AudioData data, Transform parent)
@@ -233,6 +231,7 @@ public class AudioManager : MonoBehaviour
             musicSource.clip = data.clip;
             musicSource.volume = data.volume * overallMusicVolume;
             musicSource.loop = data.loop;
+            musicSource.spatialBlend = 0.0f;
             musicSource.Play();
         }
     }
@@ -278,9 +277,14 @@ public class AudioManager : MonoBehaviour
     {
         overallMusicVolume = volume;
         // Update the current music volume using the stored AudioData.
-        if (musicSource != null && musicSource.isPlaying && currentMusicData != null)
+        if (musicSource != null && currentMusicData != null)
         {
+            Debug.Log("Setting music volume to: " + currentMusicData.volume * overallMusicVolume);
             musicSource.volume = currentMusicData.volume * overallMusicVolume;
+
+            Debug.Log(overallMusicVolume);
         }
+
+        Debug.Log("Instance ID: " + GetInstanceID());
     }
 }

@@ -9,14 +9,15 @@ public abstract class KeyActionReceiver<T> : MonoBehaviour, IKeyActionReceiver w
     public static List<T> instances = new List<T>();
 
     // Each subclass must implement this property to provide a key mapping.
-    // For example, mapping an action name to a callback.
     protected abstract Dictionary<string, Action<T, InputAction.CallbackContext>> KeyMapping { get; }
 
     // This static dispatcher is registered once per type with the InputManager.
     // It will be called by the InputManager when an input event occurs for this type.
     private static void Dispatcher(string action, InputAction.CallbackContext context)
     {
-        foreach (var instance in instances)
+        // Iterate over a copy to avoid collection modification exceptions.
+        var instancesCopy = new List<T>(instances);
+        foreach (var instance in instancesCopy)
         {
             instance.HandleKeyAction(action, context);
         }
@@ -36,7 +37,6 @@ public abstract class KeyActionReceiver<T> : MonoBehaviour, IKeyActionReceiver w
     }
 
     // Implementation of IKeyActionReceiver.
-    // This method can be used if you want per‑instance handling directly.
     public virtual void OnKeyAction(string action, InputAction.CallbackContext context)
     {
         HandleKeyAction(action, context);

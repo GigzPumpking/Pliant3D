@@ -109,7 +109,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
 
     private void InputHandler()
     {
-        if (InputManager.Instance.isListening) {
+        if (InputManager.Instance && InputManager.Instance.isListening) {
             return;
         }
 

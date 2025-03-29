@@ -1,27 +1,58 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Objective : MonoBehaviour
 {
-    public bool isComplete {get; private set; } = false;
-    private Animator animator;
-    
-    // Start is called before the first frame update
-    void Start()
+    public enum ObjectiveType
     {
-        animator = GetComponent<Animator>();
+        Location,
+        Interact
     }
 
-    // Update is called once per frame
+    public bool isComplete {get; private set; } = false;
+    public ObjectiveType objectiveType;
+    public string description { get; private set; }
+
+    [SerializeField] List<GameObject> objectiveObjects = new List<GameObject>();
+    //IF YOU SET THE ENUM TO LOCATION
+    [SerializeField] GameObject LOC_objectiveLocation;
+
+    //IF YOU SET THE ENUM TO INTERACT
+    //[SerializeField] GameObject LOC_objectiveLocation;
+
+
+    private void Awake()
+    {
+        ObjectiveTracker.Instance.AddToMap(this);
+    }
+    void Start()
+    {
+        
+    }
+
     void Update()
     {
         
     }
 
-    public void CompleteTask()
+    private void OnTriggerEnter(Collider other)
     {
-        animator.SetBool("Complete", true);
-        isComplete = true;
+        if (objectiveType == ObjectiveType.Location)
+        {
+            if (other.gameObject != LOC_objectiveLocation) return;
+            else ObjectiveTracker.Instance.CompleteTask(this);
+        }
+    }
+
+    public void SetDescription(string description)
+    {
+        this.description = description;
+    }
+
+    public void SetCompletion(bool set)
+    {
+        isComplete = set;
     }
 }

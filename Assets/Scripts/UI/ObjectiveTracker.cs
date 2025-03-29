@@ -66,7 +66,7 @@ public class ObjectiveTracker : MonoBehaviour
     public void AddToMap(Objective _data)
     {
         if (_data == null) return;
-        GameObject objUIObject = GameObject.Instantiate(ObjectiveUIPrefab);
+        GameObject objUIObject = GameObject.Instantiate(ObjectiveUIPrefab, this.gameObject.transform); //figure out how to instantiate this in correct UI formatting
         bool add = objUIObject.TryGetComponent<ObjectiveUI>(out ObjectiveUI objUI);
         objUI.SetDescription(_data.description);
 

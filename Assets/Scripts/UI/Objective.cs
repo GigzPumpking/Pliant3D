@@ -19,7 +19,7 @@ public class Objective : MonoBehaviour
     //IF YOU SET THE ENUM TO LOCATION
     [SerializeField] GameObject LOC_objectiveLocation;
 
-    //IF YOU SET THE ENUM TO INTERACT
+    //IF YOU SET THE ENUM TO INTERACTg
     //[SerializeField] GameObject LOC_objectiveLocation;
 
 

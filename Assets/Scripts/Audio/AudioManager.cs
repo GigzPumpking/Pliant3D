@@ -23,7 +23,10 @@ public class AudioManager : MonoBehaviour
 
     [SerializeField] private AudioSource musicSource; // Dedicated music AudioSource
     [SerializeField, Range(0f, 1f)]
-    private float overallMusicVolume = 1f; 
+    private float overallMusicVolume = 1f;
+    public bool randomizePitch = true;
+    [SerializeField] float lowestPitch  = .95f;
+    [SerializeField] float highestPitch = 1.05f;
 
     [SerializeField, Range(0f, 1f)]
     private float overallSFXVolume = 1f;  
@@ -52,8 +55,6 @@ public class AudioManager : MonoBehaviour
         {
             musicSource = gameObject.AddComponent<AudioSource>();
         }
-        // instance ID
-        Debug.Log("AudioManager instance ID: " + GetInstanceID());
     }
 
     private void OnDestroy()
@@ -75,8 +76,6 @@ public class AudioManager : MonoBehaviour
                 activeSources.RemoveAt(i);
             }
         }
-
-        Debug.Log("Music Volume: " + musicSource.volume);
     }
 
     public void PlayOneShot(AudioData data, Transform parent)
@@ -90,6 +89,7 @@ public class AudioManager : MonoBehaviour
         AudioSource source = AudioPool.Instance.GetAudioSource(parent);
         if (source != null)
         {
+            source.pitch = randomizePitch ? UnityEngine.Random.Range(lowestPitch, highestPitch) : 1f;
             source.spatialBlend = 1.0f;
             source.volume = data.volume * overallSFXVolume;
             source.PlayOneShot(data.clip);
@@ -109,6 +109,7 @@ public class AudioManager : MonoBehaviour
         AudioSource source = AudioPool.Instance.GetAudioSource(null);
         if (source != null)
         {
+            source.pitch = randomizePitch ? UnityEngine.Random.Range(lowestPitch, highestPitch) : 1f;
             source.spatialBlend = 0.0f;
             source.volume = data.volume * overallSFXVolume;
             source.PlayOneShot(data.clip);
@@ -128,6 +129,7 @@ public class AudioManager : MonoBehaviour
         AudioSource source = AudioPool.Instance.GetAudioSource(parent);
         if (source != null)
         {
+            source.pitch = randomizePitch ? UnityEngine.Random.Range(lowestPitch, highestPitch) : 1f;
             source.clip = data.clip;
             source.volume = data.volume * overallSFXVolume;
             source.loop = data.loop;
@@ -153,6 +155,7 @@ public class AudioManager : MonoBehaviour
         AudioSource source = AudioPool.Instance.GetAudioSource(null);
         if (source != null)
         {
+            source.pitch = randomizePitch ? UnityEngine.Random.Range(lowestPitch, highestPitch) : 1f;
             source.clip = data.clip;
             source.volume = data.volume * overallSFXVolume;
             source.loop = data.loop;
@@ -279,12 +282,7 @@ public class AudioManager : MonoBehaviour
         // Update the current music volume using the stored AudioData.
         if (musicSource != null && currentMusicData != null)
         {
-            Debug.Log("Setting music volume to: " + currentMusicData.volume * overallMusicVolume);
             musicSource.volume = currentMusicData.volume * overallMusicVolume;
-
-            Debug.Log(overallMusicVolume);
         }
-
-        Debug.Log("Instance ID: " + GetInstanceID());
     }
 }

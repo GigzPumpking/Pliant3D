@@ -1,10 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 
-public class GameManager : KeyActionReceiver
+public class GameManager : KeyActionReceiver<GameManager>
 {
     private static GameManager instance;
     public static GameManager Instance { get { return instance; } }
@@ -13,20 +14,15 @@ public class GameManager : KeyActionReceiver
 
     [SerializeField] private AudioData mainTheme;
 
-    private void InitializeActionMap()
-    {
-        actionMap = new Dictionary<string, System.Action<InputAction.CallbackContext>>()
+    // Static key mapping shared across all GameManager instances.
+    public static Dictionary<string, Action<GameManager, InputAction.CallbackContext>> staticKeyMapping =
+        new Dictionary<string, Action<GameManager, InputAction.CallbackContext>>()
         {
-            { "Pause", ctx => { if (ctx.performed) Pause(); } },
-            { "Reset", ctx => { if (ctx.performed) Reset(); } }
+            { "Pause", (manager, ctx) => manager.Pause(ctx) },
+            { "Reset", (manager, ctx) => manager.Reset(ctx) }
         };
 
-        foreach (var action in actionMap.Keys)
-        {
-            EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = $"Adding keybind for {action} to action map" });
-            InputManager.Instance?.AddKeyBind(this, action, "Gameplay");
-        }
-    }
+    protected override Dictionary<string, Action<GameManager, InputAction.CallbackContext>> KeyMapping => staticKeyMapping;
 
     private void Awake()
     {
@@ -38,8 +34,6 @@ public class GameManager : KeyActionReceiver
             return;
         }
         DontDestroyOnLoad(this.gameObject);
-
-        InitializeActionMap();
     }
 
     void Start()
@@ -67,6 +61,14 @@ public class GameManager : KeyActionReceiver
         UIManager.Instance?.Pause();
     }
 
+    public void Pause(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            Pause();
+        }
+    }
+
     public void Reset()
     {
         // Restart the game
@@ -77,6 +79,14 @@ public class GameManager : KeyActionReceiver
         Player.Instance?.SetVelocity(Vector3.zero);
         if (transformWheel == null) transformWheel = Player.Instance?.GetComponentInChildren<TransformationWheel>();
         transformWheel?.ResetProgress();
+    }
+
+    public void Reset(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            Reset();
+        }
     }
 
     public void Quit()

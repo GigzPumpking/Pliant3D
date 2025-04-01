@@ -198,4 +198,24 @@ public class InputManager : MonoBehaviour
             Debug.LogWarning($"Action '{actionName}' not found in the input map.");
         }
     }
+
+    // Returns whether the InputManager is currently listening for the given script instance and if the action exists.
+    public bool IsListeningForAction(MonoBehaviour scriptInstance, string actionName)
+    {
+        // Check if the InputManager is currently processing input.
+        if (!isListening)
+            return false;
+
+        // Use the script's type name as the key for the type dispatcher.
+        string typeName = scriptInstance.GetType().Name;
+
+        // Verify that a dispatcher for this script type is registered.
+        if (!typeDispatchers.ContainsKey(typeName)) {
+            Debug.LogWarning($"No dispatcher registered for type: {typeName}");
+            return false;
+        }
+
+        // Check if the specified action exists in the actionMap.
+        return actionMap.ContainsKey(actionName);
+    }
 }

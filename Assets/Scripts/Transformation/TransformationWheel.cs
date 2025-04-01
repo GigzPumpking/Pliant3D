@@ -144,7 +144,12 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         // Play a random transformation sound.
         AudioManager.Instance?.PlayOneShot(transformationSound);
 
-        Player.Instance.SetTransformation(form.transformation);
+        if (form.transformation != Transformation.BALL) {
+            Player.Instance.SetTransformation(form.transformation);
+        } else {
+            Debug.LogWarning("Ball form is temporarily disabled.");
+        }
+
         transformWheel.SetActive(false);
 
         // Lockout functionality: subtract lockout progress if not the same transformation.

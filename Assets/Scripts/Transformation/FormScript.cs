@@ -54,7 +54,14 @@ public abstract class FormScript : MonoBehaviour
 
     public abstract void Ability1(InputAction.CallbackContext context);
 
+
     public abstract void Ability2(InputAction.CallbackContext context);
+
+
+    public virtual void Ability3(InputAction.CallbackContext context)
+    {
+        // Optional ability, can be overridden by subclasses
+    }
 
     public float GetSpeed()
     {

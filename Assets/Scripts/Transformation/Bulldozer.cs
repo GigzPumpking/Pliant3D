@@ -13,6 +13,8 @@ public class Bulldozer : FormScript
     [SerializeField] private float detectionRange = 5f; // Range to detect breakable objects
     private Interactable highlightedInteractable; // Currently highlighted Interactable object
 
+    [SerializeField] private float sprintModifier = 4.67f; // Sprint modifier for speed
+
     public override void OnEnable()
     {
         base.OnEnable();
@@ -62,6 +64,17 @@ public class Bulldozer : FormScript
         else
         {
             Debug.Log("No Breakable object found within range.");
+        }
+    }
+
+    public override void Ability3(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            speed = baseSpeed * sprintModifier; // Increase speed when sprinting
+        } else if (context.canceled)
+        {
+            speed = baseSpeed;
         }
     }
 

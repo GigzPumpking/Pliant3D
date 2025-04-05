@@ -45,9 +45,9 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     public static Dictionary<string, Action<TransformationWheel, InputAction.CallbackContext>> staticKeyMapping =
         new Dictionary<string, Action<TransformationWheel, InputAction.CallbackContext>>()
         {
-            { "Terry", (wheel, ctx) => wheel.controllerSelect(0) },
+            { "Terry", (wheel, ctx) => wheel.controllerSelect(2) },
             { "Frog", (wheel, ctx) => wheel.controllerSelect(1) },
-            { "Bulldozer", (wheel, ctx) => wheel.controllerSelect(2) },
+            { "Bulldozer", (wheel, ctx) => wheel.controllerSelect(0) },
             { "Confirm", (wheel, ctx) => wheel.Transform(ctx) }
         };
 

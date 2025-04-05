@@ -45,10 +45,9 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     public static Dictionary<string, Action<TransformationWheel, InputAction.CallbackContext>> staticKeyMapping =
         new Dictionary<string, Action<TransformationWheel, InputAction.CallbackContext>>()
         {
-            { "Ball", (wheel, ctx) => wheel.controllerSelect(0) },
+            { "Terry", (wheel, ctx) => wheel.controllerSelect(0) },
             { "Frog", (wheel, ctx) => wheel.controllerSelect(1) },
             { "Bulldozer", (wheel, ctx) => wheel.controllerSelect(2) },
-            { "Terry", (wheel, ctx) => wheel.controllerSelect(3) },
             { "Confirm", (wheel, ctx) => wheel.Transform(ctx) }
         };
 
@@ -97,9 +96,19 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         
         // Bind angle between 0 and 360.
         currentAngle = Mathf.Clamp((currentAngle + 360) % 360, 0, 359);
+
+        Debug.Log("Current Angle: " + currentAngle);
         
         // Create index based off section of wheel over the number of selections.
-        hoveredSelection = (int)currentAngle / (360 / transformationItems.Length);
+        //hoveredSelection = (int)currentAngle / (360 / transformationItems.Length);
+
+        if (currentAngle > 80 && currentAngle < 200) {
+            hoveredSelection = 2;
+        } else if (currentAngle >= 200 && currentAngle < 315) {
+            hoveredSelection = 1;
+        } else {
+            hoveredSelection = 0;
+        }
 
         if (hoveredSelection != previousHover)
         {
@@ -254,7 +263,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         {
             LockoutProgresses.Add(Transformation.BULLDOZER, maxLockoutCharge);
             LockoutProgresses.Add(Transformation.FROG, maxLockoutCharge);
-            LockoutProgresses.Add(Transformation.BALL, maxLockoutCharge);
+            //LockoutProgresses.Add(Transformation.BALL, maxLockoutCharge);
             LockoutProgresses.Add(Transformation.TERRY, maxLockoutCharge);
 
             HandleNulls();

@@ -157,6 +157,7 @@ public class Objective : MonoBehaviour
         {
             Debug.LogWarning($"Objective of description: [{description}] successfully completed.");
             if (CheckMark != null) CheckMark.SetActive(true);
+            ObjectiveUIAnimator.SetBool("Complete", true);
             isComplete = set;
         }
     }

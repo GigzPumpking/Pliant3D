@@ -85,7 +85,7 @@ public class Objective : MonoBehaviour
 
     public void ObjectiveInteractedWith(ObjectiveInteracted _data)
     {
-        Debug.LogError("did receive: " + _data.interactedTo.name);
+        //Debug.LogError("Did receive interact data: " + _data.interactedTo.name);
         if (!objectiveObjects.Contains(_data.interactedTo))
         {
             //Debug.LogError(this.gameObject.name + " does NOT contain the object that just got raised");

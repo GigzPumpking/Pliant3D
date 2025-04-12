@@ -14,7 +14,7 @@ public class ObjectiveInteract : MonoBehaviour
 
     public void PlayerInteracted(ObjectiveInteractEvent _data)
     {
-        Debug.LogError("received interact data, gameObject = " + _data.interactedTo.name);
+        //Debug.LogError("Received interact data, gameObject = " + _data.interactedTo.name);
         if (!_data.interactedTo == this.gameObject) return; //IF NOT THIS OBJECTIVE, RETURN
         didInteract = true; //ELSE THE PLAYER DID INTERACT WITH US, RECEIVED FROM 'Player.cs'
 

@@ -34,6 +34,17 @@ public class Interact : Event
 
 }
 
+public class ObjectiveInteractEvent : Event
+{
+    public GameObject interactedTo;
+    public Transformation currentTransformation;
+}
+
+public class ObjectiveInteracted : Event
+{
+    public GameObject interactedTo;
+}
+
 public class EndDialogue : Event
 {
 

@@ -154,7 +154,37 @@ public class Player : KeyActionReceiver
 
     void InteractHandler(InputAction.CallbackContext context) {
         if (context.performed && transformation == Transformation.TERRY) {
+            Debug.LogError("Raising the regular interact event");
             EventDispatcher.Raise<Interact>(new Interact());
+
+            if (inObjectiveInteractable)
+            {
+                Debug.LogError("Raising the objective interact event " + lastObjectiveInteractable.name);
+                ObjectiveInteractEvent interact = new ObjectiveInteractEvent();
+                interact.currentTransformation = transformation;
+                interact.interactedTo = lastObjectiveInteractable;
+                EventDispatcher.Raise<ObjectiveInteractEvent>(interact);
+            }
+        }
+    }
+
+    bool inObjectiveInteractable;
+    GameObject lastObjectiveInteractable;
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.tag == "Objective Interactable")
+        {
+            Debug.LogError("Walked into an objective zone: " + other.gameObject.name);
+            inObjectiveInteractable = true;
+            lastObjectiveInteractable = other.gameObject;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.tag == "Objective Interactable")
+        {
+            inObjectiveInteractable = false;
         }
     }
 

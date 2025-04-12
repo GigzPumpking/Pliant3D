@@ -1929,6 +1929,24 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 85da7683b7c3df14f9bd6518318e1315, type: 3}
+--- !u!95 &174281957 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 2568923701962694768, guid: 2abbd4009b671aa45ab0ea371bc128bc,
+    type: 3}
+  m_PrefabInstance: {fileID: 953485053}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &184499857 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1882339761511499430, guid: 2abbd4009b671aa45ab0ea371bc128bc,
+    type: 3}
+  m_PrefabInstance: {fileID: 953485053}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &202297386 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5554935717656047752, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
@@ -2127,7 +2145,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 220466710}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -45.723, y: 0.299487, z: -56.93706}
+  m_LocalPosition: {x: -48.248745, y: 0.299487, z: -48.75806}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4975,6 +4993,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: NPCDialogue
       objectReference: {fileID: 0}
+    - target: {fileID: 3493604527745461608, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+        type: 3}
+      propertyPath: m_TagString
+      value: Objective Interactable
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 89b2ae7bccf9f426999e81c797e9ff4e, type: 3}
 --- !u!4 &563006136 stripped
@@ -6416,7 +6439,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 651991857}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -43.364254, y: 0.299487, z: -58.339}
+  m_LocalPosition: {x: -45.89, y: 0.299487, z: -50.16}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9261,6 +9284,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 74066245bd0384681a0fff3efad21a9d, type: 3}
+--- !u!1 &915551651 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3493604527745461608, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+    type: 3}
+  m_PrefabInstance: {fileID: 563006135}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &916832096
 GameObject:
   m_ObjectHideFlags: 0
@@ -10725,8 +10754,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7518635194269090633, guid: 2abbd4009b671aa45ab0ea371bc128bc,
         type: 3}
+      propertyPath: m_Name
+      value: Test Objective INTERACT
+      objectReference: {fileID: 0}
+    - target: {fileID: 7518635194269090633, guid: 2abbd4009b671aa45ab0ea371bc128bc,
+        type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7572706942033836941, guid: 2abbd4009b671aa45ab0ea371bc128bc,
+        type: 3}
+      propertyPath: m_Name
+      value: Test Objective LOCATION
       objectReference: {fileID: 0}
     - target: {fileID: 7572706942033836941, guid: 2abbd4009b671aa45ab0ea371bc128bc,
         type: 3}
@@ -10841,14 +10880,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0bb03f99b6ebf004685ddf9841fbb0ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectiveType: 0
+  objectiveType: 1
   isComplete: 0
-  description: 
-  objectiveObjects: []
+  description: Talk to the Question Mark
+  objectiveObjects:
+  - {fileID: 915551651}
   LOC_objectiveLocation: {fileID: 0}
-  ObjectiveDescriptionUI: {fileID: 0}
-  ObjectiveUIAnimator: {fileID: 0}
-  CheckMark: {fileID: 0}
+  ObjectiveDescriptionUI: {fileID: 184499857}
+  ObjectiveUIAnimator: {fileID: 174281957}
+  CheckMark: {fileID: 1104417421}
 --- !u!114 &953485061
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10863,7 +10903,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   objectiveType: 0
   isComplete: 0
-  description: Pick a Card
+  description: Move Cubes to Location
   objectiveObjects:
   - {fileID: 1780490523}
   - {fileID: 651991857}
@@ -11035,7 +11075,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 956727002}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -42.065, y: 0.299487, z: -56.93706}
+  m_LocalPosition: {x: -44.590744, y: 0.299487, z: -48.75806}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12369,6 +12409,12 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1101258200}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1104417421 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8554915341022966958, guid: 2abbd4009b671aa45ab0ea371bc128bc,
+    type: 3}
+  m_PrefabInstance: {fileID: 953485053}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1106002238
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19667,7 +19713,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1780490523}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -43.364254, y: 0.299487, z: -56.93706}
+  m_LocalPosition: {x: -45.89, y: 0.299487, z: -48.75806}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -20667,7 +20713,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1880863046}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -43.364254, y: 0.299487, z: -54.31}
+  m_LocalPosition: {x: -45.89, y: 0.299487, z: -46.131}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

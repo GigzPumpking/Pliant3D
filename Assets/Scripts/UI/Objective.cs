@@ -37,14 +37,27 @@ public class Objective : MonoBehaviour
 
         if(!SetDescription()) gameObject.SetActive(false); //IF THE DESCRIPTION OF THE OBJECTIVE IS EMPTY, THEN DISABLE THE OBJECTIVE
 
-        EventDispatcher.AddListener<ReachedTarget>(ObjectReachedTarget);
+        EventDispatcher.AddListener<ReachedTarget>(ObjectReachedTarget); //RAISED FROM 'ObjectiveObject.cs'
+        EventDispatcher.AddListener<ObjectiveInteracted>(ObjectiveInteractedWith); //RAISED FROM 'ObjectiveInteract.cs'
     }
 
     void InitializeObjects()
     {
-        foreach (GameObject x in objectiveObjects) {
-            ObjectiveObject obj = x.AddComponent<ObjectiveObject>(); //ADD THE COMPONENT
-            obj.targetObject = LOC_objectiveLocation; //SET THE TARGET LOCATION OF THE CURRENT OBJECT
+        if (objectiveType == ObjectiveType.Location)
+        {
+            foreach (GameObject x in objectiveObjects)
+            {
+                ObjectiveObject obj = x.AddComponent<ObjectiveObject>(); //ADD THE COMPONENT
+                obj.targetObject = LOC_objectiveLocation; //SET THE TARGET LOCATION OF THE CURRENT OBJECT
+            }
+        }
+
+        if(objectiveType == ObjectiveType.Interact)
+        {
+            foreach (GameObject x in objectiveObjects)
+            {
+                ObjectiveInteract obj = x.AddComponent<ObjectiveInteract>();
+            }
         }
     }
     public void SetDescription(string description)
@@ -67,10 +80,42 @@ public class Objective : MonoBehaviour
             //Debug.LogError(this.gameObject.name + " does NOT contain the object that just got raised");
             return; //MAKE SURE THAT THE EVENT RECEIVED WAS FROM AN OBJECT THAT IS IN THIS OBJECTIVE
         }
-        CheckCompletion();
+        CheckCompletionLocation();
     }
 
-    void CheckCompletion()
+    public void ObjectiveInteractedWith(ObjectiveInteracted _data)
+    {
+        Debug.LogError("did receive: " + _data.interactedTo.name);
+        if (!objectiveObjects.Contains(_data.interactedTo))
+        {
+            //Debug.LogError(this.gameObject.name + " does NOT contain the object that just got raised");
+            return; //MAKE SURE THAT THE EVENT RECEIVED WAS FROM AN OBJECT THAT IS IN THIS OBJECTIVE
+        }
+        CheckCompletionInteract();
+    }
+
+    void CheckCompletionInteract()
+    {
+        bool allInteracted = false;
+        foreach (GameObject x in objectiveObjects)
+        {
+            if (!x.TryGetComponent<ObjectiveInteract>(out ObjectiveInteract obj))
+            {
+                //Debug.LogError("Couldnt grab component from " + x.gameObject.name);
+                return; //IF YOU CANT GRAB THE OBJECTIVE OBJECT COMPONENT, THEN RETURN
+            }
+            if (!obj.didInteract)
+            {
+                //Debug.LogError(x.gameObject.name + " has not reached their target.");
+                return; //IF ANY OBJECTS WERE NOT INTERACTED WITH, THEN RETURN
+            }
+        }
+        //IF THEY ALL REACHED IT, THEN THE OBJECTIVE IS COMPLETE
+        allInteracted = true;
+        if (allInteracted) SetCompletion(true);
+    }
+
+    void CheckCompletionLocation()
     {
         bool allReached = false;
         foreach (GameObject x in objectiveObjects)

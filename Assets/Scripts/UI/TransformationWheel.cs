@@ -6,6 +6,8 @@ using UnityEngine.Serialization;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using System.Linq;
+using UnityEditor.Rendering.Universal;
+using UnityEngine.SceneManagement;
 
 public class TransformationWheel : KeyActionReceiver
 {
@@ -206,6 +208,26 @@ public class TransformationWheel : KeyActionReceiver
         lockoutBar.fillAmount = LockoutProgresses[t] / 100;
         transformationFills[GetIntTransform()].fillAmount = LockoutProgresses[t] / 100;
         if (LockoutProgresses[t] <= 0f) Locked();
+
+        bool isSoftLocked = true;
+        foreach(var x in LockoutProgresses)
+        {
+            if (x.Key == Transformation.TERRY) continue;
+            if (x.Value == 0) continue;
+            else { 
+                isSoftLocked = false;
+                break;
+            }
+        }
+        if (isSoftLocked) SoftLockProtocol();
+    }
+
+    void SoftLockProtocol()
+    {
+        Debug.LogError("Player got softlocked, restarting scene");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        ResetProgress();
+        
     }
 
     void AddProgress(Transformation t, float amt)
@@ -230,25 +252,33 @@ public class TransformationWheel : KeyActionReceiver
     {
         // If lockout is disabled, do nothing.
         if (!lockoutEnabled) return;
+        Debug.LogError("Resetting Transform Wheel Progress...");
 
-        foreach (var key in LockoutProgresses.Keys.ToList())
-        {
-            LockoutProgresses[key] = maxLockoutCharge;
-        }
+        LockoutProgresses.Clear();
+        SetWheel();
         lockoutBar.fillAmount = 1;
     }
 
     void SetWheel()
     {
         // Initialize lockout charges if the lockout system is enabled.
-        if (lockoutEnabled)
-        {
-            LockoutProgresses.Add(Transformation.BULLDOZER, maxLockoutCharge);
-            LockoutProgresses.Add(Transformation.FROG, maxLockoutCharge);
-            LockoutProgresses.Add(Transformation.BALL, maxLockoutCharge);
-            LockoutProgresses.Add(Transformation.TERRY, maxLockoutCharge);
+        if (!lockoutEnabled) return;
 
-            HandleNulls();
+        LockoutProgresses.Add(Transformation.BULLDOZER, maxLockoutCharge);
+        LockoutProgresses.Add(Transformation.FROG, maxLockoutCharge);
+        LockoutProgresses.Add(Transformation.BALL, maxLockoutCharge);
+        LockoutProgresses.Add(Transformation.TERRY, maxLockoutCharge);
+
+        HandleNulls();
+        SetWheelUI();
+    }
+
+    void SetWheelUI()
+    {
+        foreach(var x in transformationFills)
+        {
+           //Debug.Log(x.name);
+            x.fillAmount = 1;
         }
     }
 

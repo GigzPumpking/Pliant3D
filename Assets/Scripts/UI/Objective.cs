@@ -27,6 +27,7 @@ public class Objective : MonoBehaviour
     {
         ObjectiveTracker.Instance.AddToMap(this);
     }
+
     void Start()
     {
         

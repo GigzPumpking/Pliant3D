@@ -13,14 +13,21 @@ public class Objective : MonoBehaviour
         Interact
     }
 
+    [Header("General")]
     public ObjectiveType objectiveType;
     public bool isComplete;
     public string description;
 
+    [Header("Form Specific Settings"), Tooltip("Only applies if the Player is the only item in the Objective Objects List.")]
+    public bool formSpecific;
+    public Transformation specificTransformation;
+
+    [Header("Objective Dependencies")]
     //OBJECTIVE OBJECTS AND TARGET LOCATIONS
     [SerializeField] List<GameObject> objectiveObjects = new List<GameObject>();
     [SerializeField] GameObject LOC_objectiveLocation; //IF YOU SET THE ENUM TO LOCATION
 
+    [Header("Objective UI")]
     //UI STUFF
     [SerializeField] TextMeshProUGUI ObjectiveDescriptionUI;
     [SerializeField] Animator ObjectiveUIAnimator;
@@ -43,20 +50,28 @@ public class Objective : MonoBehaviour
 
     void InitializeObjects()
     {
+        //LOCATION OBJECTIVE TYPE
         if (objectiveType == ObjectiveType.Location)
         {
             foreach (GameObject x in objectiveObjects)
             {
                 ObjectiveObject obj = x.AddComponent<ObjectiveObject>(); //ADD THE COMPONENT
                 obj.targetObject = LOC_objectiveLocation; //SET THE TARGET LOCATION OF THE CURRENT OBJECT
+
+                if(objectiveObjects.Count == 1 && objectiveObjects[0].gameObject.tag == "Player") obj.objectIsPlayer = true;
+                obj.formSpecific = this.formSpecific;
+                if(formSpecific) obj.specificTransformation = this.specificTransformation;
             }
         }
 
+        //INTERACT OBJECTIVE TYPE
         if(objectiveType == ObjectiveType.Interact)
         {
             foreach (GameObject x in objectiveObjects)
             {
                 ObjectiveInteract obj = x.AddComponent<ObjectiveInteract>();
+                obj.formSpecific = this.formSpecific;
+                if(formSpecific) obj.specificTransformation = this.specificTransformation;
             }
         }
     }

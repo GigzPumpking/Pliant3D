@@ -157,6 +157,7 @@ public class Player : KeyActionReceiver
             //Debug.LogError("Raising the regular interact event");
             EventDispatcher.Raise<Interact>(new Interact());
 
+            //WITHIN THE OBJECTIVE INTERACTABLE SPACE
             if (inObjectiveInteractable)
             {
                 //Debug.LogError("Raising the objective interact event " + lastObjectiveInteractable.name);
@@ -174,7 +175,7 @@ public class Player : KeyActionReceiver
     {
         if(other.gameObject.tag == "Objective Interactable")
         {
-            Debug.LogError("Walked into an objective zone: " + other.gameObject.gameObject.name);
+            //Debug.LogError("Walked into an objective zone: " + other.gameObject.name);
             inObjectiveInteractable = true;
             lastObjectiveInteractable = other.gameObject;
         }

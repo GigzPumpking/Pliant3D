@@ -222,8 +222,10 @@ public class TransformationWheel : KeyActionReceiver
         if (isSoftLocked) SoftLockProtocol();
     }
 
+    public bool breakSoftLock;
     void SoftLockProtocol()
     {
+        if (!breakSoftLock) return;
         Debug.LogError("Player got softlocked, restarting scene");
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         ResetProgress();

@@ -174,7 +174,7 @@ public class Player : KeyActionReceiver
     {
         if(other.gameObject.tag == "Objective Interactable")
         {
-            //Debug.LogError("Walked into an objective zone: " + other.gameObject.name);
+            Debug.LogError("Walked into an objective zone: " + other.gameObject.gameObject.name);
             inObjectiveInteractable = true;
             lastObjectiveInteractable = other.gameObject;
         }

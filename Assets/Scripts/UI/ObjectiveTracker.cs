@@ -71,7 +71,7 @@ public class ObjectiveTracker : MonoBehaviour
 
     //    Debug.LogWarning($"Objective of description: {_data.description} added to the objective tracker.");
     //    GameObject objUIObject = GameObject.Instantiate(ObjectiveUIPrefab, this.gameObject.transform); //figure out how to instantiate this in correct UI formatting
-    //    bool add = objUIObject.TryGetComponent<ObjectiveUI>(out ObjectiveUI objUI);
+    //    bool add = objUIObject.TryGetComponent<ObjectiveDescriptionUI>(out ObjectiveDescriptionUI objUI);
     //    objUI.SetDescription(_data.description);
 
     //    //NULL CHECK

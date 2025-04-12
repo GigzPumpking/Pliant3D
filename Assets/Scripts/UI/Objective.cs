@@ -22,7 +22,7 @@ public class Objective : MonoBehaviour
     [SerializeField] GameObject LOC_objectiveLocation; //IF YOU SET THE ENUM TO LOCATION
 
     //UI STUFF
-    [SerializeField] TextMeshProUGUI ObjectiveUI;
+    [SerializeField] TextMeshProUGUI ObjectiveDescriptionUI;
     [SerializeField] Animator ObjectiveUIAnimator;
     [SerializeField] GameObject CheckMark;
 
@@ -30,10 +30,11 @@ public class Objective : MonoBehaviour
     //[SerializeField] GameObject INT_objective;
     private void Awake()
     {
-        if (!ObjectiveUI) ObjectiveUI = GetComponentInChildren<TextMeshProUGUI>();
+        if (!ObjectiveDescriptionUI) ObjectiveDescriptionUI = GetComponentInChildren<TextMeshProUGUI>();
         if (!ObjectiveUIAnimator) ObjectiveUIAnimator = GetComponentInChildren<Animator>();
-        if(CheckMark) CheckMark.SetActive(false);
+        if(CheckMark != null) CheckMark.SetActive(false);
         InitializeObjects();
+        SetDescription();
 
         EventDispatcher.AddListener<ReachedTarget>(ObjectReachedTarget);
     }
@@ -49,7 +50,12 @@ public class Objective : MonoBehaviour
     {
         //UI STUFF
         this.description = description;
-        ObjectiveUI.SetText(description);
+        ObjectiveDescriptionUI.SetText(description);
+    }
+
+    void SetDescription()
+    {
+        ObjectiveDescriptionUI.SetText(description);
     }
 
     public void ObjectReachedTarget(ReachedTarget _data) 
@@ -88,7 +94,7 @@ public class Objective : MonoBehaviour
         if (set)
         {
             Debug.LogWarning($"Objective of description: [{description}] successfully completed.");
-            if (CheckMark) CheckMark.SetActive(true);
+            if (CheckMark != null) CheckMark.SetActive(true);
             isComplete = set;
         }
     }

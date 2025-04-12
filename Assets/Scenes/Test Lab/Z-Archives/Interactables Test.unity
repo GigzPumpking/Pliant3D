@@ -10454,7 +10454,7 @@ PrefabInstance:
     - target: {fileID: 5931893285339208731, guid: 2abbd4009b671aa45ab0ea371bc128bc,
         type: 3}
       propertyPath: m_Name
-      value: TERRYS DESK
+      value: TUTORIAL OBJECTIVES
       objectReference: {fileID: 0}
     - target: {fileID: 5931893285339208731, guid: 2abbd4009b671aa45ab0ea371bc128bc,
         type: 3}
@@ -10482,6 +10482,11 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7572706942033836941, guid: 2abbd4009b671aa45ab0ea371bc128bc,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7939402714114187219, guid: 2abbd4009b671aa45ab0ea371bc128bc,
         type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -11157,7 +11162,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 465b98da3a1102c4c81418a7148b8acf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Objectives: []
+  grouping: 0
+  Objectives:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &1022581185
 GameObject:
   m_ObjectHideFlags: 0
@@ -19201,6 +19211,8 @@ MonoBehaviour:
   objectiveObjects:
   - {fileID: 1780490523}
   LOC_objectiveLocation: {fileID: 1880863046}
+  ObjectiveUI: {fileID: 0}
+  ObjectiveUIAnimator: {fileID: 0}
 --- !u!4 &1782699454 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7072609924396585126, guid: 1303892b2f5324f4d93a4192b7422668,

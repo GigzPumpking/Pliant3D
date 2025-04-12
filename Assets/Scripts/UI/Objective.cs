@@ -34,7 +34,8 @@ public class Objective : MonoBehaviour
         if (!ObjectiveUIAnimator) ObjectiveUIAnimator = GetComponentInChildren<Animator>();
         if(CheckMark != null) CheckMark.SetActive(false);
         InitializeObjects();
-        SetDescription();
+
+        if(!SetDescription()) gameObject.SetActive(false); //IF THE DESCRIPTION OF THE OBJECTIVE IS EMPTY, THEN DISABLE THE OBJECTIVE
 
         EventDispatcher.AddListener<ReachedTarget>(ObjectReachedTarget);
     }
@@ -53,9 +54,10 @@ public class Objective : MonoBehaviour
         ObjectiveDescriptionUI.SetText(description);
     }
 
-    void SetDescription()
+    bool SetDescription()
     {
-        ObjectiveDescriptionUI.SetText(description);
+        if (description == string.Empty) return false;
+        ObjectiveDescriptionUI.SetText(description); return true;
     }
 
     public void ObjectReachedTarget(ReachedTarget _data) 
@@ -75,12 +77,12 @@ public class Objective : MonoBehaviour
         {
             if (!x.TryGetComponent<ObjectiveObject>(out ObjectiveObject obj))
             {
-                Debug.LogError("Couldnt grab component from " + x.gameObject.name);
+                //Debug.LogError("Couldnt grab component from " + x.gameObject.name);
                 return; //IF YOU CANT GRAB THE OBJECTIVE OBJECT COMPONENT, THEN RETURN
             }
             if (!obj.reachedTarget)
             {
-                Debug.LogError(x.gameObject.name + " has not reached their target.");
+                //Debug.LogError(x.gameObject.name + " has not reached their target.");
                 return; //IF ANY OBJECTS DID NOT REACH THEIR LOCATION, THEN RETURN
             }
         }

@@ -227,6 +227,7 @@ public class TransformationWheel : KeyActionReceiver
         Debug.LogError("Player got softlocked, restarting scene");
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         ResetProgress();
+        //add obj tracker reset
         
     }
 

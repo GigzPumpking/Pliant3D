@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -12,6 +13,7 @@ public class ObjectiveTracker : MonoBehaviour
     // public GameObject objectiveParent;
     //public GameObject[] objectiveUIList;
     public Dictionary<Objective, ObjectiveUI> ObjectiveTable = new Dictionary<Objective, ObjectiveUI>();
+    public List<GameObject> ObjectiveGroups = new List<GameObject>(); //HOLDING OF ALL THE OBJECTIVE GROUPS
 
     //SINGLETON
     private static ObjectiveTracker instance;
@@ -63,37 +65,44 @@ public class ObjectiveTracker : MonoBehaviour
         animator.SetBool("TrackerOpen", false);
     }
 
-    public void AddToMap(Objective _data)
+    //public void AddToMap(Objective _data)
+    //{
+    //    if (_data == null) return;
+
+    //    Debug.LogWarning($"Objective of description: {_data.description} added to the objective tracker.");
+    //    GameObject objUIObject = GameObject.Instantiate(ObjectiveUIPrefab, this.gameObject.transform); //figure out how to instantiate this in correct UI formatting
+    //    bool add = objUIObject.TryGetComponent<ObjectiveUI>(out ObjectiveUI objUI);
+    //    objUI.SetDescription(_data.description);
+
+    //    //NULL CHECK
+    //    if (!add)
+    //    {
+    //        Debug.LogWarning("Objective of Description: " + _data.description + " was unsuccessfully given a corresponding Objective UI.");
+    //        return;
+    //    }
+
+    //    //IF NEITHER WERE NULL, THEN ADD TO THE MAP
+    //    ObjectiveTable.Add(_data, objUI);
+    //    //ObjectivesGameObjects.Add(_data.gameObject);
+    //}
+
+    public void MovedObjectToTarget()
     {
-        if (_data == null) return;
-        GameObject objUIObject = GameObject.Instantiate(ObjectiveUIPrefab, this.gameObject.transform); //figure out how to instantiate this in correct UI formatting
-        bool add = objUIObject.TryGetComponent<ObjectiveUI>(out ObjectiveUI objUI);
-        objUI.SetDescription(_data.description);
 
-        //NULL CHECK
-        if (!add)
-        {
-            Debug.LogWarning("Objective of Description: " + _data.description + " was unsuccessfully given a corresponding Objective UI.");
-            return;
-        }
-
-        //IF NEITHER WERE NULL, THEN ADD TO THE MAP
-        ObjectiveTable.Add(_data, objUI);
     }
 
-    public void CompleteTask(Objective _data)
-    {
-        //foreach (var objectiveTask in objectiveList)
-        //{
-        //    var objective = objectiveTask.GetComponent<Objective>();
+    //public void CompleteTask(Objective _data)
+    //{
+    //    _data.SetCompletion(true); //SET THE OBJECTIVE DATA TO COMPLETE
+    //    //ObjectiveTable[_data].CompleteTask(); //PLAY THE OBJECTIVE UI COMPLETION
+    //}
 
-        //    if (!objective.isComplete)
-        //    {
-        //        objective.CompleteTask();
-        //        break;
-        //    }
-        //}
-        _data.SetCompletion(true); //SET THE OBJECTIVE DATA TO COMPLETE
-        ObjectiveTable[_data].CompleteTask(); //PLAY THE OBJECTIVE UI COMPLETION
-    }
+    //public void AutoCompleteAllTasks()
+    //{
+    //    foreach (var objectiveTask in ObjectiveTable)
+    //    {
+    //        var objective = objectiveTask.Key.GetComponent<Objective>();
+    //        objective.SetCompletion(true);
+    //    }
+    //}
 }

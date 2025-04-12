@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class Objective : MonoBehaviour
@@ -11,49 +12,64 @@ public class Objective : MonoBehaviour
         Interact
     }
 
-    public bool isComplete {get; private set; } = false;
     public ObjectiveType objectiveType;
-    public string description { get; private set; }
+    public bool isComplete;
+    public string description;
 
+    //OBJECTIVE OBJECTS AND TARGET LOCATIONS
     [SerializeField] List<GameObject> objectiveObjects = new List<GameObject>();
-    //IF YOU SET THE ENUM TO LOCATION
-    [SerializeField] GameObject LOC_objectiveLocation;
+    [SerializeField] GameObject LOC_objectiveLocation; //IF YOU SET THE ENUM TO LOCATION
 
-    //IF YOU SET THE ENUM TO INTERACTg
-    //[SerializeField] GameObject LOC_objectiveLocation;
+    //UI STUFF
+    [SerializeField] TextMeshProUGUI ObjectiveUI;
+    [SerializeField] Animator ObjectiveUIAnimator;
 
-
+    //IF YOU SET THE ENUM TO INTERACT
+    //[SerializeField] GameObject INT_objective;
     private void Awake()
     {
-        ObjectiveTracker.Instance.AddToMap(this);
+        if (!ObjectiveUI) ObjectiveUI = GetComponentInChildren<TextMeshProUGUI>();
+        if (!ObjectiveUIAnimator) ObjectiveUIAnimator = GetComponentInChildren<Animator>();
+        InitializeObjects();
+
+        EventDispatcher.AddListener<ReachedTarget>(ObjectReachedTarget);
     }
 
-    void Start()
+    void InitializeObjects()
     {
-        
-    }
-
-    void Update()
-    {
-        
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (objectiveType == ObjectiveType.Location)
-        {
-            if (other.gameObject != LOC_objectiveLocation) return;
-            else ObjectiveTracker.Instance.CompleteTask(this);
+        foreach (GameObject x in objectiveObjects) {
+            ObjectiveObject obj = x.AddComponent<ObjectiveObject>(); //ADD THE COMPONENT
+            obj.targetObject = LOC_objectiveLocation; //SET THE TARGET LOCATION OF THE CURRENT OBJECT
         }
     }
-
     public void SetDescription(string description)
     {
+        //UI STUFF
         this.description = description;
+        ObjectiveUI.SetText(description);
     }
 
-    public void SetCompletion(bool set)
+    public void ObjectReachedTarget(ReachedTarget _data) 
     {
+        if (!objectiveObjects.Contains(_data.obj)) return; //MAKE SURE THAT THE EVENT RECEIVED WAS FROM AN OBJECT THAT IS IN THIS OBJECTIVE
+        CheckCompletion();
+    }
+
+    void CheckCompletion()
+    {
+        bool allReached = false;
+        foreach (GameObject x in objectiveObjects)
+        {
+            if (!TryGetComponent<ObjectiveObject>(out ObjectiveObject obj)) return; //IF YOU CANT GRAB THE OBJECTIVE OBJECT COMPONENT, THEN RETURN
+            if (!obj.reachedTarget) return; //IF ANY OBJECTS DID NOT REACH THEIR LOCATION, THEN RETURN
+        }
+        //IF THEY ALL REACHED IT, THEN THE OBJECTIVE IS COMPLETE
+        if (allReached) SetCompletion(true);
+    }
+
+    void SetCompletion(bool set)
+    {
+        Debug.LogWarning($"Objective of description: [{description}] successfully completed.");
         isComplete = set;
     }
 }

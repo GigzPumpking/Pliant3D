@@ -14,6 +14,11 @@ public class PlaySound : Event
     public AudioSource source;
 }
 
+public class ReachedTarget : Event
+{
+    public GameObject obj;
+}
+
 public class PlayMusic : Event
 {
     public string musicName;

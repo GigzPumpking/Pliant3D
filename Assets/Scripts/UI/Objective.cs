@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class Objective : MonoBehaviour
@@ -23,6 +24,7 @@ public class Objective : MonoBehaviour
     //UI STUFF
     [SerializeField] TextMeshProUGUI ObjectiveUI;
     [SerializeField] Animator ObjectiveUIAnimator;
+    [SerializeField] GameObject CheckMark;
 
     //IF YOU SET THE ENUM TO INTERACT
     //[SerializeField] GameObject INT_objective;
@@ -30,6 +32,7 @@ public class Objective : MonoBehaviour
     {
         if (!ObjectiveUI) ObjectiveUI = GetComponentInChildren<TextMeshProUGUI>();
         if (!ObjectiveUIAnimator) ObjectiveUIAnimator = GetComponentInChildren<Animator>();
+        if(CheckMark) CheckMark.SetActive(false);
         InitializeObjects();
 
         EventDispatcher.AddListener<ReachedTarget>(ObjectReachedTarget);
@@ -51,7 +54,11 @@ public class Objective : MonoBehaviour
 
     public void ObjectReachedTarget(ReachedTarget _data) 
     {
-        if (!objectiveObjects.Contains(_data.obj)) return; //MAKE SURE THAT THE EVENT RECEIVED WAS FROM AN OBJECT THAT IS IN THIS OBJECTIVE
+        if (!objectiveObjects.Contains(_data.obj))
+        {
+            //Debug.LogError(this.gameObject.name + " does NOT contain the object that just got raised");
+            return; //MAKE SURE THAT THE EVENT RECEIVED WAS FROM AN OBJECT THAT IS IN THIS OBJECTIVE
+        }
         CheckCompletion();
     }
 
@@ -60,16 +67,29 @@ public class Objective : MonoBehaviour
         bool allReached = false;
         foreach (GameObject x in objectiveObjects)
         {
-            if (!TryGetComponent<ObjectiveObject>(out ObjectiveObject obj)) return; //IF YOU CANT GRAB THE OBJECTIVE OBJECT COMPONENT, THEN RETURN
-            if (!obj.reachedTarget) return; //IF ANY OBJECTS DID NOT REACH THEIR LOCATION, THEN RETURN
+            if (!x.TryGetComponent<ObjectiveObject>(out ObjectiveObject obj))
+            {
+                Debug.LogError("Couldnt grab component from " + x.gameObject.name);
+                return; //IF YOU CANT GRAB THE OBJECTIVE OBJECT COMPONENT, THEN RETURN
+            }
+            if (!obj.reachedTarget)
+            {
+                Debug.LogError(x.gameObject.name + " has not reached their target.");
+                return; //IF ANY OBJECTS DID NOT REACH THEIR LOCATION, THEN RETURN
+            }
         }
         //IF THEY ALL REACHED IT, THEN THE OBJECTIVE IS COMPLETE
+        allReached = true;
         if (allReached) SetCompletion(true);
     }
 
     void SetCompletion(bool set)
     {
-        Debug.LogWarning($"Objective of description: [{description}] successfully completed.");
-        isComplete = set;
+        if (set)
+        {
+            Debug.LogWarning($"Objective of description: [{description}] successfully completed.");
+            if (CheckMark) CheckMark.SetActive(true);
+            isComplete = set;
+        }
     }
 }

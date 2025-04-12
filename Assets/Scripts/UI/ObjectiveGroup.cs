@@ -23,9 +23,10 @@ public class ObjectiveGroup : MonoBehaviour
     void AddChildrenToList()
     {
         //EACH CHILD IN THIS GAMEOBJECT WILL BE CONSIDERED A UI ELEMENT WITH A CORRESPONDING OBJECTIVE
-        foreach (GameObject obj in GetComponentsInChildren<GameObject>())
+        foreach(Objective obj in GetComponentsInChildren<Objective>(true))
         {
-            Objectives.Add(obj);
+            if(!Objectives.Contains(obj.gameObject)) Objectives.Add(obj.gameObject);
+            obj.gameObject.SetActive(true);
         }
     }
 }

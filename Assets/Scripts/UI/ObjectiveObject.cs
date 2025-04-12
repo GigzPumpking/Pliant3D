@@ -22,6 +22,7 @@ public class ObjectiveObject : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
+        Debug.LogError(this.gameObject.name + " has collided with: " + other.gameObject.name);
         if(other.gameObject == targetObject)
         {
             reachedTarget = true;

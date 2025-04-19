@@ -14,6 +14,11 @@ public class PlaySound : Event
     public AudioSource source;
 }
 
+public class ReachedTarget : Event
+{
+    public GameObject obj;
+}
+
 public class PlayMusic : Event
 {
     public string musicName;
@@ -27,6 +32,17 @@ public class StopMusic : Event
 public class Interact : Event
 {
 
+}
+
+public class ObjectiveInteractEvent : Event
+{
+    public GameObject interactedTo;
+    public Transformation currentTransformation;
+}
+
+public class ObjectiveInteracted : Event
+{
+    public GameObject interactedTo;
 }
 
 public class EndDialogue : Event

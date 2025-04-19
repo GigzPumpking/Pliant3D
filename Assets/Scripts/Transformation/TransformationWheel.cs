@@ -6,6 +6,8 @@ using UnityEngine.Serialization;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using System.Linq;
+using UnityEditor.Rendering.Universal;
+using UnityEngine.SceneManagement;
 
 public class TransformationWheel : KeyActionReceiver<TransformationWheel>
 {
@@ -40,6 +42,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     [SerializeField] private bool lockoutEnabled = true;
 
     [SerializeField] private AudioData transformationSound;
+    [SerializeField] private GameObject softlockNotification;
 
     // Static key mapping shared across all TransformationWheel instances.
     public static Dictionary<string, Action<TransformationWheel, InputAction.CallbackContext>> staticKeyMapping =
@@ -224,6 +227,36 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         lockoutBar.fillAmount = LockoutProgresses[t] / 100;
         transformationFills[GetIntTransform()].fillAmount = LockoutProgresses[t] / 100;
         if (LockoutProgresses[t] <= 0f) Locked();
+
+        bool isSoftLocked = true;
+        foreach (var x in LockoutProgresses)
+        {
+            if (x.Key == Transformation.TERRY) continue;
+            if (x.Value == 0) continue;
+            else
+            {
+                isSoftLocked = false;
+                break;
+            }
+        }
+        if (isSoftLocked)
+        {
+            softlockNotification.SetActive(true);
+            //SoftLockProtocol();
+        }
+    }
+
+    public bool breakSoftLock;
+    public void SoftLockProtocol()
+    {
+        if (!breakSoftLock) return;
+        Debug.LogError("Player got softlocked, restarting scene");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        ResetProgress();
+        softlockNotification.SetActive(false);
+        Player.Instance.SetTransformation(Transformation.TERRY);
+        //add obj tracker reset
+        
     }
 
     void AddProgress(Transformation t, float amt)
@@ -248,25 +281,32 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     {
         // If lockout is disabled, do nothing.
         if (!lockoutEnabled) return;
+        Debug.LogError("Resetting Transform Wheel Progress...");
 
-        foreach (var key in LockoutProgresses.Keys.ToList())
-        {
-            LockoutProgresses[key] = maxLockoutCharge;
-        }
+        LockoutProgresses.Clear();
+        SetWheel();
         lockoutBar.fillAmount = 1;
     }
 
     void SetWheel()
     {
         // Initialize lockout charges if the lockout system is enabled.
-        if (lockoutEnabled)
-        {
-            LockoutProgresses.Add(Transformation.BULLDOZER, maxLockoutCharge);
-            LockoutProgresses.Add(Transformation.FROG, maxLockoutCharge);
-            //LockoutProgresses.Add(Transformation.BALL, maxLockoutCharge);
-            LockoutProgresses.Add(Transformation.TERRY, maxLockoutCharge);
+        if (!lockoutEnabled) return;
 
-            HandleNulls();
+        LockoutProgresses.Add(Transformation.BULLDOZER, maxLockoutCharge);
+        LockoutProgresses.Add(Transformation.FROG, maxLockoutCharge);
+        LockoutProgresses.Add(Transformation.TERRY, maxLockoutCharge);
+
+        HandleNulls();
+        SetWheelUI();
+    }
+
+    void SetWheelUI()
+    {
+        foreach(var x in transformationFills)
+        {
+           //Debug.Log(x.name);
+            x.fillAmount = 1;
         }
     }
 

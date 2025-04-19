@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using System.Linq.Expressions;
 
 public class GameManager : KeyActionReceiver<GameManager>
 {
@@ -74,11 +75,18 @@ public class GameManager : KeyActionReceiver<GameManager>
         // Restart the game
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
-        Player.Instance?.SetTransformation(Transformation.TERRY);
-        // set Player velocity to 0
-        Player.Instance?.SetVelocity(Vector3.zero);
-        if (transformWheel == null) transformWheel = Player.Instance?.GetComponentInChildren<TransformationWheel>();
-        transformWheel?.ResetProgress();
+        try
+        {
+            Player.Instance.SetTransformation(Transformation.TERRY);
+            // set Player velocity to 0
+            Player.Instance.SetVelocity(Vector3.zero);
+            if (transformWheel == null) transformWheel = Player.Instance.GetComponentInChildren<TransformationWheel>();
+            transformWheel.ResetProgress();
+        }
+        catch
+        {
+            Debug.LogError("Error loading dependencies when restarting scene");
+        }
     }
 
     public void Reset(InputAction.CallbackContext context)

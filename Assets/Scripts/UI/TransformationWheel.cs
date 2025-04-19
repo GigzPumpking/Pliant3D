@@ -44,22 +44,15 @@ public class TransformationWheel : KeyActionReceiver
     [SerializeField] private AudioData transformationSound;
     [SerializeField] private GameObject softlockNotification;
 
-    public void InitializeActionMap()
-    {
-        actionMap = new Dictionary<string, Action<InputAction.CallbackContext>>()
+    // Static key mapping shared across all TransformationWheel instances.
+    public static Dictionary<string, Action<TransformationWheel, InputAction.CallbackContext>> staticKeyMapping =
+        new Dictionary<string, Action<TransformationWheel, InputAction.CallbackContext>>()
         {
-            { "Ball", ctx => controllerSelect(0) },
-            { "Frog", ctx => controllerSelect(1) },
-            { "Bulldozer", ctx => controllerSelect(2) },
-            { "Terry", ctx => controllerSelect(3) },
-            { "Confirm", ctx => { if (ctx.performed) Transform(); } }
+            { "Terry", (wheel, ctx) => wheel.controllerSelect(2) },
+            { "Frog", (wheel, ctx) => wheel.controllerSelect(1) },
+            { "Bulldozer", (wheel, ctx) => wheel.controllerSelect(0) },
+            { "Confirm", (wheel, ctx) => wheel.Transform(ctx) }
         };
-
-        foreach (var action in actionMap.Keys)
-        {
-            InputManager.Instance.AddKeyBind(this, action, "Gameplay");
-        }
-    }
 
     // Start is called before the first frame update
     void Start()

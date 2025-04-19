@@ -9,14 +9,30 @@ public class Frog : FormScript
     protected override float baseSpeed { get; set; } = 6.0f;
     public float jumpForce = 6.0f;
     private bool isGrounded = true;
+
+    [Header("Ground Check")]
     [SerializeField] private float raycastDistance = 1f;
     [SerializeField] private float yOffset = 0.5f;
-    [SerializeField] private float detectionRange = 5f; // Range to detect objects
-    private Interactable highlightedObject; // Currently highlighted object
-    private Transform closestObject; // The closest hookable or pullable object
 
-    [SerializeField] private float hookDuration = 1f;   
-    [SerializeField] private float hookForce = 10f;
+    [Header("Detection Ranges")]
+    [Tooltip("Sphere radius for Hookable objects")]
+    [SerializeField] private float detectionRange = 5f;
+
+    [Tooltip("Center (local) of Pullable detection box")]
+    [SerializeField] private Vector3 pullBoxCenter = new Vector3(0f, 0.5f, 2f);
+    [Tooltip("Full size of Pullable detection box (width, height, depth)")]
+    [SerializeField] private Vector3 pullBoxSize   = new Vector3(2f, 1f, 4f);
+
+    private Interactable highlightedObject;
+    private Transform     closestObject;
+
+    [Header("Hook & Pull Settings")]
+    [SerializeField] private float hookDuration = 1f;
+    [SerializeField] private float hookForce    = 10f;
+
+    [Header("Pull Behavior")]
+    [SerializeField] private float stopOffset   = 0.1f;
+    [SerializeField] private AnimationCurve pullCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     public override void OnEnable()
     {
@@ -25,160 +41,202 @@ public class Frog : FormScript
 
     public void OnDisable()
     {
-        // Unhighlight the highlighted object
         if (highlightedObject != null)
-        {
             highlightedObject.IsHighlighted = false;
-            highlightedObject = null;
-        }
+        highlightedObject = null;
+        closestObject   = null;
+    }
+
+    private void OnDrawGizmos() {
+        // 1) Sphere for Hookable
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
+
+        // 2) Box for Pullable
+        GetPullBoxTransform(out Vector3 center, out Quaternion rot);
+        Vector3 halfExtents = pullBoxSize * 0.5f;
+
+        Matrix4x4 old = Gizmos.matrix;
+        Gizmos.matrix = Matrix4x4.TRS(center, rot, pullBoxSize);
+        Gizmos.color  = Color.cyan;
+        Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
+        Gizmos.matrix = old;
     }
 
     public override void Ability1(InputAction.CallbackContext context)
     {
-        if (!isGrounded || !context.performed)
-        {
-            return;
-        }
-
+        if (!isGrounded || !context.performed) return;
         isGrounded = false;
-
-        if (animator != null)
-        {
-            animator.SetTrigger("Jump");
-        }
-
-        rb.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
+        animator?.SetTrigger("Jump");
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         EventDispatcher.Raise<StressAbility>(new StressAbility());
     }
 
     public override void Ability2(InputAction.CallbackContext context)
     {
-        if (!context.performed || closestObject == null)
-        {
-            return;
-        }
+        if (!context.performed || closestObject == null) return;
 
-        // Check for properties to decide the appropriate action
-        Interactable interactable = closestObject.GetComponent<Interactable>();
-        if (interactable != null)
-        {
-            if (interactable.HasProperty("Hookable"))
-            {
-                GrapplingHook(closestObject);
-            }
-            else if (interactable.HasProperty("Pullable"))
-            {
-                PullObject(closestObject);
-            }
-        }
+        var intr = closestObject.GetComponent<Interactable>();
+        if (intr.HasProperty("Hookable"))
+            GrapplingHook(closestObject);
+        else if (intr.HasProperty("Pullable"))
+            PullObject(closestObject);
 
         EventDispatcher.Raise<StressAbility>(new StressAbility());
     }
 
-    private void GroundedChecker()
-    {
-        RaycastHit hit;
-        isGrounded = Physics.Raycast(transform.position + new Vector3(0, yOffset, 0), Vector3.down * raycastDistance, out hit, raycastDistance);
-    }
-
-    private void DetectAndHighlightObjects()
-    {
-        // Detect all colliders within the detection range
-        Collider[] colliders = Physics.OverlapSphere(transform.position, detectionRange);
-
-        // Filter for interactable objects with "Hookable" or "Pullable" properties
-        var interactables = colliders
-            .Select(c => c.GetComponent<Interactable>())
-            .Where(i => i != null && i.isInteractable && (i.HasProperty("Hookable") || i.HasProperty("Pullable")))
-            .ToList();
-
-        // Find the closest object
-        Interactable closestInteractable = interactables
-            .OrderBy(i => Vector3.Distance(transform.position, i.transform.position))
-            .FirstOrDefault();
-
-        // Highlight the closest object if it's not already highlighted
-        if (closestInteractable != highlightedObject)
-        {
-            // Unhighlight the previously highlighted object
-            if (highlightedObject != null)
-            {
-                highlightedObject.IsHighlighted = false;
-            }
-
-            // Highlight the new closest object
-            if (closestInteractable != null)
-            {
-                closestInteractable.IsHighlighted = true;
-                closestObject = closestInteractable.transform; // Set the closest object
-            }
-            else
-            {
-                closestObject = null; // Reset closest object if none are found
-            }
-
-            highlightedObject = closestInteractable;
-        }
-    }
-
-    private void GrapplingHook(Transform objectToHookTo)
-    {
-        if (objectToHookTo == null) return;
-
-        // Start Coroutine
-        StartCoroutine(GrapplingHookCoroutine(objectToHookTo));
-    }
-
-    IEnumerator GrapplingHookCoroutine(Transform objectToHookTo)
-    {
-        float timeElapsed = 0f;
-        float duration = hookDuration;
-        Vector3 originalPosition = player.transform.position;
-        Vector3 targetPosition = objectToHookTo.position;
-
-        if (targetPosition.y < originalPosition.y)
-        {
-            targetPosition.y = originalPosition.y;
-        }
-
-        while (timeElapsed < duration)
-        {
-            player.transform.position = Vector3.Lerp(originalPosition, targetPosition, timeElapsed / duration);
-            timeElapsed += Time.deltaTime;
-            yield return null;
-        }
-    }
-
-    private void PullObject(Transform objectToPull)
-    {
-        if (objectToPull == null) return;
-
-        // Add logic to pull the object towards the player
-        StartCoroutine(PullObjectCoroutine(objectToPull));
-    }
-
-    IEnumerator PullObjectCoroutine(Transform objectToPull)
-    {
-        float timeElapsed = 0f;
-        float duration = hookDuration;
-        Vector3 originalPosition = objectToPull.position;
-        Vector3 targetPosition = player.transform.position;
-
-        while (timeElapsed < duration)
-        {
-            objectToPull.position = Vector3.Lerp(originalPosition, targetPosition, timeElapsed / duration);
-            timeElapsed += Time.deltaTime;
-            yield return null;
-        }
-    }
-
     private void FixedUpdate()
     {
-        GroundedChecker();
+        isGrounded = Physics.Raycast(
+            transform.position + Vector3.up * yOffset,
+            Vector3.down,
+            raycastDistance
+        );
     }
 
     private void Update()
     {
         DetectAndHighlightObjects();
+    }
+
+    private void DetectAndHighlightObjects()
+    {
+        // 1) Hookable via Sphere
+        var hookCols = Physics.OverlapSphere(transform.position, detectionRange);
+        var hookables = hookCols
+            .Select(c => c.GetComponent<Interactable>())
+            .Where(i => i != null && i.isInteractable && i.HasProperty("Hookable"));
+
+        // 2) Pullable via Box
+        GetPullBoxTransform(out Vector3 center, out Quaternion rot);
+        Vector3 halfExtents = pullBoxSize * 0.5f;
+        Collider[] pullCols = Physics.OverlapBox(center, halfExtents, rot);
+
+        var pullables = pullCols
+            .Select(c => c.GetComponent<Interactable>())
+            .Where(i => i != null && i.isInteractable && i.HasProperty("Pullable"));
+
+        // combine with hookables, pick nearest
+        var all = hookables.Concat(pullables);
+        var nearest = all
+            .OrderBy(i => Vector3.Distance(transform.position, i.transform.position))
+            .FirstOrDefault();
+
+        if (nearest != highlightedObject)
+        {
+            if (highlightedObject != null)
+                highlightedObject.IsHighlighted = false;
+
+            if (nearest != null)
+            {
+                nearest.IsHighlighted = true;
+                closestObject         = nearest.transform;
+            }
+            else
+            {
+                closestObject = null;
+            }
+
+            highlightedObject = nearest;
+        }
+    }
+
+    private void GrapplingHook(Transform t)
+    {
+        StartCoroutine(GrapplingHookCoroutine(t));
+    }
+
+    private IEnumerator GrapplingHookCoroutine(Transform t)
+    {
+        // 1) Get colliders’ vertical half‑extents
+        Collider objCol = t.GetComponent<Collider>();
+        Collider plrCol = player.GetComponentInChildren<Collider>();
+        if (objCol == null || plrCol == null) yield break;
+
+        float objHalfY = objCol.bounds.extents.y;
+        float plrHalfY = plrCol.bounds.extents.y;
+        float verticalGap = objHalfY + plrHalfY + stopOffset;
+
+        // 2) Compute start & elevated target
+        Vector3 start = player.transform.position;
+        Vector3 objPos = t.position;
+        Vector3 target = new Vector3(
+            objPos.x,
+            objPos.y + verticalGap,
+            objPos.z
+        );
+
+        // 3) Rubber‑gum Lerp up to target
+        float elapsed = 0f;
+        while (elapsed < hookDuration)
+        {
+            float pct    = elapsed / hookDuration;
+            float curveT = pullCurve.Evaluate(pct);
+            player.transform.position = Vector3.Lerp(start, target, curveT);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // 4) Snap exactly
+        player.transform.position = target;
+    }
+
+    private void PullObject(Transform t)
+    {
+        StartCoroutine(PullObjectCoroutine(t));
+    }
+
+    private IEnumerator PullObjectCoroutine(Transform t)
+    {
+        // (unchanged)
+        Collider objCol = t.GetComponent<Collider>();
+        Collider plrCol = player.GetComponentInChildren<Collider>();
+        if (objCol == null || plrCol == null) yield break;
+
+        float objR = Mathf.Max(objCol.bounds.extents.x, objCol.bounds.extents.y, objCol.bounds.extents.z);
+        float plrR = Mathf.Max(plrCol.bounds.extents.x, plrCol.bounds.extents.y, plrCol.bounds.extents.z);
+        float gap  = objR + plrR + stopOffset;
+
+        Vector3 start = t.position;
+        float startY = start.y;
+
+        Vector3 flatDir = player.position - start;
+        flatDir.y = 0f;
+        if (flatDir.sqrMagnitude < 0.0001f) yield break;
+        flatDir.Normalize();
+
+        Vector3 flatPlayer = new Vector3(player.position.x, startY, player.position.z);
+        Vector3 target     = flatPlayer - flatDir * gap;
+
+        float elapsed = 0f;
+        while (elapsed < hookDuration)
+        {
+            float pct    = elapsed / hookDuration;
+            float curveT = pullCurve.Evaluate(pct);
+            Vector3 nextPos = Vector3.Lerp(start, target, curveT);
+            t.position = new Vector3(nextPos.x, startY, nextPos.z);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        t.position = new Vector3(target.x, startY, target.z);
+    }
+
+    private void GetPullBoxTransform(out Vector3 worldCenter, out Quaternion worldRot)
+    {
+        Vector3 dirVec;
+        switch (Player.Instance.FacingDirection)
+        {
+            case Directions.LEFT:  dirVec = Vector3.left;  break;
+            case Directions.RIGHT: dirVec = Vector3.right; break;
+            case Directions.UP:    dirVec = Vector3.forward;  break;
+            case Directions.DOWN:  dirVec = Vector3.back;   break;
+            default:               dirVec = Vector3.forward;  break;
+        }
+
+        worldRot    = Quaternion.LookRotation(dirVec, Vector3.up);
+        worldCenter = player.position + worldRot * pullBoxCenter;
     }
 }

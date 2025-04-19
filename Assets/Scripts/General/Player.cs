@@ -4,6 +4,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+public enum Directions {
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
+}
+
 public class Player : KeyActionReceiver<Player>
 {
     // Instance 
@@ -19,18 +26,23 @@ public class Player : KeyActionReceiver<Player>
     private Transform sparkles;
     private Animator sparklesAnimator;
 
-    enum Directions {
-        UP,
-        DOWN,
-        LEFT,
-        RIGHT
-    }
-
-    private Directions lastVerticalInput = Directions.DOWN;
-    private Directions lastHorizontalInput = Directions.RIGHT;
-
     bool isMoving = false;
-    private Directions lastInput = Directions.DOWN;
+
+    public Directions FacingDirection => facingDirection;
+
+    // backing field for the above
+    private Directions facingDirection = Directions.DOWN;  
+
+    // track last pure horizontal or vertical intent
+    private enum Axis { None, Horizontal, Vertical }
+    private Axis lastDominantAxis = Axis.Horizontal;
+
+    // to detect edges
+    private bool prevH = false;
+    private bool prevV = false;
+
+    // track last non‑zero horizontal so we know which way “left” refers to
+    private Directions lastHorizontalInput = Directions.RIGHT;
 
     [SerializeField] bool isGrounded = true;
 
@@ -219,63 +231,66 @@ public class Player : KeyActionReceiver<Player>
 
 
     void MoveHandler() {
-        float verticalInput = movementInput.y;
-        float horizontalInput = movementInput.x;
+        float vx = movementInput.x;
+        float vy = movementInput.y;
+        float thr = minMoveThreshold;
 
-        if (!InputManager.Instance || !InputManager.Instance.isListening) {
-            verticalInput = Input.GetAxis("Vertical");
-            horizontalInput = Input.GetAxis("Horizontal");
-            Debug.Log("Input System Disabled");
+        bool h = Mathf.Abs(vx) >= thr;
+        bool v = Mathf.Abs(vy) >= thr;
+
+        // ——— Edge detection: did H or V just go from “off”→“on”? ———
+        if (h && !prevH) lastDominantAxis = Axis.Horizontal;
+        if (v && !prevV) lastDominantAxis = Axis.Vertical;
+
+        prevH = h;
+        prevV = v;
+
+        // ——— Now decide facing based on the most‐recently pressed axis ———
+        if (h && lastDominantAxis == Axis.Horizontal)
+        {
+            // pure left/right
+            facingDirection     = vx > 0 ? Directions.RIGHT : Directions.LEFT;
+            lastHorizontalInput = facingDirection;
+        }
+        else if (v && lastDominantAxis == Axis.Vertical)
+        {
+            // vertical → map into your isometric cross
+            if (vy > 0)
+                // “up” arm: top‑left or top‑right
+                facingDirection = (lastHorizontalInput == Directions.LEFT)
+                                 ? Directions.UP
+                                 : Directions.RIGHT;
+            else
+                // “down” arm: bottom‑left or bottom‑right
+                facingDirection = (lastHorizontalInput == Directions.LEFT)
+                                 ? Directions.LEFT
+                                 : Directions.DOWN;
         }
 
-        Vector3 cameraForwards = Camera.main.transform.forward;
+        // flip sprite on horizontal input
+        if (h)
+            selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = (vx > 0);
 
-        Vector3 cameraRight = Camera.main.transform.right;
-
-        cameraForwards.y = 0f;
-        cameraRight.y = 0f;
-        cameraForwards = cameraForwards.normalized;
-        cameraRight = cameraRight.normalized;
-
-        Vector3 desiredMoveDirection = Vector3.zero;
-
-
-        desiredMoveDirection = cameraForwards * verticalInput + cameraRight * horizontalInput;
-
-        if (animator != null) {
-            if (horizontalInput != 0 || verticalInput != 0){
-                animator.SetFloat("MoveX", horizontalInput);
-                animator.SetFloat("MoveY", verticalInput);
+        // feed animator
+        if (animator != null)
+        {
+            bool isMoving = vx != 0 || vy != 0;
+            if (isMoving) {
+                animator.SetFloat("MoveX", vx);
+                animator.SetFloat("MoveY", vy);
             }
+            animator.SetBool("isWalking", vx != 0 || vy != 0);
         }
 
-        desiredMoveDirection = desiredMoveDirection.normalized;
-
-        isMoving = desiredMoveDirection != Vector3.zero ? true : false;
-
-        if (animator != null) {
-            animator.SetBool("isWalking", isMoving);
-        }
-
-        if (movementInput.x < 0) {
-            selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
-            lastHorizontalInput = Directions.LEFT;
-            lastInput = Directions.LEFT;
-        } else if (movementInput.x > 0) {
-            selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = true;
-            lastHorizontalInput = Directions.RIGHT;
-            lastInput = Directions.RIGHT;
-        }
-
-        if (movementInput.y < 0) {
-            lastVerticalInput = Directions.UP;
-            lastInput = Directions.UP;
-        } else if (movementInput.y > 0) {
-            lastVerticalInput = Directions.DOWN;
-            lastInput = Directions.DOWN;
-        }
-
-        rbody.velocity = new Vector3(desiredMoveDirection.x * movementSpeed, rbody.velocity.y, desiredMoveDirection.z * movementSpeed);
+        // actual movement
+        Vector3 camF = Camera.main.transform.forward; camF.y = 0; camF.Normalize();
+        Vector3 camR = Camera.main.transform.right;   camR.y = 0; camR.Normalize();
+        Vector3 dir  = (camF * vy + camR * vx).normalized;
+        rbody.velocity = new Vector3(
+            dir.x * movementSpeed,
+            rbody.velocity.y,
+            dir.z * movementSpeed
+        );
     }
 
     public void SetVelocity(Vector3 velocity) {

@@ -10,10 +10,12 @@ public class Bulldozer : FormScript
     private int playerLayer = 3;
     private int walkableLayer = 7;
 
-    [SerializeField] private float detectionRange = 5f; // Range to detect breakable objects
-    private Interactable highlightedInteractable; // Currently highlighted Interactable object
+    [SerializeField] private float detectionRange = 5f;
+    private Interactable highlightedInteractable;
 
-    [SerializeField] private float sprintModifier = 4.67f; // Sprint modifier for speed
+    [SerializeField] private float sprintModifier = 4.67f;
+
+    private bool isPushing = false;    // track current push state
 
     public override void OnEnable()
     {
@@ -22,9 +24,9 @@ public class Bulldozer : FormScript
 
     public void OnDisable()
     {
+        // ensure we’re no longer pushing
         PushState(false);
 
-        // Unhighlight the highlighted Interactable
         if (highlightedInteractable != null)
         {
             highlightedInteractable.IsHighlighted = false;
@@ -32,84 +34,81 @@ public class Bulldozer : FormScript
         }
     }
 
+    /// <summary>
+    /// Turn physics‐pushing on/off.
+    /// </summary>
     public void PushState(bool state)
     {
         Physics.IgnoreLayerCollision(playerLayer, walkableLayer, state);
-
-        rb.mass = state ? 1000 : 1;
+        rb.mass = state ? 1000f : 1f;
+        isPushing = state;
     }
 
+    /// <summary>
+    /// Ability1 → Sprint
+    /// </summary>
     public override void Ability1(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            PushState(true);
+            speed = baseSpeed * sprintModifier;
         }
         else if (context.canceled)
-        {
-            PushState(false);
-        }
-    }
-
-    public override void Ability2(InputAction.CallbackContext context)
-    {
-        if (!context.performed) return;
-
-        if (highlightedInteractable != null && highlightedInteractable.HasProperty("Breakable"))
-        {
-            Debug.Log("Deactivating Breakable Object: " + highlightedInteractable.name);
-            highlightedInteractable.gameObject.SetActive(false); // Deactivate the closest breakable object
-            highlightedInteractable = null; // Reset the highlighted object
-        }
-        else
-        {
-            Debug.Log("No Breakable object found within range.");
-        }
-    }
-
-    public override void Ability3(InputAction.CallbackContext context)
-    {
-        if (context.performed)
-        {
-            speed = baseSpeed * sprintModifier; // Increase speed when sprinting
-        } else if (context.canceled)
         {
             speed = baseSpeed;
         }
     }
 
+    /// <summary>
+    /// Ability2 → Toggle push AND break any breakable in range
+    /// </summary>
+    public override void Ability2(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+
+        // toggle push on/off
+        bool newState = !isPushing;
+        PushState(newState);
+        Debug.Log($"PushState toggled: {newState}");
+
+        // if we just started pushing, also break the highlighted
+        if (newState)
+        {
+            if (highlightedInteractable != null && highlightedInteractable.HasProperty("Breakable"))
+            {
+                Debug.Log("Deactivating Breakable Object: " + highlightedInteractable.name);
+                highlightedInteractable.gameObject.SetActive(false);
+                highlightedInteractable = null;
+            }
+            else
+            {
+                Debug.Log("No Breakable object found within range.");
+            }
+        }
+    }
+
     private void DetectAndHighlightBreakables()
     {
-        // Detect all colliders within the detection range
         Collider[] colliders = Physics.OverlapSphere(transform.position, detectionRange);
 
-        // Filter for Interactable objects with the "Breakable" property
         var breakables = colliders
             .Select(c => c.GetComponent<Interactable>())
             .Where(i => i != null && i.isInteractable && i.HasProperty("Breakable"))
             .ToList();
 
-        // Find the closest breakable object
-        Interactable closestInteractable = breakables
+        var closest = breakables
             .OrderBy(i => Vector3.Distance(transform.position, i.transform.position))
             .FirstOrDefault();
 
-        // Highlight the closest Interactable if it's not already highlighted
-        if (closestInteractable != highlightedInteractable)
+        if (closest != highlightedInteractable)
         {
-            // Unhighlight the previously highlighted Interactable
             if (highlightedInteractable != null)
-            {
                 highlightedInteractable.IsHighlighted = false;
-            }
 
-            // Highlight the new closest Interactable
-            if (closestInteractable != null)
-            {
-                closestInteractable.IsHighlighted = true;
-            }
+            if (closest != null)
+                closest.IsHighlighted = true;
 
-            highlightedInteractable = closestInteractable;
+            highlightedInteractable = closest;
         }
     }
 

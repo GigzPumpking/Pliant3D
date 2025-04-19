@@ -42,6 +42,7 @@ public class TransformationWheel : KeyActionReceiver
     [SerializeField] private bool lockoutEnabled = true;
 
     [SerializeField] private AudioData transformationSound;
+    [SerializeField] private GameObject softlockNotification;
 
     public void InitializeActionMap()
     {
@@ -209,17 +210,22 @@ public class TransformationWheel : KeyActionReceiver
         transformationFills[GetIntTransform()].fillAmount = LockoutProgresses[t] / 100;
         if (LockoutProgresses[t] <= 0f) Locked();
 
-        //bool isSoftLocked = true;
-        //foreach(var x in LockoutProgresses)
-        //{
-        //    if (x.Key == Transformation.TERRY) continue;
-        //    if (x.Value == 0) continue;
-        //    else { 
-        //        isSoftLocked = false;
-        //        break;
-        //    }
-        //}
-        //if (isSoftLocked) SoftLockProtocol();
+        bool isSoftLocked = true;
+        foreach (var x in LockoutProgresses)
+        {
+            if (x.Key == Transformation.TERRY) continue;
+            if (x.Value == 0) continue;
+            else
+            {
+                isSoftLocked = false;
+                break;
+            }
+        }
+        if (isSoftLocked)
+        {
+            softlockNotification.SetActive(true);
+            //SoftLockProtocol();
+        }
     }
 
     public bool breakSoftLock;
@@ -229,6 +235,7 @@ public class TransformationWheel : KeyActionReceiver
         Debug.LogError("Player got softlocked, restarting scene");
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         ResetProgress();
+        softlockNotification.SetActive(false);
         Player.Instance.SetTransformation(Transformation.TERRY);
         //add obj tracker reset
         

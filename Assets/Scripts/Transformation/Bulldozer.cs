@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 
 public class Bulldozer : FormScript
 {
-    protected override float baseSpeed { get; set; } = 3.0f;
+    protected override float baseSpeed { get; set; } = 7.0f;
     private int playerLayer = 3;
     private int walkableLayer = 7;
 

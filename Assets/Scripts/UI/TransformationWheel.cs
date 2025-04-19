@@ -209,26 +209,27 @@ public class TransformationWheel : KeyActionReceiver
         transformationFills[GetIntTransform()].fillAmount = LockoutProgresses[t] / 100;
         if (LockoutProgresses[t] <= 0f) Locked();
 
-        bool isSoftLocked = true;
-        foreach(var x in LockoutProgresses)
-        {
-            if (x.Key == Transformation.TERRY) continue;
-            if (x.Value == 0) continue;
-            else { 
-                isSoftLocked = false;
-                break;
-            }
-        }
-        if (isSoftLocked) SoftLockProtocol();
+        //bool isSoftLocked = true;
+        //foreach(var x in LockoutProgresses)
+        //{
+        //    if (x.Key == Transformation.TERRY) continue;
+        //    if (x.Value == 0) continue;
+        //    else { 
+        //        isSoftLocked = false;
+        //        break;
+        //    }
+        //}
+        //if (isSoftLocked) SoftLockProtocol();
     }
 
     public bool breakSoftLock;
-    void SoftLockProtocol()
+    public void SoftLockProtocol()
     {
         if (!breakSoftLock) return;
         Debug.LogError("Player got softlocked, restarting scene");
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         ResetProgress();
+        Player.Instance.SetTransformation(Transformation.TERRY);
         //add obj tracker reset
         
     }

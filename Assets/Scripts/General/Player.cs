@@ -84,6 +84,7 @@ public class Player : KeyActionReceiver<Player>
         {
             { "Move", (instance, ctx) => instance.setMovementInput(ctx) },
             { "Transform", (instance, ctx) => instance.TransformationHandler(ctx) },
+            { "TransformKeyboard", (instance, ctx) => instance.TransformationKeyboardHandler(ctx) },
             { "Interact", (instance, ctx) => instance.InteractHandler(ctx) },
             { "Ability1", (instance, ctx) => instance.Ability1Handler(ctx) },
             { "Ability2", (instance, ctx) => instance.Ability2Handler(ctx) },
@@ -342,7 +343,7 @@ public class Player : KeyActionReceiver<Player>
     }
 
     public void TransformationHandler() {
-        if (!isGrounded || (UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive)) && !transformationWheel.gameObject.activeSelf) return;
+        if (!isGrounded || (UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive)) && transformationWheel.gameObject.activeSelf) return;
 
         transformationWheel.gameObject.SetActive(true);
         canMoveToggle(false);
@@ -351,6 +352,15 @@ public class Player : KeyActionReceiver<Player>
     public void TransformationHandler(InputAction.CallbackContext context) {
         if (context.performed) {
             TransformationHandler();
+        }
+    }
+
+    public void TransformationKeyboardHandler(InputAction.CallbackContext context) {
+        if (context.performed) {
+            if (!isGrounded || (UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive))) return;
+
+            transformationWheel.gameObject.SetActive(!transformationWheel.gameObject.activeSelf);
+            canMoveToggle(!transformationWheel.gameObject.activeSelf);
         }
     }
 

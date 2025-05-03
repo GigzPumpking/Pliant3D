@@ -213,6 +213,12 @@ public class Player : KeyActionReceiver<Player>
     void setMovementInput(InputAction.CallbackContext context) {
         EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = $"Setting movement input: {context.ReadValue<Vector2>()}" });
 
+        // if in the air while being a bulldozer, don't move
+        if (!isGrounded && transformation == Transformation.BULLDOZER) {
+            movementInput = Vector2.zero;
+            return;
+        }
+
         // Use InputManager or another source to get the current movement vector
         Vector2 moveValue = InputManager.Instance.isListening
             ? context.ReadValue<Vector2>()
@@ -336,10 +342,10 @@ public class Player : KeyActionReceiver<Player>
     }
 
     public void TransformationHandler() {
-        if (!isGrounded || (UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive))) return;
+        if (!isGrounded || (UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive)) && !transformationWheel.gameObject.activeSelf) return;
 
-        transformationWheel.gameObject.SetActive(!transformationWheel.gameObject.activeSelf);
-        canMoveToggle(!transformationWheel.gameObject.activeSelf);
+        transformationWheel.gameObject.SetActive(true);
+        canMoveToggle(false);
     }
 
     public void TransformationHandler(InputAction.CallbackContext context) {

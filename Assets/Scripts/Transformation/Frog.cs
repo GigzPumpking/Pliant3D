@@ -88,7 +88,7 @@ public class Frog : FormScript
 
     public override void Ability1(InputAction.CallbackContext context)
     {
-        if (!isGrounded || !context.performed) return;
+        if (!isGrounded || !context.performed || Player.Instance.TransformationChecker() == true) return;
         isGrounded = false;
         animator?.SetTrigger("Jump");
         rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);

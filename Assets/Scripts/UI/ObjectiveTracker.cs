@@ -14,7 +14,7 @@ public class ObjectiveTracker : MonoBehaviour
     //public GameObject[] objectiveUIList;
     public Dictionary<Objective, ObjectiveUI> ObjectiveTable = new Dictionary<Objective, ObjectiveUI>();
     public List<GameObject> ObjectiveGroups = new List<GameObject>(); //HOLDING OF ALL THE OBJECTIVE GROUPS
-
+    public GameObject openObjectiveGroup; //HOLDING OF THE OPEN OBJECTIVE GROUP
     //SINGLETON
     private static ObjectiveTracker instance;
     public static ObjectiveTracker Instance { get { return instance; } }
@@ -58,11 +58,13 @@ public class ObjectiveTracker : MonoBehaviour
     void OpenTracker()
     {
         animator.SetBool("TrackerOpen", true);
+        openObjectiveGroup?.SetActive(true);
     }
 
     void CloseTracker()
     {
         animator.SetBool("TrackerOpen", false);
+        openObjectiveGroup?.SetActive(false);
     }
 
     //public void AddToMap(Objective _data)

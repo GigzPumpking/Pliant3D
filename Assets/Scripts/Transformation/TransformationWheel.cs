@@ -250,7 +250,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     public void SoftLockProtocol()
     {
         if (!breakSoftLock) return;
-        Debug.LogError("Player got softlocked, restarting scene");
+        Debug.LogWarning("Player got softlocked, restarting scene");
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         ResetProgress();
         softlockNotification.SetActive(false);
@@ -281,7 +281,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     {
         // If lockout is disabled, do nothing.
         if (!lockoutEnabled) return;
-        Debug.LogError("Resetting Transform Wheel Progress...");
+        Debug.LogWarning("Resetting Transform Wheel Progress...");
 
         LockoutProgresses.Clear();
         SetWheel();

@@ -14,8 +14,8 @@ public class ObjectiveInteract : MonoBehaviour
         EventDispatcher.AddListener<ObjectiveInteractEvent>(PlayerInteracted); //LISTENED TO BY 'Objective.cs'
     }
 
-    public void PlayerInteracted(ObjectiveInteractEvent _data)
-    {
+    public void PlayerInteracted(ObjectiveInteractEvent _data) {
+        if (this == null) return;
         //Debug.LogError("Received interact data, gameObject = " + _data.interactedTo.name);
         if(!_data.interactedTo.Equals(this.gameObject)) return; //IF NOT THIS OBJECTIVE, RETURN
 

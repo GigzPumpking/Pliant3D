@@ -34,6 +34,29 @@ public class Frog : FormScript
     [SerializeField] private float stopOffset   = 0.1f;
     [SerializeField] private AnimationCurve pullCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
+    [Header("Grapple Line")]
+    [SerializeField] private LineRenderer lineRenderer;  // drag in inspector
+    [SerializeField] private bool useWorldSpace = true;  // match your LR setting
+
+    public override void Awake()
+    {
+        base.Awake();
+
+        if (lineRenderer == null)
+        {
+            lineRenderer = gameObject.AddComponent<LineRenderer>();
+            lineRenderer.positionCount = 2;
+            lineRenderer.useWorldSpace = useWorldSpace;
+        } 
+        var mat = new Material(Shader.Find("Sprites/Default"));
+        mat.color = new Color(1f, 0f, 0f, 0.75f);
+        lineRenderer.material = mat;
+        lineRenderer.startColor = new Color(1f, 0f, 0f, 0.75f);
+        lineRenderer.endColor   = new Color(1f, 0f, 0f, 0.75f);
+        lineRenderer.startWidth = 0.25f;
+        lineRenderer.endWidth   = 0.25f;
+    }
+    
     public override void OnEnable()
     {
         base.OnEnable();
@@ -97,6 +120,42 @@ public class Frog : FormScript
     private void Update()
     {
         DetectAndHighlightObjects();
+        UpdateGrappleLine();
+    }
+
+    private void UpdateGrappleLine()
+    {
+        if (closestObject != null)
+        {
+            lineRenderer.enabled = true;
+
+            // Use the frog’s collider center if you want the line to start at its middle too:
+            Vector3 startCenter;
+            var playerCol = GetComponentInChildren<Collider>();
+            if (playerCol != null) startCenter = playerCol.bounds.center;
+            else                  startCenter = transform.position;
+            
+            // Use the target’s collider center for the end point:
+            Vector3 endCenter;
+            var targetCol = closestObject.GetComponent<Collider>();
+            if (targetCol != null) endCenter = targetCol.bounds.center;
+            else                    endCenter = closestObject.position;
+
+            // Now convert to local or world space to feed into the LineRenderer:
+            Vector3 startPos = useWorldSpace
+                ? startCenter
+                : lineRenderer.transform.InverseTransformPoint(startCenter);
+            Vector3 endPos   = useWorldSpace
+                ? endCenter
+                : lineRenderer.transform.InverseTransformPoint(endCenter);
+
+            lineRenderer.SetPosition(0, startPos);
+            lineRenderer.SetPosition(1, endPos);
+        }
+        else
+        {
+            lineRenderer.enabled = false;
+        }
     }
 
     private void DetectAndHighlightObjects()

@@ -25,7 +25,7 @@ public class Objective : MonoBehaviour
 
     [Header("Objective Dependencies")]
     //OBJECTIVE OBJECTS AND TARGET LOCATIONS
-    [SerializeField] List<Transform> objectiveObjects = new List<Transform>();
+    [SerializeField] List<GameObject> objectiveObjects = new List<GameObject>();
     [SerializeField] GameObject LOC_objectiveLocation; //IF YOU SET THE ENUM TO LOCATION
 
     [Header("Objective UI")]
@@ -54,14 +54,14 @@ public class Objective : MonoBehaviour
         //LOCATION OBJECTIVE TYPE
         if (objectiveType == ObjectiveType.Location)
         {
-            //if the list is full of nulls or empty,
+            /*//if the list is full of nulls or empty,
             if (objectiveObjects.All(gameObject => gameObject == null) || objectiveObjects.Count == 0) {
-                Debug.Log("Got here");
-                objectiveObjects.Add(Player.Instance.gameObject.transform);
-            }
-            foreach (Transform x in objectiveObjects)
+                Debug.Log("Objective list was empty... replacing objective objects with a reference to the player gameobject ");
+                objectiveObjects.Add(Player.Instance.gameObject);
+            }*/
+            foreach (GameObject x in objectiveObjects)
             {
-                ObjectiveObject obj = x.gameObject.AddComponent<ObjectiveObject>(); //ADD THE COMPONENT
+                ObjectiveObject obj = x.AddComponent<ObjectiveObject>(); //ADD THE COMPONENT
                 obj.targetObject = LOC_objectiveLocation; //SET THE TARGET LOCATION OF THE CURRENT OBJECT
 
                 if(objectiveObjects.Count == 1 && objectiveObjects[0].gameObject.tag == "Player") obj.objectIsPlayer = true;
@@ -73,9 +73,9 @@ public class Objective : MonoBehaviour
         //INTERACT OBJECTIVE TYPE
         if(objectiveType == ObjectiveType.Interact)
         {
-            foreach (Transform x in objectiveObjects)
+            foreach (GameObject x in objectiveObjects)
             {
-                ObjectiveInteract obj = x.gameObject.AddComponent<ObjectiveInteract>();
+                ObjectiveInteract obj = x.AddComponent<ObjectiveInteract>();
                 obj.formSpecific = this.formSpecific;
                 if(formSpecific) obj.specificTransformation = this.specificTransformation;
             }
@@ -96,7 +96,7 @@ public class Objective : MonoBehaviour
 
     public void ObjectReachedTarget(ReachedTarget _data) 
     {
-        if (!objectiveObjects.Contains(_data.obj.transform))
+        if (!objectiveObjects.Contains(_data.obj))
         {
             //Debug.LogError(this.gameObject.name + " does NOT contain the object that just got raised");
             return; //MAKE SURE THAT THE EVENT RECEIVED WAS FROM AN OBJECT THAT IS IN THIS OBJECTIVE
@@ -107,7 +107,7 @@ public class Objective : MonoBehaviour
     public void ObjectiveInteractedWith(ObjectiveInteracted _data)
     {
         //Debug.LogError("Did receive interact data: " + _data.interactedTo.name);
-        if (!objectiveObjects.Contains(_data.interactedTo.gameObject.transform))
+        if (!objectiveObjects.Contains(_data.interactedTo))
         {
             //Debug.LogError(this.gameObject.name + " does NOT contain the object that just got raised");
             return; //MAKE SURE THAT THE EVENT RECEIVED WAS FROM AN OBJECT THAT IS IN THIS OBJECTIVE
@@ -118,7 +118,7 @@ public class Objective : MonoBehaviour
     void CheckCompletionInteract()
     {
         bool allInteracted = false;
-        foreach (Transform x in objectiveObjects)
+        foreach (GameObject x in objectiveObjects)
         {
             if (!x.TryGetComponent<ObjectiveInteract>(out ObjectiveInteract obj))
             {
@@ -139,7 +139,7 @@ public class Objective : MonoBehaviour
     void CheckCompletionLocation()
     {
         bool allReached = false;
-        foreach (Transform x in objectiveObjects)
+        foreach (GameObject x in objectiveObjects)
         {
             if (!x.TryGetComponent<ObjectiveObject>(out ObjectiveObject obj))
             {

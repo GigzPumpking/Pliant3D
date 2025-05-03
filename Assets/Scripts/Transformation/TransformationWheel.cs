@@ -293,9 +293,9 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         // Initialize lockout charges if the lockout system is enabled.
         if (!lockoutEnabled) return;
 
-        LockoutProgresses.Add(Transformation.BULLDOZER, maxLockoutCharge);
-        LockoutProgresses.Add(Transformation.FROG, maxLockoutCharge);
-        LockoutProgresses.Add(Transformation.TERRY, maxLockoutCharge);
+        LockoutProgresses.TryAdd(Transformation.BULLDOZER, maxLockoutCharge);
+        LockoutProgresses.TryAdd(Transformation.FROG, maxLockoutCharge);
+        LockoutProgresses.TryAdd(Transformation.TERRY, maxLockoutCharge);
 
         HandleNulls();
         SetWheelUI();

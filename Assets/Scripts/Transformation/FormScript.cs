@@ -36,7 +36,7 @@ public abstract class FormScript : MonoBehaviour
         }
     }
     
-    void Awake()
+    public virtual void Awake()
     {
         player = transform.parent;
 

@@ -84,6 +84,7 @@ public class Player : KeyActionReceiver<Player>
         {
             { "Move", (instance, ctx) => instance.setMovementInput(ctx) },
             { "Transform", (instance, ctx) => instance.TransformationHandler(ctx) },
+            { "TransformKeyboard", (instance, ctx) => instance.TransformationKeyboardHandler(ctx) },
             { "Interact", (instance, ctx) => instance.InteractHandler(ctx) },
             { "Ability1", (instance, ctx) => instance.Ability1Handler(ctx) },
             { "Ability2", (instance, ctx) => instance.Ability2Handler(ctx) },
@@ -213,6 +214,12 @@ public class Player : KeyActionReceiver<Player>
     void setMovementInput(InputAction.CallbackContext context) {
         EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = $"Setting movement input: {context.ReadValue<Vector2>()}" });
 
+        // if in the air while being a bulldozer, don't move
+        if (!isGrounded && transformation == Transformation.BULLDOZER) {
+            movementInput = Vector2.zero;
+            return;
+        }
+
         // Use InputManager or another source to get the current movement vector
         Vector2 moveValue = InputManager.Instance.isListening
             ? context.ReadValue<Vector2>()
@@ -336,15 +343,24 @@ public class Player : KeyActionReceiver<Player>
     }
 
     public void TransformationHandler() {
-        if (!isGrounded || (UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive))) return;
+        if (!isGrounded || (UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive)) && transformationWheel.gameObject.activeSelf) return;
 
-        transformationWheel.gameObject.SetActive(!transformationWheel.gameObject.activeSelf);
-        canMoveToggle(!transformationWheel.gameObject.activeSelf);
+        transformationWheel.gameObject.SetActive(true);
+        canMoveToggle(false);
     }
 
     public void TransformationHandler(InputAction.CallbackContext context) {
         if (context.performed) {
             TransformationHandler();
+        }
+    }
+
+    public void TransformationKeyboardHandler(InputAction.CallbackContext context) {
+        if (context.performed) {
+            if (!isGrounded || (UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive))) return;
+
+            transformationWheel.gameObject.SetActive(!transformationWheel.gameObject.activeSelf);
+            canMoveToggle(!transformationWheel.gameObject.activeSelf);
         }
     }
 

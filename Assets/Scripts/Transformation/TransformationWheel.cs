@@ -45,14 +45,20 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     [SerializeField] private GameObject softlockNotification;
 
     // Static key mapping shared across all TransformationWheel instances.
-    public static Dictionary<string, Action<TransformationWheel, InputAction.CallbackContext>> staticKeyMapping =
-        new Dictionary<string, Action<TransformationWheel, InputAction.CallbackContext>>()
-        {
-            { "Terry", (wheel, ctx) => wheel.controllerSelect(2) },
-            { "Frog", (wheel, ctx) => wheel.controllerSelect(1) },
-            { "Bulldozer", (wheel, ctx) => wheel.controllerSelect(0) },
-            { "Confirm", (wheel, ctx) => wheel.Transform(ctx) }
-        };
+    public static Dictionary<string, Action<TransformationWheel, InputAction.CallbackContext>> staticKeyMapping
+        = new Dictionary<string, Action<TransformationWheel, InputAction.CallbackContext>>()
+    {
+        { "Bulldozer", (w, ctx) => w.HandleControllerSelection(ctx, 0) },
+        { "Frog",      (w, ctx) => w.HandleControllerSelection(ctx, 1) },
+        { "Terry",     (w, ctx) => w.HandleControllerSelection(ctx, 2) },
+
+        { "Confirm",   (w, ctx) => w.OnConfirm(ctx) },
+
+        { "Cancel",    (w, ctx) => w.OnCancel(ctx) },
+
+        { "NavigateWheel", (w, ctx) => w.OnNavigate(ctx) },
+    };
+
 
     protected override Dictionary<string, Action<TransformationWheel, InputAction.CallbackContext>> KeyMapping => staticKeyMapping;
 
@@ -176,14 +182,6 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
     }
 
-    private void Transform(InputAction.CallbackContext context)
-    {
-        if (context.performed)
-        {
-            Transform();
-        }
-    }
-
     private void hoverSelect() {
         // Activate previous hover's animation.
         previousTransformation = transformationItems[previousHover].GetComponent<TransformationItem>();
@@ -195,9 +193,52 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         transformation.HoverEnter();
     }
 
-    private void controllerSelect(int selection) {
-        hoverSelect();
+    private void controllerSelect(int selection)
+    {
+        // 1) remember the old hover, update to the new one
+        previousHover    = hoveredSelection;
         hoveredSelection = selection;
+
+        // 2) now do the enter/exit animations
+        hoverSelect();
+    }
+
+    // Centralized D‑pad handler
+    private void HandleControllerSelection(InputAction.CallbackContext ctx, int selection)
+    {
+        if (!ctx.performed) return;
+
+        // 2) Move the hover
+        controllerSelect(selection);
+    }
+
+    // Confirm → do the transform (and inside Transform() you already deactivate the wheel)
+    private void OnConfirm(InputAction.CallbackContext ctx)
+    {
+        if (ctx.performed) Transform();
+    }
+
+    // Cancel → forcibly close the wheel & re‑enable movement
+    private void OnCancel(InputAction.CallbackContext ctx)
+    {
+        if (!ctx.performed) return;
+        if (!transformWheel.activeSelf) return;
+
+        transformWheel.SetActive(false);
+        EventDispatcher.Raise<TogglePlayerMovement>(
+            new TogglePlayerMovement() { isEnabled = true }
+        );
+    }
+
+    // Left‑stick navigation: behaves almost exactly like D‑pad
+    private void OnNavigate(InputAction.CallbackContext ctx)
+    {
+        if (!ctx.performed) return;
+
+        Vector2 v = ctx.ReadValue<Vector2>();
+        if (v.x < -0.5f) HandleControllerSelection(ctx, 1);    // left
+        else if (v.y >  0.5f) HandleControllerSelection(ctx, 2); // up
+        else if (v.x >  0.5f) HandleControllerSelection(ctx, 0); // right
     }
 
     int GetIntTransform()

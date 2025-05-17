@@ -65,6 +65,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     // Start is called before the first frame update
     void Start()
     {
+        RechargeStation.OnRechargeStation += ReplenishLockout;
         smoke = Player.Instance.transform.Find("Smoke").gameObject;
         smokeAnimator = smoke.GetComponent<Animator>();
 
@@ -135,6 +136,10 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         {
             Transform();
         }
+    }
+
+    private void OnDestroy() {
+        RechargeStation.OnRechargeStation -= ReplenishLockout;
     }
 
     public static event Action<Transformation> TransformedObjective;
@@ -252,12 +257,12 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         // 0[BULLDOZER], 1[FROG], 2[BALL], 3[TERRY]
         if (current == Transformation.BULLDOZER) return 0;
         else if (current == Transformation.FROG) return 1;
-        else if (current == Transformation.BALL) return 2;
-        else if (current == Transformation.TERRY) return 3;
-        else return 3;
+        //else if (current == Transformation.BALL) return 2;
+        else if (current == Transformation.TERRY) return 2;
+        else return 0;
     }
 
-    void SubtractProgress(Transformation t, float amt)
+    public void SubtractProgress(Transformation t, float amt)
     {
         // If lockout is disabled, do nothing.
         if (!lockoutEnabled) return;
@@ -305,10 +310,11 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         
     }
 
-    void AddProgress(Transformation t, float amt)
+    public void AddProgress(Transformation t, float amt)
     {
         // If lockout is disabled, do nothing.
         if (!lockoutEnabled) return;
+        if (!LockoutProgresses.ContainsKey(t)) return;
 
         if (t == Transformation.TERRY)
         {
@@ -319,8 +325,21 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         Debug.Log("Adding to lockout: " + amt + " Current Lockout Charge for " + t + " : " + LockoutProgresses[t]);
         LockoutProgresses[t] += amt;
         lockoutBar.fillAmount = LockoutProgresses[t] / 100;
-        transformationFills[(int)t].fillAmount = LockoutProgresses[t] / 100;
-        if (LockoutProgresses[t] <= maxLockoutCharge) LockoutProgresses[t] = maxLockoutCharge;
+        transformationFills[GetIntTransform()].fillAmount = LockoutProgresses[t] / 100;
+        if (LockoutProgresses[t] >= maxLockoutCharge) LockoutProgresses[t] = maxLockoutCharge;
+    }
+
+    public void ReplenishLockout() {
+        Debug.Log("Replenishing Lockout");
+        AddProgress(Transformation.BULLDOZER, maxLockoutCharge);
+        AddProgress(Transformation.BALL, maxLockoutCharge);
+        AddProgress(Transformation.FROG, maxLockoutCharge);
+
+        foreach (var x in transformationFills) {
+            x.fillAmount = maxLockoutCharge;
+        }
+        
+        softlockNotification.SetActive(false);
     }
 
     public void ResetProgress()

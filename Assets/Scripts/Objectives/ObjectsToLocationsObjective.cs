@@ -1,19 +1,19 @@
+using UnityEngine;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+using JetBrains.Annotations;
 
-public class PlayerToLocationObjective : Objective {
+public class ObjectsToLocationsObjective : Objective {
     public static event Action<Objective> OnObjectiveComplete;
-    [SerializeField] List<ObjectiveNode> targetLocations = new();
-    static Transform _player;
-
+    [SerializeField] private List<ObjectiveNode> targetLocations;
+    [SerializeField] private List<GameObject> lookingFor;
+    
     private void Awake() {
-        //set each looking for 'gameobject' to the player
-        foreach (ObjectiveNode node in targetLocations) {
-            node.lookingFor.Add(Player.Instance.gameObject);
+        for (int i = 0; i < targetLocations.Count; ++i) {
+            targetLocations[i].lookingFor.Add(lookingFor[i]);
         }
     }
-
+    
     private void OnEnable() {
         ObjectiveNode.OnNodeCompleted += CheckCompletion;
     }
@@ -21,15 +21,15 @@ public class PlayerToLocationObjective : Objective {
     private void OnDisable() {
         ObjectiveNode.OnNodeCompleted -= CheckCompletion;
     }
-
+    
     private void CheckCompletion() {
         foreach (ObjectiveNode node in targetLocations) {
             if (node.isComplete) continue;
             else return;
         }
-
+        
         isComplete = true;
-        OnObjectiveComplete?.Invoke(this); //this needs to update the objective listing to mark the objective off as complete
+        OnObjectiveComplete?.Invoke(this); //Listened to by 'ObjectiveListing.cs'
         Debug.Log($"{gameObject.name} has successfully been completed!");
     }
 }

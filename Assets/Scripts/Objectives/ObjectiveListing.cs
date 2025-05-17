@@ -22,11 +22,15 @@ public class ObjectiveListing : MonoBehaviour {
     }
     private void OnEnable() {
         PlayerToLocationObjective.OnObjectiveComplete += SetCompletionOfObjective;
+        ObjectsToLocationsObjective.OnObjectiveComplete += SetCompletionOfObjective;
+        ObjectToManyLocationsObjective.OnObjectiveComplete += SetCompletionOfObjective;
         //add logic for the other strategies too
     }
 
     private void OnDisable() {
         PlayerToLocationObjective.OnObjectiveComplete -= SetCompletionOfObjective;
+        ObjectsToLocationsObjective.OnObjectiveComplete -= SetCompletionOfObjective;
+        ObjectToManyLocationsObjective.OnObjectiveComplete -= SetCompletionOfObjective;
     }
 
     private void CheckCompletion() {

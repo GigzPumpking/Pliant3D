@@ -9,6 +9,7 @@ public class DialogueTrigger : MonoBehaviour
     public string[] keyboardDialogueLines;
     public string[] controllerDialogueLines;
     public GameObject interactBubble;
+    public GameObject terryRequired;
     [SerializeField] private Sprite keyboardSprite;
     [SerializeField] private Sprite controllerSprite;
     private bool inRadius = false;
@@ -95,19 +96,34 @@ public class DialogueTrigger : MonoBehaviour
         }
     }
 
-    void Update() {
-        if (InputManager.Instance?.ActiveDeviceType == "Keyboard" || InputManager.Instance?.ActiveDeviceType == "Mouse") {
+    void Update()
+    {
+        if (InputManager.Instance?.ActiveDeviceType == "Keyboard" || InputManager.Instance?.ActiveDeviceType == "Mouse")
+        {
             SpriteRenderer sr = interactBubble.GetComponent<SpriteRenderer>();
-            if (sr != null) {
+            if (sr != null)
+            {
                 sr.sprite = keyboardSprite;
                 interactBubble.transform.localScale = new Vector3(1, 1, 1);
             }
-        } else {
+        }
+        else
+        {
             SpriteRenderer sr = interactBubble.GetComponent<SpriteRenderer>();
-            if (sr != null) {
+            if (sr != null)
+            {
                 sr.sprite = controllerSprite;
                 interactBubble.transform.localScale = new Vector3(0.333f, 0.333f, 1f);
             }
+        }
+
+        // If the player is in the radius and is not in TERRY form, enable terryRequired, otherwise disable it.
+        if (inRadius)
+        {
+            terryRequired.SetActive(Player.Instance.GetTransformation() != Transformation.TERRY);
+        } else
+        {
+            terryRequired.SetActive(false);
         }
     }
 }

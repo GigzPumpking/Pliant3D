@@ -284,7 +284,7 @@ public class Player : KeyActionReceiver<Player>
             bool isMoving = vx != 0 || vy != 0;
             if (isMoving) {
                 animator.SetFloat("MoveX", vx);
-                animator.SetFloat("MoveY", vy);
+                animator.SetFloat("MoveY", 3*vy);
             }
             animator.SetBool("isWalking", vx != 0 || vy != 0);
         }

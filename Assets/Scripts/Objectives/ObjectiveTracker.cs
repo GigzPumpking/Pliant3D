@@ -24,11 +24,15 @@ public class ObjectiveTracker : MonoBehaviour {
     
     private bool isClosed = true;
     private Animator animator;
-
     
-
     private void OnEnable() {
-        
+        ObjectiveListing.OnObjectiveListingComplete += UICompleteObjective;
+        NextSceneTrigger.NextSceneTriggered += ClearAndRefetchObjectives;
+    }
+    
+    private void OnDisable() {
+        ObjectiveListing.OnObjectiveListingComplete -= UICompleteObjective;
+        NextSceneTrigger.NextSceneTriggered -= ClearAndRefetchObjectives;
     }
     
     void Start()
@@ -55,7 +59,7 @@ public class ObjectiveTracker : MonoBehaviour {
     }
 
     void GetObjectiveDependencies() {
-        if (!objectiveListingsHolder) GameObject.Find("Objective Listings");
+        if (!objectiveListingsHolder) objectiveListingsHolder = GameObject.Find("Objective Listings");
         //get each objective listing within the gameobject 'objectiveListingsHolder'
         foreach (ObjectiveListing listingObject in objectiveListingsHolder.GetComponentsInChildren<ObjectiveListing>()) {
             if (!objectiveListingsHolder) return;
@@ -80,9 +84,22 @@ public class ObjectiveTracker : MonoBehaviour {
         animator.SetBool("TrackerOpen", false);
         isClosed = true;
     }
+    
+    private void UICompleteObjective(ObjectiveListing listing) {
+        //destory them
+        Destroy(objectiveListingsUI.ElementAt(objectiveListings.IndexOf(listing)).gameObject);
+        Destroy(objectiveListings.ElementAt(objectiveListings.IndexOf(listing)).gameObject);
+        
+        Debug.Log("Destroying UI listing");
+    }
 
-    //if the entire listing is complete, then 
-    private void UICompleteObjective(ObjectiveListing objectiveListings) {
-
+    private void ClearAndRefetchObjectives() {
+        foreach (ObjectiveListing listing in objectiveListings) {
+            UICompleteObjective(listing);
+        }
+        
+        objectiveListings.Clear();
+        objectiveListingsUI.Clear();
+        GetObjectiveDependencies();
     }
 }

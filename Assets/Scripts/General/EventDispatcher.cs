@@ -31,7 +31,7 @@ public class StopMusic : Event
 
 public class Interact : Event
 {
-
+    
 }
 
 public class ObjectiveInteractEvent : Event

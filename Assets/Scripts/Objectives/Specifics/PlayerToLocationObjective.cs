@@ -10,6 +10,7 @@ public class PlayerToLocationObjective : Objective {
     private void Awake() {
         //set each looking for 'gameobject' to the player
         foreach (ObjectiveNode node in targetLocations) {
+            if (!Player.Instance.gameObject) continue;
             node.lookingFor.Add(Player.Instance.gameObject);
         }
     }

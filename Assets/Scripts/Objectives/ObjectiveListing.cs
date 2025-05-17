@@ -46,6 +46,7 @@ public class ObjectiveListing : MonoBehaviour {
         }
 
         isComplete = true;
+        
         OnObjectiveListingComplete?.Invoke(this);
         //will get listened to by 'ObjectiveTracker.cs', will play corresponding animation
     }

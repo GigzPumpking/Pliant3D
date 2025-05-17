@@ -3,9 +3,8 @@ using UnityEngine;
 
 [RequireComponent(typeof(Collider))]
 public class ObjectiveNode : MonoBehaviour {
-    
     public static event Action OnNodeCompleted;
-    [HideInInspector] public GameObject lookingFor;
+    public GameObject lookingFor;
     [SerializeField] public bool isComplete {
         get;
         set;
@@ -13,7 +12,7 @@ public class ObjectiveNode : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other) {
         if (other.gameObject.Equals(lookingFor)) {
-            Debug.Log($"player has entered trigger box of {gameObject.name}");
+            Debug.Log($"Player has SUCCESSFULLY entered the trigger box of {gameObject.name}");
             
             isComplete = true;
             OnNodeCompleted?.Invoke();

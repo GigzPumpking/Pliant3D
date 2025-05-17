@@ -19,10 +19,13 @@ public class ObjectiveUIFactory {
     }
     
     public static GameObject CreateObjectiveListingUI(ObjectiveListing objectiveListing, GameObject objectiveListingsPrefab, GameObject objectiveUIPrefab, GameObject parent) {
+        //instantiate an instance of the listing UI
         GameObject currentListing = GameObject.Instantiate(objectiveListingsPrefab, parent.transform);
+        
+        //instantiate an instance of it's objective UI
         foreach (Objective objective in objectiveListing.objectives) {
             if (!objective) continue;
-            CreateObjectiveUI(objective, objectiveUIPrefab, currentListing);
+            objectiveListing.objectiveUIList.Add(CreateObjectiveUI(objective, objectiveUIPrefab, currentListing));
         }
 
         return currentListing;

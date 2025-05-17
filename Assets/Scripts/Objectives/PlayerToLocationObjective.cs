@@ -30,5 +30,6 @@ public class PlayerToLocationObjective : Objective {
 
         isComplete = true;
         OnObjectiveComplete?.Invoke(this); //this needs to update the objective listing to mark the objective off as complete
+        Debug.Log($"{gameObject.name} has successfully been completed!");
     }
 }

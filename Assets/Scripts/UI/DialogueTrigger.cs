@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class DialogueTrigger : MonoBehaviour
 {
@@ -12,8 +13,10 @@ public class DialogueTrigger : MonoBehaviour
     [SerializeField] private Sprite keyboardSprite;
     [SerializeField] private Sprite controllerSprite;
     private bool inRadius = false;
-    private bool triggered = false;
+    public bool triggered { get; set; } = false;
     private Dialogue dialogue;
+    
+    public static event Action<DialogueTrigger> InteractedObjective;
     
     void OnEnable() {
         EventDispatcher.AddListener<Interact>(PlayerInteract);
@@ -82,6 +85,9 @@ public class DialogueTrigger : MonoBehaviour
             triggered = true;
             dialogue.Appear();
             EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = false });
+            
+            //raise an interact here listened to by 'NPCInteractObjective.cs'
+            InteractedObjective?.Invoke(this);
         }
 
         if (interactBubble.activeSelf) {  

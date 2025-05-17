@@ -137,6 +137,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         }
     }
 
+    public static event Action<Transformation> TransformedObjective;
     private void Transform()
     {
         if (!transformWheel.activeSelf) {
@@ -162,8 +163,12 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         // Play a random transformation sound.
         AudioManager.Instance?.PlayOneShot(transformationSound);
 
+        //TRANSFORMATION LOGIC
         if (form.transformation != Transformation.BALL) {
             Player.Instance.SetTransformation(form.transformation);
+            
+            //listened to by 'TransformationSwapInteractObjective.cs'
+            TransformedObjective?.Invoke(transformation.GetForm().transformation);
         } else {
             Debug.LogWarning("Ball form is temporarily disabled.");
         }

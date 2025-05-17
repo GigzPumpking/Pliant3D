@@ -20,10 +20,14 @@ public class ObjectiveListing : MonoBehaviour {
     void Start() {
         //need to create an Objective UI for each objective
     }
+    
+    //will refactor later
     private void OnEnable() {
         PlayerToLocationObjective.OnObjectiveComplete += SetCompletionOfObjective;
         ObjectsToLocationsObjective.OnObjectiveComplete += SetCompletionOfObjective;
         ObjectToManyLocationsObjective.OnObjectiveComplete += SetCompletionOfObjective;
+        NPCInteractObjective.OnObjectiveComplete += SetCompletionOfObjective;
+        TransformationSwapInteractObjective.OnObjectiveComplete += SetCompletionOfObjective;
         //add logic for the other strategies too
     }
 
@@ -31,6 +35,8 @@ public class ObjectiveListing : MonoBehaviour {
         PlayerToLocationObjective.OnObjectiveComplete -= SetCompletionOfObjective;
         ObjectsToLocationsObjective.OnObjectiveComplete -= SetCompletionOfObjective;
         ObjectToManyLocationsObjective.OnObjectiveComplete -= SetCompletionOfObjective;
+        NPCInteractObjective.OnObjectiveComplete -= SetCompletionOfObjective;
+        TransformationSwapInteractObjective.OnObjectiveComplete -= SetCompletionOfObjective;
     }
 
     private void CheckCompletion() {

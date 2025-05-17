@@ -16,12 +16,12 @@ public class ColoredInteractable : Interactable
 
         if (animator == null)
         {
-            Debug.LogError("Animator component missing on " + gameObject.name);
+            Debug.LogWarning("Animator component missing on " + gameObject.name);
         }
 
         if (renderers.Length == 0)
         {
-            Debug.LogError("No Renderer components found on " + gameObject.name + " or its children.");
+            Debug.LogWarning("No Renderer components found on " + gameObject.name + " or its children.");
         }
         else
         {

@@ -5,6 +5,6 @@ using System.Threading.Tasks;
 
 public interface IObjective
 {
-    public string description { get; set; }
-    public ICompletionStrategy completionStrategy { get; set; }
+    //public string description { get; set; }
+    //public ICompletionStrategy completionStrategy { get; set; }
 }

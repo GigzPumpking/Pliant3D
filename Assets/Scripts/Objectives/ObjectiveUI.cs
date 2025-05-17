@@ -1,18 +1,15 @@
-using System.Collections.Generic;
-using UnityEngine;
+using System;
+using TMPro;
 using UnityEngine.UI;
+using UnityEngine;
 
-public class ObjectiveUI {
-    
-}
+public class ObjectiveUI : MonoBehaviour {
+    public Image CheckBoxImage;
+    public Image CheckMarkImage;
+    public Image ScratchOffImage;
+    public TextMeshProUGUI DescriptionTXT;
 
-public class ObjectiveUIFactory {
-    public static void CreateObjectiveUI(ObjectiveListing listing) {
+    private void OnEnable() {
         
     }
-}
-
-[System.Serializable]
-public class ObjectiveListing {
-    public List<Objective> Objectives = new();
 }

@@ -207,8 +207,12 @@ public class Player : KeyActionReceiver<Player>
         }
 
         if (transform.position.y < outOfBoundsY) {
-            transform.position = areaPositions[0];
+            resetPosition();
         }
+    }
+
+    public void resetPosition() {
+        transform.position = areaPositions[0];
     }
 
     void setMovementInput(InputAction.CallbackContext context) {

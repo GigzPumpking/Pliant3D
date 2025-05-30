@@ -277,18 +277,21 @@ public class Player : KeyActionReceiver<Player>
                                  ? Directions.LEFT
                                  : Directions.DOWN;
         }
-
+        
+        /*
         // flip sprite on horizontal input
         if (h)
             selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = (vx > 0);
+        */
 
         // feed animator
         if (animator != null)
         {
             bool isMoving = vx != 0 || vy != 0;
-            if (isMoving) {
+            if (isMoving)
+            {
                 animator.SetFloat("MoveX", vx);
-                animator.SetFloat("MoveY", 3*vy);
+                animator.SetFloat("MoveY", 3 * vy);
             }
             animator.SetBool("isWalking", vx != 0 || vy != 0);
         }

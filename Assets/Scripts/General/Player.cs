@@ -202,10 +202,13 @@ public class Player : KeyActionReceiver<Player>
     void Update() {
         // Animations + Input
 
-        if (canMove) {
+        if (canMove)
+        {
             InputHandler();
             MoveHandler();
-        } else {
+        }
+        else
+        {
             isMoving = false;
         }
 

@@ -137,7 +137,8 @@ public class Player : KeyActionReceiver<Player>
         transformationWheel = transform.Find("Transformation Wheel");
         transformationWheelScript = transformationWheel.GetComponentInChildren<TransformationWheel>();
 
-        if (animator != null) {
+        if (animator != null)
+        {
             animator.SetBool("isWalking", false);
 
             // Default to down
@@ -146,6 +147,8 @@ public class Player : KeyActionReceiver<Player>
         }
 
         EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = "Player Initialized" });
+        
+        selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
     }
 
     public void stopMovement() {
@@ -277,12 +280,20 @@ public class Player : KeyActionReceiver<Player>
                                  ? Directions.LEFT
                                  : Directions.DOWN;
         }
-        
-        /*
-        // flip sprite on horizontal input
+
+
         if (h)
-            selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = (vx > 0);
-        */
+        {
+            if (transformation == Transformation.BULLDOZER || transformation == Transformation.FROG)
+            {
+                selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = (vx > 0);
+            }
+            else if (transformation == Transformation.TERRY)
+            {
+                selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
+            }
+        }
+        
 
         // feed animator
         if (animator != null)

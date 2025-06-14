@@ -905,8 +905,8 @@ Rigidbody:
   m_GameObject: {fileID: 5554935717656047755}
   serializedVersion: 2
   m_Mass: 1
-  m_Drag: 2
-  m_AngularDrag: 5
+  m_Drag: 0
+  m_AngularDrag: 0.05
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
@@ -1129,7 +1129,8 @@ MonoBehaviour:
     volume: 1
     pitch: 1
     loop: 0
-  detectionRange: 5
+  breakBoxCenter: {x: 0, y: 0.5, z: 1.5}
+  breakBoxSize: {x: 2, y: 1, z: 3}
   sprintModifier: 2
 --- !u!1 &5554935718531090984
 GameObject:
@@ -1242,8 +1243,8 @@ MonoBehaviour:
   yOffset: 0.5
   pullBoxCenter: {x: 0, y: 0.5, z: 3}
   pullBoxSize: {x: 2, y: 1, z: 7}
-  grappleBoxCenter: {x: 0, y: 2.5, z: 3}
-  grappleBoxSize: {x: 4, y: 5, z: 6}
+  grappleBoxCenter: {x: 0, y: 3, z: 4.5}
+  grappleBoxSize: {x: 5, y: 6, z: 10}
   hookDuration: 0.75
   hookForce: 10
   stopOffset: 0.5

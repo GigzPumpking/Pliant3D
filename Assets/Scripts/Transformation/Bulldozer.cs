@@ -10,8 +10,6 @@ public class Bulldozer : FormScript
     private int playerLayer = 3;
     private int walkableLayer = 7;
 
-    // The old sphere detection range is replaced by a directional box.
-    // [SerializeField] private float detectionRange = 5f;
     private Interactable highlightedInteractable;
 
     [Header("Breakable Detection Box")]
@@ -33,6 +31,13 @@ public class Bulldozer : FormScript
     {
         PushState(false);
 
+        // Ensure sprint state is reset when the form is disabled.
+        if (animator != null)
+        {
+            animator.SetBool("isSprinting", false);
+        }
+        speed = baseSpeed;
+
         if (highlightedInteractable != null)
         {
             highlightedInteractable.IsHighlighted = false;
@@ -40,7 +45,6 @@ public class Bulldozer : FormScript
         }
     }
 
-    // Add this method to visualize the new detection box in the editor.
     private void OnDrawGizmos()
     {
         #if UNITY_EDITOR
@@ -75,10 +79,14 @@ public class Bulldozer : FormScript
         if (context.performed)
         {
             speed = baseSpeed * sprintModifier;
+            // Set the "isSprinting" bool to true on the animator.
+            animator?.SetBool("isSprinting", true);
         }
         else if (context.canceled)
         {
             speed = baseSpeed;
+            // Set the "isSprinting" bool to false on the animator.
+            animator?.SetBool("isSprinting", false);
         }
     }
 

@@ -10,12 +10,19 @@ public class Bulldozer : FormScript
     private int playerLayer = 3;
     private int walkableLayer = 7;
 
-    [SerializeField] private float detectionRange = 5f;
+    // The old sphere detection range is replaced by a directional box.
+    // [SerializeField] private float detectionRange = 5f;
     private Interactable highlightedInteractable;
+
+    [Header("Breakable Detection Box")]
+    [Tooltip("Center (local) of the Breakable detection box, relative to the player's facing direction.")]
+    [SerializeField] private Vector3 breakBoxCenter = new Vector3(0f, 0.5f, 1.5f);
+    [Tooltip("Full size (width, height, depth) of the Breakable detection box.")]
+    [SerializeField] private Vector3 breakBoxSize = new Vector3(2f, 1f, 3f);
 
     [SerializeField] private float sprintModifier = 4.67f;
 
-    private bool isPushing = false;    // track current push state
+    private bool isPushing = false;
 
     public override void OnEnable()
     {
@@ -24,7 +31,6 @@ public class Bulldozer : FormScript
 
     public void OnDisable()
     {
-        // ensure we’re no longer pushing
         PushState(false);
 
         if (highlightedInteractable != null)
@@ -34,13 +40,30 @@ public class Bulldozer : FormScript
         }
     }
 
+    // Add this method to visualize the new detection box in the editor.
+    private void OnDrawGizmos()
+    {
+        #if UNITY_EDITOR
+        GetBreakBoxTransform(out Vector3 boxWorldCenter, out Quaternion boxWorldRot);
+
+        Matrix4x4 oldMatrix = Gizmos.matrix;
+
+        // Set the gizmo's transform to match the detection box
+        Gizmos.matrix = Matrix4x4.TRS(boxWorldCenter, boxWorldRot, breakBoxSize);
+        Gizmos.color = new Color(1f, 0.5f, 0f, 0.8f); // Orange for breakables
+        Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
+        
+        Gizmos.matrix = oldMatrix;
+        #endif
+    }
+
     /// <summary>
     /// Turn physics‐pushing on/off.
     /// </summary>
     public void PushState(bool state)
     {
         Physics.IgnoreLayerCollision(playerLayer, walkableLayer, state);
-        rb.mass = state ? 1000f : 1f;
+        rb.mass = state ? 500f : 1f;
         isPushing = state;
     }
 
@@ -60,36 +83,62 @@ public class Bulldozer : FormScript
     }
 
     /// <summary>
-    /// Ability2 → Toggle push AND break any breakable in range
+    /// Ability2 → Hold to push AND tap to break any breakable in the box.
     /// </summary>
     public override void Ability2(InputAction.CallbackContext context)
     {
-        if (!context.performed) return;
-
-        // toggle push on/off
-        bool newState = !isPushing;
-        PushState(newState);
-        Debug.Log($"PushState toggled: {newState}");
-
-        // if we just started pushing, also break the highlighted
-        if (newState)
+        // --- On Button Press ---
+        if (context.performed)
         {
+            PushState(true);
+
             if (highlightedInteractable != null && highlightedInteractable.HasProperty("Breakable"))
             {
                 Debug.Log("Deactivating Breakable Object: " + highlightedInteractable.name);
                 highlightedInteractable.gameObject.SetActive(false);
                 highlightedInteractable = null;
             }
-            else
-            {
-                Debug.Log("No Breakable object found within range.");
-            }
         }
+        // --- On Button Release ---
+        else if (context.canceled)
+        {
+            PushState(false);
+        }
+    }
+
+    /// <summary>
+    /// Gets the world-space center and rotation for the detection box from the Player.
+    /// </summary>
+    private void GetBreakBoxTransform(out Vector3 worldCenter, out Quaternion worldRot)
+    {
+        Vector3 dirVec;
+
+        // Get the definitive direction from the Player singleton.
+        if (Player.Instance != null)
+        {
+            dirVec = Player.Instance.AnimationBasedFacingDirection;
+        }
+        else
+        {
+            // Fallback for when the game isn't running (e.g., OnDrawGizmos in editor).
+            dirVec = transform.forward;
+        }
+        
+        // Use the direction vector to create the rotation for the box.
+        worldRot = Quaternion.LookRotation(dirVec, Vector3.up);
+
+        // Calculate the world-space center of the box based on this rotation.
+        worldCenter = transform.position + worldRot * breakBoxCenter;
     }
 
     private void DetectAndHighlightBreakables()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, detectionRange);
+        // Get the box's current transform from our new helper method.
+        GetBreakBoxTransform(out Vector3 boxWorldCenter, out Quaternion boxWorldRot);
+        Vector3 halfExtents = breakBoxSize * 0.5f;
+
+        // Find all colliders within the oriented box.
+        Collider[] colliders = Physics.OverlapBox(boxWorldCenter, halfExtents, boxWorldRot);
 
         var breakables = colliders
             .Select(c => c.GetComponent<Interactable>())

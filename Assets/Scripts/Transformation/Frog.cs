@@ -14,11 +14,6 @@ public class Frog : FormScript
     [SerializeField] private float raycastDistance = 1f;
     [SerializeField] private float yOffset = 0.5f;
 
-    // Removed detectionRange as it's no longer used by OverlapSphere for hookables
-    // [Header("Detection Ranges")]
-    // [Tooltip("Sphere radius for Hookable objects")]
-    // [SerializeField] private float detectionRange = 5f; // Obsolete
-
     [Header("Pullable Box Settings")]
     [Tooltip("Center (local) of Pullable detection box")]
     [SerializeField] private Vector3 pullBoxCenter = new Vector3(0f, 0.5f, 2f);
@@ -27,9 +22,9 @@ public class Frog : FormScript
 
     [Header("Grapple Box Settings (Replaces Sphere)")]
     [Tooltip("Center (local) of Grapple detection box. Relative to player facing direction.")]
-    [SerializeField] private Vector3 grappleBoxCenter = new Vector3(0f, 1.0f, 3f); // Default: Y is double pullBox.y, Z is further
+    [SerializeField] private Vector3 grappleBoxCenter = new Vector3(0f, 1.0f, 3f);
     [Tooltip("Full size of Grapple detection box. Height & Width are ~2x pullBox's.")]
-    [SerializeField] private Vector3 grappleBoxSize   = new Vector3(4f, 2f, 6f); // Default: W & H are 2x pullBox, Depth is custom
+    [SerializeField] private Vector3 grappleBoxSize   = new Vector3(4f, 2f, 6f);
 
     private Interactable highlightedObject;
     private Transform     closestObject;
@@ -43,8 +38,8 @@ public class Frog : FormScript
     [SerializeField] private AnimationCurve pullCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     [Header("Grapple Line")]
-    [SerializeField] private LineRenderer lineRenderer;  // drag in inspector
-    [SerializeField] private bool useWorldSpace = true;  // match your LR setting
+    [SerializeField] private LineRenderer lineRenderer;
+    [SerializeField] private bool useWorldSpace = true;
 
     private SpriteRenderer _spriteRenderer;
 
@@ -90,27 +85,25 @@ public class Frog : FormScript
         if (!Application.isPlaying)
         {
             if (_spriteRenderer == null) _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-            // Assuming animator is handled by FormScript or not strictly needed for basic GetPullBoxTransform Gizmo
         }
         #endif
 
-        // Get transform for boxes once
         GetPullBoxTransform(out Vector3 pullBoxWorldCenter_Gizmo, out Quaternion commonRot_Gizmo);
 
-        Matrix4x4 oldMatrix = Gizmos.matrix; // Store matrix once
+        Matrix4x4 oldMatrix = Gizmos.matrix;
 
         // 1) Box for Grappleable (Yellow)
         Vector3 grappleBoxWorldCenter_Gizmo = transform.position + commonRot_Gizmo * grappleBoxCenter;
         Gizmos.matrix = Matrix4x4.TRS(grappleBoxWorldCenter_Gizmo, commonRot_Gizmo, grappleBoxSize);
-        Gizmos.color = Color.yellow; // Grapple box color
+        Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
 
         // 2) Box for Pullable (Cyan)
         Gizmos.matrix = Matrix4x4.TRS(pullBoxWorldCenter_Gizmo, commonRot_Gizmo, pullBoxSize);
-        Gizmos.color  = Color.cyan; // Pull box color
+        Gizmos.color  = Color.cyan;
         Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
         
-        Gizmos.matrix = oldMatrix; // Restore original matrix
+        Gizmos.matrix = oldMatrix;
     }
 
     public override void Ability1(InputAction.CallbackContext context)
@@ -179,7 +172,6 @@ public class Frog : FormScript
 
     private void DetectAndHighlightObjects()
     {
-        // Get the primary orientation and the specific center for the pull box
         GetPullBoxTransform(out Vector3 pullBoxWorldCenter, out Quaternion commonWorldRot);
 
         // 1) Hookable objects detection (using a new, larger box)
@@ -193,7 +185,6 @@ public class Frog : FormScript
 
         // 2) Pullable objects detection (using existing pull box logic)
         Vector3 pullHalfExtents = pullBoxSize * 0.5f;
-        // pullBoxWorldCenter is the 'center' output from GetPullBoxTransform, commonWorldRot is its 'rot'
         Collider[] pullCols = Physics.OverlapBox(pullBoxWorldCenter, pullHalfExtents, commonWorldRot);
 
         var pullables = pullCols
@@ -232,14 +223,14 @@ public class Frog : FormScript
     private IEnumerator GrapplingHookCoroutine(Transform t)
     {
         Collider objCol = t.GetComponent<Collider>();
-        Collider plrCol = player.GetComponentInChildren<Collider>(); // 'player' ref
+        Collider plrCol = player.GetComponentInChildren<Collider>();
         if (objCol == null || plrCol == null) yield break;
 
         float objHalfY = objCol.bounds.extents.y;
         float plrHalfY = plrCol.bounds.extents.y;
         float verticalGap = objHalfY + plrHalfY + stopOffset;
 
-        Vector3 start = player.transform.position; // 'player' ref
+        Vector3 start = player.transform.position;
         Vector3 objPos = t.position;
         Vector3 target = new Vector3(objPos.x, objPos.y + verticalGap, objPos.z);
 
@@ -248,12 +239,12 @@ public class Frog : FormScript
         {
             float pct    = elapsed / hookDuration;
             float curveT = pullCurve.Evaluate(pct);
-            player.transform.position = Vector3.Lerp(start, target, curveT); // 'player' ref
+            player.transform.position = Vector3.Lerp(start, target, curveT);
 
             elapsed += Time.deltaTime;
             yield return null;
         }
-        player.transform.position = target; // 'player' ref
+        player.transform.position = target;
     }
 
     private void PullObject(Transform t)
@@ -264,22 +255,22 @@ public class Frog : FormScript
     private IEnumerator PullObjectCoroutine(Transform t)
     {
         Collider objCol = t.GetComponent<Collider>();
-        Collider plrCol = player.GetComponentInChildren<Collider>(); // 'player' ref
+        Collider plrCol = player.GetComponentInChildren<Collider>();
         if (objCol == null || plrCol == null) yield break;
 
         float objR = Mathf.Max(objCol.bounds.extents.x, objCol.bounds.extents.y, objCol.bounds.extents.z);
         float plrR = Mathf.Max(plrCol.bounds.extents.x, plrCol.bounds.extents.y, plrCol.bounds.extents.z);
         float gap  = objR + plrR + stopOffset;
 
-        Vector3 startPos = t.position; // Renamed 'start' to 'startPos' to avoid conflict
+        Vector3 startPos = t.position;
         float startY = startPos.y;
 
-        Vector3 flatDir = player.position - startPos; // 'player' ref
+        Vector3 flatDir = player.position - startPos;
         flatDir.y = 0f;
         if (flatDir.sqrMagnitude < 0.0001f) yield break;
         flatDir.Normalize();
 
-        Vector3 flatPlayer = new Vector3(player.position.x, startY, player.position.z); // 'player' ref
+        Vector3 flatPlayer = new Vector3(player.position.x, startY, player.position.z);
         Vector3 target     = flatPlayer - flatDir * gap;
 
         float elapsed = 0f;
@@ -296,88 +287,26 @@ public class Frog : FormScript
         t.position = new Vector3(target.x, startY, target.z);
     }
 
-    private string GetCurrentAnimationName()
-    {
-        if (animator == null || !animator.isActiveAndEnabled || animator.runtimeAnimatorController == null)
-        {
-            return "";
-        }
-        AnimatorClipInfo[] clipInfo = animator.GetCurrentAnimatorClipInfo(0);
-        if (clipInfo.Length > 0 && clipInfo[0].clip != null)
-        {
-            return clipInfo[0].clip.name;
-        }
-        return "";
-    }
-
-    // This GetPullBoxTransform method uses the "perfect directions" as you last provided.
+    // This method now gets direction from the Player script.
     private void GetPullBoxTransform(out Vector3 worldCenter, out Quaternion worldRot)
     {
-        Vector3 dirVec = Vector3.forward; 
+        Vector3 dirVec;
 
-        if (_spriteRenderer == null)
+        // Get the definitive direction from the Player singleton.
+        if (Player.Instance != null)
         {
-            Debug.LogWarning("GetPullBoxTransform: SpriteRenderer is null. Cannot determine direction from sprite. Defaulting direction.");
-            worldRot = Quaternion.LookRotation(dirVec, Vector3.up);
-            worldCenter = transform.position + worldRot * pullBoxCenter;
-            return;
+            dirVec = Player.Instance.AnimationBasedFacingDirection;
         }
-        if (animator == null) 
+        else
         {
-            Debug.LogWarning("GetPullBoxTransform: Animator is null. Cannot determine direction from animation. Defaulting direction.");
-            worldRot = Quaternion.LookRotation(dirVec, Vector3.up);
-            worldCenter = transform.position + worldRot * pullBoxCenter;
-            return;
+            // Fallback for when the game isn't running (e.g., OnDrawGizmos in editor).
+            dirVec = Vector3.forward;
         }
-
-        bool isFlippedX = _spriteRenderer.flipX;
-        string animationName = GetCurrentAnimationName(); 
-        bool directionSet = false;
-
-        Debug.Log($"GetPullBoxTransform: Current animation name is '{animationName}' with flipX = {isFlippedX}");
-
-        if (animationName.StartsWith("Idle Back") || 
-            animationName.StartsWith("Jump Back") || 
-            animationName.StartsWith("Walk Back"))
-        {
-            if (!isFlippedX) 
-            {
-                dirVec = Vector3.forward;    // Your "perfect" direction for West (FACING LEFT)
-            }
-            else 
-            {
-                dirVec = Vector3.right; // Your "perfect" direction for North (FACING UP)
-            }
-            directionSet = true;
-        }
-        else if (animationName.StartsWith("Idle Front") || 
-                 animationName.StartsWith("Jump Front") || 
-                 animationName.StartsWith("Walk Front"))
-        {
-            if (!isFlippedX)
-            {
-                dirVec = Vector3.left;   // Your "perfect" direction for South (FACING DOWN)
-            }
-            else 
-            {
-                dirVec = Vector3.back;  // Your "perfect" direction for East (FACING RIGHT)
-            }
-            directionSet = true;
-        }
-
-        if (!directionSet)
-        {
-            if (!string.IsNullOrEmpty(animationName))
-            {
-                Debug.LogWarning($"GetPullBoxTransform: Animation '{animationName}' not handled for custom pull box direction. Defaulting to Vector3.forward.");
-            }
-            else if (animator.runtimeAnimatorController != null)
-            {
-                Debug.LogWarning("GetPullBoxTransform: Could not determine current animation clip name. Defaulting direction to Vector3.forward.");
-            }
-        }
-
+        
+        // Use the direction vector to create the rotation for the boxes.
         worldRot = Quaternion.LookRotation(dirVec, Vector3.up);
+
+        // Calculate the world-space center of the pull box based on this rotation.
         worldCenter = transform.position + worldRot * pullBoxCenter;
     }
 }

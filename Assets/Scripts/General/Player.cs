@@ -29,6 +29,9 @@ public class Player : KeyActionReceiver<Player>
     bool isMoving = false;
 
     public Directions FacingDirection => facingDirection;
+    
+    // NEW: Public property to hold the direction vector calculated from the current animation state.
+    public Vector3 AnimationBasedFacingDirection { get; private set; }
 
     // backing field for the above
     private Directions facingDirection = Directions.DOWN;  
@@ -164,13 +167,10 @@ public class Player : KeyActionReceiver<Player>
 
     void InteractHandler(InputAction.CallbackContext context) {
         if (context.performed && transformation == Transformation.TERRY) {
-            //Debug.LogError("Raising the regular interact event");
             EventDispatcher.Raise<Interact>(new Interact());
-
-            //WITHIN THE OBJECTIVE INTERACTABLE SPACE
+            
             if (inObjectiveInteractable)
             {
-                //Debug.LogError("Raising the objective interact event " + lastObjectiveInteractable.name);
                 ObjectiveInteractEvent interact = new ObjectiveInteractEvent();
                 interact.currentTransformation = transformation;
                 interact.interactedTo = lastObjectiveInteractable;
@@ -185,7 +185,6 @@ public class Player : KeyActionReceiver<Player>
     {
         if(other.gameObject.tag == "Objective Interactable")
         {
-            //Debug.LogError("Walked into an objective zone: " + other.gameObject.name);
             inObjectiveInteractable = true;
             lastObjectiveInteractable = other.gameObject;
         }
@@ -200,21 +199,21 @@ public class Player : KeyActionReceiver<Player>
     }
 
     void Update() {
-        // Animations + Input
-
         if (canMove)
         {
             InputHandler();
             MoveHandler();
         }
         else
-        {
+        { 
             isMoving = false;
         }
 
         if (transform.position.y < outOfBoundsY) {
             resetPosition();
         }
+
+        UpdateAnimationBasedDirection();
     }
 
     public void resetPosition() {
@@ -224,13 +223,11 @@ public class Player : KeyActionReceiver<Player>
     void setMovementInput(InputAction.CallbackContext context) {
         EventDispatcher.Raise<DebugMessage>(new DebugMessage() { message = $"Setting movement input: {context.ReadValue<Vector2>()}" });
 
-        // if in the air while being a bulldozer, don't move
         if (!isGrounded && transformation == Transformation.BULLDOZER) {
             movementInput = Vector2.zero;
             return;
         }
 
-        // Use InputManager or another source to get the current movement vector
         Vector2 moveValue = InputManager.Instance.isListening
             ? context.ReadValue<Vector2>()
             : Vector2.zero;
@@ -255,30 +252,24 @@ public class Player : KeyActionReceiver<Player>
         bool h = Mathf.Abs(vx) >= thr;
         bool v = Mathf.Abs(vy) >= thr;
 
-        // ——— Edge detection: did H or V just go from “off”→“on”? ———
         if (h && !prevH) lastDominantAxis = Axis.Horizontal;
         if (v && !prevV) lastDominantAxis = Axis.Vertical;
 
         prevH = h;
         prevV = v;
-
-        // ——— Now decide facing based on the most‐recently pressed axis ———
+        
         if (h && lastDominantAxis == Axis.Horizontal)
         {
-            // pure left/right
             facingDirection     = vx > 0 ? Directions.RIGHT : Directions.LEFT;
             lastHorizontalInput = facingDirection;
         }
         else if (v && lastDominantAxis == Axis.Vertical)
         {
-            // vertical → map into your isometric cross
             if (vy > 0)
-                // “up” arm: top‑left or top‑right
                 facingDirection = (lastHorizontalInput == Directions.LEFT)
                                  ? Directions.UP
                                  : Directions.RIGHT;
             else
-                // “down” arm: bottom‑left or bottom‑right
                 facingDirection = (lastHorizontalInput == Directions.LEFT)
                                  ? Directions.LEFT
                                  : Directions.DOWN;
@@ -298,7 +289,6 @@ public class Player : KeyActionReceiver<Player>
         }
         
 
-        // feed animator
         if (animator != null)
         {
             bool isMoving = vx != 0 || vy != 0;
@@ -309,8 +299,7 @@ public class Player : KeyActionReceiver<Player>
             }
             animator.SetBool("isWalking", vx != 0 || vy != 0);
         }
-
-        // actual movement
+        
         Vector3 camF = Camera.main.transform.forward; camF.y = 0; camF.Normalize();
         Vector3 camR = Camera.main.transform.right;   camR.y = 0; camR.Normalize();
         Vector3 dir  = (camF * vy + camR * vx).normalized;
@@ -320,6 +309,67 @@ public class Player : KeyActionReceiver<Player>
             dir.z * movementSpeed
         );
     }
+    
+    // MOVED FROM FROG: Gets the current animation clip name from the active animator.
+    private string GetCurrentAnimationName()
+    {
+        if (animator == null || !animator.isActiveAndEnabled || animator.runtimeAnimatorController == null)
+        {
+            return "";
+        }
+        AnimatorClipInfo[] clipInfo = animator.GetCurrentAnimatorClipInfo(0);
+        if (clipInfo.Length > 0 && clipInfo[0].clip != null)
+        {
+            return clipInfo[0].clip.name;
+        }
+        return "";
+    }
+
+    // MOVED FROM FROG: This is the logic that determines direction from animation state.
+    private void UpdateAnimationBasedDirection()
+    {
+        Vector3 dirVec = Vector3.forward; // Default direction
+        
+        if (selectedGroupSprite == null || animator == null)
+        {
+            AnimationBasedFacingDirection = dirVec;
+            return;
+        }
+
+        bool isFlippedX = selectedGroupSprite.flipX;
+        string animationName = GetCurrentAnimationName(); 
+
+        if (animationName.StartsWith("Idle Back") || 
+            animationName.StartsWith("Jump Back") || 
+            animationName.StartsWith("Walk Back"))
+        {
+            if (!isFlippedX) 
+            {
+                dirVec = Vector3.forward;    // West (FACING LEFT)
+            }
+            else 
+            {
+                dirVec = Vector3.right; // North (FACING UP)
+            }
+        }
+        else if (animationName.StartsWith("Idle Front") || 
+                 animationName.StartsWith("Jump Front") || 
+                 animationName.StartsWith("Walk Front"))
+        {
+            if (!isFlippedX)
+            {
+                dirVec = Vector3.left;   // South (FACING DOWN)
+            }
+            else 
+            {
+                dirVec = Vector3.back;  // East (FACING RIGHT)
+            }
+        }
+
+        // Update the public property for other scripts to read.
+        AnimationBasedFacingDirection = dirVec;
+    }
+
 
     public void SetVelocity(Vector3 velocity) {
         rbody.velocity = velocity;
@@ -345,19 +395,16 @@ public class Player : KeyActionReceiver<Player>
     }
 
     void InputHandler() {
-        // For each of the areas, check Alpha1, Alpha2, ... until area's length
         for (int i = 1; i <= areaPositions.Length; i++) {
             if (Input.GetKeyDown(KeyCode.Alpha0 + i)) {
                 moveToArea(i - 1);
             }
         }
-
-        // If Input System is disabled, use Input.GetKey
+        
         if (InputManager.Instance && InputManager.Instance.isListening) {
             return;
         }
-
-        // if E is pressed, interact with object
+        
         if (Input.GetKeyDown(KeyCode.E)) {
             EventDispatcher.Raise<Interact>(new Interact());
         }
@@ -409,18 +456,16 @@ public class Player : KeyActionReceiver<Player>
     {
         if (transformation != newTransformation)
         {
-            Smoke(); // Play transformation smoke effect
+            Smoke();
         }
 
         transformation = newTransformation;
 
-        // Deactivate all groups
         foreach (var entry in transformationMapping.Values)
         {
             entry.group.gameObject.SetActive(false);
         }
-
-        // Activate the selected transformation group
+        
         if (transformationMapping.TryGetValue(transformation, out var selected))
         {
             selected.group.gameObject.SetActive(true);

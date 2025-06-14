@@ -7776,7 +7776,7 @@ GameObject:
   m_Component:
   - component: {fileID: 615497507}
   - component: {fileID: 615497509}
-  - component: {fileID: 615497508}
+  - component: {fileID: 615497510}
   m_Layer: 0
   m_Name: Trigger
   m_TagString: Untagged
@@ -7800,18 +7800,6 @@ Transform:
   m_Father: {fileID: 1543048799}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &615497508
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 615497506}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38cdab01577854524a9e75b459f71b88, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!65 &615497509
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7825,6 +7813,21 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.1861587, y: 12.223372, z: 1.2105954}
   m_Center: {x: -2.1413212, y: 5.5768614, z: 0.94091064}
+--- !u!114 &615497510
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 615497506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 100090cda274e41a1aa177fcedd28c73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scenesToOffer:
+  - sceneName: 3-1 Carrie
+    sceneToLoad: 3-1 Carrie
 --- !u!1 &623297480 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5554935718531090984, guid: c1305ba4f09cf423393aa0cf26ecb6a3,

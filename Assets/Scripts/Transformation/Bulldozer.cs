@@ -22,6 +22,18 @@ public class Bulldozer : FormScript
 
     private bool isPushing = false;
 
+    private BoxCollider pushCollider;
+
+    private CapsuleCollider normalCollider;
+
+    public override void Awake()
+    {
+        base.Awake();
+
+        pushCollider = GetComponentInChildren<BoxCollider>();
+        normalCollider = GetComponentInChildren<CapsuleCollider>();
+    }
+
     public override void OnEnable()
     {
         base.OnEnable();
@@ -69,6 +81,16 @@ public class Bulldozer : FormScript
         Physics.IgnoreLayerCollision(playerLayer, walkableLayer, state);
         rb.mass = state ? 500f : 1f;
         isPushing = state;
+        
+        if (pushCollider != null)
+        {
+            pushCollider.enabled = state;
+        }
+
+        if (normalCollider != null)
+        {
+            normalCollider.enabled = !state;
+        }
     }
 
     /// <summary>

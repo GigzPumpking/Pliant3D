@@ -1,11 +1,11 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class UIManager : KeyActionReceiver<UIManager>
 {
@@ -16,6 +16,7 @@ public class UIManager : KeyActionReceiver<UIManager>
 
     public bool isDialogueActive = false;
     public GameObject sceneTransition;
+    public UILoadingScreen loadingScreen;
 
     public GameObject scenePanelPrefab;
 
@@ -131,12 +132,14 @@ public class UIManager : KeyActionReceiver<UIManager>
 
     public void FadeIn()
     {
+        loadingScreen.mainCamera = Camera.main;
         sceneTransition.SetActive(true);
         sceneTransition.GetComponent<Animator>().SetTrigger("FadeIn");
     }
 
     public void FadeOut(NewSceneLoaded e)
     {
+        loadingScreen.mainCamera = Camera.main;
         FadeOut();
     }
 

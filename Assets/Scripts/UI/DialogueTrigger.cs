@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.Events;
 
 public class DialogueTrigger : MonoBehaviour
 {
@@ -18,6 +19,7 @@ public class DialogueTrigger : MonoBehaviour
     private Dialogue dialogue;
     
     public static event Action<DialogueTrigger> InteractedObjective;
+    public List<UnityEvent> events = new List<UnityEvent>();
     
     void OnEnable() {
         EventDispatcher.AddListener<Interact>(PlayerInteract);
@@ -74,7 +76,8 @@ public class DialogueTrigger : MonoBehaviour
     }
 
     void OnTriggerExit(Collider other) {
-        if (other.CompareTag("Player")) {
+        if (other.CompareTag("Player"))
+        {
             interactBubble.SetActive(false);
             inRadius = false;
             triggered = false;
@@ -99,6 +102,12 @@ public class DialogueTrigger : MonoBehaviour
     void EndDialogue(EndDialogue e) {
         if (!interactBubble.activeSelf && inRadius) {
             interactBubble.SetActive(true);
+        }
+        
+        //INVOKE THE LIST OF EVENTS RELATED TO THIS DIALOGUE TRIGGER AFTER THE DIALOGUE IS COMPLETE
+        foreach(var evt in events)
+        {
+            evt.Invoke();
         }
     }
 

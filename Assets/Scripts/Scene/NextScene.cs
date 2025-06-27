@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -14,8 +15,11 @@ public class NextScene : StateMachineBehaviour
         {
             // Attempt to load by name first.
             // You could also try to parse TargetScene as an int for build index.
-            SceneManager.LoadScene(TargetScene);
-            Debug.Log($"Loading specified scene: {TargetScene}");
+
+            //SceneManager.LoadScene(TargetScene);
+            
+            UIManager.Instance.loadingScreen.LoadScene(TargetScene);
+            //Debug.LogError($"Loading thru name {TargetScene}");
         }
         else
         {
@@ -26,7 +30,9 @@ public class NextScene : StateMachineBehaviour
             // Check if the next scene index is valid
             if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
             {
-                SceneManager.LoadScene(nextSceneIndex);
+                //SceneManager.LoadScene(nextSceneIndex);
+                UIManager.Instance.loadingScreen.LoadScene(nextSceneIndex);
+                //Debug.LogError($"Loading thru index {nextSceneIndex}");
                 Debug.Log($"Loading next scene in build index: {nextSceneIndex}");
             }
             else
@@ -36,7 +42,6 @@ public class NextScene : StateMachineBehaviour
                 // SceneManager.LoadScene(0);
             }
         }
-
         // Reset TargetScene after loading so it doesn't affect the next default transition.
         TargetScene = null;
     }

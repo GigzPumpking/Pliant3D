@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;    // Required for UI elements like Button
+using UnityEngine.SceneManagement; // Required for scene management
 using TMPro;             // If you are using TextMeshPro for button text
 
 public class SceneSelectionPanelUI : MonoBehaviour
@@ -81,6 +82,14 @@ public class SceneSelectionPanelUI : MonoBehaviour
     void OnSceneButtonClicked(string sceneIdentifier)
     {
         NextScene.TargetScene = sceneIdentifier;
+
+        // if current scene is the same as the target scene, don't do anything
+        if (SceneManager.GetActiveScene().name == sceneIdentifier)
+        {
+            Debug.Log($"Current scene '{sceneIdentifier}' is the same as target scene. No action taken.");
+            return;
+        }
+
         if (UIManager.Instance != null)
         {
             UIManager.Instance.FadeIn();

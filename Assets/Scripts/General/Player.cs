@@ -209,7 +209,8 @@ public class Player : KeyActionReceiver<Player>
             isMoving = false;
         }
 
-        if (transform.position.y < outOfBoundsY) {
+        if (transform.position.y < outOfBoundsY)
+        {
             resetPosition();
         }
 
@@ -303,6 +304,7 @@ public class Player : KeyActionReceiver<Player>
         Vector3 camF = Camera.main.transform.forward; camF.y = 0; camF.Normalize();
         Vector3 camR = Camera.main.transform.right;   camR.y = 0; camR.Normalize();
         Vector3 dir  = (camF * vy + camR * vx).normalized;
+
         rbody.velocity = new Vector3(
             dir.x * movementSpeed,
             rbody.velocity.y,
@@ -310,19 +312,14 @@ public class Player : KeyActionReceiver<Player>
         );
     }
     
-    // MOVED FROM FROG: Gets the current animation clip name from the active animator.
-    private string GetCurrentAnimationName()
+    private string GetCurrentSpriteName()
     {
-        if (animator == null || !animator.isActiveAndEnabled || animator.runtimeAnimatorController == null)
+        if (selectedGroupSprite == null)
         {
             return "";
         }
-        AnimatorClipInfo[] clipInfo = animator.GetCurrentAnimatorClipInfo(0);
-        if (clipInfo.Length > 0 && clipInfo[0].clip != null)
-        {
-            return clipInfo[0].clip.name;
-        }
-        return "";
+
+        return selectedGroupSprite.sprite.name;
     }
 
     // MOVED FROM FROG: This is the logic that determines direction from animation state.
@@ -337,30 +334,45 @@ public class Player : KeyActionReceiver<Player>
         }
 
         bool isFlippedX = selectedGroupSprite.flipX;
-        string animationName = GetCurrentAnimationName(); 
+        string spriteName = GetCurrentSpriteName(); 
 
-        if (animationName.StartsWith("Idle Back") || 
-            animationName.StartsWith("Jump Back") || 
-            animationName.StartsWith("Walk Back"))
+        // Sprites with specific "Left" or "Right" directions
+        // These function as if isFlippedX is false or true, respectively, ignoring the variable.
+        if (spriteName.StartsWith("FrontLeft"))
         {
-            if (!isFlippedX) 
+            dirVec = Vector3.left;   // South (FACING DOWN)
+        }
+        else if (spriteName.StartsWith("FrontRight"))
+        {
+            dirVec = Vector3.back;  // East (FACING RIGHT)
+        }
+        else if (spriteName.StartsWith("BackLeft"))
+        {
+            dirVec = Vector3.forward;    // West (FACING LEFT)
+        }
+        else if (spriteName.StartsWith("BackRight"))
+        {
+            dirVec = Vector3.right; // North (FACING UP)
+        }
+        // Fallback to generic "Front" or "Back" sprites which use isFlippedX
+        else if (spriteName.StartsWith("Back"))
+        {
+            if (!isFlippedX)
             {
                 dirVec = Vector3.forward;    // West (FACING LEFT)
             }
-            else 
+            else
             {
                 dirVec = Vector3.right; // North (FACING UP)
             }
         }
-        else if (animationName.StartsWith("Idle Front") || 
-                 animationName.StartsWith("Jump Front") || 
-                 animationName.StartsWith("Walk Front"))
+        else if (spriteName.StartsWith("Front"))
         {
             if (!isFlippedX)
             {
                 dirVec = Vector3.left;   // South (FACING DOWN)
             }
-            else 
+            else
             {
                 dirVec = Vector3.back;  // East (FACING RIGHT)
             }

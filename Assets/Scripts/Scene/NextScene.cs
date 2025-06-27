@@ -19,6 +19,11 @@ public class NextScene : StateMachineBehaviour
         }
         else
         {
+
+            // If TargetScene is null or empty, do nothing
+            return;
+            
+            /*
             // Default behavior: Load the next scene in the build index.
             int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
             int nextSceneIndex = currentSceneIndex + 1;
@@ -35,6 +40,7 @@ public class NextScene : StateMachineBehaviour
                 // Optional: Load the first scene as a fallback
                 // SceneManager.LoadScene(0);
             }
+            */
         }
 
         // Reset TargetScene after loading so it doesn't affect the next default transition.

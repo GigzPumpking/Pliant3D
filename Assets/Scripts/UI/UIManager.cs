@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public class UIManager : KeyActionReceiver<UIManager>
@@ -32,9 +33,13 @@ public class UIManager : KeyActionReceiver<UIManager>
     private GameObject resumeButton;
 
     [SerializeField] private AudioData pauseSound;
+    
+    [SerializeField] private List<string> scenesToHidePauseIn = new List<string>();
 
-    public bool isPaused {
-        get {
+    public bool isPaused
+    {
+        get
+        {
             return pauseMenu.activeSelf;
         }
     }
@@ -75,9 +80,10 @@ public class UIManager : KeyActionReceiver<UIManager>
         resumeButton = pauseMenu.transform.Find("Resume Button").gameObject;
 
         pauseMenu.SetActive(false);
-        pauseButton.SetActive(true);
+        UpdatePauseButtonVisibility();
 
         EventDispatcher.AddListener<NewSceneLoaded>(FadeOut);
+        EventDispatcher.AddListener<NewSceneLoaded>(OnSceneChanged);
     }
 
     void Update() {
@@ -96,7 +102,7 @@ public class UIManager : KeyActionReceiver<UIManager>
 
         // no null checks here since I want to know if there is something not being found
         if (pauseMenu.activeSelf) {
-            pauseButton?.SetActive(true);
+            UpdatePauseButtonVisibility();
             resumeButton?.SetActive(false);
             pauseMenu?.SetActive(false);
             Time.timeScale = 1;
@@ -122,6 +128,25 @@ public class UIManager : KeyActionReceiver<UIManager>
     private void OnDestroy()
     {
         EventDispatcher.RemoveListener<NewSceneLoaded>(FadeOut);
+        EventDispatcher.RemoveListener<NewSceneLoaded>(OnSceneChanged);
+    }
+
+    private void OnSceneChanged(NewSceneLoaded e)
+    {
+        // When a new scene loads, update the button's visibility based on our list.
+        // We only do this if the game isn't paused, as the Pause() method handles visibility during a paused state.
+        if (!isPaused)
+        {
+            UpdatePauseButtonVisibility();
+        }
+    }
+
+    private void UpdatePauseButtonVisibility()
+    {
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        // If the current scene is in our list, hide the button. Otherwise, show it.
+        bool shouldHide = scenesToHidePauseIn.Contains(currentSceneName);
+        pauseButton.SetActive(!shouldHide);
     }
 
     public void FadeOut()

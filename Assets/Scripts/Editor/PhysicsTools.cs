@@ -9,7 +9,7 @@ public class PhysicsTools
     {
         var ice = AssetDatabase.LoadAssetAtPath<PhysicMaterial>("Assets/PhysicsMaterials/Ice.physicmaterial");
 
-        var layerToTest = LayerMask.NameToLayer("Geo");
+        var layerToTest = LayerMask.NameToLayer("No Static");
 
         var allObjs = Component.FindObjectsOfType<GameObject>();
         foreach (var obj in allObjs)

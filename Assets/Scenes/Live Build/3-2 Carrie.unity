@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028326, g: 0.22571333, b: 0.30692202, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -5817,7 +5817,7 @@ Transform:
   - {fileID: 283697266}
   - {fileID: 1394298314}
   m_Father: {fileID: 0}
-  m_RootOrder: 10
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &1674665270
 Mesh:
@@ -6160,7 +6160,7 @@ PrefabInstance:
     - target: {fileID: 5917419163060738597, guid: 338d829fe9ec8487cb3a9406c0d2fa7c,
         type: 3}
       propertyPath: m_RootOrder
-      value: 9
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 5917419163060738597, guid: 338d829fe9ec8487cb3a9406c0d2fa7c,
         type: 3}
@@ -6732,7 +6732,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1809855977}
   - component: {fileID: 1809855979}
-  - component: {fileID: 1809855978}
+  - component: {fileID: 1809855980}
   m_Layer: 0
   m_Name: Trigger
   m_TagString: Untagged
@@ -6755,18 +6755,6 @@ Transform:
   m_Father: {fileID: 1365832376}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
---- !u!114 &1809855978
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1809855976}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38cdab01577854524a9e75b459f71b88, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!65 &1809855979
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6780,6 +6768,24 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.1861587, y: 12.223372, z: 1.2105954}
   m_Center: {x: -2.1413212, y: 5.5768614, z: 0.94091064}
+--- !u!114 &1809855980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1809855976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 100090cda274e41a1aa177fcedd28c73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scenesToOffer:
+  - sceneName: 3-3 Carrie
+    sceneToLoad: 3-3 Carrie
+    useLoadingScreen: 0
+    loadingScreenSceneName: 
+    loadingScreenDisplayTime: 0
 --- !u!1 &1810443008
 GameObject:
   m_ObjectHideFlags: 0

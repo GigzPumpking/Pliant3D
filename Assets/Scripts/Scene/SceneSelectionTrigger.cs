@@ -17,6 +17,16 @@ public class SceneSelectionTrigger : MonoBehaviour
 
         [Tooltip("The exact name of the scene file to be loaded.")]
         public string sceneToLoad;
+
+        [Header("Loading Screen Options")]
+        [Tooltip("If checked, the transition will fade to a loading screen first.")]
+        public bool useLoadingScreen;
+
+        [Tooltip("The name of the loading scene to use. Required if 'Use Loading Screen' is checked.")]
+        public string loadingScreenSceneName = "LoadingScreen";
+
+        [Tooltip("The duration in seconds to wait on the loading screen.")]
+        public float loadingScreenDisplayTime = 2.0f;
     }
 
     [Header("Scene Configuration")]

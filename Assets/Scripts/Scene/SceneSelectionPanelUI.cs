@@ -12,7 +12,7 @@ public class SceneSelectionPanelUI : MonoBehaviour
 
     public void PopulateSceneButtons(List<SceneSelectionTrigger.SceneEntry> scenes)
     {
-        // Clear any existing buttons first. This is important regardless of how many new scenes there are.
+        // Clear any existing buttons first.
         foreach (Transform child in buttonContainer)
         {
             Destroy(child.gameObject);
@@ -22,32 +22,26 @@ public class SceneSelectionPanelUI : MonoBehaviour
         if (sceneButtonPrefab == null || buttonContainer == null)
         {
             Debug.LogError("SceneButtonPrefab or ButtonContainer not assigned in SceneSelectionPanelUI.");
-            gameObject.SetActive(false); // Ensure panel is hidden if setup is wrong
+            gameObject.SetActive(false);
             return;
         }
 
         if (scenes == null || scenes.Count == 0)
         {
             Debug.LogWarning("No scenes provided to populate.");
-            // Optionally, you could display a "No scenes available" message on a dedicated text element
-            // or simply ensure the panel is hidden.
-            gameObject.SetActive(false); // Ensure panel is hidden if no scenes
+            gameObject.SetActive(false);
             return;
         }
 
         // --- Handle Single Scene Case ---
         if (scenes.Count == 1)
         {
-            // If there's only one scene, directly trigger the action
-            // without showing the panel or creating buttons.
             Debug.Log($"Only one scene offered ('{scenes[0].sceneName}'), automatically proceeding.");
-            OnSceneButtonClicked(scenes[0].sceneToLoad);
-            // OnSceneButtonClicked already calls gameObject.SetActive(false), so the panel will be hidden.
-            return; // Skip button population and panel display
+            OnSceneButtonClicked(scenes[0]); // Pass the whole entry
+            return;
         }
 
-        // --- Handle Multiple Scenes Case (populate buttons and show panel) ---
-        // Make sure the panel is visible now that we know we need to show multiple buttons.
+        // --- Handle Multiple Scenes Case ---
         gameObject.SetActive(true);
 
         foreach (var sceneEntry in scenes)
@@ -55,8 +49,7 @@ public class SceneSelectionPanelUI : MonoBehaviour
             GameObject buttonGO = Instantiate(sceneButtonPrefab, buttonContainer);
             Button button = buttonGO.GetComponent<Button>();
             
-            TextMeshProUGUI buttonText = buttonGO.GetComponentInChildren<TextMeshProUGUI>(); // For TextMeshPro
-            // Text buttonText = buttonGO.GetComponentInChildren<Text>(); // For standard UI Text
+            TextMeshProUGUI buttonText = buttonGO.GetComponentInChildren<TextMeshProUGUI>();
 
             if (buttonText != null)
             {
@@ -70,7 +63,8 @@ public class SceneSelectionPanelUI : MonoBehaviour
             if (button != null)
             {
                 button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => OnSceneButtonClicked(sceneEntry.sceneToLoad));
+                // Pass the entire sceneEntry object to the handler
+                button.onClick.AddListener(() => OnSceneButtonClicked(sceneEntry));
             }
             else
             {
@@ -79,17 +73,32 @@ public class SceneSelectionPanelUI : MonoBehaviour
         }
     }
 
-    void OnSceneButtonClicked(string sceneIdentifier)
+    void OnSceneButtonClicked(SceneSelectionTrigger.SceneEntry sceneEntry)
     {
-        NextScene.TargetScene = sceneIdentifier;
-
-        // if current scene is the same as the target scene, don't do anything
-        if (SceneManager.GetActiveScene().name == sceneIdentifier)
+        // If current scene is the same as the target scene, don't do anything
+        if (SceneManager.GetActiveScene().name == sceneEntry.sceneToLoad)
         {
-            Debug.Log($"Current scene '{sceneIdentifier}' is the same as target scene. No action taken.");
+            Debug.Log($"Current scene '{sceneEntry.sceneToLoad}' is the same as target scene. No action taken.");
+            gameObject.SetActive(false); // Still hide the panel
             return;
         }
 
+        if (sceneEntry.useLoadingScreen)
+        {
+            // Set up the multi-step transition via the NextScene script
+            NextScene.SetupLoadingScreenTransition(
+                sceneEntry.loadingScreenSceneName,
+                sceneEntry.sceneToLoad,
+                sceneEntry.loadingScreenDisplayTime
+            );
+        }
+        else
+        {
+            // Set up a direct transition
+            NextScene.TargetScene = sceneEntry.sceneToLoad;
+        }
+
+        // Trigger the initial fade-in, which will load the first target scene
         if (UIManager.Instance != null)
         {
             UIManager.Instance.FadeIn();
@@ -97,16 +106,13 @@ public class SceneSelectionPanelUI : MonoBehaviour
         else
         {
             Debug.LogError("UIManager.Instance is null. Cannot trigger FadeIn. Attempting direct scene load as fallback.");
-            // Fallback or direct scene load if UIManager is critical and missing
-            // Be cautious with direct load if fade is essential for game state.
-            // NextScene.LoadSceneByNameOrIndex(sceneIdentifier); // You would need to make this method public static in NextScene.cs
+            SceneManager.LoadScene(NextScene.TargetScene);
         }
 
-        // Deactivate the panel after selection or if auto-triggered
+        // Deactivate the panel after selection
         gameObject.SetActive(false);
     }
 
-    // Call this from a "Close" or "Cancel" button on your panel
     public void ClosePanel()
     {
         gameObject.SetActive(false);

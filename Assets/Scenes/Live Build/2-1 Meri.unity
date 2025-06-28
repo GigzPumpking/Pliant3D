@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028326, g: 0.22571333, b: 0.30692202, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -12320,7 +12320,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2037538892}
   - component: {fileID: 2037538894}
-  - component: {fileID: 2037538893}
+  - component: {fileID: 2037538895}
   m_Layer: 8
   m_Name: Trigger
   m_TagString: Untagged
@@ -12344,18 +12344,6 @@ Transform:
   m_Father: {fileID: 671945195}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
---- !u!114 &2037538893
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2037538891}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38cdab01577854524a9e75b459f71b88, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!65 &2037538894
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -12369,6 +12357,24 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.1861587, y: 12.223372, z: 1.2105954}
   m_Center: {x: -2.1413212, y: 5.5768614, z: 0.94091064}
+--- !u!114 &2037538895
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2037538891}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 100090cda274e41a1aa177fcedd28c73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scenesToOffer:
+  - sceneName: 2-2 Meri
+    sceneToLoad: 2-2 Meri
+    useLoadingScreen: 0
+    loadingScreenSceneName: 
+    loadingScreenDisplayTime: 0
 --- !u!1 &2042530281
 GameObject:
   m_ObjectHideFlags: 0

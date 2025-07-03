@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -138,7 +138,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7498281}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -173,7 +173,7 @@ GameObject:
   - component: {fileID: 37702972}
   - component: {fileID: 37702971}
   - component: {fileID: 37702970}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: COLLISION
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -202,7 +202,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 37702968}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -329,7 +329,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 69823867}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -434,8 +434,110 @@ PrefabInstance:
       propertyPath: m_Name
       value: stackofpaperdetailed_modelingfbx
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 21a514ab65508de40b24c88aaea3018a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21a514ab65508de40b24c88aaea3018a, type: 3}
+--- !u!1 &75436801
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 75436802}
+  - component: {fileID: 75436805}
+  - component: {fileID: 75436804}
+  - component: {fileID: 75436803}
+  m_Layer: 8
+  m_Name: Metal Edges (Cubicle Wall)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &75436802
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 75436801}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -25.6142, y: 5.4385834, z: 4.3}
+  m_LocalScale: {x: 0.18231253, y: 14, z: 0.2}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 831764911}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &75436803
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 75436801}
+  m_Material: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &75436804
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 75436801}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 25c7fc846fdc28b44b4714ad675ee14b, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &75436805
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 75436801}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1001 &82389841
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -523,6 +625,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: outbox_modelingfbx
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: b3d91a3d75827c5498876a601470bb29,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b3d91a3d75827c5498876a601470bb29, type: 3}
 --- !u!1 &96553300
@@ -537,7 +644,7 @@ GameObject:
   - component: {fileID: 96553304}
   - component: {fileID: 96553303}
   - component: {fileID: 96553302}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Inside Collider (Invisible)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -557,7 +664,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 831764911}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &96553302
 BoxCollider:
@@ -566,7 +673,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 96553300}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -636,7 +743,7 @@ GameObject:
   - component: {fileID: 98409806}
   - component: {fileID: 98409805}
   - component: {fileID: 98409804}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Separate Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -991,7 +1098,7 @@ PrefabInstance:
     - target: {fileID: 835653369141431837, guid: 08f67ccc6484d5e419455f9d07a30b2d,
         type: 3}
       propertyPath: m_RootOrder
-      value: 10
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 835653369141431837, guid: 08f67ccc6484d5e419455f9d07a30b2d,
         type: 3}
@@ -1083,6 +1190,41 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4239671724033411076, guid: 08f67ccc6484d5e419455f9d07a30b2d,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4239671724033411076, guid: 08f67ccc6484d5e419455f9d07a30b2d,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4239671724033411076, guid: 08f67ccc6484d5e419455f9d07a30b2d,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4239671724033411076, guid: 08f67ccc6484d5e419455f9d07a30b2d,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -7.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4239671724033411076, guid: 08f67ccc6484d5e419455f9d07a30b2d,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -208
+      objectReference: {fileID: 0}
+    - target: {fileID: 4239671724033411076, guid: 08f67ccc6484d5e419455f9d07a30b2d,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -391
+      objectReference: {fileID: 0}
+    - target: {fileID: 4239671724033411076, guid: 08f67ccc6484d5e419455f9d07a30b2d,
+        type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9094087258823657089, guid: 08f67ccc6484d5e419455f9d07a30b2d,
         type: 3}
       propertyPath: objectiveListingsHolder
@@ -1099,7 +1241,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 106413497}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1136,7 +1278,7 @@ GameObject:
   - component: {fileID: 119968037}
   - component: {fileID: 119968036}
   - component: {fileID: 119968035}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1475,7 +1617,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 130010334}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1510,7 +1652,7 @@ GameObject:
   - component: {fileID: 133430887}
   - component: {fileID: 133430886}
   - component: {fileID: 133430885}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Color
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1539,7 +1681,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 133430883}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 4
@@ -1626,7 +1768,7 @@ Transform:
   m_Children:
   - {fileID: 447311006}
   m_Father: {fileID: 0}
-  m_RootOrder: 11
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &199085155
 GameObject:
@@ -1637,7 +1779,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 199085156}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1666,7 +1808,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh156472
+  m_Name: pb_Mesh328164
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -1937,7 +2079,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 329454548}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Paper Stack 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2151,7 +2293,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh155894
+  m_Name: pb_Mesh327586
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -2323,7 +2465,7 @@ GameObject:
   - component: {fileID: 359442138}
   - component: {fileID: 359442137}
   - component: {fileID: 359442136}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2666,6 +2808,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1086752945}
     m_Modifications:
+    - target: {fileID: 3431373233421400167, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461603, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: m_RootOrder
@@ -2757,6 +2904,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: NPCDialogue
+      objectReference: {fileID: 0}
+    - target: {fileID: 3493604527745461608, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5475686369004875229, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 89b2ae7bccf9f426999e81c797e9ff4e, type: 3}
@@ -3038,7 +3195,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 418190277}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Level
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3279,7 +3436,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 468987942}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Combo 1 (Push + Jump)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3313,7 +3470,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 481530564}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Challenges
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3434,7 +3591,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 551744630}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Level 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3472,6 +3629,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Stapler Box (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 96071449551340983, guid: 3bc4aa6a7bd0f42bdb1583ed87712583,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 439200076718377602, guid: 3bc4aa6a7bd0f42bdb1583ed87712583,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 729161846109560589, guid: 3bc4aa6a7bd0f42bdb1583ed87712583,
         type: 3}
@@ -3528,6 +3695,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 978470415991580906, guid: 3bc4aa6a7bd0f42bdb1583ed87712583,
+        type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6336193298059673612, guid: 3bc4aa6a7bd0f42bdb1583ed87712583,
         type: 3}
       propertyPath: properties.Array.size
@@ -3545,7 +3717,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 566962391}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Guides
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3583,7 +3755,7 @@ GameObject:
   - component: {fileID: 573237810}
   - component: {fileID: 573237809}
   - component: {fileID: 573237808}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3922,7 +4094,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 606068671}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4073,7 +4245,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 635804758}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4115,7 +4287,7 @@ GameObject:
   - component: {fileID: 671945193}
   - component: {fileID: 671945192}
   - component: {fileID: 671945196}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: NextScene
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4129,7 +4301,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 671945191}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 4
@@ -4222,6 +4394,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 726183587}
     m_Modifications:
+    - target: {fileID: 1239605426367615843, guid: a87226cc91804fc4398db6a62f687eef,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 3362658286965465172, guid: a87226cc91804fc4398db6a62f687eef,
         type: 3}
       propertyPath: m_Mesh
@@ -4241,6 +4418,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: RechargeStation
+      objectReference: {fileID: 0}
+    - target: {fileID: 4927458772893692810, guid: a87226cc91804fc4398db6a62f687eef,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4927458772893692811, guid: a87226cc91804fc4398db6a62f687eef,
         type: 3}
@@ -4297,6 +4479,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4927458773037625811, guid: a87226cc91804fc4398db6a62f687eef,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4927458773462443673, guid: a87226cc91804fc4398db6a62f687eef,
         type: 3}
       propertyPath: m_Mesh
@@ -4312,6 +4499,11 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 1237554057}
+    - target: {fileID: 4927458773462443747, guid: a87226cc91804fc4398db6a62f687eef,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 8222205349805067247, guid: a87226cc91804fc4398db6a62f687eef,
         type: 3}
       propertyPath: m_Mesh
@@ -4334,7 +4526,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 726183587}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Re-Charge Station
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4348,15 +4540,15 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 726183586}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 17.84, y: -1.74, z: 77.61}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 9.697601, y: -2.8336563, z: 8.886536}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 685128311}
   - {fileID: 37702969}
-  m_Father: {fileID: 0}
-  m_RootOrder: 14
+  m_Father: {fileID: 1840329995}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &726421322
 GameObject:
@@ -4367,7 +4559,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 726421323}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4396,7 +4588,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh156052
+  m_Name: pb_Mesh327744
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -4653,7 +4845,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 791362809}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Section 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4759,6 +4951,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: stackofpaperdetailed_modelingfbx
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 21a514ab65508de40b24c88aaea3018a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21a514ab65508de40b24c88aaea3018a, type: 3}
 --- !u!1 &831764910
@@ -4770,7 +4967,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 831764911}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Walls
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4791,6 +4988,7 @@ Transform:
   m_Children:
   - {fileID: 1362980023}
   - {fileID: 1101258201}
+  - {fileID: 75436802}
   - {fileID: 96553301}
   m_Father: {fileID: 1961658603}
   m_RootOrder: 1
@@ -4856,7 +5054,7 @@ GameObject:
   - component: {fileID: 838827150}
   - component: {fileID: 838827149}
   - component: {fileID: 838827148}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Left Edge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4885,7 +5083,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 838827146}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -4953,7 +5151,7 @@ GameObject:
   - component: {fileID: 847371400}
   - component: {fileID: 847371399}
   - component: {fileID: 847371398}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Bottom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4982,7 +5180,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 847371396}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -5047,7 +5245,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 895426010}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5076,7 +5274,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh155964
+  m_Name: pb_Mesh327656
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -5326,6 +5524,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: stapler_modelingfbx
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 39f43526538fec741a670c23b4888e68,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 39f43526538fec741a670c23b4888e68, type: 3}
 --- !u!1 &921033124
@@ -5337,7 +5540,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 921033125}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5372,7 +5575,7 @@ GameObject:
   - component: {fileID: 926566284}
   - component: {fileID: 926566283}
   - component: {fileID: 926566282}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Right Front
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5401,7 +5604,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 926566280}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -5466,7 +5669,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 929541981}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Paper Stack (Top)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5499,7 +5702,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 938738575}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5699,6 +5902,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2042530282}
     m_Modifications:
+    - target: {fileID: 3431373233421400167, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461603, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: m_RootOrder
@@ -5809,6 +6017,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: NPCDialogue
       objectReference: {fileID: 0}
+    - target: {fileID: 3493604527745461608, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5475686369004875229, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 89b2ae7bccf9f426999e81c797e9ff4e, type: 3}
 --- !u!1 &981620426 stripped
@@ -5899,7 +6117,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1082634529}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Paper Stacks 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5936,7 +6154,7 @@ GameObject:
   - component: {fileID: 1086752948}
   - component: {fileID: 1086752947}
   - component: {fileID: 1086752946}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Meri
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5968,7 +6186,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1086752944}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.5000001
@@ -6037,7 +6255,7 @@ GameObject:
   - component: {fileID: 1101258204}
   - component: {fileID: 1101258203}
   - component: {fileID: 1101258202}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cubicle Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6052,8 +6270,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1101258200}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -6.2615, y: 5.4385834, z: 4.3}
-  m_LocalScale: {x: 39.17947, y: 14, z: 0.2}
+  m_LocalPosition: {x: -6.0955, y: 5.4385834, z: 4.3}
+  m_LocalScale: {x: 38.846302, y: 14, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 831764911}
@@ -6066,7 +6284,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1101258200}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -6092,7 +6310,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: dd9376c96386cf1489d70e3589815a5e, type: 2}
+  - {fileID: 2100000, guid: c8b9714d9d450484cb7017991763090d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -6131,7 +6349,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1101931576}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Desk Tray
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6164,7 +6382,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1115050310}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Paper Stacks 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6203,7 +6421,7 @@ GameObject:
   - component: {fileID: 1117858237}
   - component: {fileID: 1117858236}
   - component: {fileID: 1117858235}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6558,7 +6776,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1143022510}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 4
@@ -6595,7 +6813,7 @@ Transform:
   m_Children:
   - {fileID: 1437875166}
   m_Father: {fileID: 0}
-  m_RootOrder: 13
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &1237554057
 Mesh:
@@ -6603,7 +6821,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-360896
+  m_Name: pb_Mesh-1487338
   serializedVersion: 10
   m_SubMeshes: []
   m_Shapes:
@@ -6763,7 +6981,7 @@ GameObject:
   - component: {fileID: 1249594738}
   - component: {fileID: 1249594737}
   - component: {fileID: 1249594736}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Manila Folder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6792,7 +7010,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249594734}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -6857,7 +7075,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1255865463}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Paper Stack 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7127,6 +7345,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: stackofpaperdetailed_modelingfbx
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 21a514ab65508de40b24c88aaea3018a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21a514ab65508de40b24c88aaea3018a, type: 3}
 --- !u!4 &1292960663 stripped
@@ -7145,7 +7368,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1307514194}
   - component: {fileID: 1307514195}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7301,6 +7524,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: stackofpaperdetailed_modelingfbx
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 21a514ab65508de40b24c88aaea3018a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21a514ab65508de40b24c88aaea3018a, type: 3}
 --- !u!1001 &1316062791
@@ -7385,6 +7613,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: stackofpaperdetailed_modelingfbx
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 21a514ab65508de40b24c88aaea3018a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21a514ab65508de40b24c88aaea3018a, type: 3}
 --- !u!4 &1316504340 stripped
@@ -7457,7 +7690,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh156568
+  m_Name: pb_Mesh328260
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -7624,7 +7857,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1341481215}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7653,7 +7886,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh156508
+  m_Name: pb_Mesh328200
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -7817,7 +8050,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-360908
+  m_Name: pb_Mesh-1487350
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -7987,7 +8220,7 @@ GameObject:
   - component: {fileID: 1362980022}
   - component: {fileID: 1362980021}
   - component: {fileID: 1362980020}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: NoBacktracking
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8001,7 +8234,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1362980019}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 4
@@ -8082,7 +8315,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1368468106}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Paper Stack 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8115,7 +8348,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1372442271}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8144,7 +8377,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh156230
+  m_Name: pb_Mesh327922
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -8478,7 +8711,7 @@ GameObject:
   - component: {fileID: 1411151754}
   - component: {fileID: 1411151753}
   - component: {fileID: 1411151752}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Right Edge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8507,7 +8740,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1411151750}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -8645,6 +8878,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: stackofpaperdetailed_modelingfbx
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 21a514ab65508de40b24c88aaea3018a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21a514ab65508de40b24c88aaea3018a, type: 3}
 --- !u!1001 &1433140755
@@ -8728,6 +8966,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: stackofpaperdetailed_modelingfbx
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 21a514ab65508de40b24c88aaea3018a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21a514ab65508de40b24c88aaea3018a, type: 3}
@@ -8954,7 +9197,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1476662668}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8986,7 +9229,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1520530599}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9023,7 +9266,7 @@ GameObject:
   - component: {fileID: 1541070952}
   - component: {fileID: 1541070951}
   - component: {fileID: 1541070950}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9377,7 +9620,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh156412
+  m_Name: pb_Mesh328104
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -9544,7 +9787,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1569358335}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9576,7 +9819,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1570295044}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Paper Stack 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9621,7 +9864,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1620639955}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Paper Stack (Middle)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9946,7 +10189,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1696919599}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Paper Stack (Bottom)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9984,7 +10227,7 @@ GameObject:
   - component: {fileID: 1698145664}
   - component: {fileID: 1698145663}
   - component: {fileID: 1698145662}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10323,7 +10566,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1718148720}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Paper Stack 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10428,7 +10671,7 @@ GameObject:
   - component: {fileID: 1777310613}
   - component: {fileID: 1777310612}
   - component: {fileID: 1777310611}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Back Edge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10457,7 +10700,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1777310609}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -10522,7 +10765,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1803721216}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10554,7 +10797,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1805243378}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10659,6 +10902,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: stackofpaperdetailed_modelingfbx
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 21a514ab65508de40b24c88aaea3018a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21a514ab65508de40b24c88aaea3018a, type: 3}
 --- !u!1 &1824099210
@@ -10670,7 +10918,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1824099211}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Paper Stack 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10700,7 +10948,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh156356
+  m_Name: pb_Mesh328048
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -10867,7 +11115,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1840329995}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Objects
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10888,6 +11136,7 @@ Transform:
   m_Children:
   - {fileID: 1101931576}
   - {fileID: 1143022511}
+  - {fileID: 726183587}
   m_Father: {fileID: 551744630}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -10903,7 +11152,7 @@ GameObject:
   - component: {fileID: 1869488881}
   - component: {fileID: 1869488880}
   - component: {fileID: 1869488879}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Front Ramp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10932,7 +11181,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1869488877}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -11002,7 +11251,7 @@ GameObject:
   - component: {fileID: 1877019763}
   - component: {fileID: 1877019762}
   - component: {fileID: 1877019761}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11341,7 +11590,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1905740128}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Paper Stacks 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11448,6 +11697,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: stackofpaperdetailed_modelingfbx
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 21a514ab65508de40b24c88aaea3018a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21a514ab65508de40b24c88aaea3018a, type: 3}
 --- !u!43 &1923999382
@@ -11456,7 +11710,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh41420
+  m_Name: pb_Mesh328276
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -11623,7 +11877,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1961658603}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Desk
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11656,7 +11910,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1964165154}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Paper Stacks
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11690,7 +11944,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1969074453}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11739,7 +11993,7 @@ GameObject:
   - component: {fileID: 2016005536}
   - component: {fileID: 2016005535}
   - component: {fileID: 2016005534}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12078,7 +12332,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2037361664}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12117,8 +12371,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2037538892}
   - component: {fileID: 2037538894}
-  - component: {fileID: 2037538893}
-  m_Layer: 0
+  - component: {fileID: 2037538895}
+  m_Layer: 8
   m_Name: Trigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12141,18 +12395,6 @@ Transform:
   m_Father: {fileID: 671945195}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
---- !u!114 &2037538893
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2037538891}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38cdab01577854524a9e75b459f71b88, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!65 &2037538894
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -12166,6 +12408,24 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.1861587, y: 12.223372, z: 1.2105954}
   m_Center: {x: -2.1413212, y: 5.5768614, z: 0.94091064}
+--- !u!114 &2037538895
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2037538891}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 100090cda274e41a1aa177fcedd28c73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scenesToOffer:
+  - sceneName: 2-2 Meri
+    sceneToLoad: 2-2 Meri
+    useLoadingScreen: 0
+    loadingScreenSceneName: 
+    loadingScreenDisplayTime: 0
 --- !u!1 &2042530281
 GameObject:
   m_ObjectHideFlags: 0
@@ -12178,7 +12438,7 @@ GameObject:
   - component: {fileID: 2042530285}
   - component: {fileID: 2042530284}
   - component: {fileID: 2042530283}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Tip 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12209,7 +12469,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2042530281}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.5000001
@@ -12277,7 +12537,7 @@ GameObject:
   - component: {fileID: 2043442984}
   - component: {fileID: 2043442986}
   - component: {fileID: 2043442985}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12384,7 +12644,7 @@ GameObject:
   - component: {fileID: 2059686305}
   - component: {fileID: 2059686304}
   - component: {fileID: 2059686303}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Left Front
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12413,7 +12673,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2059686301}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -12507,7 +12767,7 @@ Transform:
   - {fileID: 333279019}
   - {fileID: 1010316082}
   m_Father: {fileID: 0}
-  m_RootOrder: 12
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2123923685
 GameObject:
@@ -12523,7 +12783,7 @@ GameObject:
   - component: {fileID: 2123923689}
   - component: {fileID: 2123923688}
   - component: {fileID: 2123923687}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12859,7 +13119,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh155874
+  m_Name: pb_Mesh327566
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -13031,7 +13291,7 @@ GameObject:
   - component: {fileID: 2137812092}
   - component: {fileID: 2137812091}
   - component: {fileID: 2137812090}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Top
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13060,7 +13320,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2137812088}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 4
@@ -13379,6 +13639,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: Stapler Box (with Pull)
       objectReference: {fileID: 0}
+    - target: {fileID: 96071449551340983, guid: 3bc4aa6a7bd0f42bdb1583ed87712583,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 439200076718377602, guid: 3bc4aa6a7bd0f42bdb1583ed87712583,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 729161846109560589, guid: 3bc4aa6a7bd0f42bdb1583ed87712583,
         type: 3}
       propertyPath: m_RootOrder
@@ -13433,6 +13703,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 978470415991580906, guid: 3bc4aa6a7bd0f42bdb1583ed87712583,
+        type: 3}
+      propertyPath: m_Material
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3bc4aa6a7bd0f42bdb1583ed87712583, type: 3}
@@ -13686,7 +13961,7 @@ PrefabInstance:
     - target: {fileID: 2688863441334184285, guid: f09abbff6e9a448cab6f233042637973,
         type: 3}
       propertyPath: m_text
-      value: Pliant_Dev15
+      value: Pliant_Dev16
       objectReference: {fileID: 0}
     - target: {fileID: 2688863441334184285, guid: f09abbff6e9a448cab6f233042637973,
         type: 3}
@@ -14659,10 +14934,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6099480750105424250, guid: 14c8f4374266346d4a6dcb80b7c6e47e,
+        type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7,
+        type: 2}
     - target: {fileID: 6099480750105424253, guid: 14c8f4374266346d4a6dcb80b7c6e47e,
         type: 3}
       propertyPath: m_Name
       value: Floor
+      objectReference: {fileID: 0}
+    - target: {fileID: 6099480750105424253, guid: 14c8f4374266346d4a6dcb80b7c6e47e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 14c8f4374266346d4a6dcb80b7c6e47e, type: 3}

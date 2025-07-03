@@ -1,65 +1,137 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class NextScene : StateMachineBehaviour
 {
-    // Static variable to hold the name or build index of the scene to load.
-    // This can be set from anywhere, e.g., your SceneSelectionPanelUI.
-    public static string TargetScene { get; set; } = null; // Default to null (no specific scene)
+    // --- STATIC STATE VARIABLES FOR TRANSITIONS ---
 
-    // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
+    // The immediate scene to load when OnStateExit is called.
+    public static string TargetScene { get; set; } = null;
+
+    // The name of the loading screen scene.
+    private static string LoadingSceneName { get; set; } = null;
+
+    // The final destination after the loading screen.
+    private static string FinalDestinationScene { get; set; } = null;
+
+    // How long to wait on the loading screen.
+    private static float LoadingScreenDuration { get; set; } = 0f;
+
+    // Flag to check if we are in a multi-step load.
+    private static bool IsUsingLoadingScreen => !string.IsNullOrEmpty(FinalDestinationScene);
+
+
+    // --- STATIC SETUP METHODS ---
+
+    /// <summary>
+    /// Configures the static variables for a transition that uses a loading screen.
+    /// </summary>
+    public static void SetupLoadingScreenTransition(string loadingScene, string finalScene, float duration)
+    {
+        LoadingSceneName = loadingScene;
+        FinalDestinationScene = finalScene;
+        LoadingScreenDuration = duration;
+        TargetScene = LoadingSceneName; // The first step is to load the loading screen.
+    }
+
+    /// <summary>
+    /// Resets all static transition variables to their default state.
+    /// </summary>
+    public static void ResetTransitionState()
+    {
+        TargetScene = null;
+        LoadingSceneName = null;
+        FinalDestinationScene = null;
+        LoadingScreenDuration = 0f;
+    }
+
+
+    // --- STATE MACHINE BEHAVIOUR METHOD ---
+
+    // OnStateExit is called when a transition ends and the state machine finishes evaluating this state.
+    // This will now handle loading EITHER the loading screen OR the final scene.
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         if (!string.IsNullOrEmpty(TargetScene))
         {
-            // Attempt to load by name first.
-            // You could also try to parse TargetScene as an int for build index.
+            Debug.Log($"Loading scene via StateExit: {TargetScene}");
+            SceneManager.LoadScene(TargetScene);
+            // The TargetScene is not reset here anymore. It's reset by the logic that sets up the next step.
+        }
+    }
 
-            //SceneManager.LoadScene(TargetScene);
-            
-            UIManager.Instance.loadingScreen.LoadScene(TargetScene);
-            //Debug.LogError($"Loading thru name {TargetScene}");
+    // --- SCENE LOAD EVENT HANDLING ---
+
+    // Static constructor ensures we subscribe to the sceneLoaded event exactly once.
+    static NextScene()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // Check if we just loaded the loading screen as part of a multi-step transition.
+        if (IsUsingLoadingScreen && scene.name == LoadingSceneName)
+        {
+            // We are on the loading screen. Create a temporary object to run a coroutine.
+            var host = new GameObject("LoadingScreenWaitCoroutineHost").AddComponent<CoroutineHost>();
+            host.StartWaitSequence(LoadingScreenDuration);
         }
         else
         {
-            // Default behavior: Load the next scene in the build index.
-            int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-            int nextSceneIndex = currentSceneIndex + 1;
-
-            // Check if the next scene index is valid
-            if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
-            {
-                //SceneManager.LoadScene(nextSceneIndex);
-                UIManager.Instance.loadingScreen.LoadScene(nextSceneIndex);
-                //Debug.LogError($"Loading thru index {nextSceneIndex}");
-                Debug.Log($"Loading next scene in build index: {nextSceneIndex}");
-            }
-            else
-            {
-                Debug.LogWarning("No more scenes in build settings to load as 'next scene'. Consider looping back to the main menu or first level.");
-                // Optional: Load the first scene as a fallback
-                // SceneManager.LoadScene(0);
-            }
+            // If we loaded any other scene (including the final destination),
+            // ensure the transition state is clean for the next time.
+            ResetTransitionState();
         }
-        // Reset TargetScene after loading so it doesn't affect the next default transition.
-        TargetScene = null;
     }
 
-    // It's good practice to reset static variables if the game might be reloaded
-    // or if the domain reloads (e.g., exiting play mode in editor).
+    // --- LIFECYCLE AND EDITOR HANDLING ---
+    
     #if UNITY_EDITOR
     [UnityEditor.InitializeOnEnterPlayMode]
     static void OnEnterPlaymodeInEditor(UnityEditor.EnterPlayModeOptions options)
     {
-        TargetScene = null;
+        ResetTransitionState();
     }
     #endif
 
-    // If you have a central game manager that handles game resets,
-    // you might also want to call ResetTargetScene() from there.
-    public static void ResetTargetScene()
+    // --- HELPER COMPONENT FOR COROUTINES ---
+
+    /// <summary>
+    /// A private MonoBehaviour helper class that can run Coroutines for us from a static context.
+    /// An instance of this is created and destroyed automatically when needed.
+    /// </summary>
+    private class CoroutineHost : MonoBehaviour
     {
-        TargetScene = null;
+        public void StartWaitSequence(float duration)
+        {
+            StartCoroutine(WaitAndProceed(duration));
+        }
+
+        private IEnumerator WaitAndProceed(float duration)
+        {
+            Debug.Log($"On loading screen. Waiting for {duration} seconds.");
+            yield return new WaitForSeconds(duration);
+
+            Debug.Log("Wait finished. Preparing to load final scene.");
+
+            // Set the next target to be the final destination.
+            NextScene.TargetScene = NextScene.FinalDestinationScene;
+
+            // Trigger the fade-out of the loading screen.
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.FadeIn();
+            }
+            else
+            {
+                Debug.LogError("UIManager instance not found! Cannot fade out of loading screen. Loading scene directly.");
+                SceneManager.LoadScene(NextScene.TargetScene);
+            }
+
+            // The coroutine is done, so we destroy the host object.
+            Destroy(gameObject);
+        }
     }
 }

@@ -27,6 +27,9 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     
     private TransformationItem transformation;
     private TransformationItem previousTransformation;
+
+    private Form currForm;
+    private Form prevForm;
     
     private GameObject smoke;
     private Animator smokeAnimator;
@@ -155,10 +158,10 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
             return;
         }
 
-        var form = transformation.GetForm();
+        Form form = transformation.GetForm();
 
         // Lockout functionality: if enabled, prevent transforming when charge is 0 (except for TERRY).
-        if (lockoutEnabled)
+        if (lockoutEnabled)             
         {
             if (LockoutProgresses[transformation.GetForm().transformation] <= 0 &&
                 form.transformation != Transformation.TERRY)
@@ -177,17 +180,17 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         } else {
             Debug.LogWarning("Ball form is temporarily disabled.");
         }
-
+    
         transformWheel.SetActive(false);
 
         // Lockout functionality: subtract lockout progress if not the same transformation.
         if (lockoutEnabled)
         {
-            if (previousTransformation != transformation)
+            if (Player.Instance.prevTransformation != Player.Instance.GetTransformation())
                 SubtractProgress(form.transformation, transformCost);
         }
         
-        Debug.Log("Current: " + transformation.GetForm().transformation + " Previous: " + previousTransformation.GetForm().transformation);
+        Debug.LogError("Current: " + form.transformation + " Previous: " + previousTransformation.GetForm().transformation);
         
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
     }

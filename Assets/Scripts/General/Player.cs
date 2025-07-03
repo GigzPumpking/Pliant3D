@@ -464,13 +464,14 @@ public class Player : KeyActionReceiver<Player>
         };
     }
 
+    public Transformation prevTransformation;
     public void SetTransformation(Transformation newTransformation)
     {
         if (transformation != newTransformation)
         {
             Smoke();
         }
-
+        prevTransformation = transformation;
         transformation = newTransformation;
 
         foreach (var entry in transformationMapping.Values)

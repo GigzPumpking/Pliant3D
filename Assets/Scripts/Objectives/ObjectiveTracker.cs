@@ -24,6 +24,9 @@ public class ObjectiveTracker : MonoBehaviour {
     
     private bool isClosed = true;
     private Animator animator;
+
+    public bool messyObjectives;
+    public float messyObjectiveTilt = 5f;
     
     private void OnEnable() {
         ObjectiveListing.OnObjectiveListingComplete += UICompleteObjective;
@@ -71,6 +74,7 @@ public class ObjectiveTracker : MonoBehaviour {
             
             //create all corresponding individual UI for the objective listing (probably going to move into some sort of object pool)
         }
+        SetMessyObjectives(messyObjectives);
     }
 
     void OpenTracker()
@@ -101,5 +105,28 @@ public class ObjectiveTracker : MonoBehaviour {
         objectiveListings.Clear();
         objectiveListingsUI.Clear();
         GetObjectiveDependencies();
+    }
+
+    public void SetMessyObjectives(bool set)
+    {
+        //rotate to look messy
+        if (set)
+        {
+            int idx = 1;
+            foreach (GameObject listing in objectiveListingsUI)
+            {
+                int flip = (idx % 2) == 0 ? -1 : 1;
+                listing.gameObject.transform.rotation = Quaternion.Euler(0f, 0f, messyObjectiveTilt * flip);
+                idx++;
+            }
+        }
+        //straight objectives to look neat
+        else
+        {
+            foreach (GameObject listing in objectiveListingsUI)
+            {
+                listing.gameObject.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+            }
+        }
     }
 }

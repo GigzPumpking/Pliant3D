@@ -190,7 +190,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
                 SubtractProgress(form.transformation, transformCost);
         }
         
-        Debug.LogError("Current: " + form.transformation + " Previous: " + previousTransformation.GetForm().transformation);
+        Debug.Log("Current: " + form.transformation + " Previous: " + previousTransformation.GetForm().transformation);
         
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
     }

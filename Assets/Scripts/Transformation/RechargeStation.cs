@@ -4,8 +4,9 @@ using Unity.VisualScripting;
 
 public class RechargeStation : MonoBehaviour {
     private TransformationWheel transformationWheel = null;
-    public static event Action OnRechargeStation;
+    public static event Action<float> OnRechargeStation;
     public bool activateOnce;
+    public float rechargeAmt = 100f;
     private bool hasActivated = false;
     public SpriteRenderer spriteRenderer;
     
@@ -19,7 +20,7 @@ public class RechargeStation : MonoBehaviour {
             hasActivated = true;
             
             //listened to by 'TransformationWheel.cs'
-            OnRechargeStation?.Invoke();
+            OnRechargeStation?.Invoke(rechargeAmt);
         }
     }
 }

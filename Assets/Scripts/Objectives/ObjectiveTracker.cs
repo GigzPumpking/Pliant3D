@@ -44,6 +44,11 @@ public class ObjectiveTracker : MonoBehaviour {
 
         GetObjectiveDependencies();
     }
+    
+    private void OnValidate()
+    {
+        SetMessyObjectives(messyObjectives);
+    }
 
     void Update()
     {

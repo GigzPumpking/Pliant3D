@@ -12,6 +12,7 @@ public class PM_MeditationData : ScriptableObject
     [Tooltip("Camera zoom for meditation. If you want no zoom, leave at 1.")]
     public float meditateCameraSizeRatio;
     [Tooltip("Should the player only be allowed to meditate when they're lockout out?")]
+    public bool onlyMeditateOnLockout;
 
     private void Awake()
     {

@@ -16,11 +16,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     public int hoveredSelection;
     [SerializeField] private int previousHover;
 
-    private bool isLockedOut
-    {
-        get { return IsLockedOut(); }
-        set => isLockedOut = value;
-    }
+    public bool isLockedOut => IsLockedOut();
     //private int numOfSelection = 4;
     
     [SerializeField] private GameObject transformWheel;

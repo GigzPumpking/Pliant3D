@@ -537,11 +537,11 @@ RectTransform:
   m_Father: {fileID: 1697005183143053796}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -486.30338, y: -156.09967}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 22, y: 371}
+  m_SizeDelta: {x: 163.4116, y: 163.41162}
+  m_Pivot: {x: 0, y: 1}
 --- !u!222 &7477024147765698153
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -843,6 +843,7 @@ GameObject:
   - component: {fileID: 5554935717656047753}
   - component: {fileID: 5554935717656047758}
   - component: {fileID: 6525110478477400788}
+  - component: {fileID: 7016785050889566476}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -891,11 +892,13 @@ MonoBehaviour:
   movementSpeed: 3
   canMove: 1
   transformation: 0
+  transformationWheelScript: {fileID: 0}
   transformationDuration: 10
   outOfBoundsY: -7
   minMoveThreshold: 0.05
   areaPositions: []
   _dbug: 0
+  prevTransformation: 0
 --- !u!54 &5554935717656047758
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -925,6 +928,21 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7016785050889566476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5554935717656047755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b995761cdfdcd5e47825d83d19f072eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _mData: {fileID: 11400000, guid: 81ae732f91b1d784e99c512f39e86546, type: 2}
+  volumePrefab: {fileID: 429783205890475306, guid: ee181593da1683448a9d0a5a0616fda0,
+    type: 3}
 --- !u!1 &5554935718065096685
 GameObject:
   m_ObjectHideFlags: 0
@@ -1983,10 +2001,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3

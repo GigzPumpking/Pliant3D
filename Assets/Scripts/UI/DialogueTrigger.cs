@@ -30,6 +30,7 @@ public class DialogueTrigger : MonoBehaviour
 
     void Start() {
         dialogue = UIManager.Instance.returnDialogue();
+        terryRequired.SetActive(false);
     }
 
     void OnDisable() {
@@ -81,6 +82,8 @@ public class DialogueTrigger : MonoBehaviour
             interactBubble.SetActive(false);
             inRadius = false;
             triggered = false;
+            
+            terryRequired.SetActive(false);
         }
     }
 
@@ -105,40 +108,36 @@ public class DialogueTrigger : MonoBehaviour
         }
         
         //INVOKE THE LIST OF EVENTS RELATED TO THIS DIALOGUE TRIGGER AFTER THE DIALOGUE IS COMPLETE
+        if (e.someEntry != dialogueLines[0]) return;
         foreach(var evt in events)
         {
             evt.Invoke();
         }
     }
 
+    private SpriteRenderer _sr = null;
     void Update()
     {
         if (InputManager.Instance?.ActiveDeviceType == "Keyboard" || InputManager.Instance?.ActiveDeviceType == "Mouse")
         {
-            SpriteRenderer sr = interactBubble.GetComponent<SpriteRenderer>();
-            if (sr != null)
-            {
-                sr.sprite = keyboardSprite;
-                interactBubble.transform.localScale = new Vector3(1, 1, 1);
-            }
+            if(!_sr) interactBubble.TryGetComponent<SpriteRenderer>(out _sr);
+            _sr.sprite = keyboardSprite;
+            interactBubble.transform.localScale = new Vector3(1, 1, 1);
         }
         else
         {
-            SpriteRenderer sr = interactBubble.GetComponent<SpriteRenderer>();
-            if (sr != null)
-            {
-                sr.sprite = controllerSprite;
-                interactBubble.transform.localScale = new Vector3(0.333f, 0.333f, 1f);
-            }
+            if(!_sr) interactBubble.TryGetComponent<SpriteRenderer>(out _sr);
+            _sr.sprite = controllerSprite;
+            interactBubble.transform.localScale = new Vector3(0.333f, 0.333f, 1f);
         }
+    }
 
-        // If the player is in the radius and is not in TERRY form, enable terryRequired, otherwise disable it.
-        if (inRadius)
+    private void OnTriggerStay(Collider other)
+    {
+        // If the player is in the radius and is not in TERRY form, enable terryRequired, otherwise disable it in 'OnTriggerExit()'
+        if (other.gameObject.CompareTag("Player"))
         {
             terryRequired.SetActive(Player.Instance.GetTransformation() != Transformation.TERRY);
-        } else
-        {
-            terryRequired.SetActive(false);
         }
     }
 }

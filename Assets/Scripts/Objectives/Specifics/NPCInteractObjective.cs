@@ -15,8 +15,11 @@ public class NPCInteractObjective : Objective {
         DialogueTrigger.InteractedObjective -= CheckCompletion;
     }
 
-    private void CheckCompletion(DialogueTrigger trigger) {
-        if(trigger == npcToInteractWith)
-            OnObjectiveComplete?.Invoke(this);
+    private void CheckCompletion(DialogueTrigger trigger)
+    {
+        if (trigger != npcToInteractWith) return;
+        isComplete = true;
+        OnObjectiveComplete?.Invoke(this);
+        InvokeCompletionEvents();
     }
 }

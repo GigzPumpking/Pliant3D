@@ -15,6 +15,8 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     public float currentAngle;
     public int hoveredSelection;
     [SerializeField] private int previousHover;
+
+    public bool isLockedOut => IsLockedOut();
     //private int numOfSelection = 4;
     
     [SerializeField] private GameObject transformWheel;
@@ -27,6 +29,9 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     
     private TransformationItem transformation;
     private TransformationItem previousTransformation;
+
+    private Form currForm;
+    private Form prevForm;
     
     private GameObject smoke;
     private Animator smokeAnimator;
@@ -60,12 +65,15 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     };
 
 
-    protected override Dictionary<string, Action<TransformationWheel, InputAction.CallbackContext>> KeyMapping => staticKeyMapping;
+    protected override Dictionary<string, Action<TransformationWheel, InputAction.CallbackContext>> KeyMapping
+    {
+        get { return staticKeyMapping; }
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        RechargeStation.OnRechargeStation += ReplenishLockout;
+        RechargeStation.OnRechargeStation += AddProgressToAllForms;
         smoke = Player.Instance.transform.Find("Smoke").gameObject;
         smokeAnimator = smoke.GetComponent<Animator>();
 
@@ -139,7 +147,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     }
 
     private void OnDestroy() {
-        RechargeStation.OnRechargeStation -= ReplenishLockout;
+        RechargeStation.OnRechargeStation -= AddProgressToAllForms;
     }
 
     public static event Action<Transformation> TransformedObjective;
@@ -155,10 +163,10 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
             return;
         }
 
-        var form = transformation.GetForm();
+        Form form = transformation.GetForm();
 
         // Lockout functionality: if enabled, prevent transforming when charge is 0 (except for TERRY).
-        if (lockoutEnabled)
+        if (lockoutEnabled)             
         {
             if (LockoutProgresses[transformation.GetForm().transformation] <= 0 &&
                 form.transformation != Transformation.TERRY)
@@ -177,17 +185,17 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         } else {
             Debug.LogWarning("Ball form is temporarily disabled.");
         }
-
+    
         transformWheel.SetActive(false);
 
         // Lockout functionality: subtract lockout progress if not the same transformation.
         if (lockoutEnabled)
         {
-            if (previousTransformation != transformation)
+            if (Player.Instance.prevTransformation != Player.Instance.GetTransformation())
                 SubtractProgress(form.transformation, transformCost);
         }
         
-        Debug.Log("Current: " + transformation.GetForm().transformation + " Previous: " + previousTransformation.GetForm().transformation);
+        Debug.Log("Current: " + form.transformation + " Previous: " + previousTransformation.GetForm().transformation);
         
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
     }
@@ -251,18 +259,17 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         else if (v.x >  0.5f) HandleControllerSelection(ctx, 0); // right
     }
 
-    int GetIntTransform()
+    int GetIntTransform(Transformation t)
     {
-        Transformation current = transformation.GetForm().transformation;
         // 0[BULLDOZER], 1[FROG], 2[BALL], 3[TERRY]
-        if (current == Transformation.BULLDOZER) return 0;
-        else if (current == Transformation.FROG) return 1;
+        if (t == Transformation.BULLDOZER) return 0;
+        else if (t == Transformation.FROG) return 1;
         //else if (current == Transformation.BALL) return 2;
-        else if (current == Transformation.TERRY) return 2;
+        else if (t == Transformation.TERRY) return 2;
         else return 0;
     }
 
-    public void SubtractProgress(Transformation t, float amt)
+    public void SubtractProgress(Transformation t, float amt = 25f)
     {
         // If lockout is disabled, do nothing.
         if (!lockoutEnabled) return;
@@ -276,25 +283,10 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         Debug.Log("Subtracting from lockout: " + amt + " Current Lockout Charge for " + t + " : " + LockoutProgresses[t]);
         LockoutProgresses[t] -= amt;
         lockoutBar.fillAmount = LockoutProgresses[t] / 100;
-        transformationFills[GetIntTransform()].fillAmount = LockoutProgresses[t] / 100;
-        if (LockoutProgresses[t] <= 0f) Locked();
-
-        bool isSoftLocked = true;
-        foreach (var x in LockoutProgresses)
-        {
-            if (x.Key == Transformation.TERRY) continue;
-            if (x.Value == 0) continue;
-            else
-            {
-                isSoftLocked = false;
-                break;
-            }
-        }
-        if (isSoftLocked)
-        {
-            softlockNotification.SetActive(true);
-            //SoftLockProtocol();
-        }
+        transformationFills[GetIntTransform(t)].fillAmount = LockoutProgresses[t] / 100;
+        if (LockoutProgresses[t] <= 0f) LockedOut();
+        
+        if (isLockedOut) LockedOut();
     }
 
     public bool breakSoftLock;
@@ -307,10 +299,9 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         softlockNotification.SetActive(false);
         Player.Instance.SetTransformation(Transformation.TERRY);
         //add obj tracker reset
-        
     }
 
-    public void AddProgress(Transformation t, float amt)
+    public void AddProgress(Transformation t, float amt = 25f)
     {
         // If lockout is disabled, do nothing.
         if (!lockoutEnabled) return;
@@ -325,21 +316,35 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         Debug.Log("Adding to lockout: " + amt + " Current Lockout Charge for " + t + " : " + LockoutProgresses[t]);
         LockoutProgresses[t] += amt;
         lockoutBar.fillAmount = LockoutProgresses[t] / 100;
-        transformationFills[GetIntTransform()].fillAmount = LockoutProgresses[t] / 100;
+        transformationFills[GetIntTransform(t)].fillAmount = LockoutProgresses[t] / 100;
         if (LockoutProgresses[t] >= maxLockoutCharge) LockoutProgresses[t] = maxLockoutCharge;
+        
+        if(!isLockedOut) LockedOut(false);
     }
 
-    public void ReplenishLockout() {
-        Debug.Log("Replenishing Lockout");
-        AddProgress(Transformation.BULLDOZER, maxLockoutCharge);
-        AddProgress(Transformation.BALL, maxLockoutCharge);
-        AddProgress(Transformation.FROG, maxLockoutCharge);
+    private void DisplayLockedOutNotification(bool set = true)
+    {
+        softlockNotification.SetActive(set);
+    }
 
-        foreach (var x in transformationFills) {
-            x.fillAmount = maxLockoutCharge;
+    private bool IsLockedOut()
+    {
+        bool isLocked = true;
+        foreach (var x in LockoutProgresses)
+        {
+            if (x.Value >= 0 && (x.Key != Transformation.TERRY))
+            {
+                isLocked = false;
+                break;
+            }
         }
-        
-        softlockNotification.SetActive(false);
+        return isLocked;
+    }
+    
+
+    public void AddProgressToAllForms(float customCharge = 100f) {
+        AddProgress(Transformation.BULLDOZER, customCharge);
+        AddProgress(Transformation.FROG, customCharge);
     }
 
     public void ResetProgress()
@@ -375,10 +380,9 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         }
     }
 
-    void Locked()
+    void LockedOut(bool set = true)
     {
-        // Handle any extra functionalities when locked out.
-        Debug.LogWarning("Locked Out!");
+        DisplayLockedOutNotification(set);
     }
 
     void HandleNulls()
@@ -402,7 +406,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
             {
                 transformationItems[0] = GameObject.Find("Bulldozer Menu Form");
                 transformationItems[1] = GameObject.Find("Frog Menu Form");
-                transformationItems[2] = GameObject.Find("Boulder Menu Form");
+                //transformationItems[2] = GameObject.Find("Boulder Menu Form");
                 transformationItems[3] = GameObject.Find("Terry Menu Form");
             }
             catch
@@ -417,7 +421,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
             {
                 transformationFills[0] = GameObject.Find("Fill Charge Bulldozer").GetComponent<Image>();
                 transformationFills[1] = GameObject.Find("Fill Charge Frog").GetComponent<Image>();
-                transformationFills[2] = GameObject.Find("Fill Charge Boulder").GetComponent<Image>();
+                //transformationFills[2] = GameObject.Find("Fill Charge Boulder").GetComponent<Image>();
                 transformationFills[3] = GameObject.Find("Fill Charge Terry").GetComponent<Image>();
             }
             catch

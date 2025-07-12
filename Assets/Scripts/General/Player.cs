@@ -58,7 +58,7 @@ public class Player : KeyActionReceiver<Player>
     // Transformation Variables
     public Transformation transformation = Transformation.TERRY;
     private Transform transformationWheel;
-    private TransformationWheel transformationWheelScript;
+    [HideInInspector] public TransformationWheel transformationWheelScript;
     private Dictionary<Transformation, (Transform group, SpriteRenderer sprite, Animator animator, FormScript script)> transformationMapping;
     private Transform smoke;
     private Transform shadow;
@@ -464,13 +464,14 @@ public class Player : KeyActionReceiver<Player>
         };
     }
 
+    public Transformation prevTransformation;
     public void SetTransformation(Transformation newTransformation)
     {
         if (transformation != newTransformation)
         {
             Smoke();
         }
-
+        prevTransformation = transformation;
         transformation = newTransformation;
 
         foreach (var entry in transformationMapping.Values)

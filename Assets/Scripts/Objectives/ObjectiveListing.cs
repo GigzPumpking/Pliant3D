@@ -4,6 +4,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Events;
+using UnityEngine.Serialization;
 
 public class ObjectiveListing : MonoBehaviour {
     [Header("UI")]
@@ -12,6 +14,7 @@ public class ObjectiveListing : MonoBehaviour {
     [Header("Objectives & Status")]
     public List<Objective> objectives = new();
     public bool isComplete;
+    [SerializeField] private List<UnityEvent> onCompletionEvents;
     
     public static event Action<ObjectiveListing> OnObjectiveListingComplete;
     private Dictionary<Objective, ObjectiveUI> _objectiveToUI;
@@ -40,25 +43,32 @@ public class ObjectiveListing : MonoBehaviour {
     }
 
     private void CheckCompletion() {
-        foreach (Objective objective in objectives) {
-            if (!objective || objective.isComplete) continue;
-            else return;
+        foreach (Objective objective in objectives)
+        {
+            if (!objective.isComplete) return;
         }
 
         isComplete = true;
         
         OnObjectiveListingComplete?.Invoke(this);
+        InvokeOnCompleteEvents();
         //will get listened to by 'ObjectiveTracker.cs', will play corresponding animation
     }
     
     //VERY inefficient for now
     private void SetCompletionOfObjective(Objective objective) {
-        if (objectives.Contains(objective)) {
+        if (objectives.Contains(objective))
+        {
             //handle the animations
             //bad for now
-            objectiveUIList.ElementAt(objectives.IndexOf(objective)).OnComplete();
+            if(objectiveUIList.Any()) objectiveUIList.ElementAt(objectives.IndexOf(objective)).OnComplete();
         }
         CheckCompletion();
+    }
+
+    private void InvokeOnCompleteEvents()
+    {
+        foreach(UnityEvent ev in onCompletionEvents) ev?.Invoke();
     }
     
 }

@@ -88,7 +88,7 @@ public class Dialogue : MonoBehaviour
         {
             textDisplay.text = "";
             animator.Play("DialogueHide");
-            EventDispatcher.Raise<EndDialogue>(new EndDialogue());
+            EventDispatcher.Raise<EndDialogue>(new EndDialogue(this.dialogueEntries[0].defaultText));
             EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
             Active = false;
         }

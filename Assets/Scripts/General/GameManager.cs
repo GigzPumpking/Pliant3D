@@ -15,6 +15,9 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     [SerializeField] private AudioData mainTheme;
 
+    // Main menu scene name
+    [SerializeField] private string mainMenuSceneName = "0 Main Menu";
+
     // Static key mapping shared across all GameManager instances.
     public static Dictionary<string, Action<GameManager, InputAction.CallbackContext>> staticKeyMapping =
         new Dictionary<string, Action<GameManager, InputAction.CallbackContext>>()
@@ -100,6 +103,12 @@ public class GameManager : KeyActionReceiver<GameManager>
     public void Quit()
     {
         Application.Quit();
+    }
+
+    public void MainMenu()
+    {
+        // Load the main menu scene
+        SceneManager.LoadScene(mainMenuSceneName);
     }
 
 }

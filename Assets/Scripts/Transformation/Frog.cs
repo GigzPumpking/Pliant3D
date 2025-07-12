@@ -12,7 +12,7 @@ public class Frog : FormScript
 
     [Header("Ground Check")]
     [SerializeField] private float raycastDistance = 1f;
-    [SerializeField] private float yOffset = 0.5f;
+    [SerializeField] private float yOffset = 0.2f;
 
     [Header("Pullable Box Settings")]
     [Tooltip("Center (local) of Pullable detection box")]
@@ -30,18 +30,30 @@ public class Frog : FormScript
     private Transform     closestObject;
 
     [Header("Hook & Pull Settings")]
-    [SerializeField] private float hookDuration = 1f;
-    [SerializeField] private float hookForce    = 10f;
+    [SerializeField] private float hookDuration = 1f; // This will now act as max pull duration
+    [SerializeField] private float hookForce    = 10f; // This is unused in the original script for pull, but keeping it.
+    [SerializeField] private float pullSpeed = 5f; // Max speed at which the object is pulled.
+    [Tooltip("Defines how the pull speed accelerates over time while holding the button.")]
+    [SerializeField] private AnimationCurve pullAccelerationCurve = AnimationCurve.EaseInOut(0, 0.1f, 1, 1); // New: Acceleration curve
 
     [Header("Pull Behavior")]
-    [SerializeField] private float stopOffset   = 0.1f;
-    [SerializeField] private AnimationCurve pullCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    [SerializeField] private float stopOffset   = -2f;
+    [SerializeField] private AnimationCurve pullCurve = AnimationCurve.EaseInOut(0, 0, 1, 1); // This curve might be less relevant for continuous pull.
 
     [Header("Grapple Line")]
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private bool useWorldSpace = true;
 
     private SpriteRenderer _spriteRenderer;
+
+    // New variables for continuous pull
+    private bool isPulling = false;
+    private Transform currentPullObject;
+    private Vector3 pullStartObjectPosition;
+    private Vector3 pullTargetPosition;
+    private float initialPullDistance;
+    private float currentPulledDistance = 0f;
+    private float pullElapsedTime = 0f; // New: To track how long the pull button has been held
 
     public override void Awake()
     {
@@ -78,6 +90,8 @@ public class Frog : FormScript
             highlightedObject.IsHighlighted = false;
         highlightedObject = null;
         closestObject   = null;
+        // Stop any ongoing pull
+        StopPullingObject(); // Call StopPullingObject to ensure player movement is re-enabled
     }
 
     private void OnDrawGizmos() {
@@ -117,15 +131,27 @@ public class Frog : FormScript
 
     public override void Ability2(InputAction.CallbackContext context)
     {
-        if (!context.performed || closestObject == null) return;
+        if (closestObject == null) return;
 
         var intr = closestObject.GetComponent<Interactable>();
-        if (intr.HasProperty("Hookable"))
-            GrapplingHook(closestObject);
-        else if (intr.HasProperty("Pullable"))
-            PullObject(closestObject);
+        if (intr == null) return;
 
-        EventDispatcher.Raise<StressAbility>(new StressAbility());
+        if (context.performed) // Button pressed (started)
+        {
+            if (intr.HasProperty("Hookable"))
+            {
+                GrapplingHook(closestObject);
+            }
+            else if (intr.HasProperty("Pullable"))
+            {
+                StartPullingObject(closestObject);
+            }
+            EventDispatcher.Raise<StressAbility>(new StressAbility());
+        }
+        else if (context.canceled) // Button released
+        {
+            StopPullingObject();
+        }
     }
 
     private void FixedUpdate()
@@ -135,6 +161,13 @@ public class Frog : FormScript
             Vector3.down,
             raycastDistance
         );
+
+        // Apply continuous pull if active
+        if (isPulling && currentPullObject != null)
+        {
+            pullElapsedTime += Time.fixedDeltaTime; // Increment elapsed time
+            ApplyContinuousPull();
+        }
     }
 
     private void Update()
@@ -145,7 +178,8 @@ public class Frog : FormScript
 
     private void UpdateGrappleLine()
     {
-        if (closestObject != null)
+        // Only show line renderer if an object is highlighted OR actively being pulled
+        if (highlightedObject != null || isPulling)
         {
             lineRenderer.enabled = true;
             Vector3 startCenter;
@@ -154,9 +188,9 @@ public class Frog : FormScript
             else                  startCenter = transform.position;
 
             Vector3 endCenter;
-            var targetCol = closestObject.GetComponent<Collider>();
+            var targetCol = (isPulling && currentPullObject != null) ? currentPullObject.GetComponent<Collider>() : closestObject?.GetComponent<Collider>();
             if (targetCol != null) endCenter = targetCol.bounds.center;
-            else                    endCenter = closestObject.position;
+            else                    endCenter = (isPulling && currentPullObject != null) ? currentPullObject.position : (closestObject != null ? closestObject.position : startCenter); // Fallback
 
             Vector3 startPos = useWorldSpace ? startCenter : lineRenderer.transform.InverseTransformPoint(startCenter);
             Vector3 endPos   = useWorldSpace ? endCenter : lineRenderer.transform.InverseTransformPoint(endCenter);
@@ -197,6 +231,9 @@ public class Frog : FormScript
             .OrderBy(i => Vector3.Distance(transform.position, i.transform.position))
             .FirstOrDefault();
 
+        // Don't change highlighting if currently pulling the highlighted object
+        if (isPulling && currentPullObject == nearest?.transform) return;
+
         if (nearest != highlightedObject)
         {
             if (highlightedObject != null)
@@ -235,6 +272,7 @@ public class Frog : FormScript
         Vector3 target = new Vector3(objPos.x, objPos.y + verticalGap, objPos.z);
 
         float elapsed = 0f;
+        Player.Instance.canMoveToggle(false); // Disable player movement when grappling
         while (elapsed < hookDuration)
         {
             float pct    = elapsed / hookDuration;
@@ -245,54 +283,121 @@ public class Frog : FormScript
             yield return null;
         }
         player.transform.position = target;
+        Player.Instance.canMoveToggle(true); // Re-enable player movement after grappling
     }
 
-    private void PullObject(Transform t)
+    private void StartPullingObject(Transform t)
     {
-        StartCoroutine(PullObjectCoroutine(t));
-    }
+        if (isPulling) return; // Already pulling an object
 
-    private IEnumerator PullObjectCoroutine(Transform t)
-    {
+        currentPullObject = t;
+        isPulling = true;
+        pullElapsedTime = 0f; // Reset elapsed time when starting a new pull
+        pullStartObjectPosition = t.position;
+
+        // Disable player movement
+        Player.Instance.canMoveToggle(false);
+
         Collider objCol = t.GetComponent<Collider>();
         Collider plrCol = player.GetComponentInChildren<Collider>();
-        if (objCol == null || plrCol == null) yield break;
+        if (objCol == null || plrCol == null)
+        {
+            StopPullingObject(); // Stop if colliders are missing
+            return;
+        }
 
         float objR = Mathf.Max(objCol.bounds.extents.x, objCol.bounds.extents.y, objCol.bounds.extents.z);
         float plrR = Mathf.Max(plrCol.bounds.extents.x, plrCol.bounds.extents.y, plrCol.bounds.extents.z);
         float gap  = objR + plrR + stopOffset;
 
-        Vector3 startPos = t.position;
-        float startY = startPos.y;
-
-        Vector3 flatDir = player.position - startPos;
+        Vector3 flatDir = player.position - pullStartObjectPosition;
         flatDir.y = 0f;
-        if (flatDir.sqrMagnitude < 0.0001f) yield break;
-        flatDir.Normalize();
-
-        Vector3 flatPlayer = new Vector3(player.position.x, startY, player.position.z);
-        Vector3 target     = flatPlayer - flatDir * gap;
-
-        float elapsed = 0f;
-        while (elapsed < hookDuration)
+        if (flatDir.sqrMagnitude < 0.0001f)
         {
-            float pct    = elapsed / hookDuration;
-            float curveT = pullCurve.Evaluate(pct);
-            Vector3 nextPos = Vector3.Lerp(startPos, target, curveT);
-            t.position = new Vector3(nextPos.x, startY, nextPos.z);
-
-            elapsed += Time.deltaTime;
-            yield return null;
+            pullTargetPosition = pullStartObjectPosition; // Prevent division by zero
         }
-        t.position = new Vector3(target.x, startY, target.z);
+        else
+        {
+            flatDir.Normalize();
+            Vector3 flatPlayer = new Vector3(player.position.x, pullStartObjectPosition.y, player.position.z);
+            pullTargetPosition = flatPlayer - flatDir * gap;
+        }
+        
+        initialPullDistance = Vector3.Distance(pullStartObjectPosition, pullTargetPosition);
+        currentPulledDistance = 0f; // Reset pulled distance
     }
 
-    // This method now gets direction from the Player script.
+    private void ApplyContinuousPull()
+    {
+        if (currentPullObject == null)
+        {
+            StopPullingObject();
+            return;
+        }
+
+        // Calculate the maximum distance the object *could* be pulled towards the player.
+        // This takes into account the `stopOffset` and the object/player collider sizes.
+        Collider objCol = currentPullObject.GetComponent<Collider>();
+        Collider plrCol = player.GetComponentInChildren<Collider>();
+        if (objCol == null || plrCol == null)
+        {
+            StopPullingObject();
+            return;
+        }
+
+        float objR = Mathf.Max(objCol.bounds.extents.x, objCol.bounds.extents.y, objCol.bounds.extents.z);
+        float plrR = Mathf.Max(plrCol.bounds.extents.x, plrCol.bounds.extents.y, plrCol.bounds.extents.z);
+        float minAllowedDistance = objR + plrR + stopOffset;
+
+        Vector3 currentFlatDir = player.position - currentPullObject.position;
+        currentFlatDir.y = 0f;
+
+        // If the object is already at or very close to the minimum distance, stop pulling.
+        if (currentFlatDir.magnitude <= minAllowedDistance + 0.01f) // Added a small epsilon
+        {
+            StopPullingObject();
+            return;
+        }
+        
+        Vector3 pullDirection = currentFlatDir.normalized;
+
+        float normalizedElapsedTime = Mathf.Clamp01(pullElapsedTime / hookDuration); // Clamped between 0 and 1
+        float curveFactor = pullAccelerationCurve.Evaluate(normalizedElapsedTime);
+
+        // Calculate the effective pull speed for this frame
+        float effectivePullSpeed = pullSpeed * curveFactor;
+
+        // Calculate the movement amount for this frame
+        float moveAmount = effectivePullSpeed * Time.fixedDeltaTime;
+
+        Vector3 newProposedPosition = currentPullObject.position + pullDirection * moveAmount;
+        Vector3 vectorToPlayer = player.position - newProposedPosition;
+        vectorToPlayer.y = 0f;
+
+        if (vectorToPlayer.magnitude < minAllowedDistance)
+        {
+            newProposedPosition = new Vector3(player.position.x, currentPullObject.position.y, player.position.z) - pullDirection * minAllowedDistance;
+        }
+
+        currentPullObject.position = new Vector3(newProposedPosition.x, currentPullObject.position.y, newProposedPosition.z);
+    }
+
+    private void StopPullingObject()
+    {
+        if (isPulling) // Only re-enable if we were actually pulling
+        {
+            Player.Instance.canMoveToggle(true); // Re-enable player movement
+        }
+        isPulling = false;
+        currentPullObject = null;
+        currentPulledDistance = 0f;
+        pullElapsedTime = 0f; // Reset elapsed time when stopping
+    }
+
     private void GetPullBoxTransform(out Vector3 worldCenter, out Quaternion worldRot)
     {
         Vector3 dirVec;
 
-        // Get the definitive direction from the Player singleton.
         if (Player.Instance != null)
         {
             dirVec = Player.Instance.AnimationBasedFacingDirection;

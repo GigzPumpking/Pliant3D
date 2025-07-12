@@ -36,8 +36,8 @@ public class Dialogue : MonoBehaviour
     }
 
     [SerializeField] private Animator animator;
-    string kbText = "Press 'E' to continue";
-    string controllerText = "Press 'Y' to continue";
+    [SerializeField] string kbText = "Press 'E' to continue";
+    [SerializeField] string controllerText = "Press 'Y' to continue";
 
     void OnEnable()
     {

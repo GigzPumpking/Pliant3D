@@ -2,23 +2,43 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
 public class PM_Meditation : MonoBehaviour
 {
-    [SerializeField] private PM_MeditationData _mData; 
+    [SerializeField] private PM_MeditationData _mData;
     [SerializeField] private GameObject volumePrefab;
     private Volume _volumeOverlay;
     private TransformationWheel _transformationWheel;
-    
-    private float _meditateZoom { get => _originalZoom * _mData.meditateCameraSizeRatio; }
-    private float _meditateAmount { get => 100*(_mData.meditateRecoverPercent/100f); } //the 100f in _meditateAmount is the maxLockoutCharge. Change accordingly
+
+    private float _meditateZoom
+    {
+        get => _originalZoom * _mData.meditateCameraSizeRatio;
+    }
+
+    private float _meditateAmount
+    {
+        get => 100 * (_mData.meditateRecoverPercent / 100f);
+    } //the 100f in _meditateAmount is the maxLockoutCharge. Change accordingly
+
     private float _originalZoom = 7.5f;
-    
+
     private bool _isMeditating = false;
     private Func<IEnumerator> meditateCo;
     
+    /*protected override Dictionary<string, Action<PM_Meditation, InputAction.CallbackContext>> KeyMapping
+    {
+        get { return StaticKeyMapping; }
+    }
+
+    public static Dictionary<string, Action<PM_Meditation, InputAction.CallbackContext>> StaticKeyMapping
+        = new Dictionary<string, Action<PM_Meditation, InputAction.CallbackContext>>()
+        {
+            { "MeditateButton", (w, ctx) => w.MeditateButton(ctx) }
+        };*/
+
     void Start()
     {
         _originalZoom = Camera.main.orthographicSize;
@@ -29,34 +49,40 @@ public class PM_Meditation : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Z) && !_isMeditating) Meditate();
+        if ((Input.GetKeyDown(KeyCode.Z)) && !_isMeditating) Meditate();
+        if(Gamepad.current != null && Gamepad.current.bButton.isPressed && !_isMeditating) Meditate();
     }
-
+    
+    /*private void MeditateButton(InputAction.CallbackContext ctx)
+    {
+        Meditate();
+    }*/
+    
     public void Meditate()
     {
-        if (!_transformationWheel.isLockedOut && _mData.onlyMeditateOnLockout) return;
+        if ((!_transformationWheel.isLockedOut && _mData.onlyMeditateOnLockout) 
+            || _isMeditating) return;
         
-        _isMeditating = true;
-        //StartCoroutine(MeditateCoroutine());
         StartCoroutine(meditateCo());
     }
 
     private IEnumerator MeditateCoroutine()
     {
-        Debug.LogError("Starting Meditation");
+        //Debug.LogError("Starting Meditation");
+        _isMeditating = true;
         while(!DoFancy()) yield return null;
         
         bool op = false;
         while (!op)
         {
-            Debug.LogError("Performing Meditation");
+            //Debug.LogError("Performing Meditation");
             _transformationWheel.AddProgressToAllForms(Time.deltaTime * _mData.meditateRate);
-            op = Player.Instance.transformationWheelScript.LockoutProgresses[Transformation.FROG] >= _meditateAmount && 
-                 Player.Instance.transformationWheelScript.LockoutProgresses[Transformation.BULLDOZER] >= _meditateAmount;
+            op = Player.Instance?.transformationWheelScript.LockoutProgresses[Transformation.FROG] >= _meditateAmount && 
+                 Player.Instance?.transformationWheelScript.LockoutProgresses[Transformation.BULLDOZER] >= _meditateAmount;
             yield return null;
         }
         
-        Debug.LogError("Done with Meditation");
+        //Debug.LogError("Done with Meditation");
         while(!UndoFancy()) yield return null;
         
         _isMeditating = false;

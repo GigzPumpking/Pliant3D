@@ -96,8 +96,8 @@ public class ObjectiveTracker : MonoBehaviour {
     
     private void UICompleteObjective(ObjectiveListing listing) {
         //destory them
-        Destroy(objectiveListingsUI.ElementAt(objectiveListings.IndexOf(listing)).gameObject);
-        Destroy(objectiveListings.ElementAt(objectiveListings.IndexOf(listing)).gameObject);
+        if(objectiveListingsUI.Contains(listing.gameObject)) Destroy(objectiveListingsUI?.ElementAt(objectiveListings.IndexOf(listing)).gameObject);
+        if(objectiveListings.Contains(listing)) Destroy(objectiveListings?.ElementAt(objectiveListings.IndexOf(listing)).gameObject);
         
         Debug.Log("Destroying UI listing");
     }

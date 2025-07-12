@@ -269,7 +269,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         else return 0;
     }
 
-    public void SubtractProgress(Transformation t, float amt)
+    public void SubtractProgress(Transformation t, float amt = 25f)
     {
         // If lockout is disabled, do nothing.
         if (!lockoutEnabled) return;
@@ -301,7 +301,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         //add obj tracker reset
     }
 
-    public void AddProgress(Transformation t, float amt)
+    public void AddProgress(Transformation t, float amt = 25f)
     {
         // If lockout is disabled, do nothing.
         if (!lockoutEnabled) return;

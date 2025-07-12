@@ -47,7 +47,9 @@ public class ObjectiveInteracted : Event
 
 public class EndDialogue : Event
 {
-
+    public string someEntry;
+    public EndDialogue(){ }
+    public EndDialogue(string data) => someEntry = data;
 }
 
 public class PlayGame : Event

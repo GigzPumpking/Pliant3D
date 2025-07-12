@@ -30,6 +30,7 @@ public class ObjectsToLocationsObjective : Objective {
         
         isComplete = true;
         OnObjectiveComplete?.Invoke(this); //Listened to by 'ObjectiveListing.cs'
+        InvokeCompletionEvents();
         Debug.Log($"{gameObject.name} has successfully been completed!");
     }
 }

@@ -49,8 +49,8 @@ public class PM_Meditation : MonoBehaviour
 
     void Update()
     {
-        if ((Input.GetKeyDown(KeyCode.Z)) && !_isMeditating) Meditate();
-        if(Gamepad.current != null && Gamepad.current.bButton.isPressed && !_isMeditating) Meditate();
+        if ((Input.GetKeyDown(KeyCode.Z))) Meditate();
+        if(Gamepad.current != null && Gamepad.current.bButton.isPressed) Meditate();
     }
     
     /*private void MeditateButton(InputAction.CallbackContext ctx)
@@ -60,9 +60,9 @@ public class PM_Meditation : MonoBehaviour
     
     public void Meditate()
     {
-        if ((!_transformationWheel.isLockedOut && _mData.onlyMeditateOnLockout) 
-            || _isMeditating) return;
-        
+        if (Player.Instance?.GetTransformation() != Transformation.TERRY) return;
+        if (_isMeditating) return;
+        if (_mData.onlyMeditateOnLockout && !Player.Instance.transformationWheelScript.isLockedOut) return;
         StartCoroutine(meditateCo());
     }
 

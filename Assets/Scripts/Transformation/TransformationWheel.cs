@@ -329,18 +329,16 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
 
     private bool IsLockedOut()
     {
-        bool isLockedOut = false;
+        bool isLocked = true;
         foreach (var x in LockoutProgresses)
         {
-            if (x.Key == Transformation.TERRY) continue;
-            if (x.Value == 0) continue;
-            else
+            if (x.Value >= 0 && (x.Key != Transformation.TERRY))
             {
-                isLockedOut = false;
+                isLocked = false;
                 break;
             }
         }
-        return isLockedOut;
+        return isLocked;
     }
     
 

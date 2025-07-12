@@ -75,7 +75,7 @@ public class Player : KeyActionReceiver<Player>
     // Other Variables
     [SerializeField] private float outOfBoundsY = -10f;
 
-    [SerializeField] private float minMoveThreshold = 0.05f;
+    [SerializeField] private float minMoveThreshold = 0.25f;
 
     [SerializeField] private Vector3[] areaPositions;
 
@@ -166,7 +166,7 @@ public class Player : KeyActionReceiver<Player>
     }
 
     void InteractHandler(InputAction.CallbackContext context) {
-        if (context.performed && transformation == Transformation.TERRY) {
+        if (context.performed) {
             EventDispatcher.Raise<Interact>(new Interact());
             
             if (inObjectiveInteractable)

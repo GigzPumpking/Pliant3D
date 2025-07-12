@@ -85,13 +85,13 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     // Update is called once per frame
     void Update()
     {
-        MouseHandler();
+        //MouseHandler();
         InputHandler();
     }
 
     private void MouseHandler()
     {
-        if (!(InputManager.Instance.ActiveDeviceType == "Keyboard") && !(InputManager.Instance.ActiveDeviceType == "Mouse")) 
+        if (!(InputManager.Instance.ActiveDeviceType == "Keyboard") && !(InputManager.Instance.ActiveDeviceType == "Mouse"))
         {
             return;
         }

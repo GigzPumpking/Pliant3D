@@ -284,7 +284,6 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         LockoutProgresses[t] -= amt;
         lockoutBar.fillAmount = LockoutProgresses[t] / 100;
         transformationFills[GetIntTransform(t)].fillAmount = LockoutProgresses[t] / 100;
-        if (LockoutProgresses[t] <= 0f) LockedOut();
         
         if (isLockedOut) LockedOut();
     }
@@ -329,16 +328,14 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
 
     private bool IsLockedOut()
     {
-        bool isLocked = true;
+        if (!LockoutProgresses.ContainsKey(Transformation.FROG) || !LockoutProgresses.ContainsKey(Transformation.BULLDOZER)) return false;
+
         foreach (var x in LockoutProgresses)
         {
-            if (x.Value >= 0 && (x.Key != Transformation.TERRY))
-            {
-                isLocked = false;
-                break;
-            }
+            if (x.Value > 0 && (x.Key != Transformation.TERRY)) return false;
         }
-        return isLocked;
+
+        return true;
     }
     
 

@@ -1148,7 +1148,7 @@ MonoBehaviour:
     pitch: 1
     loop: 0
   breakBoxCenter: {x: 0, y: 0.5, z: 1.5}
-  breakBoxSize: {x: 2, y: 1, z: 3}
+  breakBoxSize: {x: 3, y: 1, z: 3}
   sprintModifier: 2
 --- !u!1 &5554935718531090984
 GameObject:
@@ -1266,6 +1266,30 @@ MonoBehaviour:
   hookDuration: 0.75
   hookForce: 10
   pullSpeed: 5
+  pullAccelerationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   stopOffset: -2
   pullCurve:
     serializedVersion: 2

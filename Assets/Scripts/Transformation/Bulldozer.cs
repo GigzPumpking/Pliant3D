@@ -94,28 +94,9 @@ public class Bulldozer : FormScript
     }
 
     /// <summary>
-    /// Ability1 → Sprint
+    /// Ability1 → Hold to push AND tap to break any breakable in the box.
     /// </summary>
     public override void Ability1(InputAction.CallbackContext context)
-    {
-        if (context.performed)
-        {
-            speed = baseSpeed * sprintModifier;
-            // Set the "isSprinting" bool to true on the animator.
-            animator?.SetBool("isSprinting", true);
-        }
-        else if (context.canceled)
-        {
-            speed = baseSpeed;
-            // Set the "isSprinting" bool to false on the animator.
-            animator?.SetBool("isSprinting", false);
-        }
-    }
-
-    /// <summary>
-    /// Ability2 → Hold to push AND tap to break any breakable in the box.
-    /// </summary>
-    public override void Ability2(InputAction.CallbackContext context)
     {
         // --- On Button Press ---
         if (context.performed)
@@ -133,6 +114,25 @@ public class Bulldozer : FormScript
         else if (context.canceled)
         {
             PushState(false);
+        }
+    }
+
+    /// <summary>
+    /// Ability2 → Sprint
+    /// </summary>
+    public override void Ability2(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            speed = baseSpeed * sprintModifier;
+            // Set the "isSprinting" bool to true on the animator.
+            animator?.SetBool("isSprinting", true);
+        }
+        else if (context.canceled)
+        {
+            speed = baseSpeed;
+            // Set the "isSprinting" bool to false on the animator.
+            animator?.SetBool("isSprinting", false);
         }
     }
 

@@ -75,7 +75,7 @@ public class UIManager : KeyActionReceiver<UIManager>
         pauseMenu = transform.Find("Pause Menu").gameObject;
         pauseMain = pauseMenu.transform.Find("Pause Main").gameObject;
         controls = pauseMenu.transform.Find("Controls").gameObject;
-        settings = pauseMenu.transform.Find("Settings").gameObject;
+        settings = pauseMenu.transform.Find("SettingsMenu").gameObject;
         pauseButton = transform.Find("Pause Button").gameObject;
         pauseButtonText = pauseButton.GetComponentInChildren<TextMeshProUGUI>();
         resumeButton = pauseMenu.transform.Find("Resume Button").gameObject;

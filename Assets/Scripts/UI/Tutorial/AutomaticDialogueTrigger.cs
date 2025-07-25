@@ -19,7 +19,6 @@ public class AutomaticDialogueTrigger : MonoBehaviour
 
     void OnEnable()
     {
-        EventDispatcher.AddListener<Interact>(PlayerInteract);
         EventDispatcher.AddListener<EndDialogue>(EndDialogue);
     }
 
@@ -30,7 +29,6 @@ public class AutomaticDialogueTrigger : MonoBehaviour
 
     void OnDisable()
     {
-        EventDispatcher.RemoveListener<Interact>(PlayerInteract);
         EventDispatcher.RemoveListener<EndDialogue>(EndDialogue);
     }
     
@@ -109,19 +107,6 @@ public class AutomaticDialogueTrigger : MonoBehaviour
 
             _dialogue.SetDialogueEntries(entries);
         }
-    }
-
-    void PlayerInteract(Interact e)
-    {
-        if (_dialogue.IsActive() || triggered || (alreadyTriggered && !retriggerOnContact)) return;
-        
-        triggered = true;
-        alreadyTriggered = true;
-        _dialogue.Appear();
-        
-        InteractedObjective?.Invoke(this); //raise an interact here listened to by 'NPCInteractObjective.cs'
-        EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = false });
-
     }
 
     void EndDialogue(EndDialogue e)

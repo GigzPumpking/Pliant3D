@@ -67,15 +67,6 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
-                },
-                {
-                    "name": "MeditateButton",
-                    "type": "Button",
-                    "id": "06ab66a5-80a5-4388-b1a5-3ddd0926d3e9",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -362,28 +353,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "TransformKeyboard",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "b012caea-7975-46bb-a183-4e1518f26793",
-                    "path": "<Keyboard>/z",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "MeditateButton",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "d79de248-8817-442e-8219-ec75423261a7",
-                    "path": "<XInputController>/buttonEast",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Gamepad",
-                    "action": "MeditateButton",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -1203,6 +1172,45 @@
                     "processors": "",
                     "groups": "",
                     "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "PM_Meditation",
+            "id": "8a0cadc8-57d9-434b-88e2-b006f5d1374c",
+            "actions": [
+                {
+                    "name": "Meditate",
+                    "type": "Button",
+                    "id": "98bbe935-4e4d-43f7-bbf7-e389d7933e28",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "ef39a7d6-fcf9-4d22-89a3-9819ac7b288e",
+                    "path": "<Keyboard>/z",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Meditate",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6a6a2a8f-ce7c-4ac4-8cc4-7a87e63442fe",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Meditate",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

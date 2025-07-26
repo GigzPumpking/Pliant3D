@@ -47,7 +47,6 @@ public class Bulldozer : FormScript
     private float timeSinceSprintStopped = 0f;
     private bool isSprinting = false;
 
-    // --- NEW State Variables ---
     private Coroutine fadeCoroutine;
     private bool isFadingOut = false;
 
@@ -107,7 +106,6 @@ public class Bulldozer : FormScript
         }
     }
     
-    #region Unchanged_Code
     private void OnDrawGizmos()
     {
         #if UNITY_EDITOR
@@ -136,7 +134,6 @@ public class Bulldozer : FormScript
             PushState(false);
         }
     }
-    #endregion
 
     public override void Ability2(InputAction.CallbackContext context)
     {
@@ -154,6 +151,15 @@ public class Bulldozer : FormScript
     {
         DetectAndHighlightBreakables();
         HandleStamina();
+
+        if (isPushing)
+        {
+            animator?.SetBool("isPushing", true);
+        }
+        else
+        {
+            animator?.SetBool("isPushing", false);
+        }
     }
 
     private void HandleStamina()
@@ -202,7 +208,6 @@ public class Bulldozer : FormScript
 
         if (staminaCanvasGroup != null)
         {
-            // If a fade-out is happening, stop it
             if (fadeCoroutine != null)
             {
                 StopCoroutine(fadeCoroutine);
@@ -220,7 +225,6 @@ public class Bulldozer : FormScript
 
     private void StopSprint()
     {
-        // Only run the logic if we were actually sprinting
         if (!isSprinting && speed == baseSpeed) return;
         
         isSprinting = false;
@@ -231,23 +235,18 @@ public class Bulldozer : FormScript
     private IEnumerator FadeOutStaminaBar()
     {
         isFadingOut = true;
-
-        // 1. Pause for the specified delay once stamina is full.
         yield return new WaitForSeconds(staminaFadeOutDelay);
 
-        // 2. Fade out over the specified duration.
         float elapsedTime = 0f;
-        float startAlpha = staminaCanvasGroup.alpha; // Start from current alpha
+        float startAlpha = staminaCanvasGroup.alpha; 
         while (elapsedTime < staminaFadeDuration)
         {
             if (staminaCanvasGroup == null) yield break;
-            // Lerp from the starting alpha to 0
             staminaCanvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, elapsedTime / staminaFadeDuration);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
 
-        // 3. Ensure it's fully transparent at the end.
         if (staminaCanvasGroup != null)
         {
             staminaCanvasGroup.alpha = 0f;
@@ -256,6 +255,7 @@ public class Bulldozer : FormScript
         fadeCoroutine = null;
     }
     
+    // This method now also directly controls the "isPushing" animator parameter.
     public void PushState(bool state)
     {
         Physics.IgnoreLayerCollision(playerLayer, walkableLayer, state);

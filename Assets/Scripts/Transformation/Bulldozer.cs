@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class Bulldozer : FormScript
 {
-    protected override float baseSpeed { get; set; } = 7.0f;
+    protected override float baseSpeed { get; set; } = 6f;
     private int playerLayer = 3;
     private int walkableLayer = 7;
 
@@ -20,7 +20,7 @@ public class Bulldozer : FormScript
     [SerializeField] private Vector3 breakBoxSize = new Vector3(2f, 1f, 3f);
 
     [Header("Sprint Settings")]
-    [SerializeField] private float sprintModifier = 1.5f;
+    [SerializeField] private float sprintModifier = 2f;
 
     [Header("Sprint Stamina")]
     [Tooltip("The maximum amount of sprint stamina.")]

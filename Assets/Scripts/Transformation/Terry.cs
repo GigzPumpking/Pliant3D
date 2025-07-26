@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 public class Terry : FormScript
 {
-    protected override float baseSpeed { get; set; } = 5.0f;
+    protected override float baseSpeed { get; set; } = 6.0f;
 
     public override void OnEnable()
     {

@@ -334,13 +334,21 @@ public class Player : KeyActionReceiver<Player>
         }
 
         bool isFlippedX = selectedGroupSprite.flipX;
-        string spriteName = GetCurrentSpriteName(); 
+        string spriteName = GetCurrentSpriteName();
 
         // Sprites with specific "Left" or "Right" directions
         // These function as if isFlippedX is false or true, respectively, ignoring the variable.
         if (spriteName.StartsWith("FrontLeft"))
         {
-            dirVec = Vector3.left;   // South (FACING DOWN)
+            // if Transformation is BULLDOZER, use the isFlippedX to determine direction
+            if (transformation == Transformation.BULLDOZER)
+            {
+                dirVec = isFlippedX ? Vector3.back : Vector3.left; // South (FACING DOWN) or West (FACING LEFT)
+            }
+            else
+            {
+                dirVec = Vector3.left;   // South (FACING DOWN)
+            }
         }
         else if (spriteName.StartsWith("FrontRight"))
         {
@@ -348,7 +356,14 @@ public class Player : KeyActionReceiver<Player>
         }
         else if (spriteName.StartsWith("BackLeft"))
         {
-            dirVec = Vector3.forward;    // West (FACING LEFT)
+            if (transformation == Transformation.BULLDOZER)
+            {
+                dirVec = isFlippedX ? Vector3.right : Vector3.forward; // North (FACING UP) or West (FACING LEFT)
+            }
+            else
+            {
+                dirVec = Vector3.forward;    // West (FACING LEFT)
+            }
         }
         else if (spriteName.StartsWith("BackRight"))
         {

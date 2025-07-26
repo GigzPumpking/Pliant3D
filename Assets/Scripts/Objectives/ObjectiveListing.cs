@@ -9,6 +9,7 @@ using UnityEngine.Serialization;
 
 public class ObjectiveListing : MonoBehaviour {
     [Header("UI")]
+    public GameObject objectiveListingPrefab = default;
     public List<ObjectiveUI> objectiveUIList = new();
     
     [Header("Objectives & Status")]

@@ -10,7 +10,7 @@ using System;
 public class ObjectiveTracker : MonoBehaviour {
     [Header("UI Prefabs"), Tooltip("The format of how Objective UI's will be presented.")]
     public GameObject objectiveUIPrefab = default;
-    public GameObject objectiveListingPrefab = default;
+    public GameObject objectiveListingPrefabFallback = default;
     
     [Header("UI Containers")] [SerializeField]
     public GameObject objectiveListingsUIHolder = default;
@@ -21,12 +21,15 @@ public class ObjectiveTracker : MonoBehaviour {
         
     [Header("Managing Variables (Populates during runtime)")]
     [SerializeField] private List<ObjectiveListing> objectiveListings = new();
+
+    [Header("Objective Tracker Optionals")]
+    public bool tapeTogetherObjectives;
+    public float tapeSpacing = 5f;
+    public bool messyObjectives;
+    public float messyObjectiveTilt = 5f;
     
     private bool isClosed = true;
     private Animator animator;
-
-    public bool messyObjectives;
-    public float messyObjectiveTilt = 5f;
     
     private void OnEnable() {
         ObjectiveListing.OnObjectiveListingComplete += UICompleteObjective;
@@ -74,8 +77,10 @@ public class ObjectiveTracker : MonoBehaviour {
             //add it to the tracker
             objectiveListings.Add(listingObject);
             //add an instance of the Objective Listing UI to the tracker
+            var prefabToUse = !listingObject.objectiveListingPrefab ? objectiveListingPrefabFallback : listingObject.objectiveListingPrefab;
+            
             objectiveListingsUI.Add(
-                ObjectiveUIFactory.CreateObjectiveListingUI(listingObject, objectiveListingPrefab, objectiveUIPrefab, objectiveListingsUIHolder));
+                ObjectiveUIFactory.CreateObjectiveListingUI(listingObject, prefabToUse, objectiveUIPrefab, objectiveListingsUIHolder));
             
             //create all corresponding individual UI for the objective listing (probably going to move into some sort of object pool)
         }

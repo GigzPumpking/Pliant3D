@@ -33,9 +33,12 @@ public class IsometricCamera : MonoBehaviour
     }
 
     public void SetTargetPos() {
-        if (followTarget == null) {
+        if (followTarget == null && GameManager.Instance?.GetPlayer() != null) {
             followTarget = GameManager.Instance.GetPlayer();
         }
+
+        if (followTarget == null) return;
+
         targetPos = new Vector3(followTarget.position.x + xOffset, followTarget.position.y + yOffset, followTarget.position.z + zOffset);
     }
 }

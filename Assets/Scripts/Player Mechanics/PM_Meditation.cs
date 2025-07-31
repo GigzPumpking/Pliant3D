@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-public class PM_Meditation : MonoBehaviour
+public class PM_Meditation : KeyActionReceiver<PM_Meditation>
 {
     [SerializeField] private PM_MeditationData _mData;
     [SerializeField] private GameObject volumePrefab;
@@ -27,17 +27,14 @@ public class PM_Meditation : MonoBehaviour
 
     private bool _isMeditating = false;
     private Func<IEnumerator> meditateCo;
-    
-    /*protected override Dictionary<string, Action<PM_Meditation, InputAction.CallbackContext>> KeyMapping
-    {
-        get { return StaticKeyMapping; }
-    }
 
-    public static Dictionary<string, Action<PM_Meditation, InputAction.CallbackContext>> StaticKeyMapping
-        = new Dictionary<string, Action<PM_Meditation, InputAction.CallbackContext>>()
+    public static Dictionary<string, Action<PM_Meditation, InputAction.CallbackContext>> staticKeyMapping =
+        new Dictionary<string, Action<PM_Meditation, InputAction.CallbackContext>>()
         {
-            { "MeditateButton", (w, ctx) => w.MeditateButton(ctx) }
-        };*/
+            { "Meditate", (w, ctx) => w.MeditateButton(ctx) }
+        };
+
+    protected override Dictionary<string, Action<PM_Meditation, InputAction.CallbackContext>> KeyMapping => staticKeyMapping;
 
     void Start()
     {
@@ -49,14 +46,14 @@ public class PM_Meditation : MonoBehaviour
 
     void Update()
     {
-        if ((Input.GetKeyDown(KeyCode.Z))) Meditate();
+        //if ((Input.GetKeyDown(KeyCode.Z))) Meditate();
         if(Gamepad.current != null && Gamepad.current.bButton.isPressed) Meditate();
     }
     
-    /*private void MeditateButton(InputAction.CallbackContext ctx)
+    private void MeditateButton(InputAction.CallbackContext ctx)
     {
         Meditate();
-    }*/
+    }
     
     public void Meditate()
     {

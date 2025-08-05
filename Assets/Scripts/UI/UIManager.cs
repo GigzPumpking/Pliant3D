@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -41,6 +42,7 @@ public class UIManager : KeyActionReceiver<UIManager>
     {
         get
         {
+            if (pauseMenu == null) return false;
             return pauseMenu.activeSelf;
         }
     }
@@ -72,22 +74,15 @@ public class UIManager : KeyActionReceiver<UIManager>
 
         dialogueScript = transform.Find("DialogueBox").GetComponent<Dialogue>();
 
-        pauseMenu = transform.Find("Pause Menu").gameObject;
-        pauseMain = pauseMenu.transform.Find("Pause Main").gameObject;
-        controls = pauseMenu.transform.Find("Controls").gameObject;
-        settings = pauseMenu.transform.Find("SettingsMenu").gameObject;
-        pauseButton = transform.Find("Pause Button").gameObject;
-        pauseButtonText = pauseButton.GetComponentInChildren<TextMeshProUGUI>();
-        resumeButton = pauseMenu.transform.Find("Resume Button").gameObject;
-
-        pauseMenu.SetActive(false);
+        pauseMenu?.SetActive(false);
         UpdatePauseButtonVisibility();
 
         EventDispatcher.AddListener<NewSceneLoaded>(FadeOut);
         EventDispatcher.AddListener<NewSceneLoaded>(OnSceneChanged);
     }
 
-    void Update() {
+    void Update()
+    {
         /*
         if (InputManager.Instance?.ActiveDeviceType == "Keyboard" || InputManager.Instance?.ActiveDeviceType == "Mouse") {
             pauseButtonText.text = pauseButtonTextKb;
@@ -95,6 +90,19 @@ public class UIManager : KeyActionReceiver<UIManager>
             pauseButtonText.text = pauseButtonTextController;
         }
         */
+    }
+
+    private void GrabDependencies()
+    {
+        if (SceneManager.GetActiveScene().buildIndex == 0 
+            || SceneManager.GetActiveScene().buildIndex == 1) return;
+        pauseMenu = transform.Find("Pause Menu").gameObject;
+        pauseMain = pauseMenu.transform.Find("Pause_Main").gameObject;
+        controls = pauseMenu.transform.Find("Controls").gameObject;
+        settings = pauseMenu.transform.Find("Settings").gameObject;
+        pauseButton = transform.Find("Pause Button").gameObject;
+        pauseButtonText = pauseButton.GetComponentInChildren<TextMeshProUGUI>();
+        resumeButton = pauseMenu.transform.Find("Resume Button").gameObject;
     }
 
     public void Pause() {
@@ -140,10 +148,13 @@ public class UIManager : KeyActionReceiver<UIManager>
         {
             UpdatePauseButtonVisibility();
         }
+        
+        GrabDependencies();
     }
 
     private void UpdatePauseButtonVisibility()
     {
+        if (!pauseButton) return;
         string currentSceneName = SceneManager.GetActiveScene().name;
         // If the current scene is in our list, hide the button. Otherwise, show it.
         bool shouldHide = scenesToHidePauseIn.Contains(currentSceneName);

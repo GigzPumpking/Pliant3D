@@ -49,7 +49,7 @@ public class ObjectiveTimer : MonoBehaviour
     {
         if (timerText != null)
         {
-            timerText.text = "Time Left: " + currentTime.ToString("F0");
+            timerText.text = "Deadline: " + currentTime.ToString("F0") + " seconds";
         }
 
         if (timerSlider != null)

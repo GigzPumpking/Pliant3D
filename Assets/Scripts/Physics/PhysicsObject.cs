@@ -11,6 +11,8 @@ public class PhysicsObject : MonoBehaviour
     private Vector3 initialPosition;
     private Quaternion initialRotation;
 
+    [SerializeField] private float resetThresholdY = -5f; // Example threshold for reset
+
     void Start()
     {
         initialPosition = transform.position;
@@ -31,6 +33,15 @@ public class PhysicsObject : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Floor"))
+        {
+            ResetObject();
+        }
+    }
+
+    // Reset the object if it goes falls below a certain Y threshold
+    private void Update()
+    {
+        if (transform.position.y < resetThresholdY)
         {
             ResetObject();
         }

@@ -1174,7 +1174,7 @@ MonoBehaviour:
   transformation: 0
   transformationWheelScript: {fileID: 0}
   transformationDuration: 10
-  outOfBoundsY: -7
+  outOfBoundsY: -10
   minMoveThreshold: 0.05
   areaPositions: []
   _dbug: 0
@@ -1551,12 +1551,13 @@ MonoBehaviour:
     pitch: 1
     loop: 0
   jumpForce: 6
+  jumpCooldown: 0.75
   groundLayer:
     serializedVersion: 2
     m_Bits: 1015
-  jumpCooldown: 0.75
   raycastDistance: 0.35
   yOffset: 0.2
+  verticalVelocityThreshold: 0.1
   pullBoxCenter: {x: 0, y: 0.5, z: 3}
   pullBoxSize: {x: 2, y: 1, z: 7}
   grappleBoxCenter: {x: 0, y: 3, z: 4.5}

@@ -20,6 +20,8 @@ public class ObjectiveTimer : MonoBehaviour
 
     [SerializeField] private GameObject gameOverPanel;
 
+    private bool isGameOver = false;
+
     void Start()
     {
         currentTime = totalTime;
@@ -41,13 +43,15 @@ public class ObjectiveTimer : MonoBehaviour
 
             UpdateUI();
         }
-        else
+        else if (!isGameOver)
         {
             currentTime = 0;
 
             gameOverPanel.SetActive(true);
 
             Player.Instance.canMoveToggle(false);
+
+            isGameOver = true;
         }
     }
 
@@ -68,11 +72,13 @@ public class ObjectiveTimer : MonoBehaviour
     {
         // Reset the time scale to normal
 
+        currentTime = totalTime;
+
         Player.Instance.canMoveToggle(true);
 
-        Scene currentScene = SceneManager.GetActiveScene();
+        GameManager.Instance?.Reset();
 
-        SceneManager.LoadScene(currentScene.buildIndex);
+        isGameOver = false;
     }
 
     public void Quit()

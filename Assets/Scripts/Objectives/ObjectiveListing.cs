@@ -69,7 +69,10 @@ public class ObjectiveListing : MonoBehaviour {
 
     private void InvokeOnCompleteEvents()
     {
-        foreach(UnityEvent ev in onCompletionEvents) ev?.Invoke();
+        foreach (UnityEvent ev in this.onCompletionEvents)
+        {
+            ev?.Invoke();
+        }
     }
     
 }

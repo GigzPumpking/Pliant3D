@@ -704,7 +704,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1391,7 +1391,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8973285710650136023
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1460,7 +1460,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &5554935718531090985
 Transform:
   m_ObjectHideFlags: 0
@@ -1551,8 +1551,12 @@ MonoBehaviour:
     pitch: 1
     loop: 0
   jumpForce: 6
-  raycastDistance: 1
-  yOffset: 0.5
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 1015
+  jumpCooldown: 0.75
+  raycastDistance: 0.35
+  yOffset: 0.2
   pullBoxCenter: {x: 0, y: 0.5, z: 3}
   pullBoxSize: {x: 2, y: 1, z: 7}
   grappleBoxCenter: {x: 0, y: 3, z: 4.5}

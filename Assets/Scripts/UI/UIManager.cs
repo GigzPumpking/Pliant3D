@@ -26,7 +26,7 @@ public class UIManager : KeyActionReceiver<UIManager>
     private GameObject controls;
     private GameObject settings;
     private GameObject pauseButton;
-    
+
     private TextMeshProUGUI pauseButtonText;
 
     [SerializeField] private string pauseButtonTextKb = "PAUSE (ESC)";
@@ -34,7 +34,7 @@ public class UIManager : KeyActionReceiver<UIManager>
     private GameObject resumeButton;
 
     [SerializeField] private AudioData pauseSound;
-    
+
     [SerializeField] private List<string> scenesToHidePauseIn = new List<string>();
 
     public bool isPaused
@@ -75,7 +75,7 @@ public class UIManager : KeyActionReceiver<UIManager>
         pauseMenu = transform.Find("Pause Menu").gameObject;
         pauseMain = pauseMenu.transform.Find("Pause Main").gameObject;
         controls = pauseMenu.transform.Find("Controls").gameObject;
-        settings = pauseMenu.transform.Find("SettingsMenu").gameObject;
+        settings = pauseMenu.transform.Find("Settings").gameObject;
         pauseButton = transform.Find("Pause Button").gameObject;
         pauseButtonText = pauseButton.GetComponentInChildren<TextMeshProUGUI>();
         resumeButton = pauseMenu.transform.Find("Resume Button").gameObject;
@@ -87,7 +87,8 @@ public class UIManager : KeyActionReceiver<UIManager>
         EventDispatcher.AddListener<NewSceneLoaded>(OnSceneChanged);
     }
 
-    void Update() {
+    void Update()
+    {
         /*
         if (InputManager.Instance?.ActiveDeviceType == "Keyboard" || InputManager.Instance?.ActiveDeviceType == "Mouse") {
             pauseButtonText.text = pauseButtonTextKb;
@@ -97,17 +98,21 @@ public class UIManager : KeyActionReceiver<UIManager>
         */
     }
 
-    public void Pause() {
+    public void Pause()
+    {
         // Pause the game
         AudioManager.Instance?.PlayOneShot(pauseSound);
 
         // no null checks here since I want to know if there is something not being found
-        if (pauseMenu.activeSelf) {
+        if (pauseMenu.activeSelf)
+        {
             UpdatePauseButtonVisibility();
             resumeButton?.SetActive(false);
             pauseMenu?.SetActive(false);
             Time.timeScale = 1;
-        } else {
+        }
+        else
+        {
             pauseMenu?.SetActive(true);
             pauseMain?.SetActive(true);
             controls?.SetActive(false);
@@ -118,10 +123,14 @@ public class UIManager : KeyActionReceiver<UIManager>
         }
     }
 
-    public void Quit() {
-        if (GameManager.Instance != null) {
+    public void Quit()
+    {
+        if (GameManager.Instance != null)
+        {
             GameManager.Instance.Quit();
-        } else {
+        }
+        else
+        {
             Application.Quit();
         }
     }
@@ -209,5 +218,11 @@ public class UIManager : KeyActionReceiver<UIManager>
                 }
             }
         }
+    }
+
+    public void ResetLevel()
+    {
+        Scene currentScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(currentScene.buildIndex);
     }
 }

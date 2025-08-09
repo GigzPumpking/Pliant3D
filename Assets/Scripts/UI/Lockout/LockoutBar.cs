@@ -1,7 +1,10 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
+using Object = System.Object;
 
 public class LockoutBar : MonoBehaviour
 {
@@ -11,28 +14,30 @@ public class LockoutBar : MonoBehaviour
     [SerializeField] private GameObject lockoutBar;
     [SerializeField] private int maxLockoutCharges = 4;
     
-    internal class TransformationLOData
-    {
-        public LockoutBarUI LockoutBarUI;
+    [SerializeField] private GameObject terryIcon;
+    [SerializeField] private GameObject frogIcon;
+    [SerializeField] private GameObject bulldozerIcon;
 
-        public int currentCharge
-        {
-            get => _currCharge;
-            set
-            {
-                LockoutBarUI.SetCharge(value);
-                _currCharge = value;
-            }
-        }
+    [SerializeField] private GameObject lockoutBarPrefab;
+    [SerializeField] private GameObject chargePrefab;
 
-        private int _currCharge;
-    }
-
-    private Dictionary<Transformation, TransformationLOData> _lockoutTransformations = new Dictionary<Transformation, TransformationLOData>();
+    public Dictionary<Transformation, TransformationLOData> LockoutTransformations = new Dictionary<Transformation, TransformationLOData>();
     private void Awake()
     {
         if (!instance) instance = this;
         else Destroy(this.gameObject);
+    }
+
+    private void OnEnable()
+    {
+        TransformationWheel.OnTransform += SubtractCharge;
+        PM_Meditation.OnMeditate += AddCharge;
+    }
+
+    private void OnDisable()
+    {
+        TransformationWheel.OnTransform -= SubtractCharge;
+        PM_Meditation.OnMeditate -= AddCharge;
     }
 
     private void Start()
@@ -41,30 +46,91 @@ public class LockoutBar : MonoBehaviour
         InitializeTransformations();
     }
 
+    private TransformationLOData _terryData = new TransformationLOData();
+    private TransformationLOData _frogData = new TransformationLOData();
+    private TransformationLOData _bulldozerData = new TransformationLOData();
     private void InitializeTransformationData()
     {
-        _lockoutTransformations.TryAdd(Transformation.TERRY, new TransformationLOData());
-        _lockoutTransformations.TryAdd(Transformation.FROG, new TransformationLOData());
-        _lockoutTransformations.TryAdd(Transformation.BULLDOZER, new TransformationLOData());
+        LockoutTransformations.TryAdd(Transformation.TERRY, _terryData);
+        LockoutTransformations.TryAdd(Transformation.FROG, _frogData);
+        LockoutTransformations.TryAdd(Transformation.BULLDOZER, _bulldozerData);
     }
     
     private void InitializeTransformations()
     {
-        if (!_lockoutTransformations.Any()) return;
-        foreach (TransformationLOData data in _lockoutTransformations.Values)
+        if (!LockoutTransformations.Any()) return;
+        foreach (TransformationLOData data in LockoutTransformations.Values)
         {
-            data.LockoutBarUI.CreateLockoutUI(maxLockoutCharges);
+            GameObject holder = GameObject.Instantiate(lockoutBarPrefab, lockoutBar.transform); //HOLDER OBJECT
+            holder.name = "Holder";
+
+            LockoutBarUI currUI = holder.AddComponent<LockoutBarUI>();
+            data.LockoutBarUI = currUI;
+        }
+        
+        _terryData.LockoutBarUI.SetIcon(terryIcon);
+        _frogData.LockoutBarUI.SetIcon(frogIcon);
+        _bulldozerData.LockoutBarUI.SetIcon(bulldozerIcon);
+
+        foreach (TransformationLOData data in LockoutTransformations.Values)
+        {
+            data.LockoutBarUI.CreateLockoutUI(maxLockoutCharges, chargePrefab);
             data.currentCharge = maxLockoutCharges;
         }
     }
     
+    //add lockout functionality
+    //change UI based on form
     public void AddCharge(Transformation transformation)
     {
-        _lockoutTransformations[transformation].currentCharge++;
+        SetCurrentLockoutBarActive(transformation);
+        LockoutTransformations[transformation].currentCharge++;
     }
     
     public void SubtractCharge(Transformation transformation)
     {
-        _lockoutTransformations[transformation].currentCharge--;
+        SetCurrentLockoutBarActive(transformation);
+        LockoutTransformations[transformation].currentCharge--;
     }
+
+    public bool IsAnyLockedOut()
+    {
+        foreach (TransformationLOData data in LockoutTransformations.Values)
+        {
+            if (data.currentCharge <= 0)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void SetCurrentLockoutBarActive(Transformation transformation)
+    {
+        foreach (Transformation data in LockoutTransformations.Keys)
+        {
+            if(data == transformation) LockoutTransformations[data].LockoutBarUI.gameObject.SetActive(true);
+            else LockoutTransformations[data].LockoutBarUI.gameObject.SetActive(false);
+        }
+    }
+}
+
+[System.Serializable]
+public class TransformationLOData
+{
+    public TransformationLOData(){}
+    public TransformationLOData(int maxCharges){ currentCharge = maxCharges; }
+    public LockoutBarUI LockoutBarUI = null;
+    public int currentCharge
+    {
+        get => _currCharge;
+        set
+        {
+            Debug.LogWarning($"Current charge is {value}");
+            LockoutBarUI.SetCharge(value);
+            _currCharge = value;
+        }
+    }
+
+    private int _currCharge;
 }

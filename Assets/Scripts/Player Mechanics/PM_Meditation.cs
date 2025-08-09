@@ -12,19 +12,14 @@ public class PM_Meditation : KeyActionReceiver<PM_Meditation>
     [SerializeField] private GameObject volumePrefab;
     private Volume _volumeOverlay;
     private TransformationWheel _transformationWheel;
+    public static event Action<Transformation> OnMeditate; //Listened to by LockoutBar.cs
 
     private float _meditateZoom
     {
         get => _originalZoom * _mData.meditateCameraSizeRatio;
     }
 
-    private float _meditateAmount
-    {
-        get => 100 * (_mData.meditateRecoverPercent / 100f);
-    } //the 100f in _meditateAmount is the maxLockoutCharge. Change accordingly
-
     private float _originalZoom = 7.5f;
-
     private bool _isMeditating = false;
     private Func<IEnumerator> meditateCo;
 
@@ -47,7 +42,9 @@ public class PM_Meditation : KeyActionReceiver<PM_Meditation>
     void Update()
     {
         //if ((Input.GetKeyDown(KeyCode.Z))) Meditate();
-        if(Gamepad.current != null && Gamepad.current.bButton.isPressed) Meditate();
+        if((Gamepad.current != null && Gamepad.current.bButton.isPressed) || Input.GetKeyDown(KeyCode.Z)) Meditate();
+        
+        if(_isMeditating && Input.anyKeyDown) StopCoroutine(meditateCo());
     }
     
     private void MeditateButton(InputAction.CallbackContext ctx)
@@ -59,7 +56,8 @@ public class PM_Meditation : KeyActionReceiver<PM_Meditation>
     {
         if (Player.Instance?.GetTransformation() != Transformation.TERRY) return;
         if (_isMeditating) return;
-        if (_mData.onlyMeditateOnLockout && !Player.Instance.transformationWheelScript.isLockedOut) return;
+        if (_mData.onlyMeditateOnLockout && LockoutBar.Instance.IsAnyLockedOut()) return;
+        
         StartCoroutine(meditateCo());
     }
 
@@ -70,14 +68,20 @@ public class PM_Meditation : KeyActionReceiver<PM_Meditation>
         while(!DoFancy()) yield return null;
         
         bool op = false;
-        while (!op)
+        /*while (!op)
         {
             //Debug.LogError("Performing Meditation");
             _transformationWheel.AddProgressToAllForms(Time.deltaTime * _mData.meditateRate);
-            op = Player.Instance?.transformationWheelScript.LockoutProgresses[Transformation.FROG] >= _meditateAmount && 
+            /*op = Player.Instance?.transformationWheelScript.LockoutProgresses[Transformation.FROG] >= _meditateAmount && 
                  Player.Instance?.transformationWheelScript.LockoutProgresses[Transformation.BULLDOZER] >= _meditateAmount;
+            
+            
+            
             yield return null;
-        }
+        }*/
+        yield return new WaitForSeconds(15f);
+        OnMeditate?.Invoke(Transformation.FROG);
+        OnMeditate?.Invoke(Transformation.BULLDOZER);
         
         //Debug.LogError("Done with Meditation");
         while(!UndoFancy()) yield return null;

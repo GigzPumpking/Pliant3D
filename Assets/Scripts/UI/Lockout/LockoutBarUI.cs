@@ -2,32 +2,51 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using Object = UnityEngine.Object;
 
 //Handle all X amount of Lockout UI Charges for a SINGLE Transformation. Instantiated by LockoutBar.cs
 public class LockoutBarUI : MonoBehaviour
 {
-    [SerializeField] private List<Image> lockoutCharges = new List<Image>();
-    [SerializeField] private GameObject lockoutChargePrefab;
-    [SerializeField] private GameObject lockoutTransformIcon;
+    Dictionary<Image, Image> _lockoutChargeImages = new Dictionary<Image, Image>(); //KEY: BG, VALUE: FILL
+    public GameObject lockoutTransformIcon;
 
-    public void CreateLockoutUI(int maxCharges)
+    void Start()
     {
-        for(int i = 0; i < maxCharges; ++i) LockoutChargeUIFactory.CreateLockoutUI(lockoutChargePrefab, this.transform, lockoutCharges);
+        this.gameObject.SetActive(false);
     }
-    
+
+    public void SetIcon(GameObject icon)
+    {
+        //HITS FIRST INSTANCE OF 'IMAGE' TYPE. WILL ALWAYS BE THE ICON
+        lockoutTransformIcon = GameObject.Instantiate(icon, this.gameObject.transform);
+        lockoutTransformIcon.name = "LockoutTransformIcon";
+    }
+
+    public void CreateLockoutUI(int maxCharges, GameObject lockoutChargePrefab)
+    {
+        for(int i = 0; i < maxCharges; ++i) LockoutChargeUIFactory.CreateLockoutUI(lockoutChargePrefab, this.transform, _lockoutChargeImages);
+    }
+
     public void SetCharge(int chargeAmt)
     {
-        for (int i = 0; i < lockoutCharges.Count; ++i)
-            lockoutCharges[i].fillAmount = i <= chargeAmt ? 100f : 0f;
+        int idx = 0;
+        foreach (Image fill in _lockoutChargeImages.Values)
+        {
+            fill.fillAmount = idx <= chargeAmt ? 100f : 0f;
+            idx++;
+        }
     }
 
 }
 
 public class LockoutChargeUIFactory
 {
-    public static void CreateLockoutUI(GameObject prefab, Transform parent, List<Image> refLockoutCharges)
+    public static void SetLockoutBarIcon(GameObject go, Sprite icon) => go.GetComponent<Image>().sprite = icon;
+    public static void CreateLockoutUI(GameObject prefab, Transform parent, Dictionary<Image,Image> refLockoutCharges)
     {
-        refLockoutCharges.Add(Object.Instantiate(prefab, parent).GetComponentInChildren<Image>());
+        Image bg = Object.Instantiate(prefab, parent).GetComponent<Image>();
+        Image fill = bg.gameObject.transform.GetChild(0).GetComponent<Image>();
+        refLockoutCharges.TryAdd(bg, fill);
     }
 }

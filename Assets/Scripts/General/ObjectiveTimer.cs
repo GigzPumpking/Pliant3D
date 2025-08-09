@@ -18,6 +18,8 @@ public class ObjectiveTimer : MonoBehaviour
 
     private float currentTime;
 
+    [SerializeField] private GameObject gameOverPanel;
+
     void Start()
     {
         currentTime = totalTime;
@@ -27,6 +29,8 @@ public class ObjectiveTimer : MonoBehaviour
             timerSlider.maxValue = totalTime;
             timerSlider.value = totalTime;
         }
+
+        gameOverPanel.SetActive(false);
     }
 
     void Update()
@@ -41,7 +45,9 @@ public class ObjectiveTimer : MonoBehaviour
         {
             currentTime = 0;
 
-            RestartScene();
+            gameOverPanel.SetActive(true);
+
+            Player.Instance.canMoveToggle(false);
         }
     }
 
@@ -60,8 +66,17 @@ public class ObjectiveTimer : MonoBehaviour
 
     public void RestartScene()
     {
+        // Reset the time scale to normal
+
+        Player.Instance.canMoveToggle(true);
+
         Scene currentScene = SceneManager.GetActiveScene();
 
         SceneManager.LoadScene(currentScene.buildIndex);
+    }
+
+    public void Quit()
+    {
+        GameManager.Instance?.Quit();
     }
 }

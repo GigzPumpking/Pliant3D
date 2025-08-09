@@ -4630,7 +4630,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &621620806
 Transform:
   m_ObjectHideFlags: 0
@@ -12042,13 +12042,25 @@ Mesh:
     offset: 0
     size: 0
     path: 
+--- !u!114 &1675227214 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6234198497812095855, guid: 6416797222e3bcc478ac23de44e330e4,
+    type: 3}
+  m_PrefabInstance: {fileID: 6602552634125592725}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4c3cc1c3bc2c254891010e9fe2811f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!43 &1686143748
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh118762
+  m_Name: pb_Mesh108518
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -13898,7 +13910,7 @@ PrefabInstance:
         type: 3}
       propertyPath: events.Array.data[0].m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 835653368455469972}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: events.Array.data[0].m_PersistentCalls.m_Calls.Array.data[0].m_CallState
@@ -15479,6 +15491,12 @@ PrefabInstance:
       objectReference: {fileID: 1826046467}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 08f67ccc6484d5e419455f9d07a30b2d, type: 3}
+--- !u!223 &835653368455469972 stripped
+Canvas:
+  m_CorrespondingSourceObject: {fileID: 835653369141431838, guid: 08f67ccc6484d5e419455f9d07a30b2d,
+    type: 3}
+  m_PrefabInstance: {fileID: 835653368455469971}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2688863442046803521
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -16949,6 +16967,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 621620806}
     m_Modifications:
+    - target: {fileID: 621427417437859114, guid: 6416797222e3bcc478ac23de44e330e4,
+        type: 3}
+      propertyPath: onCompletionEvents.Array.data[0].m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1675227214}
+    - target: {fileID: 621427417437859114, guid: 6416797222e3bcc478ac23de44e330e4,
+        type: 3}
+      propertyPath: onCompletionEvents.Array.data[0].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CompleteTutorialSection
+      objectReference: {fileID: 0}
     - target: {fileID: 6234198497812095852, guid: 6416797222e3bcc478ac23de44e330e4,
         type: 3}
       propertyPath: m_Name

@@ -10,9 +10,18 @@ public class Frog : FormScript
     public float jumpForce = 6.0f;
     private bool isGrounded = true;
 
+    [Tooltip("The time in seconds before the frog can jump again.")]
+    [SerializeField] private float jumpCooldown = 0.75f;
+    private float nextJumpTime = 0f;
+
     [Header("Ground Check")]
-    [SerializeField] private float raycastDistance = 1f;
+
+    [SerializeField] private LayerMask groundLayer; 
+    [SerializeField] private float raycastDistance = 0.5f;
     [SerializeField] private float yOffset = 0.2f;
+
+    [Tooltip("How fast the player can be moving vertically and still be able to jump.")]
+    [SerializeField] private float verticalVelocityThreshold = 0.1f;
 
     [Header("Pullable Box Settings")]
     [Tooltip("Center (local) of Pullable detection box")]
@@ -49,10 +58,11 @@ public class Frog : FormScript
     private Transform currentPullObject;
     private float pullElapsedTime = 0f;
 
-    // *** NEW: State variables for grappling ***
     private bool isGrappling = false;
     private Transform grappleTarget;
     private Coroutine grappleCoroutine;
+
+    // Jump and ground detection
 
     public override void Awake()
     {
@@ -133,14 +143,24 @@ public class Frog : FormScript
         
         Gizmos.matrix = oldMatrix;
     }
+    
+    private void OnDrawGizmosSelected() 
+    {
+        Vector3 rayOrigin = transform.position + Vector3.up * yOffset;
+        Gizmos.color = isGrounded ? Color.green : Color.red; // Green if grounded, red if not
+        Gizmos.DrawLine(rayOrigin, rayOrigin + Vector3.down * raycastDistance);
+    }
 
     public override void Ability1(InputAction.CallbackContext context)
     {
-        if (!isGrounded || !context.performed || Player.Instance.TransformationChecker() == true) return;
-        isGrounded = false;
-        animator?.SetTrigger("Jump");
-        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-        EventDispatcher.Raise<StressAbility>(new StressAbility());
+        if (context.performed) // Button pressed (started)
+        {
+            Jump();
+        }
+        else if (context.canceled) // Button released
+        {
+
+        }
     }
 
     public override void Ability2(InputAction.CallbackContext context)
@@ -168,13 +188,59 @@ public class Frog : FormScript
         }
     }
 
+    private void Jump()
+    {
+        bool isVerticallyStationary = Mathf.Abs(rb.velocity.y) < verticalVelocityThreshold;
+        
+        bool canJump = 
+            isGrounded &&                // 1. Raycast must hit the ground.
+            isVerticallyStationary &&    // 2. Must not be rising or falling.
+            Time.time >= nextJumpTime && // 3. Cooldown must have expired.
+            !Player.Instance.TransformationChecker(); // 4. Not currently transforming.
+
+        // If any of the above conditions are false, we can't jump.
+        if (!canJump)
+        {
+            return;
+        }
+
+        nextJumpTime = Time.time + jumpCooldown;
+
+        isGrounded = false;
+        animator?.SetTrigger("Jump");
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        EventDispatcher.Raise<StressAbility>(new StressAbility());
+    }
+
     private void FixedUpdate()
     {
+        // Define the ray's starting point
+        Vector3 rayOrigin = transform.position + Vector3.up * yOffset;
+
+        // Create a variable to store the collision information
+        RaycastHit hitInfo;
+
+        // Perform the raycast. It returns true if it hits something on the groundLayer,
+        // and it populates 'hitInfo' with details about what it hit.
         isGrounded = Physics.Raycast(
-            transform.position + Vector3.up * yOffset,
+            rayOrigin,
             Vector3.down,
-            raycastDistance
+            out hitInfo, // The 'out' keyword passes the hit data back to our variable
+            raycastDistance,
+            groundLayer
         );
+
+        // Check if the raycast was successful
+        if (isGrounded)
+        {
+            Debug.Log($"Grounded on: {hitInfo.collider.name}", hitInfo.collider.gameObject);
+
+            Debug.DrawLine(rayOrigin, hitInfo.point, Color.green);
+        }
+        else
+        {
+            Debug.DrawLine(rayOrigin, rayOrigin + Vector3.down * raycastDistance, Color.red);
+        }
 
         if (isPulling && currentPullObject != null)
         {

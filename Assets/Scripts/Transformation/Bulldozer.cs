@@ -123,11 +123,6 @@ public class Bulldozer : FormScript
         if (context.performed)
         {
             PushState(true);
-            if (highlightedInteractable != null && highlightedInteractable.HasProperty("Breakable"))
-            {
-                highlightedInteractable.gameObject.SetActive(false);
-                highlightedInteractable = null;
-            }
         }
         else if (context.canceled)
         {
@@ -139,6 +134,11 @@ public class Bulldozer : FormScript
     {
         if (context.performed)
         {
+            if (highlightedInteractable != null && highlightedInteractable.HasProperty("Breakable"))
+            {
+                highlightedInteractable.gameObject.SetActive(false);
+                highlightedInteractable = null;
+            }   
             StartSprint();
         }
         else if (context.canceled)

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -27,7 +26,7 @@ public class UIManager : KeyActionReceiver<UIManager>
     private GameObject controls;
     private GameObject settings;
     private GameObject pauseButton;
-    
+
     private TextMeshProUGUI pauseButtonText;
 
     [SerializeField] private string pauseButtonTextKb = "PAUSE (ESC)";
@@ -35,14 +34,13 @@ public class UIManager : KeyActionReceiver<UIManager>
     private GameObject resumeButton;
 
     [SerializeField] private AudioData pauseSound;
-    
+
     [SerializeField] private List<string> scenesToHidePauseIn = new List<string>();
 
     public bool isPaused
     {
         get
         {
-            if (pauseMenu == null) return false;
             return pauseMenu.activeSelf;
         }
     }
@@ -74,7 +72,15 @@ public class UIManager : KeyActionReceiver<UIManager>
 
         dialogueScript = transform.Find("DialogueBox").GetComponent<Dialogue>();
 
-        pauseMenu?.SetActive(false);
+        pauseMenu = transform.Find("Pause Menu").gameObject;
+        pauseMain = pauseMenu.transform.Find("Pause Main").gameObject;
+        controls = pauseMenu.transform.Find("Controls").gameObject;
+        settings = pauseMenu.transform.Find("Settings").gameObject;
+        pauseButton = transform.Find("Pause Button").gameObject;
+        pauseButtonText = pauseButton.GetComponentInChildren<TextMeshProUGUI>();
+        resumeButton = pauseMenu.transform.Find("Resume Button").gameObject;
+
+        pauseMenu.SetActive(false);
         UpdatePauseButtonVisibility();
 
         EventDispatcher.AddListener<NewSceneLoaded>(FadeOut);
@@ -92,30 +98,21 @@ public class UIManager : KeyActionReceiver<UIManager>
         */
     }
 
-    private void GrabDependencies()
+    public void Pause()
     {
-        if (SceneManager.GetActiveScene().buildIndex == 0 
-            || SceneManager.GetActiveScene().buildIndex == 1) return;
-        pauseMenu = transform.Find("Pause Menu").gameObject;
-        pauseMain = pauseMenu.transform.Find("Pause_Main").gameObject;
-        controls = pauseMenu.transform.Find("Controls").gameObject;
-        settings = pauseMenu.transform.Find("Settings").gameObject;
-        pauseButton = transform.Find("Pause Button").gameObject;
-        pauseButtonText = pauseButton.GetComponentInChildren<TextMeshProUGUI>();
-        resumeButton = pauseMenu.transform.Find("Resume Button").gameObject;
-    }
-
-    public void Pause() {
         // Pause the game
         AudioManager.Instance?.PlayOneShot(pauseSound);
 
         // no null checks here since I want to know if there is something not being found
-        if (pauseMenu.activeSelf) {
+        if (pauseMenu.activeSelf)
+        {
             UpdatePauseButtonVisibility();
             resumeButton?.SetActive(false);
             pauseMenu?.SetActive(false);
             Time.timeScale = 1;
-        } else {
+        }
+        else
+        {
             pauseMenu?.SetActive(true);
             pauseMain?.SetActive(true);
             controls?.SetActive(false);
@@ -126,10 +123,14 @@ public class UIManager : KeyActionReceiver<UIManager>
         }
     }
 
-    public void Quit() {
-        if (GameManager.Instance != null) {
+    public void Quit()
+    {
+        if (GameManager.Instance != null)
+        {
             GameManager.Instance.Quit();
-        } else {
+        }
+        else
+        {
             Application.Quit();
         }
     }
@@ -148,13 +149,10 @@ public class UIManager : KeyActionReceiver<UIManager>
         {
             UpdatePauseButtonVisibility();
         }
-        
-        GrabDependencies();
     }
 
     private void UpdatePauseButtonVisibility()
     {
-        if (!pauseButton) return;
         string currentSceneName = SceneManager.GetActiveScene().name;
         // If the current scene is in our list, hide the button. Otherwise, show it.
         bool shouldHide = scenesToHidePauseIn.Contains(currentSceneName);
@@ -220,5 +218,11 @@ public class UIManager : KeyActionReceiver<UIManager>
                 }
             }
         }
+    }
+
+    public void ResetLevel()
+    {
+        Scene currentScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(currentScene.buildIndex);
     }
 }

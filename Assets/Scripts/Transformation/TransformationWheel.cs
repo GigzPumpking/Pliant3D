@@ -145,11 +145,10 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         //TRANSFORMATION LOGIC
         if (form.transformation != Transformation.BALL) {
             
-            if (LockoutBar.Instance.LockoutTransformations[form.transformation].currentCharge > 0)
+            if (LockoutBar.Instance.LockoutTransformations[form.transformation].currentCharge > -1)
             {
+                OnTransform?.Invoke(form.transformation);
                 Player.Instance.SetTransformation(form.transformation);
-            
-                OnTransform?.Invoke(transformation.GetForm().transformation);
                 TransformedObjective?.Invoke(transformation.GetForm().transformation);
             }
             else

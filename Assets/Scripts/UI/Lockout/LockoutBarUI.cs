@@ -9,7 +9,8 @@ using Object = UnityEngine.Object;
 public class LockoutBarUI : MonoBehaviour
 {
     Dictionary<Image, Image> _lockoutChargeImages = new Dictionary<Image, Image>(); //KEY: BG, VALUE: FILL
-    public GameObject lockoutTransformIcon;
+    private GameObject _lockoutTransformIcon;
+    private GameObject _crossOutIcon;
 
     void Start()
     {
@@ -19,8 +20,15 @@ public class LockoutBarUI : MonoBehaviour
     public void SetIcon(GameObject icon)
     {
         //HITS FIRST INSTANCE OF 'IMAGE' TYPE. WILL ALWAYS BE THE ICON
-        lockoutTransformIcon = GameObject.Instantiate(icon, this.gameObject.transform);
-        lockoutTransformIcon.name = "LockoutTransformIcon";
+        _lockoutTransformIcon = GameObject.Instantiate(icon, this.gameObject.transform);
+        _lockoutTransformIcon.name = "LockoutTransformIcon";
+    }
+
+    public void CrossOutIcon(GameObject icon)
+    {
+        _crossOutIcon = GameObject.Instantiate(icon, _lockoutTransformIcon.transform);
+        _crossOutIcon.name = "CrossOutIcon";
+        _crossOutIcon.AddComponent<LayoutElement>().ignoreLayout = true;
     }
 
     public void CreateLockoutUI(int maxCharges, GameObject lockoutChargePrefab)

@@ -19,7 +19,6 @@ public class LockoutBar : MonoBehaviour
     [SerializeField] private GameObject bulldozerIcon;
     [SerializeField] private GameObject crossoutIcon;
     [SerializeField] private GameObject lockoutBarPrefab;
-    [SerializeField] private GameObject chargePrefab;
 
     public Dictionary<Transformation, TransformationLOData> LockoutTransformations = new Dictionary<Transformation, TransformationLOData>();
     private void Awake()
@@ -64,7 +63,7 @@ public class LockoutBar : MonoBehaviour
             GameObject holder = GameObject.Instantiate(lockoutBarPrefab, this.transform); //HOLDER OBJECT
             holder.name = "Holder";
 
-            LockoutBarUI currUI = holder.AddComponent<LockoutBarUI>();
+            LockoutBarUI currUI = holder.GetComponent<LockoutBarUI>();
             data.LockoutBarUI = currUI;
         }
         
@@ -74,8 +73,8 @@ public class LockoutBar : MonoBehaviour
 
         foreach (TransformationLOData data in LockoutTransformations.Values)
         {
-            data.LockoutBarUI.CreateLockoutUI(maxLockoutCharges, chargePrefab);
             data.currentCharge = maxLockoutCharges;
+            data.LockoutBarUI.CreateLockoutUI(maxLockoutCharges);
         }
     }
     

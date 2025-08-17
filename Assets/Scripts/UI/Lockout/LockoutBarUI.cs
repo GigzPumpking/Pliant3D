@@ -8,7 +8,12 @@ using Object = UnityEngine.Object;
 //Handle all X amount of Lockout UI Charges for a SINGLE Transformation. Instantiated by LockoutBar.cs
 public class LockoutBarUI : MonoBehaviour
 {
-    Dictionary<Image, Image> _lockoutChargeImages = new Dictionary<Image, Image>(); //KEY: BG, VALUE: FILL
+    [SerializeField] private GameObject greenChargePrefab;
+    [SerializeField] private GameObject yellowChargePrefab;
+    [SerializeField] private GameObject orangeChargePrefab;
+    [SerializeField] private GameObject redChargePrefab;
+
+    private readonly Dictionary<Image, Image> _lockoutChargeImages = new Dictionary<Image, Image>(); //KEY: BG, VALUE: FILL
     private GameObject _lockoutTransformIcon;
     private GameObject _crossOutIcon;
 
@@ -31,9 +36,23 @@ public class LockoutBarUI : MonoBehaviour
         _crossOutIcon.AddComponent<LayoutElement>().ignoreLayout = true;
     }
 
-    public void CreateLockoutUI(int maxCharges, GameObject lockoutChargePrefab)
+    public void CreateLockoutUI(float maxCharges)
     {
-        for(int i = 0; i < maxCharges; ++i) LockoutChargeUIFactory.CreateLockoutUI(lockoutChargePrefab, this.transform, _lockoutChargeImages);
+        for (int i = 0; i < maxCharges; ++i)
+        {
+            GameObject go = null;
+            float pos = ((i + 1) / maxCharges) * 100;
+            go = pos switch
+            {
+                <= 25 => greenChargePrefab,
+                > 25 and <= 50 => yellowChargePrefab,
+                > 50 and <= 75 => orangeChargePrefab,
+                > 75 and <= 100 => redChargePrefab,
+                _ => greenChargePrefab
+            };
+            
+            LockoutChargeUIFactory.CreateLockoutUI(go, this.transform, _lockoutChargeImages);
+        }
     }
 
     public void SetCharge(int chargeAmt)
@@ -45,7 +64,6 @@ public class LockoutBarUI : MonoBehaviour
             idx++;
         }
     }
-
 }
 
 public class LockoutChargeUIFactory

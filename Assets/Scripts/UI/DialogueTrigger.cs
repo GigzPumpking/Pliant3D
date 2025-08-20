@@ -102,6 +102,54 @@ public class DialogueTrigger : MonoBehaviour
         }
     }
 
+    public void AutoTriggerDialogue()
+    {
+        if (!dialogue.IsActive() && !triggered)
+        {
+            // Determine the maximum length among all three arrays.
+            int maxLength = 0;
+            if (dialogueLines != null) {
+                maxLength = Mathf.Max(maxLength, dialogueLines.Length);
+            }
+            if (keyboardDialogueLines != null) {
+                maxLength = Mathf.Max(maxLength, keyboardDialogueLines.Length);
+            }
+            if (controllerDialogueLines != null) {
+                maxLength = Mathf.Max(maxLength, controllerDialogueLines.Length);
+            }
+
+            if (maxLength > 0)
+            {
+                DialogueEntry[] entries = new DialogueEntry[maxLength];
+                for (int i = 0; i < maxLength; i++)
+                {
+                    entries[i] = new DialogueEntry();
+                    // Use dialogueLines if available, otherwise fallback to empty.
+                    entries[i].defaultText = (dialogueLines != null && dialogueLines.Length > i) ? dialogueLines[i] : "";
+                    // For keyboard text, use keyboardDialogueLines if available; if not, fall back to dialogueLines.
+                    entries[i].keyboardText = (keyboardDialogueLines != null && keyboardDialogueLines.Length > i) 
+                        ? keyboardDialogueLines[i] 
+                        : ((dialogueLines != null && dialogueLines.Length > i) ? dialogueLines[i] : "");
+                    // For controller text, use controllerDialogueLines if available; if not, fall back to dialogueLines.
+                    entries[i].controllerText = (controllerDialogueLines != null && controllerDialogueLines.Length > i) 
+                        ? controllerDialogueLines[i] 
+                        : ((dialogueLines != null && dialogueLines.Length > i) ? dialogueLines[i] : "");
+                }
+                dialogue.SetDialogueEntries(entries);
+            }
+
+            triggered = true;
+            dialogue.Appear();
+            EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = false });
+            InteractedObjective?.Invoke(this);
+        }
+
+        if (interactBubble.activeSelf)
+        {
+            interactBubble.SetActive(false);
+        }
+    }
+
     void EndDialogue(EndDialogue e) {
         if (!interactBubble.activeSelf && inRadius) {
             interactBubble.SetActive(true);

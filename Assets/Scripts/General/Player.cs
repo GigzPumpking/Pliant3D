@@ -209,9 +209,9 @@ public class Player : KeyActionReceiver<Player>
             isMoving = false;
         }
 
-        if (transform.position.y < outOfBoundsY)
+        if (transform.position.y < outOfBoundsY && !GameManager.Instance.isGameOver)
         {
-            resetPosition();
+            GameManager.Instance?.GameOver();
         }
 
         UpdateAnimationBasedDirection();

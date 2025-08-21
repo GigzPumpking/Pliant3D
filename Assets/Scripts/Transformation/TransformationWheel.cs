@@ -293,16 +293,6 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         LockoutProgresses.TryAdd(Transformation.TERRY, maxLockoutCharge);*/
 
         HandleNulls();
-        SetWheelUI();
-    }
-
-    void SetWheelUI()
-    {
-        foreach(var x in transformationFills)
-        {
-           //Debug.Log(x.name);
-            x.fillAmount = 1;
-        }
     }
 
     void HandleNulls()

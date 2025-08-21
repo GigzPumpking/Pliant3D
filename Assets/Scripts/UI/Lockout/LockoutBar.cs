@@ -88,10 +88,11 @@ public class LockoutBar : MonoBehaviour
     
     public void SubtractCharge(Transformation transformation)
     {
-        if(LockoutTransformations[transformation].isLockedOut) LockoutTransformations[transformation].LockoutBarUI?.CrossOutIcon(crossoutIcon);
+        if(LockoutTransformations[transformation].isLockedOut && transformation != Transformation.TERRY) LockoutTransformations[transformation].LockoutBarUI?.CrossOutIcon(crossoutIcon);
         if (transformation == Player.Instance.transformation && transformation != Transformation.TERRY) return;
+        
         SetCurrentLockoutBarActive(transformation);
-        LockoutTransformations[transformation].currentCharge--;
+        if(transformation != Transformation.TERRY) LockoutTransformations[transformation].currentCharge--;
     }
 
     public bool IsAnyLockedOut()
@@ -107,6 +108,7 @@ public class LockoutBar : MonoBehaviour
         foreach (Transformation data in LockoutTransformations.Keys)
         {
             if (data == Transformation.TERRY && !IsAnyLockedOut()) continue;
+            if (data == Transformation.TERRY && IsAnyLockedOut()) LockoutTransformations[data].LockoutBarUI.SetCharge(-1);
             LockoutTransformations[data].LockoutBarUI.gameObject.SetActive(data == transformation);
         }
     }

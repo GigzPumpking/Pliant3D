@@ -8,6 +8,8 @@ using System.Linq.Expressions;
 
 public class GameManager : KeyActionReceiver<GameManager>
 {
+    [SerializeField] private GameObject gameOverPanel;
+    public bool isGameOver = false;
     private static GameManager instance;
     public static GameManager Instance { get { return instance; } }
     [SerializeField] private Transform player;
@@ -77,12 +79,15 @@ public class GameManager : KeyActionReceiver<GameManager>
     {
         // Restart the game
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-
         try
         {
+            Player.Instance.resetPosition();
             Player.Instance.SetTransformation(Transformation.TERRY);
-            // set Player velocity to 0
             Player.Instance.SetVelocity(Vector3.zero);
+            Player.Instance.canMoveToggle(true);
+            isGameOver = false;
+            if (gameOverPanel != null)
+                gameOverPanel.SetActive(false);
             if (transformWheel == null) transformWheel = Player.Instance.GetComponentInChildren<TransformationWheel>();
             transformWheel.ResetProgress();
         }
@@ -90,6 +95,17 @@ public class GameManager : KeyActionReceiver<GameManager>
         {
             Debug.LogError("Error loading dependencies when restarting scene");
         }
+    }
+
+    public void GameOver()
+    {
+        if (isGameOver) return;
+        isGameOver = true;
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(true);
+
+        Debug.Log("Game Over");
+        Player.Instance.canMoveToggle(false);
     }
 
     public void Reset(InputAction.CallbackContext context)

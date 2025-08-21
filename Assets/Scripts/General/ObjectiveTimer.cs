@@ -18,40 +18,33 @@ public class ObjectiveTimer : MonoBehaviour
 
     private float currentTime;
 
-    [SerializeField] private GameObject gameOverPanel;
-
-    private bool isGameOver = false;
-
     void Start()
     {
         currentTime = totalTime;
-
         if (timerSlider != null)
         {
             timerSlider.maxValue = totalTime;
             timerSlider.value = totalTime;
         }
-
-        gameOverPanel.SetActive(false);
     }
 
     void Update()
     {
         if (currentTime > 0)
         {
-            currentTime -= Time.deltaTime;
+            if (!GameManager.Instance.isGameOver)
+                currentTime -= Time.deltaTime;
 
             UpdateUI();
         }
-        else if (!isGameOver)
+        else
         {
             currentTime = 0;
-
-            gameOverPanel.SetActive(true);
-
-            Player.Instance.canMoveToggle(false);
-
-            isGameOver = true;
+            if (GameManager.Instance != null && !GameManager.Instance.isGameOver)
+            {
+                GameManager.Instance?.GameOver();
+                currentTime = totalTime; // Reset timer for next round
+            }
         }
     }
 
@@ -70,15 +63,9 @@ public class ObjectiveTimer : MonoBehaviour
 
     public void RestartScene()
     {
-        // Reset the time scale to normal
-
         currentTime = totalTime;
-
         Player.Instance.canMoveToggle(true);
-
         GameManager.Instance?.Reset();
-
-        isGameOver = false;
     }
 
     public void Quit()

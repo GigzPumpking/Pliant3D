@@ -39,7 +39,6 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     [SerializeField] private bool lockoutEnabled = true;
 
     [SerializeField] private AudioData transformationSound;
-    [SerializeField] private GameObject softlockNotification;
     
     public static event Action<Transformation> OnTransform; //Listened to by LockoutBar.cs
     public static event Action<Transformation> TransformedObjective; //Listened to by TransformationSwapInteractObjective.cs
@@ -151,10 +150,6 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
                 Player.Instance.SetTransformation(form.transformation);
                 TransformedObjective?.Invoke(transformation.GetForm().transformation);
             }
-            else
-            {
-                softlockNotification.SetActive(true);
-            }
         } 
         else Debug.LogWarning("Ball form is temporarily disabled.");
         Debug.Log("Current: " + form.transformation + " Previous: " + previousTransformation.GetForm().transformation);
@@ -246,7 +241,6 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         Debug.LogWarning("Player got softlocked, restarting scene");
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         ResetProgress();
-        softlockNotification.SetActive(false);
         Player.Instance.SetTransformation(Transformation.TERRY);
         //add obj tracker reset
     }
@@ -257,11 +251,6 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         /*if (!lockoutEnabled) return;
         if (!LockoutProgresses.ContainsKey(t)) return;
         if (t == Transformation.TERRY) return;*/
-    }
-
-    private void DisplayLockedOutNotification(bool set = true)
-    {
-        softlockNotification.SetActive(set);
     }
 
     private bool IsLockedOut()
@@ -314,11 +303,6 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
            //Debug.Log(x.name);
             x.fillAmount = 1;
         }
-    }
-
-    void LockedOut(bool set = true)
-    {
-        DisplayLockedOutNotification(set);
     }
 
     void HandleNulls()

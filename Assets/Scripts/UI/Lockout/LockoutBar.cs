@@ -89,7 +89,7 @@ public class LockoutBar : MonoBehaviour
     public void SubtractCharge(Transformation transformation)
     {
         if(LockoutTransformations[transformation].isLockedOut) LockoutTransformations[transformation].LockoutBarUI?.CrossOutIcon(crossoutIcon);
-        
+        if (transformation == Player.Instance.transformation && transformation != Transformation.TERRY) return;
         SetCurrentLockoutBarActive(transformation);
         LockoutTransformations[transformation].currentCharge--;
     }

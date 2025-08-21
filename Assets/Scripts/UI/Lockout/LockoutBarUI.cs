@@ -44,10 +44,9 @@ public class LockoutBarUI : MonoBehaviour
             float pos = ((i + 1) / maxCharges) * 100;
             go = pos switch
             {
-                <= 25 => greenChargePrefab,
-                > 25 and <= 50 => yellowChargePrefab,
-                > 50 and <= 75 => orangeChargePrefab,
-                > 75 and <= 100 => redChargePrefab,
+                <= 25 => redChargePrefab,
+                > 25 and <= 50 => orangeChargePrefab,
+                > 50 and <= 75 => yellowChargePrefab,
                 _ => greenChargePrefab
             };
             

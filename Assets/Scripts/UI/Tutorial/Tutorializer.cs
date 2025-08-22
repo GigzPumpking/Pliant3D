@@ -12,9 +12,10 @@ public class Tutorializer : MonoBehaviour
     [SerializeField] private Collider enterBox;
     [SerializeField] private Collider exitBox;
     [SerializeField] private Collider exitColliderBox;
-    [SerializeField] private Sprite objectivePostIt;
     [SerializeField] private AutomaticDialogueTrigger automaticDialogueTrigger;
+    //[SerializeField] private GameObject 
 
+    private TutorialStickyNote _tutorialStickyNote;
     private readonly Dictionary<int, Color> _boxColors = new Dictionary<int, Color>()
     {
         {1, new Color(0,0,255, 0.3f)}, 
@@ -24,20 +25,20 @@ public class Tutorializer : MonoBehaviour
     };
 
     private Image _refToStickyNote;
-    private void Awake()
+
+    private void Start()
     {
-        GetImageDependency();
-        SetStickyNoteActive(false);
+        if(!_tutorialStickyNote) _tutorialStickyNote = TutorialStickyNote.Instance;
     }
 
     private void OnEnable()
     {
-        EnterTutorialBox.OnEnter += SetStickyNoteActive;
+        EnterTutorialBox.OnEnter += OnEnterTutorialBox;
     }
     
     private void OnDisable()
     {
-        EnterTutorialBox.OnEnter -= SetStickyNoteActive;
+        EnterTutorialBox.OnEnter -= OnEnterTutorialBox;
     }
 
     private void OnDrawGizmos()
@@ -84,43 +85,19 @@ public class Tutorializer : MonoBehaviour
         }
     }
 
-    private void OnValidate()
+    private void OnEnterTutorialBox(bool set)
     {
-#if UNITY_EDITOR
-        SetImageDependency();
-#endif
+        _tutorialStickyNote.OnShow();
     }
     
-    private void SetStickyNoteActive(bool set) => _refToStickyNote.enabled = set;
-    private void SetImageDependency()
-    {
-        try
-        {
-            Canvas temp = GetComponentInChildren<Canvas>(true);
-            temp.GetComponentInChildren<Image>().sprite = objectivePostIt;
-        }
-        catch
-        {
-            Debug.LogError($"Canvas of {this.gameObject} not found. Unable to set image.");
-        }
-    }
-
-    private void GetImageDependency()
-    {
-        try
-        {
-            Canvas temp = GetComponentInChildren<Canvas>(true);
-            _refToStickyNote = temp.GetComponentInChildren<Image>();
-        }
-        catch
-        {
-            Debug.LogError($"Canvas of {this.gameObject} not found. Unable to set image.");
-        }
-    }
 
     public void CompleteTutorialSection()
     {
-        Debug.LogError($"Dropping barrier: {exitColliderBox?.gameObject.name}");
+        Debug.LogWarning($"Dropping barrier: {exitColliderBox?.gameObject.name}");
+        
+        StartCoroutine(_tutorialStickyNote.CompleteTask());
+        
+        //potentially just disable or destroy the entire tutorial area after completion?
         automaticDialogueTrigger.gameObject.SetActive(false);
         exitColliderBox?.gameObject.SetActive(false);
         exitBox.enabled = false;

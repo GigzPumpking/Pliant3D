@@ -17,10 +17,23 @@ public class ObjectiveTimer : MonoBehaviour
     public Slider timerSlider;
 
     private float currentTime;
+    private bool hasStarted = false;
+    public bool startAutomatically = true;
 
     void Start()
     {
+        currentTime = 0;
+        timerText.text = "";
+        timerSlider.gameObject.SetActive(false);
+        if(startAutomatically) StartTimer();
+    }
+
+    public void StartTimer()
+    {
+        hasStarted = true;
         currentTime = totalTime;
+        timerSlider.gameObject.SetActive(true);
+        
         if (timerSlider != null)
         {
             timerSlider.maxValue = totalTime;
@@ -30,7 +43,7 @@ public class ObjectiveTimer : MonoBehaviour
 
     void Update()
     {
-        if (currentTime > 0)
+        if (currentTime > 0 && hasStarted)
         {
             if (!GameManager.Instance.isGameOver)
                 currentTime -= Time.deltaTime;
@@ -40,7 +53,7 @@ public class ObjectiveTimer : MonoBehaviour
         else
         {
             currentTime = 0;
-            if (GameManager.Instance != null && !GameManager.Instance.isGameOver)
+            if (GameManager.Instance != null && !GameManager.Instance.isGameOver && hasStarted)
             {
                 GameManager.Instance?.GameOver();
                 currentTime = totalTime; // Reset timer for next round
@@ -63,6 +76,11 @@ public class ObjectiveTimer : MonoBehaviour
 
     public void RestartScene()
     {
+        currentTime = 0;
+        timerText.text = "";
+        timerSlider.gameObject.SetActive(false);
+        
+        hasStarted = false;
         currentTime = totalTime;
         Player.Instance.canMoveToggle(true);
         GameManager.Instance?.Reset();

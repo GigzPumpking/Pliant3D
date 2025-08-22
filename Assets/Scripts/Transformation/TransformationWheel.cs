@@ -20,9 +20,6 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     //private int numOfSelection = 4;
     
     [SerializeField] private GameObject transformWheel;
-
-    [SerializeField] private GameObject lockout;
-    [SerializeField] private Image lockoutBar;
     
     public GameObject[] transformationItems; //0[BULLDOZER], 1[FROG], 2[BALL], 3[TERRY]
     public Image[] transformationFills; //0[BULLDOZER], 1[FROG], 2[BALL], 3[TERRY] parallel with transformationItems
@@ -36,18 +33,15 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     private GameObject smoke;
     private Animator smokeAnimator;
 
-    [Header("Lockout Settings")]
-    public float maxLockoutCharge = 100f; //default amount of max charge the player has for transforms
-    public Dictionary<Transformation, float> LockoutProgresses = new Dictionary<Transformation, float>(); //the amount of "charge" the player has for each of the transforms
-    public float transformCost = 25f; //the amount of "charge" it takes to transform
-
     [SerializeField] private bool _dbug = false;
 
     // Toggle for lockout system functionality.
     [SerializeField] private bool lockoutEnabled = true;
 
     [SerializeField] private AudioData transformationSound;
-    [SerializeField] private GameObject softlockNotification;
+    
+    public static event Action<Transformation> OnTransform; //Listened to by LockoutBar.cs
+    public static event Action<Transformation> TransformedObjective; //Listened to by TransformationSwapInteractObjective.cs
 
     // Static key mapping shared across all TransformationWheel instances.
     public static Dictionary<string, Action<TransformationWheel, InputAction.CallbackContext>> staticKeyMapping
@@ -76,17 +70,6 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         RechargeStation.OnRechargeStation += AddProgressToAllForms;
         smoke = Player.Instance.transform.Find("Smoke").gameObject;
         smokeAnimator = smoke.GetComponent<Animator>();
-
-        // Enable or disable the lockoutBar based on lockoutEnabled.
-        if (!lockoutEnabled)
-        {
-            lockout.gameObject.SetActive(false);
-        }
-        else
-        {
-            lockout.gameObject.SetActive(true);
-        }
-
         SetWheel();
     }
 
@@ -149,54 +132,29 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     private void OnDestroy() {
         RechargeStation.OnRechargeStation -= AddProgressToAllForms;
     }
-
-    public static event Action<Transformation> TransformedObjective;
+    
     private void Transform()
     {
-        if (!transformWheel.activeSelf) {
-            return;
-        }
-
-        if (transformation == null)
-        {
-            Debug.LogWarning("No transformation selected");
-            return;
-        }
+        if (!transformWheel.activeSelf) return;
+        if (transformation == null) {Debug.LogWarning("No transformation selected"); return; }
 
         Form form = transformation.GetForm();
 
-        // Lockout functionality: if enabled, prevent transforming when charge is 0 (except for TERRY).
-        if (lockoutEnabled)             
-        {
-            if (LockoutProgresses[transformation.GetForm().transformation] <= 0 &&
-                form.transformation != Transformation.TERRY)
-                return;
-        }
-
-        // Play a random transformation sound.
-        AudioManager.Instance?.PlayOneShot(transformationSound);
-
         //TRANSFORMATION LOGIC
         if (form.transformation != Transformation.BALL) {
-            Player.Instance.SetTransformation(form.transformation);
-            
-            //listened to by 'TransformationSwapInteractObjective.cs'
-            TransformedObjective?.Invoke(transformation.GetForm().transformation);
-        } else {
-            Debug.LogWarning("Ball form is temporarily disabled.");
-        }
-    
-        transformWheel.SetActive(false);
-
-        // Lockout functionality: subtract lockout progress if not the same transformation.
-        if (lockoutEnabled)
-        {
-            if (Player.Instance.prevTransformation != Player.Instance.GetTransformation())
-                SubtractProgress(form.transformation, transformCost);
-        }
-        
+            if (LockoutBar.Instance.LockoutTransformations[form.transformation].currentCharge > 0)
+            {
+                OnTransform?.Invoke(form.transformation);
+                TransformedObjective?.Invoke(form.transformation);
+                
+                Player.Instance.SetTransformation(form.transformation);
+                AudioManager.Instance?.PlayOneShot(transformationSound); // Play a random transformation sound.
+            }
+        } 
+        else Debug.LogWarning("Ball form is temporarily disabled.");
         Debug.Log("Current: " + form.transformation + " Previous: " + previousTransformation.GetForm().transformation);
         
+        transformWheel.SetActive(false);
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
     }
 
@@ -273,19 +231,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     {
         // If lockout is disabled, do nothing.
         if (!lockoutEnabled) return;
-
-        if (t == Transformation.TERRY)
-        {
-            lockoutBar.fillAmount = 100;
-            return;
-        }
-        
-        Debug.Log("Subtracting from lockout: " + amt + " Current Lockout Charge for " + t + " : " + LockoutProgresses[t]);
-        LockoutProgresses[t] -= amt;
-        lockoutBar.fillAmount = LockoutProgresses[t] / 100;
-        transformationFills[GetIntTransform(t)].fillAmount = LockoutProgresses[t] / 100;
-        
-        if (isLockedOut) LockedOut();
+        if (t == Transformation.TERRY) return;
     }
 
     public bool breakSoftLock;
@@ -295,7 +241,6 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         Debug.LogWarning("Player got softlocked, restarting scene");
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         ResetProgress();
-        softlockNotification.SetActive(false);
         Player.Instance.SetTransformation(Transformation.TERRY);
         //add obj tracker reset
     }
@@ -303,38 +248,21 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     public void AddProgress(Transformation t, float amt = 25f)
     {
         // If lockout is disabled, do nothing.
-        if (!lockoutEnabled) return;
+        /*if (!lockoutEnabled) return;
         if (!LockoutProgresses.ContainsKey(t)) return;
-
-        if (t == Transformation.TERRY)
-        {
-            lockoutBar.fillAmount = 100;
-            return;
-        }
-
-        Debug.Log("Adding to lockout: " + amt + " Current Lockout Charge for " + t + " : " + LockoutProgresses[t]);
-        LockoutProgresses[t] += amt;
-        lockoutBar.fillAmount = LockoutProgresses[t] / 100;
-        transformationFills[GetIntTransform(t)].fillAmount = LockoutProgresses[t] / 100;
-        if (LockoutProgresses[t] >= maxLockoutCharge) LockoutProgresses[t] = maxLockoutCharge;
-        
-        if(!isLockedOut) LockedOut(false);
-    }
-
-    private void DisplayLockedOutNotification(bool set = true)
-    {
-        softlockNotification.SetActive(set);
+        if (t == Transformation.TERRY) return;*/
     }
 
     private bool IsLockedOut()
     {
-        if (!LockoutProgresses.ContainsKey(Transformation.FROG) || !LockoutProgresses.ContainsKey(Transformation.BULLDOZER)) return false;
+        /*if (!LockoutProgresses.ContainsKey(Transformation.FROG) || !LockoutProgresses.ContainsKey(Transformation.BULLDOZER)) return false;
 
         foreach (var x in LockoutProgresses)
         {
             if (x.Value > 0 && (x.Key != Transformation.TERRY)) return false;
         }
 
+        return true;*/
         return true;
     }
     
@@ -346,45 +274,30 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
 
     public void ResetProgress()
     {
-        // If lockout is disabled, do nothing.
+        /*// If lockout is disabled, do nothing.
         if (!lockoutEnabled) return;
         Debug.LogWarning("Resetting Transform Wheel Progress...");
 
         LockoutProgresses.Clear();
         SetWheel();
-        lockoutBar.fillAmount = 1;
+        lockoutBar.fillAmount = 1;*/
     }
 
     void SetWheel()
     {
-        // Initialize lockout charges if the lockout system is enabled.
+        /*// Initialize lockout charges if the lockout system is enabled.
         if (!lockoutEnabled) return;
 
         LockoutProgresses.TryAdd(Transformation.BULLDOZER, maxLockoutCharge);
         LockoutProgresses.TryAdd(Transformation.FROG, maxLockoutCharge);
-        LockoutProgresses.TryAdd(Transformation.TERRY, maxLockoutCharge);
+        LockoutProgresses.TryAdd(Transformation.TERRY, maxLockoutCharge);*/
 
         HandleNulls();
-        SetWheelUI();
-    }
-
-    void SetWheelUI()
-    {
-        foreach(var x in transformationFills)
-        {
-           //Debug.Log(x.name);
-            x.fillAmount = 1;
-        }
-    }
-
-    void LockedOut(bool set = true)
-    {
-        DisplayLockedOutNotification(set);
     }
 
     void HandleNulls()
     {
-        if (lockout.gameObject == null)
+        /*if (lockout.gameObject == null)
         {
             try
             {
@@ -395,7 +308,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
                 Debug.LogError("Lockout Bar not set in the inspector");
             }
 
-        }
+        }*/
 
         if (transformationItems.Length == 0)
         {

@@ -81,15 +81,15 @@ public class GameManager : KeyActionReceiver<GameManager>
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         try
         {
-            Player.Instance.resetPosition();
-            Player.Instance.SetTransformation(Transformation.TERRY);
-            Player.Instance.SetVelocity(Vector3.zero);
-            Player.Instance.canMoveToggle(true);
+            Player.Instance?.resetPosition();
+            Player.Instance?.SetTransformation(Transformation.TERRY);
+            Player.Instance?.SetVelocity(Vector3.zero);
+            Player.Instance?.canMoveToggle(true);
             isGameOver = false;
             if (gameOverPanel != null)
                 gameOverPanel.SetActive(false);
-            if (transformWheel == null) transformWheel = Player.Instance.GetComponentInChildren<TransformationWheel>();
-            transformWheel.ResetProgress();
+            if (transformWheel == null) transformWheel = Player.Instance?.GetComponentInChildren<TransformationWheel>();
+            transformWheel?.ResetProgress();
         }
         catch
         {

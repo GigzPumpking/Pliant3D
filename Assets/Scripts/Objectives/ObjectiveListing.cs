@@ -30,10 +30,18 @@ public class ObjectiveListing : MonoBehaviour {
     private void EnsureNonEmpty()
     {
         bool objIsEmpty = true;
+        List<Objective> emptyObjectives = new List<Objective>();
         foreach (Objective obj in objectives)
         {
             if (obj != null) objIsEmpty = false;
+            else emptyObjectives.Add(obj);
         }
+
+        foreach (Objective obj in emptyObjectives)
+        {
+            objectives.Remove(obj);
+        }
+        
         if (objIsEmpty || objectives.Count == 0)
         {
             Objective[] objs = GetComponentsInChildren<Objective>();

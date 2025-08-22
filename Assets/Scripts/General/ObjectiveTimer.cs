@@ -18,12 +18,14 @@ public class ObjectiveTimer : MonoBehaviour
 
     private float currentTime;
     private bool hasStarted = false;
+    public bool startAutomatically = true;
 
     void Start()
     {
         currentTime = 0;
         timerText.text = "";
         timerSlider.gameObject.SetActive(false);
+        if(startAutomatically) StartTimer();
     }
 
     public void StartTimer()

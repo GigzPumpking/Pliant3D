@@ -13,6 +13,7 @@ public class Tutorializer : MonoBehaviour
     [SerializeField] private Collider exitBox;
     [SerializeField] private Collider exitColliderBox;
     [SerializeField] private AutomaticDialogueTrigger automaticDialogueTrigger;
+    //[SerializeField] private GameObject 
 
     private TutorialStickyNote _tutorialStickyNote;
     private readonly Dictionary<int, Color> _boxColors = new Dictionary<int, Color>()

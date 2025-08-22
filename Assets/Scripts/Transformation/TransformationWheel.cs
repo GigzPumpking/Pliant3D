@@ -139,16 +139,16 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         if (transformation == null) {Debug.LogWarning("No transformation selected"); return; }
 
         Form form = transformation.GetForm();
-        AudioManager.Instance?.PlayOneShot(transformationSound); // Play a random transformation sound.
 
         //TRANSFORMATION LOGIC
         if (form.transformation != Transformation.BALL) {
-            
-            if (LockoutBar.Instance.LockoutTransformations[form.transformation].currentCharge > -1)
+            if (LockoutBar.Instance.LockoutTransformations[form.transformation].currentCharge > 0)
             {
                 OnTransform?.Invoke(form.transformation);
+                TransformedObjective?.Invoke(form.transformation);
+                
                 Player.Instance.SetTransformation(form.transformation);
-                TransformedObjective?.Invoke(transformation.GetForm().transformation);
+                AudioManager.Instance?.PlayOneShot(transformationSound); // Play a random transformation sound.
             }
         } 
         else Debug.LogWarning("Ball form is temporarily disabled.");

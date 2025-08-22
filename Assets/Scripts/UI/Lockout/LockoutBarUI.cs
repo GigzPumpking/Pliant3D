@@ -19,7 +19,7 @@ public class LockoutBarUI : MonoBehaviour
 
     void Start()
     {
-        this.gameObject.SetActive(false);
+        Debug.LogWarning("Starting UI.");
     }
 
     public void SetIcon(GameObject icon)
@@ -29,12 +29,23 @@ public class LockoutBarUI : MonoBehaviour
         _lockoutTransformIcon.name = "LockoutTransformIcon";
     }
 
-    public void CrossOutIcon(GameObject icon)
+    public void CrossOutIcon(GameObject icon, bool isTerry = false)
     {
-        _crossOutIcon = GameObject.Instantiate(icon, _lockoutTransformIcon.transform);
+        if (!_crossOutIcon)
+        {
+            _crossOutIcon = GameObject.Instantiate(icon, _lockoutTransformIcon.transform.parent);
+            if(isTerry) _crossOutIcon.transform.position = new Vector3(
+                _lockoutTransformIcon.transform.position.x + _lockoutTransformIcon.GetComponent<RectTransform>().rect.width/2.5f,
+                _lockoutTransformIcon.transform.position.y
+            );
+        }
+        if(!isTerry) _crossOutIcon.transform.position = _lockoutTransformIcon.transform.position;
         _crossOutIcon.name = "CrossOutIcon";
         _crossOutIcon.AddComponent<LayoutElement>().ignoreLayout = true;
     }
+
+    public void CrossOutIconActive(bool set) => _crossOutIcon?.SetActive(set);
+    
 
     public void CreateLockoutUI(float maxCharges)
     {
@@ -53,13 +64,13 @@ public class LockoutBarUI : MonoBehaviour
             LockoutChargeUIFactory.CreateLockoutUI(go, this.transform, _lockoutChargeImages);
         }
     }
-
+    
     public void SetCharge(int chargeAmt)
     {
         int idx = 0;
         foreach (Image fill in _lockoutChargeImages.Values)
         {
-            fill.fillAmount = idx <= chargeAmt ? 100f : 0f;
+            fill.fillAmount = idx < chargeAmt ? 100f : 0f;
             idx++;
         }
     }

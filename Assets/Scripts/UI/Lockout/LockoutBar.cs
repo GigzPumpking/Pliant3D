@@ -18,6 +18,7 @@ public class LockoutBar : MonoBehaviour
     [SerializeField] private GameObject frogIcon;
     [SerializeField] private GameObject bulldozerIcon;
     [SerializeField] private GameObject crossoutIcon;
+    [SerializeField] private GameObject meditateStamp;
     [SerializeField] private GameObject lockoutBarPrefab;
 
     public Dictionary<Transformation, TransformationLOData> LockoutTransformations = new Dictionary<Transformation, TransformationLOData>();
@@ -61,10 +62,13 @@ public class LockoutBar : MonoBehaviour
         foreach (TransformationLOData data in LockoutTransformations.Values)
         {
             GameObject holder = GameObject.Instantiate(lockoutBarPrefab, this.transform); //HOLDER OBJECT
+            holder.SetActive(false);
             holder.name = "Holder";
 
             LockoutBarUI currUI = holder.GetComponent<LockoutBarUI>();
             data.LockoutBarUI = currUI;
+
+            holder.GetComponent<Image>().enabled = true;
         }
         
         _terryData.LockoutBarUI.SetIcon(terryIcon);
@@ -88,11 +92,13 @@ public class LockoutBar : MonoBehaviour
     
     public void SubtractCharge(Transformation transformation)
     {
-        if(LockoutTransformations[transformation].isLockedOut && transformation != Transformation.TERRY) LockoutTransformations[transformation].LockoutBarUI?.CrossOutIcon(crossoutIcon);
-        if (transformation == Player.Instance.transformation && transformation != Transformation.TERRY) return;
-        
-        SetCurrentLockoutBarActive(transformation);
+        if(transformation != Transformation.TERRY || IsAnyLockedOut()) SetCurrentLockoutBarActive(transformation);
         if(transformation != Transformation.TERRY) LockoutTransformations[transformation].currentCharge--;
+        
+        if(LockoutTransformations[transformation].isLockedOut || IsAnyLockedOut())
+            LockoutTransformations[transformation].LockoutBarUI?.CrossOutIcon(
+                transformation != Transformation.TERRY ? crossoutIcon : meditateStamp,
+                transformation == Transformation.TERRY);
     }
 
     public bool IsAnyLockedOut()
@@ -109,7 +115,9 @@ public class LockoutBar : MonoBehaviour
         {
             if (data == Transformation.TERRY && !IsAnyLockedOut()) continue;
             if (data == Transformation.TERRY && IsAnyLockedOut()) LockoutTransformations[data].LockoutBarUI.SetCharge(-1);
+            if (data == Transformation.TERRY && IsAnyLockedOut()) LockoutTransformations[Transformation.TERRY].LockoutBarUI.SetCharge(0);
             LockoutTransformations[data].LockoutBarUI.gameObject.SetActive(data == transformation);
+            Debug.LogWarning("Activating UI.");
         }
     }
 }
@@ -127,9 +135,9 @@ public class TransformationLOData
         get => _currCharge;
         set
         {
+            _currCharge = value;
             Debug.Log($"Current charge is {_currCharge}");
             LockoutBarUI.SetCharge(value);
-            _currCharge = value;
         }
     }
 

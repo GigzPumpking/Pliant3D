@@ -613,7 +613,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d9e37210b14429d9412d09612eab3e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  description: Find the Exit (Yellow)
+  description: Find the Re-Charge Station
   isComplete: 0
   onCompleteEvents: []
   targetLocations:
@@ -4919,7 +4919,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &621620806
 Transform:
   m_ObjectHideFlags: 0
@@ -6440,8 +6440,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.8644161, y: 1.4678547, z: 1.7276874}
+  m_Center: {x: 0.030497404, y: 0.23392737, z: 0.030814324}
 --- !u!23 &796047144
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7434,7 +7434,7 @@ GameObject:
   - component: {fileID: 879414811}
   - component: {fileID: 879414810}
   m_Layer: 0
-  m_Name: tutorial note sticky
+  m_Name: Floor Note Sticky
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9465,6 +9465,12 @@ MonoBehaviour:
   onCompleteEvents: []
   targetLocations:
   - {fileID: 587849107}
+--- !u!4 &1164923640 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4974934623435322581, guid: 6416797222e3bcc478ac23de44e330e4,
+    type: 3}
+  m_PrefabInstance: {fileID: 6602552634125592725}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1172711516
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11959,6 +11965,54 @@ Transform:
   m_Father: {fileID: 2053441861}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1523580982
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1523580983}
+  - component: {fileID: 1523580984}
+  m_Layer: 0
+  m_Name: Transform into the Frog
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1523580983
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1523580982}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1164923640}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1523580984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1523580982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d69ad8a2cf0413c96e0969b289dfb0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  description: Transform into the frog
+  isComplete: 0
+  onCompleteEvents: []
+  desiredTransformation: 1
 --- !u!1 &1528213320
 GameObject:
   m_ObjectHideFlags: 0
@@ -17865,6 +17919,48 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 621620806}
     m_Modifications:
+    - target: {fileID: 621427417437859114, guid: 6416797222e3bcc478ac23de44e330e4,
+        type: 3}
+      propertyPath: objectives.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2785142590105209762, guid: 6416797222e3bcc478ac23de44e330e4,
+        type: 3}
+      propertyPath: inputActions.m_Id
+      value: 383d1e28-fc01-4b0c-943d-3742924d82ff
+      objectReference: {fileID: 0}
+    - target: {fileID: 2785142590105209762, guid: 6416797222e3bcc478ac23de44e330e4,
+        type: 3}
+      propertyPath: inputActions.m_Name
+      value: Input Actions
+      objectReference: {fileID: 0}
+    - target: {fileID: 2785142590105209762, guid: 6416797222e3bcc478ac23de44e330e4,
+        type: 3}
+      propertyPath: StickyNoteGraphicKeyboard
+      value: 
+      objectReference: {fileID: 21300000, guid: 4ae14f58b20c3494aaa295e675f5134d,
+        type: 3}
+    - target: {fileID: 2785142590105209762, guid: 6416797222e3bcc478ac23de44e330e4,
+        type: 3}
+      propertyPath: StickyNoteGraphicController
+      value: 
+      objectReference: {fileID: 21300000, guid: ad362e6ed0fc648b5819766080c56178,
+        type: 3}
+    - target: {fileID: 2785142590105209762, guid: 6416797222e3bcc478ac23de44e330e4,
+        type: 3}
+      propertyPath: inputActions.m_SingletonActionBindings.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2785142590105209762, guid: 6416797222e3bcc478ac23de44e330e4,
+        type: 3}
+      propertyPath: inputActions.m_SingletonActionBindings.Array.data[0].m_Id
+      value: 3cc6eb33-9214-4274-b334-4b701237b697
+      objectReference: {fileID: 0}
+    - target: {fileID: 2785142590105209762, guid: 6416797222e3bcc478ac23de44e330e4,
+        type: 3}
+      propertyPath: inputActions.m_SingletonActionBindings.Array.data[0].m_Action
+      value: Input Actions
+      objectReference: {fileID: 0}
     - target: {fileID: 6234198497812095852, guid: 6416797222e3bcc478ac23de44e330e4,
         type: 3}
       propertyPath: m_Name
@@ -17873,7 +17969,7 @@ PrefabInstance:
     - target: {fileID: 6234198497812095852, guid: 6416797222e3bcc478ac23de44e330e4,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6234198497812095853, guid: 6416797222e3bcc478ac23de44e330e4,
         type: 3}

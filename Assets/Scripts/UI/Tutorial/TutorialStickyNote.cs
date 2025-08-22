@@ -1,16 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class TutorialStickyNote : MonoBehaviour
 {
     private static TutorialStickyNote instance;
     public static TutorialStickyNote Instance { get { return instance; } }
-    
     public Image StickyNoteImage;
-    public Image StickyNoteGraphic;
+    public Image StickyNoteGraphicHolder;
+    public Sprite StickyNoteGraphicKeyboard;
+    public Sprite StickyNoteGraphicController;
     public Image CompletionStamp;
+    private Image _currGraphic;
 
     private void Awake()
     {
@@ -20,6 +23,13 @@ public class TutorialStickyNote : MonoBehaviour
         {
             Destroy(this.gameObject);
         }
+        
+    }
+
+    private void Update()
+    {
+        if (InputSystem.GetDevice<InputDevice>() is Gamepad && StickyNoteGraphicController) StickyNoteGraphicHolder.sprite = StickyNoteGraphicController;
+        else if (InputSystem.GetDevice<InputDevice>() is Mouse or Keyboard && StickyNoteGraphicKeyboard) StickyNoteGraphicHolder.sprite = StickyNoteGraphicKeyboard;
     }
 
     private void Start()
@@ -29,21 +39,21 @@ public class TutorialStickyNote : MonoBehaviour
 
     public IEnumerator CompleteTask()
     {
-        CompletionStamp.gameObject.SetActive(true);
+        CompletionStamp?.gameObject.SetActive(true);
         yield return new WaitForSeconds(1.5f);
         OnHide();
     }
     
     public void OnShow()
     {
-        StickyNoteImage.enabled = true;
-        StickyNoteGraphic.enabled = true;
+        if(StickyNoteImage) StickyNoteImage.enabled = true;
+        StickyNoteGraphicHolder.enabled = true;
     }
 
     public void OnHide()
     {
-        StickyNoteImage.enabled = false;
-        StickyNoteGraphic.enabled = false;
-        CompletionStamp.gameObject.SetActive(false);
+        if(StickyNoteImage)StickyNoteImage.enabled = false;
+        StickyNoteGraphicHolder.enabled = false;
+        CompletionStamp?.gameObject.SetActive(false);
     }
 }

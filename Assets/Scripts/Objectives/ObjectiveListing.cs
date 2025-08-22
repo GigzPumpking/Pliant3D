@@ -4,8 +4,10 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
+using Object = System.Object;
 
 public class ObjectiveListing : MonoBehaviour {
     [Header("UI")]
@@ -22,7 +24,25 @@ public class ObjectiveListing : MonoBehaviour {
 
 
     void Start() {
-        //need to create an Objective UI for each objective
+        EnsureNonEmpty();
+    }
+
+    private void EnsureNonEmpty()
+    {
+        bool objIsEmpty = true;
+        foreach (Objective obj in objectives)
+        {
+            if (obj != null) objIsEmpty = false;
+        }
+        if (objIsEmpty || objectives.Count == 0)
+        {
+            Objective[] objs = GetComponentsInChildren<Objective>();
+            foreach (Objective obj in objs)
+            {
+                Debug.LogWarning($"Objective {obj.name} has been added to this objective listing.");
+                objectives.Add(obj);
+            }
+        }
     }
     
     //will refactor later

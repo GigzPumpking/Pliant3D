@@ -71,6 +71,7 @@ public class NextScene : StateMachineBehaviour
 
     private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        LockoutBar.Instance?.AddProgressToAllForms();
         // Check if we just loaded the loading screen as part of a multi-step transition.
         if (IsUsingLoadingScreen && scene.name == LoadingSceneName)
         {

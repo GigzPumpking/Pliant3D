@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
+using UnityEngine.SceneManagement;
 using Object = System.Object;
 
 public class LockoutBar : MonoBehaviour
@@ -86,11 +87,20 @@ public class LockoutBar : MonoBehaviour
         }
     }
 
-    public void AddProgressToAllForms(int amt)
+    public void AddProgressToAllForms(int amt = 4)
     {
         foreach (TransformationLOData data in LockoutTransformations.Values)
         {
             data.currentCharge = amt;
+            data.LockoutBarUI.CrossOutIconActive(data.isLockedOut);
+        }
+    }
+    
+    public void AddAll()
+    {
+        foreach (TransformationLOData data in LockoutTransformations.Values)
+        {
+            data.currentCharge = 4;
             data.LockoutBarUI.CrossOutIconActive(data.isLockedOut);
         }
     }

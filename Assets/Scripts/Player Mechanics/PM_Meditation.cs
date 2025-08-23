@@ -46,7 +46,7 @@ public class PM_Meditation : KeyActionReceiver<PM_Meditation>
     void FixedUpdate()
     {
         //if ((Input.GetKeyDown(KeyCode.Z))) Meditate();
-        if((Gamepad.current != null && Gamepad.current.bButton.isPressed) || Input.GetKeyDown(KeyCode.Z)) Meditate();
+        if((Gamepad.current != null && Gamepad.current.bButton.isPressed) || Input.GetKey(KeyCode.Z)) Meditate();
         
         //if(_isMeditating && Input.anyKeyDown) StopCoroutine(_meditateCo());
         if (_isMeditating)

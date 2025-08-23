@@ -51,6 +51,7 @@ public class ObjectiveListing : MonoBehaviour {
                 objectives.Add(obj);
             }
         }
+        //if(!objectives.Any()) this.gameObject.SetActive(false);
     }
     
     //will refactor later

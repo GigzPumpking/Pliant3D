@@ -15,8 +15,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     public float currentAngle;
     public int hoveredSelection;
     [SerializeField] private int previousHover;
-
-    public bool isLockedOut => IsLockedOut();
+    
     //private int numOfSelection = 4;
     
     [SerializeField] private GameObject transformWheel;
@@ -67,7 +66,6 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     // Start is called before the first frame update
     void Start()
     {
-        RechargeStation.OnRechargeStation += AddProgressToAllForms;
         smoke = Player.Instance.transform.Find("Smoke").gameObject;
         smokeAnimator = smoke.GetComponent<Animator>();
         SetWheel();
@@ -128,10 +126,6 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
             Transform();
         }
     }
-
-    private void OnDestroy() {
-        RechargeStation.OnRechargeStation -= AddProgressToAllForms;
-    }
     
     private void Transform()
     {
@@ -141,7 +135,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         Form form = transformation.GetForm();
 
         //TRANSFORMATION LOGIC
-        if (form.transformation != Transformation.BALL) {
+        if (form.transformation != Transformation.BALL && form.transformation != Player.Instance.transformation) {
             if (LockoutBar.Instance.LockoutTransformations[form.transformation].currentCharge > 0)
             {
                 OnTransform?.Invoke(form.transformation);
@@ -217,70 +211,14 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         else if (v.x >  0.5f) HandleControllerSelection(ctx, 0); // right
     }
 
-    int GetIntTransform(Transformation t)
-    {
-        // 0[BULLDOZER], 1[FROG], 2[BALL], 3[TERRY]
-        if (t == Transformation.BULLDOZER) return 0;
-        else if (t == Transformation.FROG) return 1;
-        //else if (current == Transformation.BALL) return 2;
-        else if (t == Transformation.TERRY) return 2;
-        else return 0;
-    }
-
-    public void SubtractProgress(Transformation t, float amt = 25f)
-    {
-        // If lockout is disabled, do nothing.
-        if (!lockoutEnabled) return;
-        if (t == Transformation.TERRY) return;
-    }
-
     public bool breakSoftLock;
     public void SoftLockProtocol()
     {
         if (!breakSoftLock) return;
         Debug.LogWarning("Player got softlocked, restarting scene");
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        ResetProgress();
         Player.Instance.SetTransformation(Transformation.TERRY);
         //add obj tracker reset
-    }
-
-    public void AddProgress(Transformation t, float amt = 25f)
-    {
-        // If lockout is disabled, do nothing.
-        /*if (!lockoutEnabled) return;
-        if (!LockoutProgresses.ContainsKey(t)) return;
-        if (t == Transformation.TERRY) return;*/
-    }
-
-    private bool IsLockedOut()
-    {
-        /*if (!LockoutProgresses.ContainsKey(Transformation.FROG) || !LockoutProgresses.ContainsKey(Transformation.BULLDOZER)) return false;
-
-        foreach (var x in LockoutProgresses)
-        {
-            if (x.Value > 0 && (x.Key != Transformation.TERRY)) return false;
-        }
-
-        return true;*/
-        return true;
-    }
-    
-
-    public void AddProgressToAllForms(float customCharge = 100f) {
-        AddProgress(Transformation.BULLDOZER, customCharge);
-        AddProgress(Transformation.FROG, customCharge);
-    }
-
-    public void ResetProgress()
-    {
-        /*// If lockout is disabled, do nothing.
-        if (!lockoutEnabled) return;
-        Debug.LogWarning("Resetting Transform Wheel Progress...");
-
-        LockoutProgresses.Clear();
-        SetWheel();
-        lockoutBar.fillAmount = 1;*/
     }
 
     void SetWheel()

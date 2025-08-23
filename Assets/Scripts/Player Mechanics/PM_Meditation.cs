@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
@@ -12,6 +14,7 @@ public class PM_Meditation : KeyActionReceiver<PM_Meditation>
     [FormerlySerializedAs("_mData")] [SerializeField] private PM_MeditationData mData;
     [SerializeField] private GameObject volumePrefab;
     [SerializeField] private GameObject meditationOverlay;
+    [SerializeField] private TextMeshProUGUI meditationCountDown;
     private Volume _volumeOverlay;
     public static event Action<Transformation> OnMeditate; //Listened to by LockoutBar.cs
 
@@ -39,12 +42,23 @@ public class PM_Meditation : KeyActionReceiver<PM_Meditation>
         _meditateCo = MeditateCoroutine;
     }
 
-    void Update()
+    float currTime = 0f;
+    void FixedUpdate()
     {
         //if ((Input.GetKeyDown(KeyCode.Z))) Meditate();
         if((Gamepad.current != null && Gamepad.current.bButton.isPressed) || Input.GetKeyDown(KeyCode.Z)) Meditate();
         
-        if(_isMeditating && Input.anyKeyDown) StopCoroutine(_meditateCo());
+        //if(_isMeditating && Input.anyKeyDown) StopCoroutine(_meditateCo());
+        if (_isMeditating)
+        {
+            if (currTime <= mData.timeForMeditate)
+            {
+                Debug.Log($"currTime: {currTime}");
+                currTime += Time.fixedDeltaTime;
+                meditationCountDown.text = ((int)(mData.timeForMeditate - currTime)).ToString();
+                op = currTime <= mData.timeForMeditate;
+            }
+        }
     }
     
     private void MeditateButton(InputAction.CallbackContext ctx)
@@ -61,30 +75,22 @@ public class PM_Meditation : KeyActionReceiver<PM_Meditation>
         StartCoroutine(_meditateCo());
     }
 
+    private bool op;
     private IEnumerator MeditateCoroutine()
     {
-        //Debug.LogError("Starting Meditation");
+        currTime = 0f;
         _isMeditating = true;
         while(!DoFancy()) yield return null;
-        
-        bool op = false;
-        /*while (!op)
-        {
-            //Debug.LogError("Performing Meditation");
-            _transformationWheel.AddProgressToAllForms(Time.deltaTime * _mData.meditateRate);
-            /*op = Player.Instance?.transformationWheelScript.LockoutProgresses[Transformation.FROG] >= _meditateAmount && 
-                 Player.Instance?.transformationWheelScript.LockoutProgresses[Transformation.BULLDOZER] >= _meditateAmount;
-            
-            
-            
-            yield return null;
-        }*/
         meditationOverlay?.SetActive(true);
-        yield return new WaitForSeconds(15f);
+        Player.Instance?.canMoveToggle(false);
+        
+        while (currTime <= mData.timeForMeditate) { Debug.Log("Performing"); yield return null;}
+        
         OnMeditate?.Invoke(Transformation.FROG);
         OnMeditate?.Invoke(Transformation.BULLDOZER);
         OnMeditate?.Invoke(Transformation.TERRY);
         meditationOverlay?.SetActive(false);
+        Player.Instance?.canMoveToggle(true);
         
         //Debug.LogError("Done with Meditation");
         while(!UndoFancy()) yield return null;
@@ -98,6 +104,7 @@ public class PM_Meditation : KeyActionReceiver<PM_Meditation>
         if (Camera.main.orthographicSize <= _originalZoom)
         {
             if (!_volumeOverlay) _volumeOverlay = GameObject.Instantiate(volumePrefab).GetComponent<Volume>();
+            _volumeOverlay.enabled = false;
             
             Vignette vignette = _volumeOverlay.profile.components[0] as Vignette;
             vignette.intensity.value -= Time.deltaTime;
@@ -117,8 +124,9 @@ public class PM_Meditation : KeyActionReceiver<PM_Meditation>
     {
         if (Camera.main.orthographicSize >= meditateZoom)
         {
-            if (_volumeOverlay) _volumeOverlay.enabled = true;
-
+            if (!_volumeOverlay) _volumeOverlay = GameObject.Instantiate(volumePrefab).GetComponent<Volume>();
+            if(_volumeOverlay) _volumeOverlay.enabled = true;
+            
             Vignette vignette = _volumeOverlay.profile.components[0] as Vignette;
             vignette.center = new Vector2Parameter(new Vector2(Player.Instance.transform.position.x,
                 Player.Instance.transform.position.y));

@@ -4,11 +4,11 @@ using Unity.VisualScripting;
 
 public class RechargeStation : MonoBehaviour {
     private TransformationWheel transformationWheel = null;
-    public static event Action<float> OnRechargeStation;
+    public static event Action<int> OnRechargeStation;
     [SerializeField] private bool activateOnce;
     private bool _hasActivated = false;
     
-    [SerializeField] private float rechargeAmt = 100f;
+    [SerializeField] private int rechargeAmt = 4;
     
     [SerializeField] private Material usedMaterial;
     private Material _originalMaterial;
@@ -31,7 +31,7 @@ public class RechargeStation : MonoBehaviour {
             _hasActivated = true;
         }
 
-        //listened to by 'TransformationWheel.cs'
+        //listened to by 'LockoutBar.cs'
         OnRechargeStation?.Invoke(rechargeAmt);
     }
 

@@ -16,12 +16,7 @@ public class LockoutBarUI : MonoBehaviour
     private readonly Dictionary<Image, Image> _lockoutChargeImages = new Dictionary<Image, Image>(); //KEY: BG, VALUE: FILL
     private GameObject _lockoutTransformIcon;
     private GameObject _crossOutIcon;
-
-    void Start()
-    {
-        Debug.LogWarning("Starting UI.");
-    }
-
+    
     public void SetIcon(GameObject icon)
     {
         //HITS FIRST INSTANCE OF 'IMAGE' TYPE. WILL ALWAYS BE THE ICON

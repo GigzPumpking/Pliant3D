@@ -89,7 +89,6 @@ public class GameManager : KeyActionReceiver<GameManager>
             if (gameOverPanel != null)
                 gameOverPanel.SetActive(false);
             if (transformWheel == null) transformWheel = Player.Instance?.GetComponentInChildren<TransformationWheel>();
-            transformWheel?.ResetProgress();
         }
         catch
         {

@@ -26,18 +26,22 @@ public class LockoutBar : MonoBehaviour
     {
         if (!instance) instance = this;
         else Destroy(this.gameObject);
+        
+        DontDestroyOnLoad(transform.parent);
     }
 
     private void OnEnable()
     {
         TransformationWheel.OnTransform += SubtractCharge;
         PM_Meditation.OnMeditate += AddCharge;
+        RechargeStation.OnRechargeStation += AddProgressToAllForms;
     }
 
     private void OnDisable()
     {
         TransformationWheel.OnTransform -= SubtractCharge;
         PM_Meditation.OnMeditate -= AddCharge;
+        RechargeStation.OnRechargeStation += AddProgressToAllForms;
     }
 
     private void Start()
@@ -79,6 +83,15 @@ public class LockoutBar : MonoBehaviour
         {
             data.currentCharge = maxLockoutCharges;
             data.LockoutBarUI.CreateLockoutUI(maxLockoutCharges);
+        }
+    }
+
+    public void AddProgressToAllForms(int amt)
+    {
+        foreach (TransformationLOData data in LockoutTransformations.Values)
+        {
+            data.currentCharge = amt;
+            data.LockoutBarUI.CrossOutIconActive(data.isLockedOut);
         }
     }
     

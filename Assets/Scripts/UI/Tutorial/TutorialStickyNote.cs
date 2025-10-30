@@ -48,6 +48,8 @@ public class TutorialStickyNote : MonoBehaviour
     {
         if(StickyNoteImage) StickyNoteImage.enabled = true;
         StickyNoteGraphicHolder.enabled = true;
+        
+        gameObject.SetActive(true);
     }
 
     public void OnHide()
@@ -55,5 +57,7 @@ public class TutorialStickyNote : MonoBehaviour
         if(StickyNoteImage)StickyNoteImage.enabled = false;
         StickyNoteGraphicHolder.enabled = false;
         CompletionStamp?.gameObject.SetActive(false);
+        
+        gameObject.SetActive(false);
     }
 }

@@ -8,24 +8,30 @@ using UnityEngine.UI;
 
 public class Tutorializer : MonoBehaviour
 {
+    [Header("Tutorial Area GameObjects")]
     [SerializeField] private Collider tutorialBox;
     [SerializeField] private Collider enterBox;
     [SerializeField] private Collider exitBox;
     [SerializeField] private Collider exitColliderBox;
     [SerializeField] private AutomaticDialogueTrigger automaticDialogueTrigger;
-    //[SerializeField] private GameObject 
-
+    
+    [Header("Tutorial Sticky Note")]
+    [SerializeField] private Sprite StickyNoteGraphicKeyboard;
+    [SerializeField] private Sprite StickyNoteGraphicController;
+    
+    [Header("Don't Touch!")]
+    [SerializeField] private Sprite StickyNoteGraphicFallBack;
+    
     private TutorialStickyNote _tutorialStickyNote;
+    
     private readonly Dictionary<int, Color> _boxColors = new Dictionary<int, Color>()
     {
-        {1, new Color(0,0,255, 0.3f)}, 
-        {2, new Color(0,255,0, 0.3f)},  
+        {1, new Color(0,0,255, 0.3f)},
+        {2, new Color(0,255,0, 0.3f)},
         {3, new Color(255,0,0, 0.3f)},
         {4, new Color(0,0,0, 0.3f)}
     };
-
-    private Image _refToStickyNote;
-
+    
     private void Start()
     {
         if(!_tutorialStickyNote) _tutorialStickyNote = TutorialStickyNote.Instance;
@@ -69,6 +75,17 @@ public class Tutorializer : MonoBehaviour
 #endif
     }
 
+    private void OnValidate()
+    {
+        if (!_tutorialStickyNote) return;
+        
+        _tutorialStickyNote.StickyNoteGraphicController =
+            StickyNoteGraphicController ? StickyNoteGraphicController : StickyNoteGraphicFallBack;
+
+        _tutorialStickyNote.StickyNoteGraphicKeyboard =
+            StickyNoteGraphicKeyboard ? StickyNoteGraphicKeyboard : StickyNoteGraphicFallBack;
+    }
+
     private void DrawBox(params Collider[] colliders)
     {
         int idx = 1;
@@ -101,5 +118,8 @@ public class Tutorializer : MonoBehaviour
         automaticDialogueTrigger.gameObject.SetActive(false);
         exitColliderBox?.gameObject.SetActive(false);
         exitBox.enabled = false;
+        
+        
+        EnterTutorialBox.OnEnter -= OnEnterTutorialBox;
     }
 }

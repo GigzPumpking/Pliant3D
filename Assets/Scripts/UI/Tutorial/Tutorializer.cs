@@ -18,8 +18,8 @@ public class Tutorializer : MonoBehaviour
     private TutorialStickyNote _tutorialStickyNote;
     private readonly Dictionary<int, Color> _boxColors = new Dictionary<int, Color>()
     {
-        {1, new Color(0,0,255, 0.3f)}, 
-        {2, new Color(0,255,0, 0.3f)},  
+        {1, new Color(0,0,255, 0.3f)},
+        {2, new Color(0,255,0, 0.3f)},
         {3, new Color(255,0,0, 0.3f)},
         {4, new Color(0,0,0, 0.3f)}
     };

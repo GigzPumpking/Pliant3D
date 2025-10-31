@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class Tutorializer : MonoBehaviour
@@ -21,8 +22,9 @@ public class Tutorializer : MonoBehaviour
     
     [Header("Don't Touch!")]
     [SerializeField] private Sprite StickyNoteGraphicFallBack;
-    
-    private TutorialStickyNote _tutorialStickyNote;
+    [SerializeField] private ObjectiveListing _objectiveListing;
+    [SerializeField] private TutorialStickyNote _tutorialStickyNote;
+    private UnityEvent ue;  
     
     private readonly Dictionary<int, Color> _boxColors = new Dictionary<int, Color>()
     {
@@ -34,7 +36,11 @@ public class Tutorializer : MonoBehaviour
     
     private void Start()
     {
-        if(!_tutorialStickyNote) _tutorialStickyNote = TutorialStickyNote.Instance;
+        if (!_objectiveListing) _objectiveListing = GetComponentInChildren<ObjectiveListing>();
+        
+        ue = new UnityEvent();
+        ue.AddListener(CompleteTutorialSection);
+        _objectiveListing.AddCompletionEvents(ue);
     }
 
     private void OnEnable()
@@ -45,6 +51,7 @@ public class Tutorializer : MonoBehaviour
     private void OnDisable()
     {
         EnterTutorialBox.OnEnter -= OnEnterTutorialBox;
+        ue.RemoveAllListeners();
     }
 
     private void OnDrawGizmos()
@@ -86,6 +93,7 @@ public class Tutorializer : MonoBehaviour
             StickyNoteGraphicKeyboard ? StickyNoteGraphicKeyboard : StickyNoteGraphicFallBack;
     }
 
+    #if UNITY_EDITOR
     private void DrawBox(params Collider[] colliders)
     {
         int idx = 1;
@@ -101,9 +109,10 @@ public class Tutorializer : MonoBehaviour
             idx++;
         }
     }
-
-    private void OnEnterTutorialBox(bool set)
+    #endif
+    private void OnEnterTutorialBox(bool set, GameObject go)
     {
+        if(go != enterBox.gameObject) return;
         _tutorialStickyNote.OnShow();
     }
     

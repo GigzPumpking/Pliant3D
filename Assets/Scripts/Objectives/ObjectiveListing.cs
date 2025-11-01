@@ -103,6 +103,14 @@ public class ObjectiveListing : MonoBehaviour {
             ev?.Invoke();
         }
     }
+
+    public void AddCompletionEvents(params UnityEvent[] events)
+    {
+        foreach (UnityEvent ev in events)
+        {
+            if(!onCompletionEvents.Contains(ev)) onCompletionEvents.Add(ev);
+        }
+    }
     
 }
 

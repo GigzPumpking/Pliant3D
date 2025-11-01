@@ -225,4 +225,14 @@ public class UIManager : KeyActionReceiver<UIManager>
         Scene currentScene = SceneManager.GetActiveScene();
         SceneManager.LoadScene(currentScene.buildIndex);
     }
+
+    public void SaveGame()
+    {
+        GameManager.Instance?.SaveGame("SaveFile1");
+    }
+
+    public void LoadGame()
+    {
+        GameManager.Instance?.LoadGame("SaveFile1");
+    }
 }

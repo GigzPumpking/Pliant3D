@@ -222,6 +222,11 @@ public class AudioManager : MonoBehaviour
         UpdateCurrentMusicVolume();
     }
 
+    public float GetGlobalVolume()
+    {
+        return globalVolume;
+    }
+
     public void SetMusicVolume(float volume)
     {
         overallMusicVolume = Mathf.Clamp01(volume);

@@ -126,4 +126,73 @@ public class GameManager : KeyActionReceiver<GameManager>
         SceneManager.LoadScene(mainMenuSceneName);
     }
 
+    public void SaveGame(string saveFileName)
+    {
+        PlayerData playerData = new PlayerData();
+
+        if (Player.Instance != null)
+        {
+            playerData.sceneName = SceneManager.GetActiveScene().name;
+            /*
+            Vector3 playerPosition = Player.Instance.transform.position;
+            playerData.playerPosition = new float[] { playerPosition.x, playerPosition.y, playerPosition.z };
+            playerData.playerForm = Player.Instance.transformation.ToString();
+            */
+        }
+
+        /*
+        if (AudioManager.Instance != null)
+        {
+            playerData.settings.masterVolume = AudioManager.Instance.GetGlobalVolume();
+        }
+
+        playerData.settings.resolutionWidth = Screen.currentResolution.width;
+        playerData.settings.resolutionHeight = Screen.currentResolution.height;
+        playerData.settings.isFullscreen = Screen.fullScreen;
+        */
+
+        SaveSystem.SaveGame(saveFileName, playerData);
+    }
+
+    public void LoadGame(string saveFileName)
+    {
+        PlayerData playerData = SaveSystem.LoadGame(saveFileName);
+        if (playerData != null)
+        {
+            StartCoroutine(LoadSceneAndApplyData(playerData));
+        }
+    }
+
+    private IEnumerator LoadSceneAndApplyData(PlayerData playerData)
+    {
+        // Load the scene
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(playerData.sceneName);
+
+        // Wait until the scene is fully loaded
+        while (!asyncLoad.isDone)
+        {
+            yield return null;
+        }
+
+        // Apply player data after scene has loaded
+        if (Player.Instance != null)
+        {
+            Vector3 position = new Vector3(playerData.playerPosition[0], playerData.playerPosition[1], playerData.playerPosition[2]);
+            /*
+            Player.Instance.transform.position = position;
+
+            Transformation transformation = (Transformation)System.Enum.Parse(typeof(Transformation), playerData.playerForm);
+            Player.Instance.SetTransformation(transformation);
+            */
+        }
+        /*
+        // Apply settings
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.SetGlobalVolume(playerData.settings.masterVolume);
+        }
+
+        Screen.SetResolution(playerData.settings.resolutionWidth, playerData.settings.resolutionHeight, playerData.settings.isFullscreen);
+        */
+    }
 }

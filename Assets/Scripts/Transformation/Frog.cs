@@ -269,18 +269,47 @@ public class Frog : FormScript
 
     private void UpdateGrappleLine()
     {
-        // Only show the line renderer when actively grappling.
-        if (isGrappling && grappleTarget != null)
+        // Show line if pulling OR grappling
+        if (isPulling || isGrappling)
         {
             lineRenderer.enabled = true;
             Vector3 startCenter = GetComponentInChildren<Collider>()?.bounds.center ?? transform.position;
-            Vector3 endCenter = grappleTarget.GetComponent<Collider>()?.bounds.center ?? grappleTarget.position;
 
-            Vector3 startPos = useWorldSpace ? startCenter : lineRenderer.transform.InverseTransformPoint(startCenter);
-            Vector3 endPos = useWorldSpace ? endCenter : lineRenderer.transform.InverseTransformPoint(endCenter);
+            // Determine target for the line
+            Transform currentTarget = null;
+            if (isGrappling)
+                currentTarget = grappleTarget;
+            else if (isPulling)
+                currentTarget = currentPullObject;
 
-            lineRenderer.SetPosition(0, startPos);
-            lineRenderer.SetPosition(1, endPos);
+            if (currentTarget != null)
+            {
+                Vector3 endPoint;
+                Collider targetCollider = currentTarget.GetComponent<Collider>();
+
+                if (isGrappling || targetCollider == null)
+                {
+                    // For grappling, or as a fallback, aim for the center.
+                    endPoint = targetCollider?.bounds.center ?? currentTarget.position;
+                }
+                else // isPulling
+                {
+                    // For pulling, aim at the vertically centered closest point, just like the HookTarget.
+                    Vector3 closestPoint = targetCollider.ClosestPoint(transform.position);
+                    float verticalOffset = targetCollider.bounds.center.y - closestPoint.y;
+                    endPoint = closestPoint + new Vector3(0, verticalOffset, 0);
+                }
+
+                Vector3 startPos = useWorldSpace ? startCenter : lineRenderer.transform.InverseTransformPoint(startCenter);
+                Vector3 endPos = useWorldSpace ? endPoint : lineRenderer.transform.InverseTransformPoint(endPoint);
+
+                lineRenderer.SetPosition(0, startPos);
+                lineRenderer.SetPosition(1, endPos);
+            }
+            else
+            {
+                lineRenderer.enabled = false;
+            }
         }
         else
         {
@@ -295,7 +324,7 @@ public class Frog : FormScript
         Vector3 grappleBoxWorldCenter = transform.position + commonWorldRot * grappleBoxCenter;
         Vector3 grappleHalfExtents = grappleBoxSize * 0.5f;
         Collider[] hookCols = Physics.OverlapBox(grappleBoxWorldCenter, grappleHalfExtents, commonWorldRot);
-        
+
         var hookables = hookCols
             .Select(c => c.GetComponent<Interactable>())
             .Where(i => i != null && i.isInteractable && i.HasProperty("Hookable"));
@@ -334,20 +363,57 @@ public class Frog : FormScript
         // Handle HookTarget visibility and position
         if (hookTarget != null)
         {
-            bool shouldShowHookTarget = highlightedObject != null && highlightedObject.HasProperty("Hookable") && !isGrappling;
+            Transform targetForIcon = null;
+
+            // Prioritize showing the icon for any hookable object in range.
+            var nearestHookable = hookables.OrderBy(i => Vector3.Distance(transform.position, i.transform.position)).FirstOrDefault();
+            if (nearestHookable != null)
+            {
+                targetForIcon = nearestHookable.transform;
+            }
+            else
+            {
+                // If no hookables, check for a valid pullable object.
+                var nearestPullable = pullables.OrderBy(i => Vector3.Distance(transform.position, i.transform.position)).FirstOrDefault();
+                if (nearestPullable != null)
+                {
+                    // Check if the pullable object is actually movable.
+                    Collider objCol = nearestPullable.GetComponent<Collider>();
+                    Collider plrCol = player.GetComponentInChildren<Collider>();
+                    if (objCol != null && plrCol != null)
+                    {
+                        float objR = Mathf.Max(objCol.bounds.extents.x, objCol.bounds.extents.z);
+                        float plrR = Mathf.Max(plrCol.bounds.extents.x, plrCol.bounds.extents.z);
+                        float minAllowedDistance = objR + plrR;
+
+                        Vector3 currentFlatDir = player.position - nearestPullable.transform.position;
+                        currentFlatDir.y = 0f;
+
+                        if (currentFlatDir.magnitude > minAllowedDistance + 0.01f)
+                        {
+                            targetForIcon = nearestPullable.transform;
+                        }
+                    }
+                }
+            }
+
+            bool shouldShowHookTarget = targetForIcon != null && !isGrappling && !isPulling;
             hookTarget.SetActive(shouldShowHookTarget);
 
             if (shouldShowHookTarget)
             {
-                Collider targetCollider = closestObject.GetComponent<Collider>();
+                Collider targetCollider = targetForIcon.GetComponent<Collider>();
                 if (targetCollider != null)
                 {
-                    Vector3 targetPoint = targetCollider.ClosestPoint(transform.position);
-                    hookTarget.transform.position = targetPoint;
+                    // Position the icon at the closest point on the collider's surface, then adjust to be vertically centered.
+                    Vector3 closestPoint = targetCollider.ClosestPoint(transform.position);
+                    float verticalOffset = targetCollider.bounds.center.y - closestPoint.y;
+                    Vector3 centeredPoint = closestPoint + new Vector3(0, verticalOffset, 0);
+                    hookTarget.transform.position = centeredPoint;
                 }
                 else
                 {
-                    hookTarget.transform.position = closestObject.position;
+                    hookTarget.transform.position = targetForIcon.position;
                 }
             }
         }
@@ -405,7 +471,8 @@ public class Frog : FormScript
             StopGrapple();
         }
     }
-    
+
+    // *** NEW: Helper function to stop the grapple cleanly ***
     private void StopGrapple()
     {
         if (!isGrappling) return;
@@ -426,61 +493,83 @@ public class Frog : FormScript
     {
         if (isPulling) return; // Already pulling an object
 
+        Rigidbody pullableRb = t.GetComponent<Rigidbody>();
+        if (pullableRb == null)
+        {
+            Debug.LogWarning("Pullable object is missing a Rigidbody component.");
+            return;
+        }
+
         currentPullObject = t;
         isPulling = true;
         pullElapsedTime = 0f;
-        
-        // The direction of the pull is from the object to the player, calculated once.
-        pullDirection = (player.position - t.position);
-        pullDirection.y = 0;
-        pullDirection.Normalize();
+
+        // --- 4-Direction Pull Logic ---
+        Vector3 directionToObject = (t.position - player.position).normalized;
+        directionToObject.y = 0;
+
+        // Get player's local axes
+        Vector3 forward = player.forward;
+        Vector3 right = player.right;
+
+        // Calculate dot products to find the dominant direction
+        float dotForward = Vector3.Dot(directionToObject, forward);
+        float dotBack = Vector3.Dot(directionToObject, -forward);
+        float dotRight = Vector3.Dot(directionToObject, right);
+        float dotLeft = Vector3.Dot(directionToObject, -right);
+
+        // Find the max dot product
+        float maxDot = Mathf.Max(dotForward, dotBack, dotRight, dotLeft);
+
+        // Lock the pull direction to the dominant axis
+        if (maxDot == dotForward) pullDirection = -forward;
+        else if (maxDot == dotBack) pullDirection = forward;
+        else if (maxDot == dotRight) pullDirection = -right;
+        else pullDirection = right;
+        // --- End 4-Direction Logic ---
 
         Player.Instance.canMoveToggle(false);
 
-        Collider objCol = t.GetComponent<Collider>();
-        Collider plrCol = player.GetComponentInChildren<Collider>();
-        if (objCol == null || plrCol == null)
+        if (hookTarget != null)
         {
-            StopPullingObject();
-            return;
+            hookTarget.SetActive(false);
         }
     }
-    
+
     private void ApplyContinuousPull()
     {
         if (currentPullObject == null) { StopPullingObject(); return; }
 
+        Rigidbody pullableRb = currentPullObject.GetComponent<Rigidbody>();
         Collider objCol = currentPullObject.GetComponent<Collider>();
         Collider plrCol = player.GetComponentInChildren<Collider>();
-        if (objCol == null || plrCol == null) { StopPullingObject(); return; }
+
+        if (pullableRb == null || objCol == null || plrCol == null) { StopPullingObject(); return; }
 
         float objR = Mathf.Max(objCol.bounds.extents.x, objCol.bounds.extents.z);
         float plrR = Mathf.Max(plrCol.bounds.extents.x, plrCol.bounds.extents.z);
         float minAllowedDistance = objR + plrR;
 
-        Vector3 currentFlatDir = player.position - currentPullObject.position;
-        currentFlatDir.y = 0f;
+        Vector3 vectorToObject = currentPullObject.position - player.position;
+        vectorToObject.y = 0;
 
-        if (currentFlatDir.magnitude <= minAllowedDistance + 0.01f) { StopPullingObject(); return; }
-        
-        // Use the stored pullDirection instead of recalculating it
-        // Vector3 pullDirection = currentFlatDir.normalized;
+        // If the object is already at or within the stopping distance, stop the pull.
+        if (vectorToObject.magnitude <= minAllowedDistance)
+        {
+            StopPullingObject();
+            return;
+        }
 
-        float normalizedElapsedTime = Mathf.Clamp01(pullElapsedTime / 1.0f); // Assuming 1s to full speed
+        float normalizedElapsedTime = Mathf.Clamp01(pullElapsedTime / 1.0f);
         float curveFactor = pullAccelerationCurve.Evaluate(normalizedElapsedTime);
         float effectivePullSpeed = pullSpeed * curveFactor;
         float moveAmount = effectivePullSpeed * Time.fixedDeltaTime;
 
+        // Calculate the new position
         Vector3 newProposedPosition = currentPullObject.position + pullDirection * moveAmount;
-        Vector3 vectorToPlayer = player.position - newProposedPosition;
-        vectorToPlayer.y = 0f;
 
-        if (vectorToPlayer.magnitude < minAllowedDistance)
-        {
-            newProposedPosition = new Vector3(player.position.x, currentPullObject.position.y, player.position.z) - pullDirection * minAllowedDistance;
-        }
-
-        currentPullObject.position = new Vector3(newProposedPosition.x, currentPullObject.position.y, newProposedPosition.z);
+        // Use Rigidbody.MovePosition for physics-based movement
+        pullableRb.MovePosition(new Vector3(newProposedPosition.x, currentPullObject.position.y, newProposedPosition.z));
     }
 
     private void StopPullingObject()

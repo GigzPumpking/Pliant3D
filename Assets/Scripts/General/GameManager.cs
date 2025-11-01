@@ -177,8 +177,8 @@ public class GameManager : KeyActionReceiver<GameManager>
         // Apply player data after scene has loaded
         if (Player.Instance != null)
         {
-            Vector3 position = new Vector3(playerData.playerPosition[0], playerData.playerPosition[1], playerData.playerPosition[2]);
             /*
+            Vector3 position = new Vector3(playerData.playerPosition[0], playerData.playerPosition[1], playerData.playerPosition[2]);
             Player.Instance.transform.position = position;
 
             Transformation transformation = (Transformation)System.Enum.Parse(typeof(Transformation), playerData.playerForm);

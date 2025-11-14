@@ -428,6 +428,8 @@ public class Frog : FormScript
     {
         if (isGrappling) yield break; // Exit if already grappling
 
+        animator?.SetTrigger("Tongue");
+
         // --- Setup Phase ---
         isGrappling = true;
         grappleTarget = t;

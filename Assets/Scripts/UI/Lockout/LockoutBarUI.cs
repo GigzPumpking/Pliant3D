@@ -62,11 +62,11 @@ public class LockoutBarUI : MonoBehaviour
     
     public void SetCharge(int chargeAmt)
     {
-        int idx = 0;
+        int idx = 3;
         foreach (Image fill in _lockoutChargeImages.Values)
         {
-            fill.fillAmount = idx < chargeAmt ? 100f : 0f;
-            idx++;
+            fill.fillAmount = idx < chargeAmt ? 0f : 100f;
+            idx--;
         }
     }
 }
@@ -78,6 +78,7 @@ public class LockoutChargeUIFactory
     {
         Image bg = Object.Instantiate(prefab, parent).GetComponent<Image>();
         Image fill = bg.gameObject.transform.GetChild(0).GetComponent<Image>();
+        fill.fillAmount = 0f;
         refLockoutCharges.TryAdd(bg, fill);
     }
 }

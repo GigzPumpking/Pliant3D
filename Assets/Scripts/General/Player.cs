@@ -336,9 +336,27 @@ public class Player : KeyActionReceiver<Player>
         bool isFlippedX = selectedGroupSprite.flipX;
         string spriteName = GetCurrentSpriteName();
 
+        // Special handling for Frog's "Left" sprites - these are pure left/right facing
+        if (spriteName.StartsWith("Left"))
+        {
+            if (transformation == Transformation.FROG)
+            {
+                // Frog's "Left" sprites use flipX to distinguish left from right
+                // flipX = false: facing pure west (left) - between forward and left
+                // flipX = true: facing pure east (right) - between back and right
+                dirVec = isFlippedX 
+                    ? new Vector3(1, 0, -1).normalized  // East: between back (0,0,-1) and right (1,0,0)
+                    : new Vector3(-1, 0, 1).normalized; // West: between left (-1,0,0) and forward (0,0,1)
+            }
+            else
+            {
+                // Other transformations default to left
+                dirVec = Vector3.left;
+            }
+        }
         // Sprites with specific "Left" or "Right" directions
         // These function as if isFlippedX is false or true, respectively, ignoring the variable.
-        if (spriteName.StartsWith("FrontLeft"))
+        else if (spriteName.StartsWith("FrontLeft"))
         {
             // if Transformation is BULLDOZER, use the isFlippedX to determine direction
             if (transformation == Transformation.BULLDOZER)

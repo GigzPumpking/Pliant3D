@@ -59,11 +59,88 @@ public class Frog : FormScript
     private bool isPulling = false;
     private Transform currentPullObject;
     private float pullElapsedTime = 0f;
-    private Vector3 pullDirection; // The direction of the pull
+    private Vector3 pullTargetPoint; // Single source of truth: the point we're pulling toward
+    private float lastDistanceToTarget = 0f; // Track distance to hook point
+    private float stuckTime = 0f;
+    private const float STUCK_TIMEOUT = 0.3f;
+    private const float MIN_PULL_DISTANCE = 2.0f; // Minimum distance to stop pulling
 
     private bool isGrappling = false;
     private Transform grappleTarget;
     private Coroutine grappleCoroutine;
+
+    // Single source of truth for calculating hook/tongue attachment point
+    private Vector3 CalculateHookPoint(Transform target)
+    {
+        if (target == null) return Vector3.zero;
+        
+        Vector3 facingDir = Player.Instance != null ? Player.Instance.AnimationBasedFacingDirection : Vector3.forward;
+        Vector3 rayStart = transform.position + Vector3.up * 0.5f;
+        
+        Collider targetCollider = target.GetComponent<Collider>();
+        if (targetCollider != null)
+        {
+            // Use a longer distance to ensure we can hit thin objects
+            float maxDistance = Vector3.Distance(transform.position, target.position) + 10f;
+            RaycastHit hit;
+            
+            // PRIMARY: Raycast from player in facing direction
+            if (Physics.Raycast(rayStart, facingDir, out hit, maxDistance, ~0, QueryTriggerInteraction.Ignore) 
+                && hit.collider == targetCollider)
+            {
+                // Validate: hit point should be between player and object center (not beyond)
+                Vector3 toHit = hit.point - transform.position;
+                Vector3 toTarget = target.position - transform.position;
+                
+                // Check if hit is in front of us and not too far beyond target
+                if (Vector3.Dot(toHit.normalized, facingDir) > 0.7f && toHit.magnitude <= toTarget.magnitude + 2f)
+                {
+                    return hit.point; // Valid hit on near side
+                }
+            }
+            
+            // FALLBACK 1: Try from slightly different height (might help with angles)
+            Vector3 rayStartLower = transform.position + Vector3.up * 0.2f;
+            if (Physics.Raycast(rayStartLower, facingDir, out hit, maxDistance, ~0, QueryTriggerInteraction.Ignore)
+                && hit.collider == targetCollider)
+            {
+                Vector3 toHit = hit.point - transform.position;
+                Vector3 toTarget = target.position - transform.position;
+                
+                if (Vector3.Dot(toHit.normalized, facingDir) > 0.7f && toHit.magnitude <= toTarget.magnitude + 2f)
+                {
+                    return hit.point;
+                }
+            }
+            
+            // FALLBACK 2: Get closest point on surface facing the player
+            // This ensures we get the near side, not far side
+            Vector3 playerPos = transform.position;
+            Vector3 closestPoint = targetCollider.ClosestPoint(playerPos);
+            
+            // Validate this is on the player-facing side by checking if it's closer than center
+            float distToClosest = Vector3.Distance(playerPos, closestPoint);
+            float distToCenter = Vector3.Distance(playerPos, target.position);
+            
+            if (distToClosest <= distToCenter)
+            {
+                return closestPoint; // This is on the near side
+            }
+            
+            // FALLBACK 3: Project onto facing ray and get closest point
+            Vector3 playerPos2D = new Vector3(transform.position.x, 0, transform.position.z);
+            Vector3 targetPos2D = new Vector3(target.position.x, 0, target.position.z);
+            Vector3 toTarget2D = (targetPos2D - playerPos2D);
+            
+            float projection = Vector3.Dot(toTarget2D, new Vector3(facingDir.x, 0, facingDir.z));
+            Vector3 closestPointOnLine = playerPos2D + new Vector3(facingDir.x, 0, facingDir.z) * projection;
+            closestPointOnLine.y = transform.position.y;
+            
+            return targetCollider.ClosestPoint(closestPointOnLine);
+        }
+        
+        return target.position;
+    }
 
     // Jump and ground detection
 
@@ -150,6 +227,59 @@ public class Frog : FormScript
         Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
         
         Gizmos.matrix = oldMatrix;
+        
+        // 3) Draw facing direction for debugging (White arrow)
+        if (Player.Instance != null)
+        {
+            Vector3 facingDir = Player.Instance.AnimationBasedFacingDirection;
+            Gizmos.color = Color.white;
+            Vector3 facingStart = transform.position + Vector3.up * 0.5f;
+            Vector3 facingEnd = facingStart + facingDir * 2.0f;
+            Gizmos.DrawLine(facingStart, facingEnd);
+            // Draw arrow head for facing direction
+            Vector3 facingRight = Quaternion.Euler(0, 30, 0) * -facingDir * 0.5f;
+            Vector3 facingLeft = Quaternion.Euler(0, -30, 0) * -facingDir * 0.5f;
+            Gizmos.DrawLine(facingEnd, facingEnd + facingRight);
+            Gizmos.DrawLine(facingEnd, facingEnd + facingLeft);
+            
+            // Draw extended raycast line (orange) to show tongue direction
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawRay(facingStart, facingDir * 10f);
+        }
+
+        // 4) Visualize pull distance calculation when pulling
+        if (isPulling && currentPullObject != null && player != null)
+        {
+            // Draw player position reference (Magenta sphere)
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawWireSphere(player.position, 0.3f);
+
+            // Draw yellow sphere at pull target point (where tongue attaches)
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(pullTargetPoint, 0.25f);
+
+            // Draw minimum distance boundary (Cyan wire sphere)
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(player.position, MIN_PULL_DISTANCE);
+
+            // Draw line from player to target point (Green = safe, Red = too close)
+            float currentDist = Vector3.Distance(pullTargetPoint, player.position);
+            Gizmos.color = currentDist > MIN_PULL_DISTANCE ? Color.green : Color.red;
+            Gizmos.DrawLine(player.position, pullTargetPoint);
+
+            // Draw pull direction arrow (Blue) - from hook point toward player
+            Vector3 pullDir = (player.position - pullTargetPoint).normalized;
+            pullDir.y = 0;
+            Gizmos.color = Color.blue;
+            Vector3 arrowStart = pullTargetPoint; // Start from hook point, not object center
+            Vector3 arrowEnd = arrowStart + pullDir * 1.0f;
+            Gizmos.DrawLine(arrowStart, arrowEnd);
+            // Draw arrow head
+            Vector3 arrowRight = Quaternion.Euler(0, 30, 0) * -pullDir * 0.3f;
+            Vector3 arrowLeft = Quaternion.Euler(0, -30, 0) * -pullDir * 0.3f;
+            Gizmos.DrawLine(arrowEnd, arrowEnd + arrowRight);
+            Gizmos.DrawLine(arrowEnd, arrowEnd + arrowLeft);
+        }
     }
     
     private void OnDrawGizmosSelected() 
@@ -241,8 +371,6 @@ public class Frog : FormScript
         // Check if the raycast was successful
         if (isGrounded)
         {
-            Debug.Log($"Grounded on: {hitInfo.collider.name}", hitInfo.collider.gameObject);
-
             Debug.DrawLine(rayOrigin, hitInfo.point, Color.green);
         }
         else
@@ -285,19 +413,17 @@ public class Frog : FormScript
             if (currentTarget != null)
             {
                 Vector3 endPoint;
-                Collider targetCollider = currentTarget.GetComponent<Collider>();
 
-                if (isGrappling || targetCollider == null)
+                if (isGrappling)
                 {
-                    // For grappling, or as a fallback, aim for the center.
+                    // For grappling, aim for the center
+                    Collider targetCollider = currentTarget.GetComponent<Collider>();
                     endPoint = targetCollider?.bounds.center ?? currentTarget.position;
                 }
                 else // isPulling
                 {
-                    // For pulling, aim at the vertically centered closest point, just like the HookTarget.
-                    Vector3 closestPoint = targetCollider.ClosestPoint(transform.position);
-                    float verticalOffset = targetCollider.bounds.center.y - closestPoint.y;
-                    endPoint = closestPoint + new Vector3(0, verticalOffset, 0);
+                    // Use single source of truth for pull target
+                    endPoint = pullTargetPoint;
                 }
 
                 Vector3 startPos = useWorldSpace ? startCenter : lineRenderer.transform.InverseTransformPoint(startCenter);
@@ -320,6 +446,12 @@ public class Frog : FormScript
     private void DetectAndHighlightObjects()
     {
         GetPullBoxTransform(out Vector3 pullBoxWorldCenter, out Quaternion commonWorldRot);
+        
+        // Debug: Log the facing direction being used
+        if (Player.Instance != null)
+        {
+            Vector3 facingDir = Player.Instance.AnimationBasedFacingDirection;
+        }
 
         Vector3 grappleBoxWorldCenter = transform.position + commonWorldRot * grappleBoxCenter;
         Vector3 grappleHalfExtents = grappleBoxSize * 0.5f;
@@ -402,19 +534,8 @@ public class Frog : FormScript
 
             if (shouldShowHookTarget)
             {
-                Collider targetCollider = targetForIcon.GetComponent<Collider>();
-                if (targetCollider != null)
-                {
-                    // Position the icon at the closest point on the collider's surface, then adjust to be vertically centered.
-                    Vector3 closestPoint = targetCollider.ClosestPoint(transform.position);
-                    float verticalOffset = targetCollider.bounds.center.y - closestPoint.y;
-                    Vector3 centeredPoint = closestPoint + new Vector3(0, verticalOffset, 0);
-                    hookTarget.transform.position = centeredPoint;
-                }
-                else
-                {
-                    hookTarget.transform.position = targetForIcon.position;
-                }
+                // Use single source of truth for hook point calculation
+                hookTarget.transform.position = CalculateHookPoint(targetForIcon);
             }
         }
     }
@@ -493,7 +614,7 @@ public class Frog : FormScript
 
     private void StartPullingObject(Transform t)
     {
-        if (isPulling) return; // Already pulling an object
+        if (isPulling) return;
 
         Rigidbody pullableRb = t.GetComponent<Rigidbody>();
         if (pullableRb == null)
@@ -502,33 +623,24 @@ public class Frog : FormScript
             return;
         }
 
+        // Temporarily make the object non-kinematic so it can respond to physics
+        // We'll restore this when pulling stops
+        if (pullableRb.isKinematic)
+        {
+            pullableRb.isKinematic = false;
+            pullableRb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        }
+
         currentPullObject = t;
         isPulling = true;
         pullElapsedTime = 0f;
+        stuckTime = 0f;
+        
+        // Calculate the hook point - this is our target
+        pullTargetPoint = CalculateHookPoint(t);
+        lastDistanceToTarget = Vector3.Distance(pullTargetPoint, transform.position);
 
-        // --- 4-Direction Pull Logic ---
-        Vector3 directionToObject = (t.position - player.position).normalized;
-        directionToObject.y = 0;
-
-        // Get player's local axes
-        Vector3 forward = player.forward;
-        Vector3 right = player.right;
-
-        // Calculate dot products to find the dominant direction
-        float dotForward = Vector3.Dot(directionToObject, forward);
-        float dotBack = Vector3.Dot(directionToObject, -forward);
-        float dotRight = Vector3.Dot(directionToObject, right);
-        float dotLeft = Vector3.Dot(directionToObject, -right);
-
-        // Find the max dot product
-        float maxDot = Mathf.Max(dotForward, dotBack, dotRight, dotLeft);
-
-        // Lock the pull direction to the dominant axis
-        if (maxDot == dotForward) pullDirection = -forward;
-        else if (maxDot == dotBack) pullDirection = forward;
-        else if (maxDot == dotRight) pullDirection = -right;
-        else pullDirection = right;
-        // --- End 4-Direction Logic ---
+        Debug.Log($"[PULL START] Object: {t.name}, HookPoint: {pullTargetPoint}, InitialDist: {lastDistanceToTarget:F3}");
 
         Player.Instance.canMoveToggle(false);
 
@@ -543,47 +655,102 @@ public class Frog : FormScript
         if (currentPullObject == null) { StopPullingObject(); return; }
 
         Rigidbody pullableRb = currentPullObject.GetComponent<Rigidbody>();
-        Collider objCol = currentPullObject.GetComponent<Collider>();
-        Collider plrCol = player.GetComponentInChildren<Collider>();
+        if (pullableRb == null) { StopPullingObject(); return; }
 
-        if (pullableRb == null || objCol == null || plrCol == null) { StopPullingObject(); return; }
+        // Recalculate hook point each frame (object might have rotated/moved)
+        pullTargetPoint = CalculateHookPoint(currentPullObject);
+        
+        // Calculate distance from hook point to player
+        float currentDistanceToTarget = Vector3.Distance(pullTargetPoint, transform.position);
 
-        float objR = Mathf.Max(objCol.bounds.extents.x, objCol.bounds.extents.z);
-        float plrR = Mathf.Max(plrCol.bounds.extents.x, plrCol.bounds.extents.z);
-        float minAllowedDistance = objR + plrR;
-
-        Vector3 vectorToObject = currentPullObject.position - player.position;
-        vectorToObject.y = 0;
-
-        // If the object is already at or within the stopping distance, stop the pull.
-        if (vectorToObject.magnitude <= minAllowedDistance)
+        // STOP CONDITION 1: Reached minimum distance
+        if (currentDistanceToTarget <= MIN_PULL_DISTANCE)
         {
+            Debug.Log($"[PULL STOP] Reached target ({currentDistanceToTarget:F3} <= {MIN_PULL_DISTANCE})");
             StopPullingObject();
             return;
         }
 
-        float normalizedElapsedTime = Mathf.Clamp01(pullElapsedTime / 1.0f);
-        float curveFactor = pullAccelerationCurve.Evaluate(normalizedElapsedTime);
-        float effectivePullSpeed = pullSpeed * curveFactor;
-        float moveAmount = effectivePullSpeed * Time.fixedDeltaTime;
+        // STOP CONDITION 2: Check for collision with player
+        Collider objCol = currentPullObject.GetComponent<Collider>();
+        Collider plrCol = player.GetComponentInChildren<Collider>();
+        if (objCol != null && plrCol != null)
+        {
+            // Check if colliders are touching or overlapping
+            if (Physics.ComputePenetration(
+                objCol, objCol.transform.position, objCol.transform.rotation,
+                plrCol, plrCol.transform.position, plrCol.transform.rotation,
+                out Vector3 direction, out float distance))
+            {
+                Debug.LogWarning($"[PULL COLLISION] Object colliding with player. Penetration: {distance:F3}");
+                StopPullingObject();
+                return;
+            }
+        }
 
-        // Calculate the new position
-        Vector3 newProposedPosition = currentPullObject.position + pullDirection * moveAmount;
+        // STOP CONDITION 3: Not getting closer (stuck/sliding sideways)
+        float distanceChange = lastDistanceToTarget - currentDistanceToTarget;
+        if (distanceChange < -0.01f) // Moving away (with tiny tolerance)
+        {
+            stuckTime += Time.fixedDeltaTime;
+            if (stuckTime >= STUCK_TIMEOUT)
+            {
+                Debug.LogWarning($"[PULL STUCK] Not getting closer. DistChange: {distanceChange:F4}");
+                StopPullingObject();
+                return;
+            }
+        }
+        else
+        {
+            stuckTime = 0f; // Reset if making progress
+        }
+        
+        lastDistanceToTarget = currentDistanceToTarget;
 
-        // Use Rigidbody.MovePosition for physics-based movement
-        pullableRb.MovePosition(new Vector3(newProposedPosition.x, currentPullObject.position.y, newProposedPosition.z));
+        // Calculate pull direction: from hook point toward player
+        // This ensures the object moves so the hook point approaches the player
+        Vector3 pullDirection = (transform.position - pullTargetPoint).normalized;
+        pullDirection.y = 0;
+
+        // Apply movement - physics will naturally handle collisions
+        float normalizedTime = Mathf.Clamp01(pullElapsedTime / 1.0f);
+        float speedFactor = pullAccelerationCurve.Evaluate(normalizedTime);
+        float moveAmount = pullSpeed * speedFactor * Time.fixedDeltaTime;
+
+        Vector3 newPosition = currentPullObject.position + pullDirection * moveAmount;
+        newPosition.y = currentPullObject.position.y; // Preserve Y
+        
+        Debug.Log($"[PULL] Dist: {currentDistanceToTarget:F3}, Change: {distanceChange:F4}, Moving: {moveAmount:F3}");
+        
+        // MovePosition with ContinuousDynamic collision detection will handle obstacles naturally
+        pullableRb.MovePosition(newPosition);
     }
 
     private void StopPullingObject()
     {
         if (isPulling)
         {
+            Debug.Log($"[PULL END] Stopping pull");
             Player.Instance.canMoveToggle(true);
+            
+            if (currentPullObject != null)
+            {
+                Rigidbody pullableRb = currentPullObject.GetComponent<Rigidbody>();
+                if (pullableRb != null)
+                {
+                    pullableRb.velocity = Vector3.zero;
+                    pullableRb.angularVelocity = Vector3.zero;
+                    // Restore kinematic state and collision detection mode
+                    pullableRb.isKinematic = true;
+                    pullableRb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+                }
+            }
         }
         isPulling = false;
         currentPullObject = null;
         pullElapsedTime = 0f;
-        pullDirection = Vector3.zero;
+        stuckTime = 0f;
+        lastDistanceToTarget = 0f;
     }
 
     private void GetPullBoxTransform(out Vector3 worldCenter, out Quaternion worldRot)

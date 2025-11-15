@@ -107,19 +107,27 @@ public class LockoutBar : MonoBehaviour
     
     public void SubtractCharge(Transformation transformation)
     {
-         SetCurrentLockoutBarActive(transformation);
+        SetCurrentLockoutBarActive(transformation);
         if(transformation != Transformation.TERRY) LockoutTransformations[transformation].currentCharge--;
-        
-        if(LockoutTransformations[transformation].isLockedOut || IsAnyLockedOut())
+
+        if (LockoutTransformations[transformation].isLockedOut)
+        {
             LockoutTransformations[transformation].LockoutBarUI?.CrossOutIcon(
                 transformation != Transformation.TERRY ? crossoutIcon : meditateStamp,
                 transformation == Transformation.TERRY);
+        }
+
+        if (IsAnyLockedOut())
+        {
+            LockoutTransformations[Transformation.TERRY].LockoutBarUI.SetIcon(terryMeditateIcon);
+            LockoutTransformations[Transformation.TERRY].LockoutBarUI?.CrossOutIcon(meditateStamp);
+        }
     }
 
     public bool IsAnyLockedOut()
     {
         foreach (TransformationLOData data in LockoutTransformations.Values)
-            if (data.currentCharge <= 0) return true;
+            if (data.isLockedOut) return true;
         
         return false;
     }
@@ -131,10 +139,9 @@ public class LockoutBar : MonoBehaviour
             //IF YOU'RE TRYING TO SWITCH TO TERRY, AND NO OTHER FORMS ARE LOCKED OUT, SHOW TERRY ICON AND FULL CHARGES
             //if (data == Transformation.TERRY && !IsAnyLockedOut()) continue;
             
-            //IF YOU'RE SWITCHING TO TERRY AND ONE OF THE FORMS IS LOCKED OUT, THEN SHOW NO CHARGES, AND SWITCH ICON TO MEDITATE TERRY
+            //IF YOU'RE SWITCHING TO TERRY AND ONE OF THE FORMS IS LOCKED OUT, THEN SHOW NO CHARGES
             if (data == Transformation.TERRY && IsAnyLockedOut()) LockoutTransformations[data].LockoutBarUI.SetCharge(-1);
-            
-            //else if (data == Transformation.TERRY && IsAnyLockedOut()) LockoutTransformations[Transformation.TERRY].LockoutBarUI.SetCharge(0);
+            else if (data == Transformation.TERRY && IsAnyLockedOut()) LockoutTransformations[Transformation.TERRY].LockoutBarUI.SetCharge(0);
             LockoutTransformations[data].LockoutBarUI.gameObject.SetActive(data == transformation);
         }
     }

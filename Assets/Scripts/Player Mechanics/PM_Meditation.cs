@@ -84,11 +84,11 @@ public class PM_Meditation : KeyActionReceiver<PM_Meditation>
     {
         currTime = 0f;
         _isMeditating = true;
-        //Start Video
-        if(_meditationVideoPlayer) _meditationVideoPlayer.Play();
         
         while(!DoFancy()) yield return null;
         meditationCanvas?.SetActive(true);
+        //Start Video
+        if(_meditationVideoPlayer) _meditationVideoPlayer.Play();
         Player.Instance?.canMoveToggle(false);
         
         while (currTime <= mData.timeForMeditate) { Debug.Log("Performing"); yield return null;}

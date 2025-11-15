@@ -623,14 +623,6 @@ public class Frog : FormScript
             return;
         }
 
-        // Temporarily make the object non-kinematic so it can respond to physics
-        // We'll restore this when pulling stops
-        if (pullableRb.isKinematic)
-        {
-            pullableRb.isKinematic = false;
-            pullableRb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-        }
-
         currentPullObject = t;
         isPulling = true;
         pullElapsedTime = 0f;
@@ -740,9 +732,6 @@ public class Frog : FormScript
                 {
                     pullableRb.velocity = Vector3.zero;
                     pullableRb.angularVelocity = Vector3.zero;
-                    // Restore kinematic state and collision detection mode
-                    pullableRb.isKinematic = true;
-                    pullableRb.collisionDetectionMode = CollisionDetectionMode.Discrete;
                 }
             }
         }

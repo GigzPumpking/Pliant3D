@@ -16,6 +16,7 @@ public class GameManager : KeyActionReceiver<GameManager>
     private TransformationWheel transformWheel;
 
     [SerializeField] private AudioData mainTheme;
+    [SerializeField] private AudioData Ambience;
 
     // Main menu scene name
     [SerializeField] private string mainMenuSceneName = "0 Main Menu";
@@ -45,6 +46,7 @@ public class GameManager : KeyActionReceiver<GameManager>
     void Start()
     {
         AudioManager.Instance?.PlayMusic(mainTheme);
+        AudioManager.Instance?.PlayMusic(Ambience);
     }
 
     public void SetPlayer(Transform player)

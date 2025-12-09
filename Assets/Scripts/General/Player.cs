@@ -310,6 +310,15 @@ public class Player : KeyActionReceiver<Player>
             rbody.velocity.y,
             dir.z * movementSpeed
         );
+
+        if (isGrounded && rbody.velocity.y > 0.1f)
+        {
+            rbody.velocity = new Vector3(
+                rbody.velocity.x,
+                0,
+                rbody.velocity.z
+            );
+        }
     }
     
     private string GetCurrentSpriteName()

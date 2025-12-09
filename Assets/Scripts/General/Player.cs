@@ -376,7 +376,7 @@ public class Player : KeyActionReceiver<Player>
         return selectedGroupSprite.sprite.name;
     }
 
-    // MOVED FROM FROG: This is the logic that determines direction from animation state.
+    // This is the logic that determines direction from animation state.
     private void UpdateAnimationBasedDirection()
     {
         Vector3 dirVec = Vector3.forward; // Default direction

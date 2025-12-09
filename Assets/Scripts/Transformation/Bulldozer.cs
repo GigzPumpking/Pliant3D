@@ -106,7 +106,7 @@ public class Bulldozer : FormScript
         }
     }
     
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     {
         #if UNITY_EDITOR
         GetBreakBoxTransform(out Vector3 boxWorldCenter, out Quaternion boxWorldRot);

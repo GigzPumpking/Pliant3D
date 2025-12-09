@@ -54,7 +54,7 @@ public class Tutorializer : MonoBehaviour
         ue.RemoveAllListeners();
     }
 
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     { 
 #if UNITY_EDITOR
         if (!tutorialBox) goto enterBoxSetup;

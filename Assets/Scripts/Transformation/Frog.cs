@@ -17,7 +17,9 @@ public class Frog : FormScript
     [Header("Ground Check")]
 
     [SerializeField] private LayerMask groundLayer; 
-    [SerializeField] private float raycastDistance = 0.5f;
+    [SerializeField] private float groundCheckRadius = 0.3f;
+    [SerializeField] private float groundCheckDistance = 0.1f;
+    [Tooltip("Vertical offset from player position to check for ground.")]
     [SerializeField] private float yOffset = 0.2f;
 
     [Tooltip("How fast the player can be moving vertically and still be able to jump.")]
@@ -29,7 +31,7 @@ public class Frog : FormScript
     [Tooltip("Full size of Pullable detection box (width, height, depth)")]
     [SerializeField] private Vector3 pullBoxSize = new Vector3(2f, 1f, 4f);
 
-    [Header("Grapple Box Settings (Replaces Sphere)")]
+    [Header("Grapple Box Settings")]
     [Tooltip("Center (local) of Grapple detection box. Relative to player facing direction.")]
     [SerializeField] private Vector3 grappleBoxCenter = new Vector3(0f, 1.0f, 3f);
     [Tooltip("Full size of Grapple detection box. Height & Width are ~2x pullBox's.")]
@@ -193,7 +195,7 @@ public class Frog : FormScript
         }
     }
     
-    // *** NEW: Detects collision with the grapple target ***
+    // *** Detects collision with the grapple target ***
     private void OnCollisionEnter(Collision collision)
     {
         if (isGrappling && collision.transform == grappleTarget)
@@ -202,7 +204,7 @@ public class Frog : FormScript
         }
     }
 
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     {
         #if UNITY_EDITOR
         if (!Application.isPlaying)
@@ -280,13 +282,14 @@ public class Frog : FormScript
             Gizmos.DrawLine(arrowEnd, arrowEnd + arrowRight);
             Gizmos.DrawLine(arrowEnd, arrowEnd + arrowLeft);
         }
-    }
-    
-    private void OnDrawGizmosSelected() 
-    {
-        Vector3 rayOrigin = transform.position + Vector3.up * yOffset;
-        Gizmos.color = isGrounded ? Color.green : Color.red; // Green if grounded, red if not
-        Gizmos.DrawLine(rayOrigin, rayOrigin + Vector3.down * raycastDistance);
+        
+        // 5) Visualize ground check sphere
+        Vector3 groundCheckPosition = transform.position - Vector3.up * groundCheckDistance;
+        Gizmos.color = isGrounded ? Color.green : Color.red;
+        Gizmos.DrawWireSphere(groundCheckPosition, groundCheckRadius);
+        
+        // Draw line from player to check position
+        Gizmos.DrawLine(transform.position, groundCheckPosition);
     }
 
     public override void Ability1(InputAction.CallbackContext context)
@@ -355,18 +358,15 @@ public class Frog : FormScript
 
     private void FixedUpdate()
     {
-        // Define the ray's starting point
-        Vector3 rayOrigin = transform.position + Vector3.up * yOffset;
+        // Check for ground using a simple overlap sphere at the frog's feet
+        Vector3 groundCheckPosition = transform.position - Vector3.up * groundCheckDistance;
 
-        // Create a variable to store the collision information
-        RaycastHit hitInfo;
-
-        bool hitGround = Physics.Raycast(
-            rayOrigin,
-            Vector3.down,
-            out hitInfo,
-            raycastDistance,
-            groundLayer
+        // Simple overlap check - is there ground where the frog's feet are?
+        bool hitGround = Physics.CheckSphere(
+            groundCheckPosition,
+            groundCheckRadius,
+            groundLayer,
+            QueryTriggerInteraction.Ignore
         );
 
         bool fallingOrStill = rb.velocity.y <= 0f;
@@ -376,12 +376,12 @@ public class Frog : FormScript
         {
             Player.Instance?.SetGroundedState(true);
             Player.Instance?.SetJumpingState(false);
-            Debug.DrawLine(rayOrigin, hitInfo.point, Color.green);
+            Debug.DrawLine(transform.position, groundCheckPosition, Color.green);
         }
         else
         {
             Player.Instance?.SetGroundedState(false);
-            Debug.DrawLine(rayOrigin, rayOrigin + Vector3.down * raycastDistance, Color.red);
+            Debug.DrawLine(transform.position, groundCheckPosition, Color.red);
         }
 
         if (isPulling && currentPullObject != null)
@@ -601,7 +601,7 @@ public class Frog : FormScript
         }
     }
 
-    // *** NEW: Helper function to stop the grapple cleanly ***
+    // *** Helper function to stop the grapple cleanly ***
     private void StopGrapple()
     {
         if (!isGrappling) return;

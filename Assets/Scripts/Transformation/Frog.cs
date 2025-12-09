@@ -345,6 +345,9 @@ public class Frog : FormScript
         nextJumpTime = Time.time + jumpCooldown;
 
         isGrounded = false;
+        Player.Instance?.SetGroundedState(false);
+        Player.Instance?.SetJumpingState(true);
+        Player.Instance?.RegisterAirborneImpulse();
         animator?.SetTrigger("Jump");
         rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         EventDispatcher.Raise<StressAbility>(new StressAbility());
@@ -358,23 +361,26 @@ public class Frog : FormScript
         // Create a variable to store the collision information
         RaycastHit hitInfo;
 
-        // Perform the raycast. It returns true if it hits something on the groundLayer,
-        // and it populates 'hitInfo' with details about what it hit.
-        isGrounded = Physics.Raycast(
+        bool hitGround = Physics.Raycast(
             rayOrigin,
             Vector3.down,
-            out hitInfo, // The 'out' keyword passes the hit data back to our variable
+            out hitInfo,
             raycastDistance,
             groundLayer
         );
 
-        // Check if the raycast was successful
+        bool fallingOrStill = rb.velocity.y <= 0f;
+        isGrounded = hitGround && fallingOrStill;
+
         if (isGrounded)
         {
+            Player.Instance?.SetGroundedState(true);
+            Player.Instance?.SetJumpingState(false);
             Debug.DrawLine(rayOrigin, hitInfo.point, Color.green);
         }
         else
         {
+            Player.Instance?.SetGroundedState(false);
             Debug.DrawLine(rayOrigin, rayOrigin + Vector3.down * raycastDistance, Color.red);
         }
 

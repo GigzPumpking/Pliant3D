@@ -48,6 +48,14 @@ public class Player : KeyActionReceiver<Player>
     private Directions lastHorizontalInput = Directions.RIGHT;
 
     [SerializeField] bool isGrounded = true;
+    public bool IsGrounded => isGrounded;
+
+    private bool isJumping = false;
+    public bool IsJumping => isJumping;
+
+    // Grace window to prevent immediate upward clamp right after a jump/grapple impulse
+    private float airborneGraceTimer = 0f;
+    [SerializeField] private float airborneGraceDuration = 0.15f;
 
     // Jumping and Movement Variables
     [SerializeField] float movementSpeed = 5f;
@@ -165,6 +173,38 @@ public class Player : KeyActionReceiver<Player>
         return smoke.gameObject;
     }
 
+    public void SetGroundedState(bool grounded)
+    {
+        // Ignore early ground hits while we are still within the airborne grace window
+        if (grounded && airborneGraceTimer > 0f)
+            return;
+
+        isGrounded = grounded;
+
+        // Landing ends jumping
+        if (grounded)
+        {
+            isJumping = false;
+            airborneGraceTimer = 0f;
+        }
+    }
+
+    public void RegisterAirborneImpulse(float duration = -1f)
+    {
+        // If no custom duration provided, fall back to serialized default
+        float dur = duration > 0f ? duration : airborneGraceDuration;
+        airborneGraceTimer = Mathf.Max(airborneGraceTimer, dur);
+    }
+
+    public void SetJumpingState(bool jumping)
+    {
+        isJumping = jumping;
+        if (jumping)
+        {
+            isGrounded = false;
+        }
+    }
+
     void InteractHandler(InputAction.CallbackContext context) {
         if (context.performed) {
             EventDispatcher.Raise<Interact>(new Interact());
@@ -199,6 +239,11 @@ public class Player : KeyActionReceiver<Player>
     }
 
     void Update() {
+        if (airborneGraceTimer > 0f)
+        {
+            airborneGraceTimer -= Time.deltaTime;
+        }
+
         if (canMove)
         {
             InputHandler();
@@ -311,7 +356,7 @@ public class Player : KeyActionReceiver<Player>
             dir.z * movementSpeed
         );
 
-        if (isGrounded && rbody.velocity.y > 0.1f)
+        if (!isJumping && airborneGraceTimer <= 0f && isGrounded && rbody.velocity.y > 0.1f)
         {
             rbody.velocity = new Vector3(
                 rbody.velocity.x,

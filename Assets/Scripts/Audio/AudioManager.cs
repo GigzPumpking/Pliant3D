@@ -51,9 +51,13 @@ public class AudioManager : MonoBehaviour
     private float savedMusicVolume;
     private float savedSfxVolume;
 
+    [Header("Startup Sound")]
+    [SerializeField] private bool PlayStartupSound = false;
+    [SerializeField] private AudioClip StartupSound;
 
     private void Awake()
     {
+        
         if (Instance == null)
         {
             Instance = this;
@@ -70,6 +74,21 @@ public class AudioManager : MonoBehaviour
         {
             musicSource = gameObject.AddComponent<AudioSource>();
         }
+
+        if (PlayStartupSound && StartupSound)
+        {
+            musicSource.Stop();
+            AudioSource StartupSoundComponent = gameObject.AddComponent<AudioSource>();
+            StartupSoundComponent.clip = StartupSound;
+            StartupSoundComponent.Play();
+            Invoke(nameof(WaitForStartupSound), 0);
+        }
+    }
+
+    private IEnumerator WaitForStartupSound()
+    {
+        yield return new WaitForSeconds(musicSource.clip.length);
+        musicSource.Play();
     }
 
     private void OnDestroy()

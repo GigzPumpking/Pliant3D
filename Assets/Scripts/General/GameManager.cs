@@ -37,6 +37,13 @@ public class GameManager : KeyActionReceiver<GameManager>
             instance = this;
         else
         {
+            //Handle Music Carryover between scenes
+            instance.mainTheme = this.mainTheme;
+            instance.Ambience  = this.Ambience;
+            AudioManager.Instance?.DeleteCurrentMusicSources();
+            AudioManager.Instance?.PlayMusic(mainTheme);
+            AudioManager.Instance?.PlayMusic(Ambience);
+            
             Destroy(this.gameObject);
             return;
         }

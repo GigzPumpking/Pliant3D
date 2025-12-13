@@ -11,8 +11,13 @@ public class Frog : FormScript
     private bool isGrounded = true;
 
     [Tooltip("The time in seconds before the frog can jump again.")]
-    [SerializeField] private float jumpCooldown = 0.75f;
+    [SerializeField] private float jumpCooldown = 0.15f;
     private float nextJumpTime = 0f;
+
+    [Header("Coyote Time")]
+    [Tooltip("Grace period after leaving the ground during which the frog can still jump.")]
+    [SerializeField] private float coyoteTime = 0.2f;
+    private float coyoteTimeCounter = 0f;
 
     [Header("Ground Check")]
 
@@ -334,16 +339,19 @@ public class Frog : FormScript
         bool isVerticallyStationary = Mathf.Abs(rb.velocity.y) < verticalVelocityThreshold;
         
         bool canJump = 
-            isGrounded &&                // 1. Raycast must hit the ground.
-            isVerticallyStationary &&    // 2. Must not be rising or falling.
-            Time.time >= nextJumpTime && // 3. Cooldown must have expired.
-            !Player.Instance.TransformationChecker(); // 4. Not currently transforming.
+            (isGrounded || coyoteTimeCounter > 0f) && // 1. On ground OR within coyote time window.
+            isVerticallyStationary &&                  // 2. Must not be rising or falling.
+            Time.time >= nextJumpTime &&               // 3. Cooldown must have expired.
+            !Player.Instance.TransformationChecker();  // 4. Not currently transforming.
 
         // If any of the above conditions are false, we can't jump.
         if (!canJump)
         {
             return;
         }
+
+        // Consume coyote time when jumping
+        coyoteTimeCounter = 0f;
 
         nextJumpTime = Time.time + jumpCooldown;
 
@@ -370,16 +378,35 @@ public class Frog : FormScript
         );
 
         bool fallingOrStill = rb.velocity.y <= 0f;
+        bool wasGrounded = isGrounded;
         isGrounded = hitGround && fallingOrStill;
 
+        // Update coyote time counter
         if (isGrounded)
         {
+            coyoteTimeCounter = coyoteTime; // Reset coyote time when grounded
             Player.Instance?.SetGroundedState(true);
             Player.Instance?.SetJumpingState(false);
             Debug.DrawLine(transform.position, groundCheckPosition, Color.green);
         }
         else
         {
+            // Only decrement coyote time if we just left the ground (not during a jump)
+            if (wasGrounded && !Player.Instance.IsJumping)
+            {
+                // Just left the ground naturally (walked off edge)
+                // Coyote time counter will be > 0, allowing a jump
+            }
+            else if (Player.Instance.IsJumping)
+            {
+                // During a jump, immediately consume coyote time
+                coyoteTimeCounter = 0f;
+            }
+            
+            // Decrement coyote time
+            coyoteTimeCounter -= Time.fixedDeltaTime;
+            if (coyoteTimeCounter < 0f) coyoteTimeCounter = 0f;
+            
             Player.Instance?.SetGroundedState(false);
             Debug.DrawLine(transform.position, groundCheckPosition, Color.red);
         }

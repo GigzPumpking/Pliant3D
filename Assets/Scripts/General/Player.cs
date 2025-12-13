@@ -356,7 +356,18 @@ public class Player : KeyActionReceiver<Player>
             dir.z * movementSpeed
         );
 
-        if (!isJumping && airborneGraceTimer <= 0f && isGrounded && rbody.velocity.y > 0.1f)
+        // Check if Bulldozer is sprinting - if so, don't clamp velocity
+        bool isBulldozerSprinting = false;
+        if (transformation == Transformation.BULLDOZER && selectedGroupScript != null)
+        {
+            Bulldozer bulldozer = selectedGroupScript as Bulldozer;
+            if (bulldozer != null)
+            {
+                isBulldozerSprinting = bulldozer.IsSprinting();
+            }
+        }
+
+        if (!isJumping && airborneGraceTimer <= 0f && isGrounded && rbody.velocity.y > 0.1f && !isBulldozerSprinting)
         {
             rbody.velocity = new Vector3(
                 rbody.velocity.x,

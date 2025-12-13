@@ -232,6 +232,11 @@ public class Bulldozer : FormScript
         animator?.SetBool("isSprinting", false);
     }
 
+    public bool IsSprinting()
+    {
+        return isSprinting;
+    }
+
     private IEnumerator FadeOutStaminaBar()
     {
         isFadingOut = true;

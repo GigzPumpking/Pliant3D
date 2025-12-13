@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using System.Linq.Expressions;
+using UnityEngine.EventSystems;
 
 public class GameManager : KeyActionReceiver<GameManager>
 {
@@ -103,17 +104,16 @@ public class GameManager : KeyActionReceiver<GameManager>
         {
             Debug.LogError("Error loading dependencies when restarting scene");
         }
+        var eventSystem = EventSystem.current;
+        eventSystem.SetSelectedGameObject(null);
+        UIManager.Instance?.DisableGameOverPanel();
     }
 
     public void GameOver()
     {
         if (isGameOver) return;
+        UIManager.Instance?.GameOverProtocol();
         isGameOver = true;
-        if (gameOverPanel != null)
-            gameOverPanel.SetActive(true);
-
-        Debug.Log("Game Over");
-        Player.Instance.canMoveToggle(false);
     }
 
     public void Reset(InputAction.CallbackContext context)

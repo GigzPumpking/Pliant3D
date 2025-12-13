@@ -26,7 +26,7 @@ public class UIManager : KeyActionReceiver<UIManager>
     private GameObject controls;
     private GameObject settings;
     private GameObject pauseButton;
-
+    
     private TextMeshProUGUI pauseButtonText;
 
     [SerializeField] private string pauseButtonTextKb = "PAUSE (ESC)";
@@ -36,6 +36,8 @@ public class UIManager : KeyActionReceiver<UIManager>
     [SerializeField] private AudioData pauseSound;
 
     [SerializeField] private List<string> scenesToHidePauseIn = new List<string>();
+
+    [SerializeField] private GameObject GameOverPanel;
 
     public bool isPaused
     {
@@ -96,6 +98,35 @@ public class UIManager : KeyActionReceiver<UIManager>
             pauseButtonText.text = pauseButtonTextController;
         }
         */
+    }
+
+    public void CallGameManagerLevelReset()
+    {
+        if (!GameManager.Instance) return;
+        GameManager.Instance.Reset();
+    }
+
+    private static BaseEventData eventSystemData;
+    public void GameOverProtocol()
+    {
+        if (GameOverPanel != null)
+            GameOverPanel.SetActive(true);
+        
+        var eventSystem = EventSystem.current;
+        bool can = GameOverPanel.transform.GetChild(2).gameObject != null;
+        
+        if(can) 
+            eventSystem.SetSelectedGameObject(GameOverPanel.transform.GetChild(2).gameObject, eventSystemData);
+
+        Debug.Log("Game Over");
+        TogglePlayerMovement tpm = new TogglePlayerMovement();
+        tpm.isEnabled = false;
+        EventDispatcher.Raise(tpm);
+    }
+
+    public void DisableGameOverPanel()
+    {
+        GameOverPanel.SetActive(false);
     }
 
     public void Pause()

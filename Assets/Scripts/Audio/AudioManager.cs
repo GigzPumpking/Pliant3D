@@ -2,6 +2,8 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEditor.SceneManagement;
 
 [System.Serializable]
 public class AudioData
@@ -49,9 +51,13 @@ public class AudioManager : MonoBehaviour
     private float savedMusicVolume;
     private float savedSfxVolume;
 
+    [Header("Startup Sound")]
+    [SerializeField] private bool PlayStartupSound = false;
+    [SerializeField] private AudioClip StartupSound;
 
     private void Awake()
     {
+        
         if (Instance == null)
         {
             Instance = this;
@@ -68,6 +74,21 @@ public class AudioManager : MonoBehaviour
         {
             musicSource = gameObject.AddComponent<AudioSource>();
         }
+
+        if (PlayStartupSound && StartupSound)
+        {
+            musicSource.Stop();
+            AudioSource StartupSoundComponent = gameObject.AddComponent<AudioSource>();
+            StartupSoundComponent.clip = StartupSound;
+            StartupSoundComponent.Play();
+            Invoke(nameof(WaitForStartupSound), 0);
+        }
+    }
+
+    private IEnumerator WaitForStartupSound()
+    {
+        yield return new WaitForSeconds(musicSource.clip.length);
+        musicSource.Play();
     }
 
     private void OnDestroy()
@@ -169,9 +190,24 @@ public class AudioManager : MonoBehaviour
 
     // --- Music Playback ---
 
-    public void PlayMusic(AudioData data)
+    //Keep track of new music sources just incase
+    List<AudioSource> additionalMusicSources = new List<AudioSource>();
+    public void PlayMusic(AudioData data, bool overrideCurrent = false)
     {
         if (data == null || data.clip == null) return;
+        if (overrideCurrent == false && musicSource != null)
+        {
+            AudioSource curr = this.AddComponent<AudioSource>();
+            additionalMusicSources.Add(curr);
+            curr.loop = data.loop;
+            curr.clip = data.clip;
+            curr.volume = data.volume;
+            curr.spatialBlend = 0.0f;
+            UpdateCurrentMusicVolume();
+            curr.Play();
+            return;
+        }
+        
         if (musicSource != null)
         {
             currentMusicData = data;
@@ -189,6 +225,16 @@ public class AudioManager : MonoBehaviour
         {
             musicSource.Stop();
         }
+    }
+
+    public void DeleteCurrentMusicSources()
+    {
+        musicSource.clip = null;
+        foreach(AudioSource audioSource in additionalMusicSources)
+        {
+            Destroy(audioSource);
+        }
+        additionalMusicSources.Clear();
     }
 
     // --- State Checks ---

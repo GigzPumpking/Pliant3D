@@ -1059,6 +1059,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isGrounded: 1
+  airborneGraceDuration: 0.15
   movementSpeed: 3
   canMove: 1
   transformation: 0
@@ -1448,13 +1449,14 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 1015
-  raycastDistance: 0.35
+  groundCheckRadius: 0.3
+  groundCheckDistance: 0.1
   yOffset: 0.2
   verticalVelocityThreshold: 0.1
-  pullBoxCenter: {x: 0, y: 0.5, z: 3}
-  pullBoxSize: {x: 0.5, y: 0.75, z: 7}
-  grappleBoxCenter: {x: 0, y: 3, z: 4.5}
-  grappleBoxSize: {x: 5, y: 6, z: 10}
+  pullBoxCenter: {x: 0, y: 0.5, z: 5.5}
+  pullBoxSize: {x: 0.5, y: 0.75, z: 11}
+  grappleBoxCenter: {x: 0, y: 3, z: 5.5}
+  grappleBoxSize: {x: 5, y: 6, z: 11}
   hookTarget: {fileID: 4449726786090626634}
   hookDuration: 1
   hookSpeed: 10

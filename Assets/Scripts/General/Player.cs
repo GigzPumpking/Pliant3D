@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public enum Directions {
     UP,
@@ -253,9 +254,11 @@ public class Player : KeyActionReceiver<Player>
         { 
             isMoving = false;
         }
-
-        if (transform.position.y < outOfBoundsY && !GameManager.Instance.isGameOver)
+        
+        if (transform.position.y < outOfBoundsY && !GameManager.Instance.isGameOver && SceneManager.GetActiveScene().name != "2-0 Meri")
         {
+            Debug.LogWarning("s::" + SceneManager.GetActiveScene().name);
+            Debug.LogWarning("Game Over from Player.cs");
             GameManager.Instance?.GameOver();
         }
 

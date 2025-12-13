@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 public class Frog : FormScript
 {
@@ -75,6 +76,8 @@ public class Frog : FormScript
     private bool isGrappling = false;
     private Transform grappleTarget;
     private Coroutine grappleCoroutine;
+
+    private bool canJumpLock = true;
 
     // Single source of truth for calculating hook/tongue attachment point
     private Vector3 CalculateHookPoint(Transform target)
@@ -182,6 +185,7 @@ public class Frog : FormScript
 
     public override void OnEnable()
     {
+        EventDispatcher.AddListener<TogglePlayerMovement>(ToggleJump);
         base.OnEnable();
     }
 
@@ -198,6 +202,12 @@ public class Frog : FormScript
         {
             StopGrapple();
         }
+        EventDispatcher.RemoveListener<TogglePlayerMovement>(ToggleJump);
+    }
+
+    void ToggleJump(TogglePlayerMovement set)
+    {
+        canJumpLock = set.isEnabled;
     }
     
     // *** Detects collision with the grapple target ***
@@ -336,6 +346,7 @@ public class Frog : FormScript
 
     private void Jump()
     {
+        if (!canJumpLock) return;
         bool isVerticallyStationary = Mathf.Abs(rb.velocity.y) < verticalVelocityThreshold;
         
         bool canJump = 

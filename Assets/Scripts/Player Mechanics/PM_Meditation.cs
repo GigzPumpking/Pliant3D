@@ -72,6 +72,7 @@ public class PM_Meditation : KeyActionReceiver<PM_Meditation>
     
     public void Meditate()
     {
+        if (LockoutBar.Instance == null) return;
         if (mData.onlyMeditateOnLockout && !LockoutBar.Instance.IsAnyLockedOut()) return;
         if (Player.Instance?.GetTransformation() != Transformation.TERRY) return;
         if (_isMeditating) return;

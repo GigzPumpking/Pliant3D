@@ -106,13 +106,17 @@ public class UIManager : KeyActionReceiver<UIManager>
         GameManager.Instance.Reset();
     }
 
+    private static BaseEventData eventSystemData;
     public void GameOverProtocol()
     {
         if (GameOverPanel != null)
             GameOverPanel.SetActive(true);
         
         var eventSystem = EventSystem.current;
-        eventSystem.SetSelectedGameObject(GameOverPanel.transform.GetChild(2).gameObject, new BaseEventData(eventSystem));
+        bool can = GameOverPanel.transform.GetChild(2).gameObject != null;
+        
+        if(can) 
+            eventSystem.SetSelectedGameObject(GameOverPanel.transform.GetChild(2).gameObject, eventSystemData);
 
         Debug.Log("Game Over");
         TogglePlayerMovement tpm = new TogglePlayerMovement();
@@ -122,7 +126,6 @@ public class UIManager : KeyActionReceiver<UIManager>
 
     public void DisableGameOverPanel()
     {
-        if (!GameOverPanel.activeSelf) return;
         GameOverPanel.SetActive(false);
     }
 

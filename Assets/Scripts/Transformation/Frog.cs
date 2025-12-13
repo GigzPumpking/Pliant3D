@@ -593,7 +593,13 @@ public class Frog : FormScript
     {
         if (isGrappling) yield break; // Exit if already grappling
 
-        animator?.SetTrigger("Tongue");
+        // Check if facing front before playing tongue animation
+        Vector3 facingDir = Player.Instance != null ? Player.Instance.AnimationBasedFacingDirection : Vector3.forward;
+        bool isFacingFront = facingDir == Vector3.left || facingDir == Vector3.back;
+        if (!isFacingFront)
+        {
+            animator?.SetTrigger("Tongue");
+        }
 
         // --- Setup Phase ---
         isGrappling = true;
@@ -671,12 +677,22 @@ public class Frog : FormScript
         isPulling = true;
         pullElapsedTime = 0f;
         stuckTime = 0f;
+
+        animator?.SetBool("isPulling", true);
         
         // Calculate the hook point - this is our target
         pullTargetPoint = CalculateHookPoint(t);
         lastDistanceToTarget = Vector3.Distance(pullTargetPoint, transform.position);
 
         Debug.Log($"[PULL START] Object: {t.name}, HookPoint: {pullTargetPoint}, InitialDist: {lastDistanceToTarget:F3}");
+
+        // If player is facing front, do not play tongue animation
+        Vector3 facingDir = Player.Instance != null ? Player.Instance.AnimationBasedFacingDirection : Vector3.forward;
+        bool isFacingFront = facingDir == Vector3.left || facingDir == Vector3.back;
+        if (!isFacingFront)
+        {
+            animator?.SetTrigger("Tongue");
+        }
 
         Player.Instance.canMoveToggle(false);
 
@@ -768,6 +784,7 @@ public class Frog : FormScript
         {
             Debug.Log($"[PULL END] Stopping pull");
             Player.Instance.canMoveToggle(true);
+            animator?.SetBool("isPulling", false);
             
             if (currentPullObject != null)
             {

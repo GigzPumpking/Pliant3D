@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using System.Linq.Expressions;
+using UnityEngine.EventSystems;
 
 public class GameManager : KeyActionReceiver<GameManager>
 {
@@ -16,6 +17,7 @@ public class GameManager : KeyActionReceiver<GameManager>
     private TransformationWheel transformWheel;
 
     [SerializeField] private AudioData mainTheme;
+    [SerializeField] private AudioData Ambience;
 
     // Main menu scene name
     [SerializeField] private string mainMenuSceneName = "0 Main Menu";
@@ -36,6 +38,13 @@ public class GameManager : KeyActionReceiver<GameManager>
             instance = this;
         else
         {
+            //Handle Music Carryover between scenes
+            instance.mainTheme = this.mainTheme;
+            instance.Ambience  = this.Ambience;
+            AudioManager.Instance?.DeleteCurrentMusicSources();
+            AudioManager.Instance?.PlayMusic(mainTheme);
+            AudioManager.Instance?.PlayMusic(Ambience);
+            
             Destroy(this.gameObject);
             return;
         }
@@ -45,6 +54,7 @@ public class GameManager : KeyActionReceiver<GameManager>
     void Start()
     {
         AudioManager.Instance?.PlayMusic(mainTheme);
+        AudioManager.Instance?.PlayMusic(Ambience);
     }
 
     public void SetPlayer(Transform player)
@@ -94,17 +104,16 @@ public class GameManager : KeyActionReceiver<GameManager>
         {
             Debug.LogError("Error loading dependencies when restarting scene");
         }
+        var eventSystem = EventSystem.current;
+        eventSystem.SetSelectedGameObject(null);
+        UIManager.Instance?.DisableGameOverPanel();
     }
 
     public void GameOver()
     {
         if (isGameOver) return;
+        UIManager.Instance?.GameOverProtocol();
         isGameOver = true;
-        if (gameOverPanel != null)
-            gameOverPanel.SetActive(true);
-
-        Debug.Log("Game Over");
-        Player.Instance.canMoveToggle(false);
     }
 
     public void Reset(InputAction.CallbackContext context)
@@ -126,4 +135,73 @@ public class GameManager : KeyActionReceiver<GameManager>
         SceneManager.LoadScene(mainMenuSceneName);
     }
 
+    public void SaveGame(string saveFileName)
+    {
+        PlayerData playerData = new PlayerData();
+
+        if (Player.Instance != null)
+        {
+            playerData.sceneName = SceneManager.GetActiveScene().name;
+            /*
+            Vector3 playerPosition = Player.Instance.transform.position;
+            playerData.playerPosition = new float[] { playerPosition.x, playerPosition.y, playerPosition.z };
+            playerData.playerForm = Player.Instance.transformation.ToString();
+            */
+        }
+
+        /*
+        if (AudioManager.Instance != null)
+        {
+            playerData.settings.masterVolume = AudioManager.Instance.GetGlobalVolume();
+        }
+
+        playerData.settings.resolutionWidth = Screen.currentResolution.width;
+        playerData.settings.resolutionHeight = Screen.currentResolution.height;
+        playerData.settings.isFullscreen = Screen.fullScreen;
+        */
+
+        SaveSystem.SaveGame(saveFileName, playerData);
+    }
+
+    public void LoadGame(string saveFileName)
+    {
+        PlayerData playerData = SaveSystem.LoadGame(saveFileName);
+        if (playerData != null)
+        {
+            StartCoroutine(LoadSceneAndApplyData(playerData));
+        }
+    }
+
+    private IEnumerator LoadSceneAndApplyData(PlayerData playerData)
+    {
+        // Load the scene
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(playerData.sceneName);
+
+        // Wait until the scene is fully loaded
+        while (!asyncLoad.isDone)
+        {
+            yield return null;
+        }
+
+        // Apply player data after scene has loaded
+        if (Player.Instance != null)
+        {
+            /*
+            Vector3 position = new Vector3(playerData.playerPosition[0], playerData.playerPosition[1], playerData.playerPosition[2]);
+            Player.Instance.transform.position = position;
+
+            Transformation transformation = (Transformation)System.Enum.Parse(typeof(Transformation), playerData.playerForm);
+            Player.Instance.SetTransformation(transformation);
+            */
+        }
+        /*
+        // Apply settings
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.SetGlobalVolume(playerData.settings.masterVolume);
+        }
+
+        Screen.SetResolution(playerData.settings.resolutionWidth, playerData.settings.resolutionHeight, playerData.settings.isFullscreen);
+        */
+    }
 }

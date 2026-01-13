@@ -6,26 +6,13 @@ using UnityEngine.UI;
 
 public class TutorialStickyNote : MonoBehaviour
 {
-    private static TutorialStickyNote instance;
-    public static TutorialStickyNote Instance { get { return instance; } }
     public Image StickyNoteImage;
     public Image StickyNoteGraphicHolder;
     public Sprite StickyNoteGraphicKeyboard;
     public Sprite StickyNoteGraphicController;
     public Image CompletionStamp;
     private Image _currGraphic;
-
-    private void Awake()
-    {
-        if (instance == null)
-            instance = this;
-        else
-        {
-            Destroy(this.gameObject);
-        }
-        
-    }
-
+    
     private void Update()
     {
         if (InputSystem.GetDevice<InputDevice>() is Gamepad && StickyNoteGraphicController) StickyNoteGraphicHolder.sprite = StickyNoteGraphicController;
@@ -48,6 +35,8 @@ public class TutorialStickyNote : MonoBehaviour
     {
         if(StickyNoteImage) StickyNoteImage.enabled = true;
         StickyNoteGraphicHolder.enabled = true;
+        
+        gameObject.SetActive(true);
     }
 
     public void OnHide()
@@ -55,5 +44,7 @@ public class TutorialStickyNote : MonoBehaviour
         if(StickyNoteImage)StickyNoteImage.enabled = false;
         StickyNoteGraphicHolder.enabled = false;
         CompletionStamp?.gameObject.SetActive(false);
+        
+        gameObject.SetActive(false);
     }
 }

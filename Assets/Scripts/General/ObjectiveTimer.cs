@@ -55,6 +55,7 @@ public class ObjectiveTimer : MonoBehaviour
             currentTime = 0;
             if (GameManager.Instance != null && !GameManager.Instance.isGameOver && hasStarted)
             {
+                Debug.LogWarning("Game Over from ObjectiveTimer.cs");
                 GameManager.Instance?.GameOver();
                 currentTime = totalTime; // Reset timer for next round
             }

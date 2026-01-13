@@ -32,7 +32,7 @@ namespace TMPro.Examples
         private float m_HandleSize;
 
 
-        void OnDrawGizmos()
+        void OnDrawGizmosSelected()
         {
             if (m_TextComponent == null)
             {

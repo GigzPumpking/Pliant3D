@@ -8,13 +8,15 @@ using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Serialization;
+using UnityEngine.Video;
 
 public class PM_Meditation : KeyActionReceiver<PM_Meditation>
 {
     [FormerlySerializedAs("_mData")] [SerializeField] private PM_MeditationData mData;
     [SerializeField] private GameObject volumePrefab;
-    [SerializeField] private GameObject meditationOverlay;
-    [SerializeField] private TextMeshProUGUI meditationCountDown;
+    [FormerlySerializedAs("meditationOverlay")] [SerializeField] private GameObject meditationCanvas;
+    [SerializeField] private TextMeshProUGUI meditationCountDown; 
+    private VideoPlayer _meditationVideoPlayer;
     private Volume _volumeOverlay;
     public static event Action<Transformation> OnMeditate; //Listened to by LockoutBar.cs
 
@@ -40,6 +42,8 @@ public class PM_Meditation : KeyActionReceiver<PM_Meditation>
         _originalZoom = Camera.main.orthographicSize;
         _volumeOverlay = GameObject.Instantiate(volumePrefab).GetComponent<Volume>();
         _meditateCo = MeditateCoroutine;
+        _meditationVideoPlayer = meditationCanvas.transform.GetChild(0).GetComponent<VideoPlayer>();
+        if(_meditationVideoPlayer) _meditationVideoPlayer.clip = mData.meditationClip;
     }
 
     float currTime = 0f;
@@ -68,6 +72,7 @@ public class PM_Meditation : KeyActionReceiver<PM_Meditation>
     
     public void Meditate()
     {
+        if (LockoutBar.Instance == null) return;
         if (mData.onlyMeditateOnLockout && !LockoutBar.Instance.IsAnyLockedOut()) return;
         if (Player.Instance?.GetTransformation() != Transformation.TERRY) return;
         if (_isMeditating) return;
@@ -80,8 +85,11 @@ public class PM_Meditation : KeyActionReceiver<PM_Meditation>
     {
         currTime = 0f;
         _isMeditating = true;
+        
         while(!DoFancy()) yield return null;
-        meditationOverlay?.SetActive(true);
+        meditationCanvas?.SetActive(true);
+        //Start Video
+        if(_meditationVideoPlayer) _meditationVideoPlayer.Play();
         Player.Instance?.canMoveToggle(false);
         
         while (currTime <= mData.timeForMeditate) { Debug.Log("Performing"); yield return null;}
@@ -89,7 +97,7 @@ public class PM_Meditation : KeyActionReceiver<PM_Meditation>
         OnMeditate?.Invoke(Transformation.FROG);
         OnMeditate?.Invoke(Transformation.BULLDOZER);
         OnMeditate?.Invoke(Transformation.TERRY);
-        meditationOverlay?.SetActive(false);
+        meditationCanvas?.SetActive(false);
         Player.Instance?.canMoveToggle(true);
         
         //Debug.LogError("Done with Meditation");

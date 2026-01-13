@@ -14,14 +14,21 @@ public class LockoutBarUI : MonoBehaviour
     [SerializeField] private GameObject redChargePrefab;
 
     private readonly Dictionary<Image, Image> _lockoutChargeImages = new Dictionary<Image, Image>(); //KEY: BG, VALUE: FILL
-    private GameObject _lockoutTransformIcon;
+    private GameObject _lockoutTransformIcon = null;
     private GameObject _crossOutIcon;
-    
+
     public void SetIcon(GameObject icon)
     {
         //HITS FIRST INSTANCE OF 'IMAGE' TYPE. WILL ALWAYS BE THE ICON
-        _lockoutTransformIcon = GameObject.Instantiate(icon, this.gameObject.transform);
-        _lockoutTransformIcon.name = "LockoutTransformIcon";
+        if (!_lockoutTransformIcon)
+        {
+            _lockoutTransformIcon = GameObject.Instantiate(icon, this.gameObject.transform);
+            _lockoutTransformIcon.name = "LockoutTransformIcon";
+        }
+        else
+        {
+            _lockoutTransformIcon.GetComponent<Image>().sprite = icon.GetComponent<Image>().sprite;
+        }
     }
 
     public void CrossOutIcon(GameObject icon, bool isTerry = false)
@@ -62,11 +69,11 @@ public class LockoutBarUI : MonoBehaviour
     
     public void SetCharge(int chargeAmt)
     {
-        int idx = 0;
+        int idx = 3;
         foreach (Image fill in _lockoutChargeImages.Values)
         {
-            fill.fillAmount = idx < chargeAmt ? 100f : 0f;
-            idx++;
+            fill.fillAmount = idx < chargeAmt ? 0f : 100f;
+            idx--;
         }
     }
 }
@@ -78,6 +85,7 @@ public class LockoutChargeUIFactory
     {
         Image bg = Object.Instantiate(prefab, parent).GetComponent<Image>();
         Image fill = bg.gameObject.transform.GetChild(0).GetComponent<Image>();
+        fill.fillAmount = 0f;
         refLockoutCharges.TryAdd(bg, fill);
     }
 }

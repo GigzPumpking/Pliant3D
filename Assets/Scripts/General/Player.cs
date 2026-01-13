@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public enum Directions {
     UP,
@@ -48,6 +49,14 @@ public class Player : KeyActionReceiver<Player>
     private Directions lastHorizontalInput = Directions.RIGHT;
 
     [SerializeField] bool isGrounded = true;
+    public bool IsGrounded => isGrounded;
+
+    private bool isJumping = false;
+    public bool IsJumping => isJumping;
+
+    // Grace window to prevent immediate upward clamp right after a jump/grapple impulse
+    private float airborneGraceTimer = 0f;
+    [SerializeField] private float airborneGraceDuration = 0.15f;
 
     // Jumping and Movement Variables
     [SerializeField] float movementSpeed = 5f;
@@ -165,6 +174,38 @@ public class Player : KeyActionReceiver<Player>
         return smoke.gameObject;
     }
 
+    public void SetGroundedState(bool grounded)
+    {
+        // Ignore early ground hits while we are still within the airborne grace window
+        if (grounded && airborneGraceTimer > 0f)
+            return;
+
+        isGrounded = grounded;
+
+        // Landing ends jumping
+        if (grounded)
+        {
+            isJumping = false;
+            airborneGraceTimer = 0f;
+        }
+    }
+
+    public void RegisterAirborneImpulse(float duration = -1f)
+    {
+        // If no custom duration provided, fall back to serialized default
+        float dur = duration > 0f ? duration : airborneGraceDuration;
+        airborneGraceTimer = Mathf.Max(airborneGraceTimer, dur);
+    }
+
+    public void SetJumpingState(bool jumping)
+    {
+        isJumping = jumping;
+        if (jumping)
+        {
+            isGrounded = false;
+        }
+    }
+
     void InteractHandler(InputAction.CallbackContext context) {
         if (context.performed) {
             EventDispatcher.Raise<Interact>(new Interact());
@@ -199,6 +240,11 @@ public class Player : KeyActionReceiver<Player>
     }
 
     void Update() {
+        if (airborneGraceTimer > 0f)
+        {
+            airborneGraceTimer -= Time.deltaTime;
+        }
+
         if (canMove)
         {
             InputHandler();
@@ -208,9 +254,11 @@ public class Player : KeyActionReceiver<Player>
         { 
             isMoving = false;
         }
-
-        if (transform.position.y < outOfBoundsY && !GameManager.Instance.isGameOver)
+        
+        if (transform.position.y < outOfBoundsY && !GameManager.Instance.isGameOver && SceneManager.GetActiveScene().name != "2-0 Meri" && SceneManager.GetActiveScene().name != "3-0 Carrie")
         {
+            Debug.LogWarning("s::" + SceneManager.GetActiveScene().name);
+            Debug.LogWarning("Game Over from Player.cs");
             GameManager.Instance?.GameOver();
         }
 
@@ -310,6 +358,26 @@ public class Player : KeyActionReceiver<Player>
             rbody.velocity.y,
             dir.z * movementSpeed
         );
+
+        // Check if Bulldozer is sprinting - if so, don't clamp velocity
+        bool isBulldozerSprinting = false;
+        if (transformation == Transformation.BULLDOZER && selectedGroupScript != null)
+        {
+            Bulldozer bulldozer = selectedGroupScript as Bulldozer;
+            if (bulldozer != null)
+            {
+                isBulldozerSprinting = bulldozer.IsSprinting();
+            }
+        }
+
+        if (!isJumping && airborneGraceTimer <= 0f && isGrounded && rbody.velocity.y > 0.1f && !isBulldozerSprinting)
+        {
+            rbody.velocity = new Vector3(
+                rbody.velocity.x,
+                0,
+                rbody.velocity.z
+            );
+        }
     }
     
     private string GetCurrentSpriteName()
@@ -322,7 +390,7 @@ public class Player : KeyActionReceiver<Player>
         return selectedGroupSprite.sprite.name;
     }
 
-    // MOVED FROM FROG: This is the logic that determines direction from animation state.
+    // This is the logic that determines direction from animation state.
     private void UpdateAnimationBasedDirection()
     {
         Vector3 dirVec = Vector3.forward; // Default direction
@@ -336,9 +404,27 @@ public class Player : KeyActionReceiver<Player>
         bool isFlippedX = selectedGroupSprite.flipX;
         string spriteName = GetCurrentSpriteName();
 
+        // Special handling for Frog's "Left" sprites - these are pure left/right facing
+        if (spriteName.StartsWith("Left"))
+        {
+            if (transformation == Transformation.FROG)
+            {
+                // Frog's "Left" sprites use flipX to distinguish left from right
+                // flipX = false: facing pure west (left) - between forward and left
+                // flipX = true: facing pure east (right) - between back and right
+                dirVec = isFlippedX 
+                    ? new Vector3(1, 0, -1).normalized  // East: between back (0,0,-1) and right (1,0,0)
+                    : new Vector3(-1, 0, 1).normalized; // West: between left (-1,0,0) and forward (0,0,1)
+            }
+            else
+            {
+                // Other transformations default to left
+                dirVec = Vector3.left;
+            }
+        }
         // Sprites with specific "Left" or "Right" directions
         // These function as if isFlippedX is false or true, respectively, ignoring the variable.
-        if (spriteName.StartsWith("FrontLeft"))
+        else if (spriteName.StartsWith("FrontLeft"))
         {
             // if Transformation is BULLDOZER, use the isFlippedX to determine direction
             if (transformation == Transformation.BULLDOZER)

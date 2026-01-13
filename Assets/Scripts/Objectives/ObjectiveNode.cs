@@ -5,12 +5,20 @@ using System.Linq;
 using Enumerable = System.Linq.Enumerable;
 
 [RequireComponent(typeof(Collider))]
-public class ObjectiveNode : MonoBehaviour {
+public class ObjectiveNode : MonoBehaviour
+{
     public static event Action OnNodeCompleted;
     public List<GameObject> lookingFor;
-    public bool isComplete {get;set;}
+    private Collider coll;
+    public bool isComplete { get; set; }
 
-    private void OnTriggerEnter(Collider other) {
+    private void Awake()
+    {
+        TryGetComponent(out coll);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
         if (!lookingFor.Contains(other.gameObject)) return;
         lookingFor.Remove(other.gameObject);
 

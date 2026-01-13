@@ -106,7 +106,7 @@ public class Bulldozer : FormScript
         }
     }
     
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     {
         #if UNITY_EDITOR
         GetBreakBoxTransform(out Vector3 boxWorldCenter, out Quaternion boxWorldRot);
@@ -230,6 +230,11 @@ public class Bulldozer : FormScript
         isSprinting = false;
         speed = baseSpeed;
         animator?.SetBool("isSprinting", false);
+    }
+
+    public bool IsSprinting()
+    {
+        return isSprinting;
     }
 
     private IEnumerator FadeOutStaminaBar()

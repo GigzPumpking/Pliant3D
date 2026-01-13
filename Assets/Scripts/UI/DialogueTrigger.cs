@@ -15,6 +15,7 @@ public class DialogueTrigger : MonoBehaviour
     [SerializeField] private Sprite keyboardSprite;
     [SerializeField] private Sprite controllerSprite;
     private bool inRadius = false;
+    [SerializeField] private List<Objective> objectiveToGive = new List<Objective>();
     public bool triggered { get; set; } = false;
     private Dialogue dialogue;
     

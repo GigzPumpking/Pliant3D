@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class ObjectToManyLocationsObjective : Objective {
     public static event Action<Objective> OnObjectiveComplete;
-    [SerializeField] List<ObjectiveNode> targetLocations = new();
-    [SerializeField] GameObject lookingFor = new();
+    [SerializeField] List<ObjectiveNode> targetLocations = new  List<ObjectiveNode>();
+    [SerializeField] private GameObject lookingFor;
     
     private void Awake() {
         //set each looking for 'gameobject' to the player

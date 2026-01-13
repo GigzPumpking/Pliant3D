@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,6 +10,7 @@ public class ObjectiveUIFactory {
         
         ObjectiveUI currentObjectiveUI = currentObj.GetComponent<ObjectiveUI>();
         currentObjectiveUI.DescriptionTXT.text = objective.description;
+        //Debug.LogWarning($"Creating objective UI for objective: {objective.description} at {currentObjectiveUI}");
         return currentObjectiveUI;
     }
 
@@ -29,5 +31,16 @@ public class ObjectiveUIFactory {
         }
 
         return currentListing;
+    }
+
+    public static GameObject AddToObjectiveToListingUI(ObjectiveListing objectiveListing, List<Objective> objectives, GameObject objectiveListingPrefab, GameObject objectiveUIPrefab, GameObject parent)
+    {
+        foreach(Objective obj in objectives)
+        {
+            objectiveListing.objectives.Add(obj);
+            objectiveListing.objectiveUIList.Add(CreateObjectiveUI(obj, objectiveUIPrefab, parent));
+            //Debug.LogWarning($"Attached to {objectiveListing.gameObject.name}");
+        }
+        return objectiveListing.gameObject;
     }
 }

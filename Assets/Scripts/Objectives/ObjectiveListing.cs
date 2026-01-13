@@ -61,6 +61,7 @@ public class ObjectiveListing : MonoBehaviour {
         ObjectToManyLocationsObjective.OnObjectiveComplete += SetCompletionOfObjective;
         NPCInteractObjective.OnObjectiveComplete += SetCompletionOfObjective;
         TransformationSwapInteractObjective.OnObjectiveComplete += SetCompletionOfObjective;
+        FetchObjective.OnObjectiveComplete += SetCompletionOfObjective;
         //add logic for the other strategies too
     }
 
@@ -70,6 +71,7 @@ public class ObjectiveListing : MonoBehaviour {
         ObjectToManyLocationsObjective.OnObjectiveComplete -= SetCompletionOfObjective;
         NPCInteractObjective.OnObjectiveComplete -= SetCompletionOfObjective;
         TransformationSwapInteractObjective.OnObjectiveComplete -= SetCompletionOfObjective;
+        FetchObjective.OnObjectiveComplete -= SetCompletionOfObjective;
     }
 
     private void CheckCompletion() {

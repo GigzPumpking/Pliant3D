@@ -94,6 +94,10 @@ public class DialogueTrigger : MonoBehaviour
             dialogue.Appear();
             EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = false });
             
+            Interact thisInteract = new Interact();
+            thisInteract.questGiver = this;
+            EventDispatcher.Raise<Interact>(thisInteract);
+            
             //raise an interact here listened to by 'NPCInteractObjective.cs'
             InteractedObjective?.Invoke(this);
         }
@@ -151,6 +155,7 @@ public class DialogueTrigger : MonoBehaviour
         }
     }
 
+    public static ObjectiveTracker ObjectiveTracker;
     void EndDialogue(EndDialogue e) {
         if (!interactBubble.activeSelf && inRadius) {
             interactBubble.SetActive(true);
@@ -162,6 +167,9 @@ public class DialogueTrigger : MonoBehaviour
         {
             evt.Invoke();
         }
+            //terrible but will work
+            if (!ObjectiveTracker) ObjectiveTracker = GameObject.FindObjectOfType<ObjectiveTracker>();
+            ObjectiveTracker.AddObjective(objectiveToGive);
     }
 
     private SpriteRenderer _sr = null;

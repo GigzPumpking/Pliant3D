@@ -1,10 +1,13 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
     public class FetchObjective : Objective
     {
-        private List<FetchableObject> ObjectsToFetch;
-
+        public static event Action<Objective> OnObjectiveComplete;
+        [SerializeField] List<FetchableInteractable> ObjectsToFetch;
         private DialogueTrigger questGiver;
         //reference the objects to fetch/flag if all objects are fetched, then check if npc actually got the object, if so objective complete
         
@@ -28,23 +31,30 @@ using UnityEngine;
             //TransformationWheel.TransformedObjective -= CheckCompletion;
             EventDispatcher.RemoveListener<Interact>(CheckCompletion);
         }
-        
+
+        private bool fetchedAll = false;
         private void CheckCompletion(Interact interact)
         {
+            Debug.LogWarning("Checking completion");
             //check if the interact raised was by the player interacting with the questGiver. Mark all objects in 'inventory' as 'returned' at this point IF it was 'fetched'
-            if(interact.)
-            for(FetchableObject fetchable : ObjectsToFetch)
+            foreach(var obj in ObjectsToFetch)
             {
-                if (fetchable.isFetched)
-                {
-                    ObjectsToFetch.Remove(fetchable);
-                }
+                if (!obj.isFetched) return;
             }
             
+            //buffer
+            if (!fetchedAll)
+            {
+                fetchedAll = true;
+                return;
+            }
+
             //check if all objects are 'returned'
             //if so then invoke completion events
-            if(ObjectsToFetch.Count == 0)
+            if (interact.questGiver != questGiver) return;
             
             InvokeCompletionEvents();
+            isComplete = true;
+            OnObjectiveComplete?.Invoke(this);
         }
     }

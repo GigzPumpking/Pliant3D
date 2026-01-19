@@ -95,7 +95,6 @@ GameObject:
   - component: {fileID: 3493604527745461603}
   - component: {fileID: 3493604527745461604}
   - component: {fileID: 3493604527745461605}
-  - component: {fileID: 3493604527745461606}
   - component: {fileID: 3493604527745461607}
   m_Layer: 0
   m_Name: NPCDialogue
@@ -171,19 +170,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &3493604527745461606
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3493604527745461608}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 5.6223183, y: 1, z: 4.5499415}
-  m_Center: {x: 0.37079048, y: 0, z: -0.05037284}
 --- !u!114 &3493604527745461607
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -196,6 +182,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b3bf43e44d6246e8a2a29751ea654ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  baseDialogue: []
+  interactionDistance: 0
+  requiresTerryForm: 0
   dialogueLines: []
   keyboardDialogueLines: []
   controllerDialogueLines: []
@@ -203,6 +192,7 @@ MonoBehaviour:
   terryRequired: {fileID: 7373276661173733797}
   keyboardSprite: {fileID: 21300000, guid: fc7bb22339e9e4dc1a918c75a23f2ae1, type: 3}
   controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}
+  objectiveToGive: []
   events: []
 --- !u!1 &7373276661173733797
 GameObject:

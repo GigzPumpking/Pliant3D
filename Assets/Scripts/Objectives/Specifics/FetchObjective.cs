@@ -4,6 +4,26 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
+    /// <summary>
+    /// Proxy component that allows FetchObjective to provide dialogue to an alternate return NPC.
+    /// This is added at runtime to the alternate NPC's GameObject.
+    /// </summary>
+    public class FetchObjectiveDialogueProxy : MonoBehaviour, IDialogueProvider
+    {
+        private FetchObjective sourceObjective;
+        
+        public void Initialize(FetchObjective objective)
+        {
+            sourceObjective = objective;
+        }
+        
+        public int Priority => sourceObjective != null ? sourceObjective.Priority : -1;
+        
+        public bool HasDialogue => sourceObjective != null && sourceObjective.HasAlternateNPCDialogue();
+        
+        public DialogueEntry[] GetDialogueEntries() => sourceObjective?.GetAlternateNPCDialogueEntries();
+    }
+
     public class FetchObjective : Objective, IDialogueProvider
     {
         public static event Action<Objective> OnObjectiveComplete;
@@ -14,15 +34,28 @@ using UnityEngine;
         [Tooltip("If true, player must return to an NPC after fetching all items. If false, quest completes immediately when all items are fetched.")]
         [SerializeField] private bool requiresNPCReturn = true;
         
-        [Tooltip("Optional: If set, player must deliver items to this NPC instead of the quest giver. Leave empty to return to quest giver.")]
-        [SerializeField] private DialogueTrigger alternateReturnNPC;
-        
-        [Header("Quest Dialogue")]
-        [Tooltip("Shown when all items are fetched but not yet returned (fetchedAll == true, isComplete == false)")]
+        [Header("Quest Giver Dialogue")]
+        [Tooltip("Shown by quest giver when all items are fetched but not yet returned (fetchedAll == true, isComplete == false)")]
         public DialogueEntry[] itemsReadyDialogue;
         
-        [Tooltip("Shown after the quest is fully complete (isComplete == true)")]
+        [Tooltip("Shown by quest giver after the quest is fully complete (isComplete == true)")]
         public DialogueEntry[] questCompleteDialogue;
+        
+        [Header("Alternate Return NPC")]
+        [Tooltip("Enable to deliver items to a different NPC instead of the quest giver.")]
+        [SerializeField] private bool useAlternateNPC = false;
+        
+        [Tooltip("The NPC to deliver items to (instead of the quest giver).")]
+        [SerializeField] private DialogueTrigger alternateNPC;
+        
+        [Tooltip("Shown by alternate NPC when all items are fetched but not yet returned")]
+        public DialogueEntry[] alternateItemsReadyDialogue;
+        
+        [Tooltip("Shown by alternate NPC after the quest is fully complete")]
+        public DialogueEntry[] alternateQuestCompleteDialogue;
+        
+        // Reference to the proxy added to alternate NPC
+        private FetchObjectiveDialogueProxy alternateNPCProxy;
         
         // Priority levels for different dialogue states
         private const int PRIORITY_ITEMS_READY = 10;
@@ -35,7 +68,7 @@ using UnityEngine;
         //if fetched, when interacted with questGiver -> object is returned
         //if all objects are returned, then the objective is complete
 
-        #region IDialogueProvider Implementation
+        #region IDialogueProvider Implementation (Quest Giver)
         
         public int Priority
         {
@@ -51,27 +84,46 @@ using UnityEngine;
             }
         }
         
-        public bool HasDialogue
-        {
-            get
-            {
-                if (isComplete)
-                    return questCompleteDialogue != null && questCompleteDialogue.Length > 0;
-                
-                if (fetchedAll)
-                    return itemsReadyDialogue != null && itemsReadyDialogue.Length > 0;
-                
-                return false;
-            }
-        }
+        public bool HasDialogue => HasDialogueForState(itemsReadyDialogue, questCompleteDialogue);
         
-        public DialogueEntry[] GetDialogueEntries()
+        public DialogueEntry[] GetDialogueEntries() => GetDialogueForState(itemsReadyDialogue, questCompleteDialogue);
+        
+        #endregion
+        
+        #region Alternate NPC Dialogue Provider Methods
+        
+        public bool HasAlternateNPCDialogue() => HasDialogueForState(alternateItemsReadyDialogue, alternateQuestCompleteDialogue);
+        
+        public DialogueEntry[] GetAlternateNPCDialogueEntries() => GetDialogueForState(alternateItemsReadyDialogue, alternateQuestCompleteDialogue);
+        
+        #endregion
+        
+        #region Private Helper Methods
+        
+        /// <summary>
+        /// Checks if dialogue exists for the current state given specific dialogue arrays.
+        /// </summary>
+        private bool HasDialogueForState(DialogueEntry[] readyDialogue, DialogueEntry[] completeDialogue)
         {
             if (isComplete)
-                return questCompleteDialogue;
+                return completeDialogue != null && completeDialogue.Length > 0;
             
             if (fetchedAll)
-                return itemsReadyDialogue;
+                return readyDialogue != null && readyDialogue.Length > 0;
+            
+            return false;
+        }
+        
+        /// <summary>
+        /// Gets the dialogue entries for the current state given specific dialogue arrays.
+        /// </summary>
+        private DialogueEntry[] GetDialogueForState(DialogueEntry[] readyDialogue, DialogueEntry[] completeDialogue)
+        {
+            if (isComplete)
+                return completeDialogue;
+            
+            if (fetchedAll)
+                return readyDialogue;
             
             return null;
         }
@@ -87,6 +139,14 @@ using UnityEngine;
             {
                 questGiver.RefreshDialogueProviders();
             }
+            
+            // If there's an alternate return NPC, add a dialogue proxy to it
+            if (useAlternateNPC && alternateNPC != null)
+            {
+                alternateNPCProxy = alternateNPC.gameObject.AddComponent<FetchObjectiveDialogueProxy>();
+                alternateNPCProxy.Initialize(this);
+                alternateNPC.RefreshDialogueProviders();
+            }
         }
         
         private void OnEnable() {
@@ -100,6 +160,19 @@ using UnityEngine;
             //TransformationWheel.TransformedObjective -= CheckCompletion;
             EventDispatcher.RemoveListener<Interact>(CheckCompletion);
             EventDispatcher.RemoveListener<FetchObjectInteract>(OnFetchObjectInteract);
+            
+            // Clean up the proxy component from alternate NPC
+            if (alternateNPCProxy != null)
+            {
+                Destroy(alternateNPCProxy);
+                alternateNPCProxy = null;
+                
+                // Refresh the alternate NPC's providers
+                if (alternateNPC != null)
+                {
+                    alternateNPC.RefreshDialogueProviders();
+                }
+            }
         }
 
         private void OnFetchObjectInteract(FetchObjectInteract e)
@@ -139,7 +212,7 @@ using UnityEngine;
             }
 
             // Determine which NPC to check for return
-            DialogueTrigger targetNPC = alternateReturnNPC != null ? alternateReturnNPC : questGiver;
+            DialogueTrigger targetNPC = (useAlternateNPC && alternateNPC != null) ? alternateNPC : questGiver;
             
             //check if the interact raised was by the player interacting with the correct NPC
             if (interact.questGiver != targetNPC) return;

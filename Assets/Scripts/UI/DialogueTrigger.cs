@@ -19,9 +19,9 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
     [SerializeField] private bool requiresTerryForm = false;
     
     [Header("Legacy Fields - Use baseDialogue instead")]
-    [HideInInspector] public string[] dialogueLines;
-    [HideInInspector] public string[] keyboardDialogueLines;
-    [HideInInspector] public string[] controllerDialogueLines;
+    public string[] dialogueLines;
+    public string[] keyboardDialogueLines;
+    public string[] controllerDialogueLines;
     
     [Header("Interact Bubble")]
     public GameObject interactBubble;

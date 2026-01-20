@@ -142,17 +142,9 @@ public class ObjectiveTracker : MonoBehaviour {
 
     public void AddObjective(List<Objective> objective)
     {
-        foreach (ObjectiveListing listingObject in objectiveListingsHolder.GetComponentsInChildren<ObjectiveListing>()) {
-            if (!objectiveListingsHolder) return;
-            //add it to the tracker
-            objectiveListings.Add(listingObject);
-            //add an instance of the Objective Listing UI to the tracker
-            var prefabToUse = !listingObject.objectiveListingPrefab ? objectiveListingPrefabFallback : listingObject.objectiveListingPrefab;
-            
-            objectiveListingsUI.Add(
-                ObjectiveUIFactory.CreateObjectiveListingUI(listingObject, prefabToUse, objectiveUIPrefab, objectiveListingsUIHolder));
-            
+        objectiveListingsUI.Add(
+                ObjectiveUIFactory.AddToObjectiveToListingUI(objectiveListings.Last(), objective, 
+                    objectiveListingPrefabFallback, objectiveUIPrefab, objectiveListingsUI.Last()));
             //create all corresponding individual UI for the objective listing (probably going to move into some sort of object pool)
-        }
     }
 }

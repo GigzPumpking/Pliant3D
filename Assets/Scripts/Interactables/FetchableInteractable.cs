@@ -79,6 +79,8 @@ public class FetchableInteractable : Interactable
         // Hide the object visually
 
         gameObject.SetActive(false);
+        
+        EventDispatcher.Raise<FetchObjectInteract>(new FetchObjectInteract() { fetchableObject = this });
     }
 
     protected override void Highlight()

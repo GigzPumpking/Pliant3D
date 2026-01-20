@@ -31,7 +31,12 @@ public class StopMusic : Event
 
 public class Interact : Event
 {
-    
+    public DialogueTrigger questGiver;
+}
+
+public class FetchObjectInteract : Event
+{
+    public FetchableInteractable fetchableObject;
 }
 
 public class ObjectiveInteractEvent : Event

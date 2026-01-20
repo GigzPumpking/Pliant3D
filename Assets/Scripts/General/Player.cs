@@ -276,6 +276,17 @@ public class Player : KeyActionReceiver<Player>
             movementInput = Vector2.zero;
             return;
         }
+        
+        // Prevent movement during Terry's fall animation
+        if (transformation == Transformation.TERRY && animator != null)
+        {
+            AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            if (stateInfo.IsName("FrontFall_Terry"))
+            {
+                movementInput = Vector2.zero;
+                return;
+            }
+        }
 
         Vector2 moveValue = InputManager.Instance.isListening
             ? context.ReadValue<Vector2>()

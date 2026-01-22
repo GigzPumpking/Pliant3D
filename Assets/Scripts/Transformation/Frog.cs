@@ -72,6 +72,7 @@ public class Frog : FormScript
     private float stuckTime = 0f;
     private const float STUCK_TIMEOUT = 0.3f;
     private const float MIN_PULL_DISTANCE = 2.0f; // Minimum distance to stop pulling
+    private bool originalKinematicState = false; // Store original kinematic state of pulled object
 
     private bool isGrappling = false;
     private Transform grappleTarget;
@@ -678,6 +679,10 @@ public class Frog : FormScript
         pullElapsedTime = 0f;
         stuckTime = 0f;
 
+        // Store original kinematic state and disable kinematic for pulling
+        originalKinematicState = pullableRb.isKinematic;
+        pullableRb.isKinematic = false;
+
         animator?.SetBool("isPulling", true);
         
         // Calculate the hook point - this is our target
@@ -793,6 +798,8 @@ public class Frog : FormScript
                 {
                     pullableRb.velocity = Vector3.zero;
                     pullableRb.angularVelocity = Vector3.zero;
+                    // Restore original kinematic state
+                    pullableRb.isKinematic = originalKinematicState;
                 }
             }
         }

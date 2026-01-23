@@ -15,6 +15,7 @@ public class FetchableInteractable : Interactable
 
     void OnEnable() {
         EventDispatcher.AddListener<Interact>(PlayerInteract);
+        
     }
 
     void OnDisable() {

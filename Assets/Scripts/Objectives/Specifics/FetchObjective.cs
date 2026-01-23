@@ -21,12 +21,13 @@ using UnityEngine;
         
         public bool HasDialogue => sourceObjective != null && sourceObjective.HasAlternateNPCDialogue();
         
-        public DialogueEntry[] GetDialogueEntries() => sourceObjective?.GetAlternateNPCDialogueEntries();
+        public DialogueEntry[] GetDialogueEntries() => sourceObjective?.GetAlternateNPCDialogueEntries(); 
     }
 
     public class FetchObjective : Objective, IDialogueProvider
     {
         public static event Action<Objective> OnObjectiveComplete;
+        //public static event Action<Objective, int, int> OnItemFetched;
         [SerializeField] List<FetchableInteractable> ObjectsToFetch;
         private DialogueTrigger questGiver;
         
@@ -60,6 +61,9 @@ using UnityEngine;
         // Priority levels for different dialogue states
         private const int PRIORITY_ITEMS_READY = 10;
         private const int PRIORITY_COMPLETE = 20;
+        
+        //Tally the number of items fetched
+        public int numCompleted { get; set; }
         
         //reference the objects to fetch/flag if all objects are fetched, then check if npc actually got the object, if so objective complete
         
@@ -147,6 +151,9 @@ using UnityEngine;
                 alternateNPCProxy.Initialize(this);
                 alternateNPC.RefreshDialogueProviders();
             }
+            
+            //UPDATE TALLY AT START (This kinda sucks tho)
+            TallyBuilder.InitializeTallyUI(this, ObjectsToFetch.Count);
         }
         
         private void OnEnable() {
@@ -160,7 +167,6 @@ using UnityEngine;
             //TransformationWheel.TransformedObjective -= CheckCompletion;
             EventDispatcher.RemoveListener<Interact>(CheckCompletion);
             EventDispatcher.RemoveListener<FetchObjectInteract>(OnFetchObjectInteract);
-            
             // Clean up the proxy component from alternate NPC
             if (alternateNPCProxy != null)
             {
@@ -184,14 +190,28 @@ using UnityEngine;
                 Debug.Log("Object fetched is part of the objective, checking completion...");
                 Debug.Log("Object fetched: " + e.fetchableObject.gameObject.name);
                 Debug.Log("Is Fetched: " + e.fetchableObject.isFetched);
+                
+                UpdateTally();
                 CheckCompletion();
             }
+        }
+
+        private void UpdateTally()
+        {
+            //TALLY IN UI
+            //hey i just grabbed an item (idk who my mom or dad is though)
+            if (ObjectiveListing.ObjectiveToUI.ContainsKey(this) == false)
+            {
+                Debug.LogError($"Cannot find UI for this objective {description}!");
+                return;
+            }
+
+            TallyBuilder.UpdateTallyUI(this, ++numCompleted, ObjectsToFetch.Count);
         }
 
         public bool fetchedAll = false;
         private void CheckCompletion(Interact interact)
         {
-            //check if all objects are fetched
             foreach(var obj in ObjectsToFetch)
             {
                 if (!obj.isFetched) return;
@@ -201,12 +221,11 @@ using UnityEngine;
             if (!fetchedAll)
             {
                 fetchedAll = true;
-                
+
                 // If no NPC return is required, complete immediately
                 if (!requiresNPCReturn)
                 {
                     CompleteObjective();
-                    return;
                 }
                 return;
             }
@@ -232,16 +251,15 @@ using UnityEngine;
             if (!fetchedAll)
             {
                 fetchedAll = true;
-                
+
                 // If no NPC return is required, complete immediately
                 if (!requiresNPCReturn)
                 {
                     CompleteObjective();
-                    return;
                 }
                 return;
             }
-            
+
             // This overload doesn't have interact info, so can't complete NPC-return quests here
             // NPC-return completion is handled by the Interact overload
         }

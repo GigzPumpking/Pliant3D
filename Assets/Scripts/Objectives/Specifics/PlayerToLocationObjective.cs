@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class PlayerToLocationObjective : Objective {
@@ -7,6 +8,7 @@ public class PlayerToLocationObjective : Objective {
     [SerializeField] private bool autoCheckChildrenForNodes = true;
     [SerializeField] List<ObjectiveNode> targetLocations = new();
     static Transform _player;
+    private int numCompleted = 0;
 
     private void Awake() {
         if(autoCheckChildrenForNodes) FetchNodesFromChildren();
@@ -27,7 +29,10 @@ public class PlayerToLocationObjective : Objective {
 
     private void CheckCompletion() {
         foreach (ObjectiveNode node in targetLocations) {
-            if (node.isComplete) continue;
+            if (node.isComplete)
+            {
+                if(showTally) TallyBuilder.UpdateTallyUI(this, targetLocations.Count(curr => curr.isComplete), targetLocations.Count);
+            }
             else return;
         }
 

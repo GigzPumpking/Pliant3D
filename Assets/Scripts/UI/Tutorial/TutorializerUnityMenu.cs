@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+#if UNITY_EDITOR
 using UnityEditor;
 
-public class TutorializerUnityMenu : MonoBehaviour
+public class TutorializerUnityMenu
 {
     [MenuItem("GameObject/Tutorials/Transform Prefab", false, 0)]
     static void CreateMyPrefab()
@@ -33,3 +35,4 @@ public class TutorializerUnityMenu : MonoBehaviour
         Selection.activeGameObject = newObject;
     }
 }
+#endif

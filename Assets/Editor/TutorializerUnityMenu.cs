@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 
-public class TutorializerUnityMenu : MonoBehaviour
+public class TutorializerUnityMenu
 {
     private const string TransformTutorialAssetPath = "[TUTORIALIZATION] - Transform";
     private const string ReachDestinationTutorialAssetPath = "[TUTORIALIZATION] - Reach Destination";

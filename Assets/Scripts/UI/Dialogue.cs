@@ -6,11 +6,15 @@ using TMPro;
 [System.Serializable]
 public class DialogueEntry
 {
-    [TextArea]
+    [TextArea(2, 5)]
     public string defaultText;
-    [TextArea]
+    
+    [Tooltip("Enable to show separate keyboard/controller text fields for this entry")]
+    public bool hasDeviceSpecificText;
+    
+    [TextArea(2, 5)]
     public string keyboardText;
-    [TextArea]
+    [TextArea(2, 5)]
     public string controllerText;
 }
 
@@ -150,15 +154,21 @@ public class Dialogue : MonoBehaviour
             return "";
 
         DialogueEntry entry = dialogueEntries[index];
-        string activeDevice = InputManager.Instance?.ActiveDeviceType;
-        if ((activeDevice == "Keyboard" || activeDevice == "Mouse") && !string.IsNullOrEmpty(entry.keyboardText))
+        
+        // Only check device-specific text if the entry has it enabled
+        if (entry.hasDeviceSpecificText)
         {
-            return entry.keyboardText;
+            string activeDevice = InputManager.Instance?.ActiveDeviceType;
+            if ((activeDevice == "Keyboard" || activeDevice == "Mouse") && !string.IsNullOrEmpty(entry.keyboardText))
+            {
+                return entry.keyboardText;
+            }
+            else if (!string.IsNullOrEmpty(entry.controllerText) && activeDevice != "Keyboard" && activeDevice != "Mouse")
+            {
+                return entry.controllerText;
+            }
         }
-        else if (!string.IsNullOrEmpty(entry.controllerText) && activeDevice != "Keyboard" && activeDevice != "Mouse")
-        {
-            return entry.controllerText;
-        }
+        
         return entry.defaultText;
     }
 

@@ -20,8 +20,7 @@ public class ObjectiveListing : MonoBehaviour {
     [SerializeField] private List<UnityEvent> onCompletionEvents;
     
     public static event Action<ObjectiveListing> OnObjectiveListingComplete;
-    private Dictionary<Objective, ObjectiveUI> _objectiveToUI;
-
+    public static Dictionary<Objective, ObjectiveUI> ObjectiveToUI = new();
 
     void Start() {
         EnsureNonEmpty();
@@ -61,6 +60,7 @@ public class ObjectiveListing : MonoBehaviour {
         ObjectToManyLocationsObjective.OnObjectiveComplete += SetCompletionOfObjective;
         NPCInteractObjective.OnObjectiveComplete += SetCompletionOfObjective;
         TransformationSwapInteractObjective.OnObjectiveComplete += SetCompletionOfObjective;
+        FetchObjective.OnObjectiveComplete += SetCompletionOfObjective;
         //add logic for the other strategies too
     }
 
@@ -70,6 +70,7 @@ public class ObjectiveListing : MonoBehaviour {
         ObjectToManyLocationsObjective.OnObjectiveComplete -= SetCompletionOfObjective;
         NPCInteractObjective.OnObjectiveComplete -= SetCompletionOfObjective;
         TransformationSwapInteractObjective.OnObjectiveComplete -= SetCompletionOfObjective;
+        FetchObjective.OnObjectiveComplete -= SetCompletionOfObjective;
     }
 
     private void CheckCompletion() {
@@ -112,6 +113,12 @@ public class ObjectiveListing : MonoBehaviour {
         }
     }
     
+    public void UpdateTallyUI(Objective objective, int numCompleted, int total)
+    {
+        Debug.LogError($"Trying to update tally UI for {objective.name}");
+        if (!ObjectiveToUI.ContainsKey(objective)) return;
+        ObjectiveToUI[objective].DescriptionTXT.text = $"{objective.description} ({numCompleted}/{total})";
+    }
 }
 
 public enum ObjectiveType {

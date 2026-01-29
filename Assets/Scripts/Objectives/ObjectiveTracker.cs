@@ -80,7 +80,7 @@ public class ObjectiveTracker : MonoBehaviour {
             var prefabToUse = !listingObject.objectiveListingPrefab ? objectiveListingPrefabFallback : listingObject.objectiveListingPrefab;
             
             objectiveListingsUI.Add(
-                ObjectiveUIFactory.CreateObjectiveListingUI(listingObject, prefabToUse, objectiveUIPrefab, objectiveListingsUIHolder));
+                ObjectiveUIFactory.CreateObjectiveListingUI(listingObject, prefabToUse, objectiveUIPrefab, objectiveListingsUIHolder, ObjectiveListing.ObjectiveToUI));
             
             //create all corresponding individual UI for the objective listing (probably going to move into some sort of object pool)
         }
@@ -138,5 +138,13 @@ public class ObjectiveTracker : MonoBehaviour {
                 listing.gameObject.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
             }
         }
+    }
+
+    public void AddObjective(List<Objective> objective)
+    {
+        objectiveListingsUI.Add(
+                ObjectiveUIFactory.AddToObjectiveToListingUI(objectiveListings.Last(), objective, 
+                    objectiveListingPrefabFallback, objectiveUIPrefab, objectiveListingsUI.Last(), ObjectiveListing.ObjectiveToUI));
+            //create all corresponding individual UI for the objective listing (probably going to move into some sort of object pool)
     }
 }

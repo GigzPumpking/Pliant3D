@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
+//Use for 1 Object that needs to go to many locations
 public class ObjectToManyLocationsObjective : Objective {
     public static event Action<Objective> OnObjectiveComplete;
-    [SerializeField] List<ObjectiveNode> targetLocations = new();
-    [SerializeField] GameObject lookingFor = new();
+    [SerializeField] private List<ObjectiveNode> targetLocations = new();
+    [SerializeField] private GameObject lookingFor;
     
     private void Awake() {
         //set each looking for 'gameobject' to the player
@@ -25,7 +27,10 @@ public class ObjectToManyLocationsObjective : Objective {
     
     private void CheckCompletion() {
         foreach (ObjectiveNode node in targetLocations) {
-            if (node.isComplete) continue;
+            if (node.isComplete)
+            {
+                if(showTally) TallyBuilder.UpdateTallyUI(this, targetLocations.Count(curr => curr.isComplete), targetLocations.Count);
+            }
             else return;
         }
 

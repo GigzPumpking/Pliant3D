@@ -7,9 +7,32 @@ using System.Linq;
 
 public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
 {
+    [System.Serializable]
+    public class DialogueSequence
+    {
+        public List<DialogueEntry> entries = new List<DialogueEntry>();
+    }
+
     [Header("Base Dialogue")]
     [Tooltip("Default dialogue entries with keyboard/controller variants. Used when no higher-priority provider is active.")]
     public DialogueEntry[] baseDialogue;
+    
+    [Header("Alternate Dialogue")]
+    [Tooltip("Dialogue shown on the second interaction.")]
+    public DialogueEntry[] secondaryDialogue;
+    
+    [Tooltip("Dialogue shown on the third interaction and beyond (if not randomizing).")]
+    public DialogueEntry[] tertiaryDialogue;
+    
+    [Header("Randomized Dialogue")]
+    [Tooltip("Enable to randomly select from a pool of dialogue options after initial interactions.")]
+    [SerializeField] private bool randomizeDialogue = false;
+    
+    [Tooltip("If true, the first dialogue (baseDialogue) is always shown on first interaction, then randomized afterwards.")]
+    [SerializeField] private bool keepFirstDialogueStatic = true;
+    
+    [Tooltip("Pool of random dialogue sequences. Each element is a full dialogue (multiple entries played in order). One is randomly picked per interaction.")]
+    public List<DialogueSequence> randomDialogueList = new List<DialogueSequence>();
     
     [Header("Interaction Settings")]
     [Tooltip("Maximum distance from which the player can interact with this NPC. Set to 0 to use the global default.")]
@@ -41,6 +64,12 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
     private Dialogue dialogue;
     private IDialogueProvider[] dialogueProviders;
     
+    // Track how many times the player has completed a dialogue with this NPC
+    private int interactionCount = 0;
+    
+    // Track last random index to avoid repeating the same dialogue twice in a row
+    private int lastRandomIndex = -1;
+    
     public static event Action<DialogueTrigger> InteractedObjective;
     public static ObjectiveTracker ObjectiveTracker;
     
@@ -52,12 +81,12 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
 
     #region IDialogueProvider Implementation
     
-    // Base dialogue has lowest priority (0)
-    public int Priority => 0;
+    // Base dialogue has lowest priority
+    public int Priority => int.MinValue;
     
-    public bool HasDialogue => baseDialogue != null && baseDialogue.Length > 0;
+    public bool HasDialogue => GetOwnDialogue() != null && GetOwnDialogue().Length > 0;
     
-    public DialogueEntry[] GetDialogueEntries() => baseDialogue;
+    public DialogueEntry[] GetDialogueEntries() => GetOwnDialogue();
     
     #endregion
     
@@ -220,7 +249,7 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
         
         foreach (var provider in dialogueProviders)
         {
-            if (provider.HasDialogue && provider.Priority > highestPriority)
+            if (provider.HasDialogue && provider.Priority >= highestPriority)
             {
                 highestPriority = provider.Priority;
                 bestProvider = provider;
@@ -289,6 +318,9 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
         // Check if this dialogue belongs to us using the tracked first entry
         if (string.IsNullOrEmpty(currentFirstEntry) || e.someEntry != currentFirstEntry) return;
         
+        // Increment interaction count for alternate dialogue tracking
+        interactionCount++;
+        
         foreach(var evt in events)
         {
             evt.Invoke();
@@ -310,6 +342,92 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
         UpdateInteractBubbleSprite();
         UpdateTerryRequiredIndicator();
     }
+    
+    /// <summary>
+    /// Gets this NPC's own dialogue based on interaction count and settings.
+    /// Does not consider other IDialogueProvider components.
+    /// </summary>
+    private DialogueEntry[] GetOwnDialogue()
+    {
+        // If randomizing dialogue
+        if (randomizeDialogue)
+        {
+            // First interaction and keepFirstDialogueStatic is true: use base dialogue
+            if (interactionCount == 0 && keepFirstDialogueStatic)
+            {
+                return baseDialogue;
+            }
+            
+            // Try to get random dialogue from the pool
+            DialogueEntry[] randomDialogue = GetRandomDialogue();
+            if (randomDialogue != null && randomDialogue.Length > 0)
+            {
+                return randomDialogue;
+            }
+            
+            // If no random pool entries, fall through to sequential dialogue logic
+        }
+        
+        // Sequential dialogue stages (base -> secondary -> tertiary)
+        if (interactionCount == 0)
+        {
+            return baseDialogue;
+        }
+        
+        // Second interaction: secondary dialogue (or fallback to tertiary, then base)
+        if (interactionCount == 1)
+        {
+            if (secondaryDialogue != null && secondaryDialogue.Length > 0)
+                return secondaryDialogue;
+            if (tertiaryDialogue != null && tertiaryDialogue.Length > 0)
+                return tertiaryDialogue;
+            return baseDialogue;
+        }
+        
+        // Third+ interaction: tertiary dialogue (or fallback to secondary, then base)
+        if (tertiaryDialogue != null && tertiaryDialogue.Length > 0)
+            return tertiaryDialogue;
+        if (secondaryDialogue != null && secondaryDialogue.Length > 0)
+            return secondaryDialogue;
+        return baseDialogue;
+    }
+    
+    /// <summary>
+    /// Gets a random dialogue from the random dialogue list, avoiding immediate repeats.
+    /// </summary>
+    private DialogueEntry[] GetRandomDialogue()
+    {
+        if (randomDialogueList == null || randomDialogueList.Count == 0)
+            return null;
+        
+        // If only one option, just return it
+        if (randomDialogueList.Count == 1)
+            return randomDialogueList[0].entries?.ToArray();
+        
+        // Pick a random index, avoiding the last one used
+        int newIndex;
+        do
+        {
+            newIndex = UnityEngine.Random.Range(0, randomDialogueList.Count);
+        } while (newIndex == lastRandomIndex && randomDialogueList.Count > 1);
+        
+        lastRandomIndex = newIndex;
+        return randomDialogueList[newIndex].entries?.ToArray();
+    }
+    
+    /// <summary>
+    /// Resets the interaction count. Useful for quests that need to reset NPC dialogue.
+    /// </summary>
+    public void ResetInteractionCount()
+    {
+        interactionCount = 0;
+        lastRandomIndex = -1;
+    }
+    
+    /// <summary>
+    /// Gets the current interaction count.
+    /// </summary>
+    public int GetInteractionCount() => interactionCount;
     
     /// <summary>
     /// Updates the interact bubble sprite based on current input device.

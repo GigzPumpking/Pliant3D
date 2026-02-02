@@ -200,8 +200,19 @@ public class Dialogue : MonoBehaviour
         if (string.IsNullOrEmpty(input))
             return input;
 
-        // Convert *text* to bold using TMP rich text.
-        return Regex.Replace(input, @"\*(.+?)\*", "<b>$1</b>");
+        // Convert **text** to bold using TMP rich text.
+        string output = Regex.Replace(input, @"\*\*(.+?)\*\*", "<b>$1</b>");
+
+        // Convert *text* to italics (single asterisks only).
+        output = Regex.Replace(output, @"(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)", "<i>$1</i>");
+
+        // Convert ~~text~~ to strikethrough.
+        output = Regex.Replace(output, @"~~(.+?)~~", "<s>$1</s>");
+
+        // Convert [color=#RRGGBB]text[/color] to TMP color tags.
+        output = Regex.Replace(output, @"\[color=(#?[A-Za-z0-9]+)\](.+?)\[/color\]", "<color=$1>$2</color>");
+
+        return output;
     }
 
     void Update()

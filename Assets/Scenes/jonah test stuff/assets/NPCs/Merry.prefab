@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 1506055742534802424}
   - component: {fileID: 1506055742534802425}
   - component: {fileID: 1506055742534802430}
-  - component: {fileID: 1506055742534802431}
   - component: {fileID: 6295402624729034958}
+  - component: {fileID: 153632177389045414}
   m_Layer: 0
   m_Name: Merry
   m_TagString: Untagged
@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 1506055742534802428}
   m_LocalRotation: {x: 0.4999999, y: -0.50000006, z: 0.4999997, w: 0.5000004}
   m_LocalPosition: {x: -10.544, y: 1.042, z: -3.36}
-  m_LocalScale: {x: 0.23123819, y: 0.23123819, z: 0.23123819}
+  m_LocalScale: {x: 0.24989809, y: 0.24989809, z: 0.24989809}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -85,20 +85,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &1506055742534802431
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1506055742534802428}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!95 &6295402624729034958
 Animator:
   serializedVersion: 5
@@ -120,3 +106,16 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!65 &153632177389045414
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1506055742534802428}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 5.77, y: -0.16, z: 8.99}
+  m_Center: {x: -0.42, y: 0, z: -0.45}

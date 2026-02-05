@@ -92,7 +92,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8290712681227769251}
-  - component: {fileID: 56055579552062628}
   m_Layer: 0
   m_Name: mouse
   m_TagString: Untagged
@@ -117,20 +116,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: -193.908, z: 0}
---- !u!64 &56055579552062628
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8666429735273238297}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 0}
 --- !u!1 &9153669255547781164
 GameObject:
   m_ObjectHideFlags: 0
@@ -142,6 +127,7 @@ GameObject:
   - component: {fileID: 5151873692691943110}
   - component: {fileID: 4504286011761113176}
   - component: {fileID: 5441612413140231303}
+  - component: {fileID: 9019475834987051796}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -214,3 +200,17 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &9019475834987051796
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9153669255547781164}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -5495902117074765545, guid: 9f479e00c06b3f6468cd97e535ed3901, type: 3}

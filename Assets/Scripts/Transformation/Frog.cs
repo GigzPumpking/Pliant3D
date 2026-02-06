@@ -18,7 +18,7 @@ public class Frog : FormScript
     [Header("Coyote Time")]
     [Tooltip("Grace period after leaving the ground during which the frog can still jump.")]
     [SerializeField] private float coyoteTime = 0.2f;
-    private float coyoteTimeCounter = 0f;
+    [SerializeField] private float coyoteTimeCounter = 0f;
 
     [Header("Ground Check")]
 
@@ -348,13 +348,17 @@ public class Frog : FormScript
     private void Jump()
     {
         if (!canJumpLock) return;
+        
+        // Vertical velocity check should only apply when grounded, not during coyote time
+        // (coyote time allows jumping even when falling)
         bool isVerticallyStationary = Mathf.Abs(rb.velocity.y) < verticalVelocityThreshold;
+        bool canJumpFromGround = isGrounded && isVerticallyStationary;
+        bool canJumpFromCoyote = coyoteTimeCounter > 0f && !isGrounded;
         
         bool canJump = 
-            (isGrounded || coyoteTimeCounter > 0f) && // 1. On ground OR within coyote time window.
-            isVerticallyStationary &&                  // 2. Must not be rising or falling.
-            Time.time >= nextJumpTime &&               // 3. Cooldown must have expired.
-            !Player.Instance.TransformationChecker();  // 4. Not currently transforming.
+            (canJumpFromGround || canJumpFromCoyote) && // 1. On ground with no vertical movement OR in coyote time window.
+            Time.time >= nextJumpTime &&                 // 2. Cooldown must have expired.
+            !Player.Instance.TransformationChecker();    // 3. Not currently transforming.
 
         // If any of the above conditions are false, we can't jump.
         if (!canJump)

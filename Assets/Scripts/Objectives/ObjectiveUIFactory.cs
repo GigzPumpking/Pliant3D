@@ -7,6 +7,7 @@ public class ObjectiveUIFactory {
         if (!objective || !prefab || !parent) return null;
         
         GameObject currentObj = GameObject.Instantiate(prefab, parent.transform);
+        Debug.LogWarning($"instantiating {currentObj.name}");
         
         ObjectiveUI currentObjectiveUI = currentObj.GetComponent<ObjectiveUI>();
         currentObjectiveUI.DescriptionTXT.text = objective.description;
@@ -48,7 +49,7 @@ public class ObjectiveUIFactory {
         {
             objectiveListing.objectives.Add(obj);
             objectiveListing.objectiveUIList.Add(CreateObjectiveUI(obj, objectiveUIPrefab, parent, objectiveUIDict));
-            //Debug.LogWarning($"Attached to {objectiveListing.gameObject.name}");
+            Debug.LogWarning($"Attached to {objectiveListing.gameObject.name}");
         }
         return objectiveListing.gameObject;
     }

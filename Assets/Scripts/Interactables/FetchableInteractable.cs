@@ -1,45 +1,97 @@
 using UnityEngine;
 
-public class FetchableInteractable : Interactable
+public class FetchableInteractable : Interactable, IInteractable
 {
     private Animator animator;
-    private Renderer[] renderers; // Array to store all renderers in this object and its children
-    private Color[] originalColors; // Array to store the original colors of each renderer
+    private Renderer[] renderers;
+    private Color[] originalColors;
 
     [SerializeField]
     private Color highlightColor = Color.green;
 
     public bool isFetched = false;
 
-    private bool inRadius = false;
+    [Header("Interact Bubble")]
+    [Tooltip("The interact bubble GameObject positioned on this object.")]
+    [SerializeField] private GameObject interactBubble;
+    [SerializeField] private Sprite keyboardSprite;
+    [SerializeField] private Sprite controllerSprite;
+    
+    [Header("Interaction Settings")]
+    [Tooltip("Maximum distance from which the player can interact. Set to 0 to use the global default.")]
+    [SerializeField] private float interactionDistance = 0f;
+    
+    [Header("Dialogue")]
+    [Tooltip("Dialogue entries shown when this item is fetched. Leave empty for no dialogue.")]
+    [SerializeField] private DialogueEntry[] fetchDialogue;
+    
+    // Cached references
+    private Dialogue dialogue;
+    private SpriteRenderer _bubbleSpriteRenderer;
+    private Vector3 _originalBubbleScale;
+    private string currentFirstEntry = "";
+    private bool waitingForDialogue = false;
 
-    void OnEnable() {
-        EventDispatcher.AddListener<Interact>(PlayerInteract);
+    #region IInteractable Implementation
+    
+    public Vector3 GetPosition() => transform.position;
+    
+    public float GetInteractionDistance()
+    {
+        if (interactionDistance > 0f)
+            return interactionDistance;
+        return InteractionManager.Instance?.GetDefaultInteractionDistance() ?? 3f;
+    }
+    
+    public bool IsInteractable()
+    {
+        if (isFetched) return false;
+        if (!isInteractable) return false;
+        if (waitingForDialogue) return false;
+        if (dialogue != null && dialogue.IsActive()) return false;
+        return true;
+    }
+    
+    public void OnInteract()
+    {
+        if (isFetched || !isInteractable || waitingForDialogue) return;
+        Interact();
+    }
+    
+    public void SetInteractBubbleActive(bool active)
+    {
+        if (interactBubble != null)
+        {
+            interactBubble.SetActive(active);
+        }
+    }
+    
+    #endregion
+
+    void OnEnable()
+    {
+        if (InteractionManager.Instance != null)
+        {
+            InteractionManager.Instance.Register(this);
+        }
         
-    }
-
-    void OnDisable() {
-        EventDispatcher.RemoveListener<Interact>(PlayerInteract);
-    }
-
-    void OnTriggerEnter(Collider other) {
-        if (other.CompareTag("Player")) {
-            inRadius = true;
-            Highlight();
+        EventDispatcher.AddListener<EndDialogue>(OnEndDialogue);
+        
+        if (interactBubble != null)
+        {
+            _originalBubbleScale = interactBubble.transform.localScale;
+            interactBubble.SetActive(false);
         }
     }
 
-    void OnTriggerExit(Collider other) {
-        if (other.CompareTag("Player")) {
-            inRadius = false;
-            Unhighlight();
+    void OnDisable()
+    {
+        if (InteractionManager.Instance != null)
+        {
+            InteractionManager.Instance.Unregister(this);
         }
-    }
-
-    void PlayerInteract(Interact e) {
-        if (inRadius && !isFetched) {
-            Interact();
-        }
+        
+        EventDispatcher.RemoveListener<EndDialogue>(OnEndDialogue);
     }
 
     private void Awake()
@@ -58,12 +110,23 @@ public class FetchableInteractable : Interactable
         }
         else
         {
-            // Store the original colors of all renderers
             originalColors = new Color[renderers.Length];
             for (int i = 0; i < renderers.Length; i++)
             {
                 originalColors[i] = renderers[i].material.color;
             }
+        }
+        
+    }
+
+    void Start()
+    {
+        dialogue = UIManager.Instance.returnDialogue();
+        
+        // Register with InteractionManager (in case it wasn't ready in OnEnable)
+        if (InteractionManager.Instance != null)
+        {
+            InteractionManager.Instance.Register(this);
         }
     }
 
@@ -76,19 +139,74 @@ public class FetchableInteractable : Interactable
         }
 
         isFetched = true;
-
-        // Hide the object visually
-
-        gameObject.SetActive(false);
+        SetInteractBubbleActive(false);
         
+        // Raise the fetch event immediately so objectives can track it
         EventDispatcher.Raise<FetchObjectInteract>(new FetchObjectInteract() { fetchableObject = this });
+        
+        // If we have dialogue, show it before hiding the object
+        if (dialogue != null && fetchDialogue != null && fetchDialogue.Length > 0)
+        {
+            waitingForDialogue = true;
+            dialogue.SetDialogueEntries(fetchDialogue);
+            currentFirstEntry = fetchDialogue[0].defaultText;
+            dialogue.Appear();
+            EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = false });
+        }
+        else
+        {
+            // No dialogue — hide the object immediately
+            gameObject.SetActive(false);
+        }
+    }
+    
+    private void OnEndDialogue(EndDialogue e)
+    {
+        if (!waitingForDialogue) return;
+        if (string.IsNullOrEmpty(currentFirstEntry) || e.someEntry != currentFirstEntry) return;
+        
+        waitingForDialogue = false;
+        gameObject.SetActive(false);
+    }
+
+    void Update()
+    {
+        UpdateInteractBubbleSprite();
+    }
+    
+    /// <summary>
+    /// Updates the interact bubble sprite based on the active input device.
+    /// </summary>
+    private void UpdateInteractBubbleSprite()
+    {
+        if (interactBubble == null || !interactBubble.activeSelf) return;
+        
+        if (_bubbleSpriteRenderer == null)
+        {
+            interactBubble.TryGetComponent<SpriteRenderer>(out _bubbleSpriteRenderer);
+        }
+        
+        if (_bubbleSpriteRenderer == null) return;
+        
+        bool isKeyboard = InputManager.Instance?.ActiveDeviceType == "Keyboard"
+                       || InputManager.Instance?.ActiveDeviceType == "Mouse";
+        
+        if (isKeyboard)
+        {
+            _bubbleSpriteRenderer.sprite = keyboardSprite;
+            interactBubble.transform.localScale = _originalBubbleScale * 3f;
+        }
+        else
+        {
+            _bubbleSpriteRenderer.sprite = controllerSprite;
+            interactBubble.transform.localScale = _originalBubbleScale * 1f;
+        }
     }
 
     protected override void Highlight()
     {
         base.Highlight();
 
-        // Change the color of all renderers to the highlight color
         if (renderers != null)
         {
             foreach (Renderer renderer in renderers)
@@ -102,7 +220,6 @@ public class FetchableInteractable : Interactable
     {
         base.Unhighlight();
 
-        // Revert the color of all renderers to their original colors
         if (renderers != null)
         {
             for (int i = 0; i < renderers.Length; i++)

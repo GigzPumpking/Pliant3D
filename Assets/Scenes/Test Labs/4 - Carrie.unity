@@ -2870,7 +2870,7 @@ PrefabInstance:
         type: 3}
       propertyPath: objectiveToGive.Array.data[0]
       value: 
-      objectReference: {fileID: 1401962790}
+      objectReference: {fileID: 519165712}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: baseDialogue.Array.data[0].defaultText
@@ -2968,12 +2968,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 89b2ae7bccf9f426999e81c797e9ff4e, type: 3}
---- !u!1 &215402769 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3493604527745461608, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
-    type: 3}
-  m_PrefabInstance: {fileID: 215402768}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &216347490
 GameObject:
   m_ObjectHideFlags: 0
@@ -3549,6 +3543,7 @@ Transform:
   - {fileID: 597364615}
   - {fileID: 1112463489}
   - {fileID: 1058113358}
+  - {fileID: 519165711}
   m_Father: {fileID: 0}
   m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -7135,6 +7130,72 @@ Transform:
   m_Father: {fileID: 227830720}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: -180, z: 0}
+--- !u!1 &519165710
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 519165711}
+  - component: {fileID: 519165712}
+  m_Layer: 0
+  m_Name: Find Yellow Push Pin
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &519165711
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519165710}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 247037571}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &519165712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519165710}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fc2e1fd64d74c8e87394d0a781889e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  description: Find YELLOW-PUSH PIN
+  isComplete: 0
+  showTally: 0
+  onCompleteEvents: []
+  ObjectsToFetch:
+  - {fileID: 1938376059}
+  requiresNPCReturn: 1
+  itemsReadyDialogue:
+  - defaultText: You found it! Thank you so much!
+    hasDeviceSpecificText: 0
+    keyboardText: 
+    controllerText: 
+  questCompleteDialogue:
+  - defaultText: You know, I think you're the best employee we've ever had!
+    hasDeviceSpecificText: 0
+    keyboardText: 
+    controllerText: 
+  useAlternateNPC: 0
+  alternateNPC: {fileID: 0}
+  alternateItemsReadyDialogue: []
+  alternateQuestCompleteDialogue: []
+  fetchedAll: 0
 --- !u!1 &521105870
 GameObject:
   m_ObjectHideFlags: 0
@@ -17713,40 +17774,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 215402768}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1401962790
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 215402769}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fc2e1fd64d74c8e87394d0a781889e5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  description: Find YELLOW-PUSH PIN
-  isComplete: 0
-  showTally: 0
-  onCompleteEvents: []
-  ObjectsToFetch:
-  - {fileID: 1938376059}
-  requiresNPCReturn: 1
-  itemsReadyDialogue:
-  - defaultText: You found it! Thank you so much!
-    hasDeviceSpecificText: 0
-    keyboardText: 
-    controllerText: 
-  questCompleteDialogue:
-  - defaultText: You know, I think you're the best employee we've ever had!
-    hasDeviceSpecificText: 0
-    keyboardText: 
-    controllerText: 
-  useAlternateNPC: 0
-  alternateNPC: {fileID: 0}
-  alternateItemsReadyDialogue: []
-  alternateQuestCompleteDialogue: []
-  fetchedAll: 0
 --- !u!1 &1402818118
 GameObject:
   m_ObjectHideFlags: 0
@@ -25734,6 +25761,11 @@ MonoBehaviour:
   properties: []
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
   isFetched: 0
+  interactBubble: {fileID: 0}
+  keyboardSprite: {fileID: 0}
+  controllerSprite: {fileID: 0}
+  interactionDistance: 0
+  fetchDialogue: []
 --- !u!64 &1938376060
 MeshCollider:
   m_ObjectHideFlags: 0

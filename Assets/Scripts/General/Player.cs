@@ -271,6 +271,12 @@ public class Player : KeyActionReceiver<Player>
 
     public void resetPosition() {
         transform.position = areaPositions[0];
+
+        // Reset grounded/airborne state so the player isn't stuck as "not grounded"
+        // after a respawn or scene reload.
+        isGrounded = true;
+        isJumping = false;
+        airborneGraceTimer = 0f;
     }
 
     void setMovementInput(InputAction.CallbackContext context) {

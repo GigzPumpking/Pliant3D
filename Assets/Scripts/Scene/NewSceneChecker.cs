@@ -61,4 +61,15 @@ public class NewSceneChecker : MonoBehaviour
         UIManager.Instance?.FadeOut();
         NextScene.CallLoadNextScene();
     }
+
+    public void LoadMainMenu()
+    {
+        UIManager.Instance?.FadeOut();
+        SceneManager.LoadScene("0 Main Menu");
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
 }

@@ -49,10 +49,10 @@ public class NewSceneChecker : MonoBehaviour
         if (!transitionText) return;
         switch (device)
         {
-            case Mouse or Keyboard:
+            case Mouse or Keyboard or Pointer:
                 transitionText.text = KeyboardTXT;
                 break;
-            case Gamepad:
+            case Gamepad or Joystick:
                 transitionText.text = ControllerTXT;
                 break;
         }

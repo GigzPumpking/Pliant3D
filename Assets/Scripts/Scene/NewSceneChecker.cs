@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.InputSystem.Users;
 
 public class NewSceneChecker : MonoBehaviour
 {
@@ -58,12 +59,18 @@ public class NewSceneChecker : MonoBehaviour
         }
     }
 
+    bool hasntBeenCalled = true;
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.E) || Gamepad.current?.buttonSouth.wasPressedThisFrame == true)
+        if(Input.GetKeyDown(KeyCode.E) || Gamepad.current?.buttonSouth.wasPressedThisFrame == true && hasntBeenCalled)
         {
             CallLoadNextScene();
+            hasntBeenCalled = false;
         }
+
+        if (!transitionText) return;
+        if (InputSystem.GetDevice<InputDevice>() is Gamepad) transitionText.text = ControllerTXT;
+        else if (InputSystem.GetDevice<InputDevice>() is Mouse or Keyboard) transitionText.text = KeyboardTXT;
     }
     
     public void CallLoadNextScene()

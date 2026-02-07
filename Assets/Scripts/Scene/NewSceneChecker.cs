@@ -24,6 +24,15 @@ public class NewSceneChecker : MonoBehaviour
         //Destroy(this.gameObject);
         
         if (!transitionText) return;
+        if(InputSystem.GetDevice<Keyboard>() != null || InputSystem.GetDevice<Mouse>() != null)
+        {
+            transitionText.text = KeyboardTXT;
+        }
+        else if(InputSystem.GetDevice<Gamepad>() != null)
+        {
+            transitionText.text = ControllerTXT;
+        }
+        
         InputSystem.onDeviceChange += (device, change) =>
         {
             switch (device)

@@ -4,8 +4,5 @@ using UnityEngine;
 
 public class TransitionHandler : MonoBehaviour
 {
-    public void NextScene()
-    {
-        SceneLoader.Instance.LoadNextScene();
-    }
+  
 }

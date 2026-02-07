@@ -8433,6 +8433,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
+      propertyPath: tertiaryDialogue.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+        type: 3}
+      propertyPath: secondaryDialogue.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+        type: 3}
       propertyPath: objectiveToGive.Array.data[0]
       value: 
       objectReference: {fileID: 1453542379}
@@ -8444,12 +8454,22 @@ PrefabInstance:
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: baseDialogue.Array.data[1].defaultText
-      value: Let's start with something simple called a FETCH TASK.
+      value: Let's start with something simple called a **FETCH TASK.**
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: baseDialogue.Array.data[2].defaultText
-      value: Can you grab me a YELLOW PUSH-PIN?
+      value: Can you find my **YELLOW PUSH-PIN AND BRING IT BACK TO ME?**
+      objectReference: {fileID: 0}
+    - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+        type: 3}
+      propertyPath: tertiaryDialogue.Array.data[0].defaultText
+      value: Look around Terry!
+      objectReference: {fileID: 0}
+    - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+        type: 3}
+      propertyPath: secondaryDialogue.Array.data[0].defaultText
+      value: Having trouble finding my **YELLOW PUSH-PIN?**
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
@@ -8570,7 +8590,7 @@ MonoBehaviour:
     keyboardText: 
     controllerText: 
   questCompleteDialogue:
-  - defaultText: Thanks again!
+  - defaultText: You did a great job handling the **FETCH TASK!**
     hasDeviceSpecificText: 0
     keyboardText: 
     controllerText: 
@@ -8707,6 +8727,11 @@ MonoBehaviour:
   properties: []
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
   isFetched: 0
+  interactBubble: {fileID: 0}
+  keyboardSprite: {fileID: 0}
+  controllerSprite: {fileID: 0}
+  interactionDistance: 0
+  fetchDialogue: []
 --- !u!64 &1496597895
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -11399,7 +11424,7 @@ PrefabInstance:
     - target: {fileID: 2688863441334184285, guid: f09abbff6e9a448cab6f233042637973,
         type: 3}
       propertyPath: m_text
-      value: Pliant_Dev23
+      value: Pliant_Dev0
       objectReference: {fileID: 0}
     - target: {fileID: 2688863441334184285, guid: f09abbff6e9a448cab6f233042637973,
         type: 3}

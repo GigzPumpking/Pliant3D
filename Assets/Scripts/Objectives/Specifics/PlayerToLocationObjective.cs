@@ -14,7 +14,7 @@ public class PlayerToLocationObjective : Objective {
         if(autoCheckChildrenForNodes) FetchNodesFromChildren();
         //set each looking for 'gameobject' to the player
         foreach (ObjectiveNode node in targetLocations) {
-            if (!Player.Instance.gameObject) continue;
+            if (!Player.Instance.gameObject || !Player.Instance || !node || !targetLocations.Any()) continue;
             node.lookingFor.Add(Player.Instance.gameObject);
         }
     }
@@ -27,8 +27,13 @@ public class PlayerToLocationObjective : Objective {
         ObjectiveNode.OnNodeCompleted -= CheckCompletion;
     }
 
-    private void CheckCompletion() {
-        foreach (ObjectiveNode node in targetLocations) {
+    private void CheckCompletion()
+    {
+        if (!targetLocations.Any()) return; 
+        
+        foreach (ObjectiveNode node in targetLocations)
+        {
+            if (!node) continue;
             if (node.isComplete)
             {
                 if(showTally) TallyBuilder.UpdateTallyUI(this, targetLocations.Count(curr => curr.isComplete), targetLocations.Count);

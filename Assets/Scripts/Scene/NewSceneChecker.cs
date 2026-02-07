@@ -58,7 +58,7 @@ public class NewSceneChecker : MonoBehaviour
     public void CallLoadNextScene()
     {
         Debug.Log("Loading next scene: " + NextScene.TargetScene);
-        UIManager.Instance.FadeOut();
+        UIManager.Instance?.FadeOut();
         NextScene.CallLoadNextScene();
     }
 }

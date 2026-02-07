@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,7 +6,6 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
-using InputDevice = UnityEngine.XR.InputDevice;
 
 public class NewSceneChecker : MonoBehaviour
 {
@@ -32,19 +32,30 @@ public class NewSceneChecker : MonoBehaviour
         {
             transitionText.text = ControllerTXT;
         }
-        
-        InputSystem.onDeviceChange += (device, change) =>
+    }
+
+    private void OnEnable()
+    {
+        InputSystem.onDeviceChange += OnDeviceChange;
+    }
+
+    private void OnDisable()
+    {
+        InputSystem.onDeviceChange -= OnDeviceChange;
+    }
+
+    private void OnDeviceChange(InputDevice device, InputDeviceChange change)
+    {
+        if (!transitionText) return;
+        switch (device)
         {
-            switch (device)
-            {
-                case Mouse or Keyboard:
-                    transitionText.text = KeyboardTXT;
-                    break;
-                case Gamepad:
-                    transitionText.text = ControllerTXT;
-                    break;
-            }
-        };
+            case Mouse or Keyboard:
+                transitionText.text = KeyboardTXT;
+                break;
+            case Gamepad:
+                transitionText.text = ControllerTXT;
+                break;
+        }
     }
 
     void Update()

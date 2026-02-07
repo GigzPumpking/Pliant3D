@@ -78,6 +78,7 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
     
     // Cached sprite renderer for interact bubble
     private SpriteRenderer _bubbleSpriteRenderer = null;
+    private Vector3 _originalBubbleScale;
 
     #region IDialogueProvider Implementation
     
@@ -193,7 +194,10 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
         EventDispatcher.AddListener<EndDialogue>(OnEndDialogue);
         
         if (interactBubble != null)
+        {
+            _originalBubbleScale = interactBubble.transform.localScale;
             interactBubble.SetActive(false);
+        }
     }
 
     void Start() 
@@ -449,12 +453,12 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
         if (isKeyboard)
         {
             _bubbleSpriteRenderer.sprite = keyboardSprite;
-            interactBubble.transform.localScale = new Vector3(1, 1, 1);
+            interactBubble.transform.localScale = _originalBubbleScale * 3f;
         }
         else
         {
             _bubbleSpriteRenderer.sprite = controllerSprite;
-            interactBubble.transform.localScale = new Vector3(0.333f, 0.333f, 1f);
+            interactBubble.transform.localScale = _originalBubbleScale * 1f;
         }
     }
     

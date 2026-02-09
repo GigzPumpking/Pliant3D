@@ -69,6 +69,7 @@ public class NextScene : StateMachineBehaviour
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
+    public static bool TimedTransition = false;
     private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         LockoutBar.Instance?.AddProgressToAllForms();
@@ -77,7 +78,7 @@ public class NextScene : StateMachineBehaviour
         {
             // We are on the loading screen. Create a temporary object to run a coroutine.
             var host = new GameObject("LoadingScreenWaitCoroutineHost").AddComponent<CoroutineHost>();
-            host.StartWaitSequence(LoadingScreenDuration);
+            if(TimedTransition) host.StartWaitSequence(LoadingScreenDuration);
         }
         else
         {
@@ -85,6 +86,12 @@ public class NextScene : StateMachineBehaviour
             // ensure the transition state is clean for the next time.
             ResetTransitionState();
         }
+    }
+    
+    public static void CallLoadNextScene()
+    {
+        NextScene.TargetScene = NextScene.FinalDestinationScene;
+        SceneManager.LoadScene(NextScene.TargetScene);
     }
 
     // --- LIFECYCLE AND EDITOR HANDLING ---

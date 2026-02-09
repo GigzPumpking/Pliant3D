@@ -100,10 +100,10 @@ public class Tutorializer : MonoBehaviour
         foreach (Collider coll in colliders)
         {
             BoxCollider box = coll?.GetComponent<Collider>() as BoxCollider;
-            box.center = Vector3.zero;
+            //box.center = Vector3.zero;
             Gizmos.color = _boxColors[idx];
             Gizmos.matrix = coll.transform.localToWorldMatrix;
-            Gizmos.DrawCube(Vector3.zero,
+            Gizmos.DrawCube(box.center,
                 new Vector3(box.size.x, box.size.y, box.size.z)
             );
             idx++;

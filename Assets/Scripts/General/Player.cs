@@ -254,8 +254,12 @@ public class Player : KeyActionReceiver<Player>
         { 
             isMoving = false;
         }
-        
-        if (transform.position.y < outOfBoundsY && !GameManager.Instance.isGameOver && SceneManager.GetActiveScene().name != "2-0 Meri" && SceneManager.GetActiveScene().name != "3-0 Carrie")
+
+        if (transform.position.y < outOfBoundsY && !GameManager.Instance.isGameOver
+                                                && SceneManager.GetActiveScene().name != "2-0 Meri"
+                                                && SceneManager.GetActiveScene().name != "3-0 Carrie"
+                                                && SceneManager.GetActiveScene().name != "11-0 Thanks"
+                                                && SceneManager.GetActiveScene().name != "0 Main Menu")
         {
             Debug.LogWarning("s::" + SceneManager.GetActiveScene().name);
             Debug.LogWarning("Game Over from Player.cs");
@@ -267,6 +271,12 @@ public class Player : KeyActionReceiver<Player>
 
     public void resetPosition() {
         transform.position = areaPositions[0];
+
+        // Reset grounded/airborne state so the player isn't stuck as "not grounded"
+        // after a respawn or scene reload.
+        isGrounded = true;
+        isJumping = false;
+        airborneGraceTimer = 0f;
     }
 
     void setMovementInput(InputAction.CallbackContext context) {

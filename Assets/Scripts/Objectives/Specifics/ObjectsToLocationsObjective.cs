@@ -32,7 +32,7 @@ public class ObjectsToLocationsObjective : Objective {
     }
     
     private void CheckCompletion() {
-        if (anyObjectToLocation)
+        if (anyObjectToLocation && targetLocations.Any())
         {
             foreach (ObjectiveNode node in targetLocations)
             {

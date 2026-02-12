@@ -143,8 +143,9 @@ public class ObjectiveTracker : MonoBehaviour {
     public void AddObjective(List<Objective> objective)
     {
         objectiveListingsUI.Add(
-                ObjectiveUIFactory.AddToObjectiveToListingUI(objectiveListings.Last(), objective, 
-                    objectiveListingPrefabFallback, objectiveUIPrefab, objectiveListingsUI.Last(), ObjectiveListing.ObjectiveToUI));
+                ObjectiveUIFactory.AddToObjectiveToListingUI(objectiveListings.First(), objective, 
+                    objectiveListingPrefabFallback, objectiveUIPrefab, objectiveListingsUI.First(), ObjectiveListing.ObjectiveToUI));
+        Debug.LogWarning($"{objectiveListings.First().gameObject.name} for objective {objective}");
             //create all corresponding individual UI for the objective listing (probably going to move into some sort of object pool)
     }
 }

@@ -583,8 +583,11 @@ public class Frog : FormScript
 
             if (shouldShowHookTarget)
             {
-                // Use single source of truth for hook point calculation
-                hookTarget.transform.position = CalculateHookPoint(targetForIcon);
+                // Convert world-space hook point to screen position for overlay UI
+                Vector3 worldPoint = CalculateHookPoint(targetForIcon);
+                Vector3 screenPos = Camera.main.WorldToScreenPoint(worldPoint);
+
+                hookTarget.transform.position = screenPos;
             }
         }
     }

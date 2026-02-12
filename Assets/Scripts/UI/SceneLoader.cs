@@ -8,6 +8,7 @@ public class SceneLoader : MonoBehaviour
     private static SceneLoader instance;
 
     public static SceneLoader Instance { get { return instance; } }
+    public bool timedTransition = false;
 
     private void Awake()
     {

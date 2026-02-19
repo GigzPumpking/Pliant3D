@@ -32,6 +32,7 @@ public class GameSettings
     public int resolutionWidth;
     public int resolutionHeight;
     public bool isFullscreen;
+    public bool autoSave = true;
 }
 
 [System.Serializable]

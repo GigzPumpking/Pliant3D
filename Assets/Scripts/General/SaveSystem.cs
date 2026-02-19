@@ -5,7 +5,9 @@ using System.Collections.Generic;
 public static class SaveSystem
 {
     private static readonly string SAVE_FOLDER = Application.persistentDataPath + "/Saves/";
-    private const string SAVE_EXTENSION = ".json";
+    private const string SAVE_FILE = "SaveData.json";
+
+    private static string SaveFilePath => SAVE_FOLDER + SAVE_FILE;
 
     public static void Init()
     {
@@ -16,29 +18,33 @@ public static class SaveSystem
         }
     }
 
-    public static void SaveGame(string saveFileName, PlayerData playerData)
+    public static void SaveGame(PlayerData playerData)
     {
         Init();
         string json = JsonUtility.ToJson(playerData, true);
-        File.WriteAllText(SAVE_FOLDER + saveFileName + SAVE_EXTENSION, json);
-        Debug.Log("Game saved to: " + SAVE_FOLDER + saveFileName + SAVE_EXTENSION);
+        File.WriteAllText(SaveFilePath, json);
+        Debug.Log("Game saved to: " + SaveFilePath);
     }
 
-    public static PlayerData LoadGame(string saveFileName)
+    public static PlayerData LoadGame()
     {
         Init();
-        string filePath = SAVE_FOLDER + saveFileName + SAVE_EXTENSION;
-        if (File.Exists(filePath))
+        if (File.Exists(SaveFilePath))
         {
-            string json = File.ReadAllText(filePath);
+            string json = File.ReadAllText(SaveFilePath);
             PlayerData playerData = JsonUtility.FromJson<PlayerData>(json);
-            Debug.Log("Game loaded from: " + filePath);
             return playerData;
         }
         else
         {
-            Debug.LogWarning("Save file not found: " + filePath);
+            Debug.LogWarning("Save file not found: " + SaveFilePath);
             return null;
         }
+    }
+
+    public static bool HasSaveData()
+    {
+        Init();
+        return File.Exists(SaveFilePath);
     }
 }

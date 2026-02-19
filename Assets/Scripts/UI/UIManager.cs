@@ -259,11 +259,35 @@ public class UIManager : KeyActionReceiver<UIManager>
 
     public void SaveGame()
     {
-        GameManager.Instance?.SaveGame("SaveFile1");
+        GameManager.Instance?.SaveGame();
     }
 
     public void LoadGame()
     {
-        GameManager.Instance?.LoadGame("SaveFile1");
+        GameManager.Instance?.LoadGame();
+    }
+
+    /// <summary>
+    /// Call from a UI Toggle to flip the auto-save setting.
+    /// </summary>
+    public void ToggleAutoSave()
+    {
+        GameManager.Instance?.ToggleAutoSave();
+    }
+
+    /// <summary>
+    /// Call from a UI Toggle's onValueChanged to set auto-save on/off.
+    /// </summary>
+    public void SetAutoSave(bool enabled)
+    {
+        GameManager.Instance?.SetAutoSave(enabled);
+    }
+
+    /// <summary>
+    /// Returns current auto-save state (for initializing a UI Toggle).
+    /// </summary>
+    public bool GetAutoSaveEnabled()
+    {
+        return GameManager.Instance != null && GameManager.Instance.AutoSaveEnabled;
     }
 }

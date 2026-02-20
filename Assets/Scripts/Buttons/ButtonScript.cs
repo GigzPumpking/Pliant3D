@@ -6,34 +6,20 @@ public abstract class ButtonScript : MonoBehaviour
 {
     private Animator animator;
 
-    // Start is called before the first frame update
     void Start()
     {
         animator = GetComponent<Animator>();
         animator.Play("Unpressed");
-
-        // Remove listeners to avoid duplicates
-        EventDispatcher.RemoveListener<PressButton>(PressButton);
-        EventDispatcher.RemoveListener<ReleaseButton>(ReleaseButton);
-
-        EventDispatcher.AddListener<PressButton>(PressButton);
-        EventDispatcher.AddListener<ReleaseButton>(ReleaseButton);
     }
 
-    private void OnDestroy()
-    {
-        EventDispatcher.RemoveListener<PressButton>(PressButton);
-        EventDispatcher.RemoveListener<ReleaseButton>(ReleaseButton);
-    }
-
-    public void PressButton(PressButton e)
+    public void Press()
     {
         if (animator == null) animator = GetComponent<Animator>();
         animator.SetTrigger("Press");
         OnPress();
     }
 
-    public void ReleaseButton(ReleaseButton e)
+    public void Release()
     {
         if (animator == null) animator = GetComponent<Animator>();
         animator.SetTrigger("Unpress");

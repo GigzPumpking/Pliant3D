@@ -6,7 +6,6 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using TMPro;
-using UnityEngine.SceneManagement;
 
 public class UIManager : KeyActionReceiver<UIManager>
 {
@@ -18,6 +17,7 @@ public class UIManager : KeyActionReceiver<UIManager>
     public bool isDialogueActive = false;
     public GameObject sceneTransition;
     public UILoadingScreen loadingScreen;
+    public DayBanner dayBanner;
 
     public GameObject scenePanelPrefab;
 

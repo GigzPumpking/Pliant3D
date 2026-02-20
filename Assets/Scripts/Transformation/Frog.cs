@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 public class Frog : FormScript
 {
@@ -11,8 +12,13 @@ public class Frog : FormScript
     private bool isGrounded = true;
 
     [Tooltip("The time in seconds before the frog can jump again.")]
-    [SerializeField] private float jumpCooldown = 0.75f;
+    [SerializeField] private float jumpCooldown = 0.15f;
     private float nextJumpTime = 0f;
+
+    [Header("Coyote Time")]
+    [Tooltip("Grace period after leaving the ground during which the frog can still jump.")]
+    [SerializeField] private float coyoteTime = 0.2f;
+    [SerializeField] private float coyoteTimeCounter = 0f;
 
     [Header("Ground Check")]
 
@@ -66,10 +72,13 @@ public class Frog : FormScript
     private float stuckTime = 0f;
     private const float STUCK_TIMEOUT = 0.3f;
     private const float MIN_PULL_DISTANCE = 2.0f; // Minimum distance to stop pulling
+    private bool originalKinematicState = false; // Store original kinematic state of pulled object
 
     private bool isGrappling = false;
     private Transform grappleTarget;
     private Coroutine grappleCoroutine;
+
+    private bool canJumpLock = true;
 
     // Single source of truth for calculating hook/tongue attachment point
     private Vector3 CalculateHookPoint(Transform target)
@@ -177,6 +186,7 @@ public class Frog : FormScript
 
     public override void OnEnable()
     {
+        EventDispatcher.AddListener<TogglePlayerMovement>(ToggleJump);
         base.OnEnable();
     }
 
@@ -193,6 +203,12 @@ public class Frog : FormScript
         {
             StopGrapple();
         }
+        EventDispatcher.RemoveListener<TogglePlayerMovement>(ToggleJump);
+    }
+
+    void ToggleJump(TogglePlayerMovement set)
+    {
+        canJumpLock = set.isEnabled;
     }
     
     // *** Detects collision with the grapple target ***
@@ -331,19 +347,27 @@ public class Frog : FormScript
 
     private void Jump()
     {
+        if (!canJumpLock) return;
+        
+        // Vertical velocity check should only apply when grounded, not during coyote time
+        // (coyote time allows jumping even when falling)
         bool isVerticallyStationary = Mathf.Abs(rb.velocity.y) < verticalVelocityThreshold;
+        bool canJumpFromGround = isGrounded && isVerticallyStationary;
+        bool canJumpFromCoyote = coyoteTimeCounter > 0f && !isGrounded;
         
         bool canJump = 
-            isGrounded &&                // 1. Raycast must hit the ground.
-            isVerticallyStationary &&    // 2. Must not be rising or falling.
-            Time.time >= nextJumpTime && // 3. Cooldown must have expired.
-            !Player.Instance.TransformationChecker(); // 4. Not currently transforming.
+            (canJumpFromGround || canJumpFromCoyote) && // 1. On ground with no vertical movement OR in coyote time window.
+            Time.time >= nextJumpTime &&                 // 2. Cooldown must have expired.
+            !Player.Instance.TransformationChecker();    // 3. Not currently transforming.
 
         // If any of the above conditions are false, we can't jump.
         if (!canJump)
         {
             return;
         }
+
+        // Consume coyote time when jumping
+        coyoteTimeCounter = 0f;
 
         nextJumpTime = Time.time + jumpCooldown;
 
@@ -370,16 +394,35 @@ public class Frog : FormScript
         );
 
         bool fallingOrStill = rb.velocity.y <= 0f;
+        bool wasGrounded = isGrounded;
         isGrounded = hitGround && fallingOrStill;
 
+        // Update coyote time counter
         if (isGrounded)
         {
+            coyoteTimeCounter = coyoteTime; // Reset coyote time when grounded
             Player.Instance?.SetGroundedState(true);
             Player.Instance?.SetJumpingState(false);
             Debug.DrawLine(transform.position, groundCheckPosition, Color.green);
         }
         else
         {
+            // Only decrement coyote time if we just left the ground (not during a jump)
+            if (wasGrounded && !Player.Instance.IsJumping)
+            {
+                // Just left the ground naturally (walked off edge)
+                // Coyote time counter will be > 0, allowing a jump
+            }
+            else if (Player.Instance.IsJumping)
+            {
+                // During a jump, immediately consume coyote time
+                coyoteTimeCounter = 0f;
+            }
+            
+            // Decrement coyote time
+            coyoteTimeCounter -= Time.fixedDeltaTime;
+            if (coyoteTimeCounter < 0f) coyoteTimeCounter = 0f;
+            
             Player.Instance?.SetGroundedState(false);
             Debug.DrawLine(transform.position, groundCheckPosition, Color.red);
         }
@@ -540,8 +583,11 @@ public class Frog : FormScript
 
             if (shouldShowHookTarget)
             {
-                // Use single source of truth for hook point calculation
-                hookTarget.transform.position = CalculateHookPoint(targetForIcon);
+                // Convert world-space hook point to screen position for overlay UI
+                Vector3 worldPoint = CalculateHookPoint(targetForIcon);
+                Vector3 screenPos = Camera.main.WorldToScreenPoint(worldPoint);
+
+                hookTarget.transform.position = screenPos;
             }
         }
     }
@@ -555,7 +601,13 @@ public class Frog : FormScript
     {
         if (isGrappling) yield break; // Exit if already grappling
 
-        animator?.SetTrigger("Tongue");
+        // Check if facing front before playing tongue animation
+        Vector3 facingDir = Player.Instance != null ? Player.Instance.AnimationBasedFacingDirection : Vector3.forward;
+        bool isFacingFront = facingDir == Vector3.left || facingDir == Vector3.back;
+        if (!isFacingFront)
+        {
+            animator?.SetTrigger("Tongue");
+        }
 
         // --- Setup Phase ---
         isGrappling = true;
@@ -633,12 +685,26 @@ public class Frog : FormScript
         isPulling = true;
         pullElapsedTime = 0f;
         stuckTime = 0f;
+
+        // Store original kinematic state and disable kinematic for pulling
+        originalKinematicState = pullableRb.isKinematic;
+        pullableRb.isKinematic = false;
+
+        animator?.SetBool("isPulling", true);
         
         // Calculate the hook point - this is our target
         pullTargetPoint = CalculateHookPoint(t);
         lastDistanceToTarget = Vector3.Distance(pullTargetPoint, transform.position);
 
         Debug.Log($"[PULL START] Object: {t.name}, HookPoint: {pullTargetPoint}, InitialDist: {lastDistanceToTarget:F3}");
+
+        // If player is facing front, do not play tongue animation
+        Vector3 facingDir = Player.Instance != null ? Player.Instance.AnimationBasedFacingDirection : Vector3.forward;
+        bool isFacingFront = facingDir == Vector3.left || facingDir == Vector3.back;
+        if (!isFacingFront)
+        {
+            animator?.SetTrigger("Tongue");
+        }
 
         Player.Instance.canMoveToggle(false);
 
@@ -730,6 +796,7 @@ public class Frog : FormScript
         {
             Debug.Log($"[PULL END] Stopping pull");
             Player.Instance.canMoveToggle(true);
+            animator?.SetBool("isPulling", false);
             
             if (currentPullObject != null)
             {
@@ -738,6 +805,8 @@ public class Frog : FormScript
                 {
                     pullableRb.velocity = Vector3.zero;
                     pullableRb.angularVelocity = Vector3.zero;
+                    // Restore original kinematic state
+                    pullableRb.isKinematic = originalKinematicState;
                 }
             }
         }

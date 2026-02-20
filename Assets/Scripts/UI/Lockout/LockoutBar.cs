@@ -24,11 +24,16 @@ public class LockoutBar : MonoBehaviour
     [SerializeField] private GameObject lockoutBarPrefab;
 
     public Dictionary<Transformation, TransformationLOData> LockoutTransformations = new Dictionary<Transformation, TransformationLOData>();
+
     private void Awake()
     {
-        if (!instance) instance = this;
-        else Destroy(this.gameObject);
-        
+        if (instance == null) instance = this;
+        else
+        {
+            Destroy(this.gameObject);
+            return;
+        }   
+
         DontDestroyOnLoad(transform.parent);
     }
 

@@ -6,7 +6,6 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using TMPro;
-using UnityEngine.SceneManagement;
 
 public class UIManager : KeyActionReceiver<UIManager>
 {
@@ -18,6 +17,7 @@ public class UIManager : KeyActionReceiver<UIManager>
     public bool isDialogueActive = false;
     public GameObject sceneTransition;
     public UILoadingScreen loadingScreen;
+    public DayBanner dayBanner;
 
     public GameObject scenePanelPrefab;
 
@@ -26,7 +26,7 @@ public class UIManager : KeyActionReceiver<UIManager>
     private GameObject controls;
     private GameObject settings;
     private GameObject pauseButton;
-
+    
     private TextMeshProUGUI pauseButtonText;
 
     [SerializeField] private string pauseButtonTextKb = "PAUSE (ESC)";
@@ -36,6 +36,8 @@ public class UIManager : KeyActionReceiver<UIManager>
     [SerializeField] private AudioData pauseSound;
 
     [SerializeField] private List<string> scenesToHidePauseIn = new List<string>();
+
+    [SerializeField] private GameObject GameOverPanel;
 
     public bool isPaused
     {
@@ -96,6 +98,35 @@ public class UIManager : KeyActionReceiver<UIManager>
             pauseButtonText.text = pauseButtonTextController;
         }
         */
+    }
+
+    public void CallGameManagerLevelReset()
+    {
+        if (!GameManager.Instance) return;
+        GameManager.Instance.Reset();
+    }
+
+    private static BaseEventData eventSystemData;
+    public void GameOverProtocol()
+    {
+        if (GameOverPanel != null)
+            GameOverPanel.SetActive(true);
+        
+        var eventSystem = EventSystem.current;
+        bool can = GameOverPanel.transform.GetChild(2).gameObject != null;
+        
+        if(can) 
+            eventSystem.SetSelectedGameObject(GameOverPanel.transform.GetChild(2).gameObject, eventSystemData);
+
+        Debug.Log("Game Over");
+        TogglePlayerMovement tpm = new TogglePlayerMovement();
+        tpm.isEnabled = false;
+        EventDispatcher.Raise(tpm);
+    }
+
+    public void DisableGameOverPanel()
+    {
+        GameOverPanel.SetActive(false);
     }
 
     public void Pause()
@@ -228,11 +259,35 @@ public class UIManager : KeyActionReceiver<UIManager>
 
     public void SaveGame()
     {
-        GameManager.Instance?.SaveGame("SaveFile1");
+        GameManager.Instance?.SaveGame();
     }
 
     public void LoadGame()
     {
-        GameManager.Instance?.LoadGame("SaveFile1");
+        GameManager.Instance?.LoadGame();
+    }
+
+    /// <summary>
+    /// Call from a UI Toggle to flip the auto-save setting.
+    /// </summary>
+    public void ToggleAutoSave()
+    {
+        GameManager.Instance?.ToggleAutoSave();
+    }
+
+    /// <summary>
+    /// Call from a UI Toggle's onValueChanged to set auto-save on/off.
+    /// </summary>
+    public void SetAutoSave(bool enabled)
+    {
+        GameManager.Instance?.SetAutoSave(enabled);
+    }
+
+    /// <summary>
+    /// Returns current auto-save state (for initializing a UI Toggle).
+    /// </summary>
+    public bool GetAutoSaveEnabled()
+    {
+        return GameManager.Instance != null && GameManager.Instance.AutoSaveEnabled;
     }
 }

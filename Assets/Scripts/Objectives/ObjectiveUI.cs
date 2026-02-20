@@ -9,7 +9,6 @@ public class ObjectiveUI : MonoBehaviour {
     public Image CheckBoxImage;
     public Image CheckMarkImage;
     public TextMeshProUGUI DescriptionTXT;
-
     public void OnComplete() {
         animator.SetBool("Complete", true);
         CheckMarkImage.gameObject.SetActive(true);

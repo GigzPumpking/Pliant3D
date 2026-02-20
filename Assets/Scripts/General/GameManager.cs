@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using System.Linq.Expressions;
+using UnityEngine.EventSystems;
 
 public class GameManager : KeyActionReceiver<GameManager>
 {
@@ -20,6 +21,39 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     // Main menu scene name
     [SerializeField] private string mainMenuSceneName = "0 Main Menu";
+
+    // Scenes where saving is not allowed (transitions, main menu, etc.)
+    [SerializeField] private List<string> unsaveableScenes = new List<string>
+    {
+        "0 Main Menu",
+        "1-0 Terry",
+        "2-0 Meri",
+        "3-0 Jerry",
+        "4-0 Carrie",
+        "5-0 Perry",
+        "11-0 Thanks"
+    };
+
+    /// <summary>
+    /// Returns true if the current scene allows saving.
+    /// </summary>
+    public bool CanSave()
+    {
+        string currentScene = SceneManager.GetActiveScene().name;
+        return !unsaveableScenes.Contains(currentScene);
+    }
+
+    // Auto-save: on by default, persisted via PlayerPrefs
+    private const string AUTO_SAVE_PREF_KEY = "AutoSaveEnabled";
+    public bool AutoSaveEnabled
+    {
+        get { return PlayerPrefs.GetInt(AUTO_SAVE_PREF_KEY, 1) == 1; }
+        set
+        {
+            PlayerPrefs.SetInt(AUTO_SAVE_PREF_KEY, value ? 1 : 0);
+            PlayerPrefs.Save();
+        }
+    }
 
     // Static key mapping shared across all GameManager instances.
     public static Dictionary<string, Action<GameManager, InputAction.CallbackContext>> staticKeyMapping =
@@ -40,14 +74,17 @@ public class GameManager : KeyActionReceiver<GameManager>
             //Handle Music Carryover between scenes
             instance.mainTheme = this.mainTheme;
             instance.Ambience  = this.Ambience;
-            AudioManager.Instance.DeleteCurrentMusicSources();
-            AudioManager.Instance.PlayMusic(mainTheme);
-            AudioManager.Instance.PlayMusic(Ambience);
+            AudioManager.Instance?.DeleteCurrentMusicSources();
+            AudioManager.Instance?.PlayMusic(mainTheme);
+            AudioManager.Instance?.PlayMusic(Ambience);
             
             Destroy(this.gameObject);
             return;
         }
         DontDestroyOnLoad(this.gameObject);
+
+        // Subscribe to new-scene events for auto-save
+        EventDispatcher.AddListener<NewSceneLoaded>(OnNewSceneLoaded);
     }
 
     void Start()
@@ -103,17 +140,16 @@ public class GameManager : KeyActionReceiver<GameManager>
         {
             Debug.LogError("Error loading dependencies when restarting scene");
         }
+        var eventSystem = EventSystem.current;
+        eventSystem.SetSelectedGameObject(null);
+        UIManager.Instance?.DisableGameOverPanel();
     }
 
     public void GameOver()
     {
         if (isGameOver) return;
+        UIManager.Instance?.GameOverProtocol();
         isGameOver = true;
-        if (gameOverPanel != null)
-            gameOverPanel.SetActive(true);
-
-        Debug.Log("Game Over");
-        Player.Instance.canMoveToggle(false);
     }
 
     public void Reset(InputAction.CallbackContext context)
@@ -122,6 +158,32 @@ public class GameManager : KeyActionReceiver<GameManager>
         {
             Reset();
         }
+    }
+
+    public void ToggleAutoSave()
+    {
+        AutoSaveEnabled = !AutoSaveEnabled;
+    }
+
+    public void SetAutoSave(bool enabled)
+    {
+        AutoSaveEnabled = enabled;
+    }
+
+    private void OnNewSceneLoaded(NewSceneLoaded e)
+    {
+        if (!AutoSaveEnabled) return;
+
+        // Don't auto-save on unsaveable scenes (main menu, transitions, etc.)
+        if (unsaveableScenes.Contains(e.sceneName)) return;
+
+        SaveGame();
+        Debug.Log("Auto-saved on scene load: " + e.sceneName);
+    }
+
+    private void OnDestroy()
+    {
+        EventDispatcher.RemoveListener<NewSceneLoaded>(OnNewSceneLoaded);
     }
 
     public void Quit()
@@ -135,13 +197,20 @@ public class GameManager : KeyActionReceiver<GameManager>
         SceneManager.LoadScene(mainMenuSceneName);
     }
 
-    public void SaveGame(string saveFileName)
+    public void SaveGame()
     {
+        if (!CanSave())
+        {
+            Debug.LogWarning("Save blocked — current scene is not saveable.");
+            return;
+        }
+
         PlayerData playerData = new PlayerData();
+        playerData.sceneName = SceneManager.GetActiveScene().name;
+        playerData.settings.autoSave = AutoSaveEnabled;
 
         if (Player.Instance != null)
         {
-            playerData.sceneName = SceneManager.GetActiveScene().name;
             /*
             Vector3 playerPosition = Player.Instance.transform.position;
             playerData.playerPosition = new float[] { playerPosition.x, playerPosition.y, playerPosition.z };
@@ -160,12 +229,12 @@ public class GameManager : KeyActionReceiver<GameManager>
         playerData.settings.isFullscreen = Screen.fullScreen;
         */
 
-        SaveSystem.SaveGame(saveFileName, playerData);
+        SaveSystem.SaveGame(playerData);
     }
 
-    public void LoadGame(string saveFileName)
+    public void LoadGame()
     {
-        PlayerData playerData = SaveSystem.LoadGame(saveFileName);
+        PlayerData playerData = SaveSystem.LoadGame();
         if (playerData != null)
         {
             StartCoroutine(LoadSceneAndApplyData(playerData));
@@ -182,6 +251,9 @@ public class GameManager : KeyActionReceiver<GameManager>
         {
             yield return null;
         }
+
+        // Restore auto-save preference
+        AutoSaveEnabled = playerData.settings.autoSave;
 
         // Apply player data after scene has loaded
         if (Player.Instance != null)

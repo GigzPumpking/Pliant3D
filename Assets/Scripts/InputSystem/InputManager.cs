@@ -93,10 +93,6 @@ public class InputManager : MonoBehaviour
         {
             dispatcher(actionName, context);
         }
-        else
-        {
-            Debug.LogWarning($"No dispatcher registered for type: {typeName}");
-        }
     }
 
     // Registers a type dispatcher for a given script type name.
@@ -211,7 +207,6 @@ public class InputManager : MonoBehaviour
 
         // Verify that a dispatcher for this script type is registered.
         if (!typeDispatchers.ContainsKey(typeName)) {
-            Debug.LogWarning($"No dispatcher registered for type: {typeName}");
             return false;
         }
 

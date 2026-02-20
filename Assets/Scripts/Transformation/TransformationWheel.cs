@@ -136,14 +136,14 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
 
         //TRANSFORMATION LOGIC
         if (form.transformation != Transformation.BALL && form.transformation != Player.Instance.transformation) {
-            if (LockoutBar.Instance.LockoutTransformations[form.transformation].currentCharge > 0)
-            {
+            //f (LockoutBar.Instance.LockoutTransformations[form.transformation].currentCharge > 0)
+            //{
                 OnTransform?.Invoke(form.transformation);
                 TransformedObjective?.Invoke(form.transformation);
                 
                 Player.Instance.SetTransformation(form.transformation);
                 AudioManager.Instance?.PlayOneShot(transformationSound); // Play a random transformation sound.
-            }
+            //}
         } 
         else Debug.LogWarning("Ball form is temporarily disabled.");
         Debug.Log("Current: " + form.transformation + " Previous: " + previousTransformation.GetForm().transformation);

@@ -1,16 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using TMPro;
 
 [System.Serializable]
 public class DialogueEntry
 {
-    [TextArea]
+    [TextArea(2, 5)]
     public string defaultText;
-    [TextArea]
+    
+    [Tooltip("Enable to show separate keyboard/controller text fields for this entry")]
+    public bool hasDeviceSpecificText;
+    
+    [TextArea(2, 5)]
     public string keyboardText;
-    [TextArea]
+    [TextArea(2, 5)]
     public string controllerText;
 }
 
@@ -52,6 +57,7 @@ public class Dialogue : MonoBehaviour
     void Awake()
     {
         textDisplay.text = string.Empty;
+        textDisplay.maxVisibleCharacters = 0;
         index = 0;
         animator.Play("DialogueHide_Idle");
         Active = false;
@@ -82,11 +88,13 @@ public class Dialogue : MonoBehaviour
         {
             index++;
             textDisplay.text = string.Empty;
+            textDisplay.maxVisibleCharacters = 0;
             StartCoroutine(TypeLine());
         }
         else
         {
             textDisplay.text = "";
+            textDisplay.maxVisibleCharacters = 0;
             animator.Play("DialogueHide");
             EventDispatcher.Raise<EndDialogue>(new EndDialogue(this.dialogueEntries[0].defaultText));
             EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
@@ -96,10 +104,15 @@ public class Dialogue : MonoBehaviour
 
     IEnumerator TypeLine()
     {
-        string sentence = GetCurrentSentence();
-        foreach (char letter in sentence.ToCharArray())
+        string sentence = GetCurrentSentenceStyled();
+        textDisplay.text = sentence;
+        textDisplay.maxVisibleCharacters = 0;
+        textDisplay.ForceMeshUpdate();
+
+        int totalChars = textDisplay.textInfo.characterCount;
+        for (int i = 0; i < totalChars; i++)
         {
-            textDisplay.text += letter;
+            textDisplay.maxVisibleCharacters = i + 1;
             yield return new WaitForSeconds(textSpeed);
         }
     }
@@ -121,6 +134,7 @@ public class Dialogue : MonoBehaviour
 
         animator.Play("DialogueAppear");
         textDisplay.text = string.Empty;
+        textDisplay.maxVisibleCharacters = 0;
         // Start the dialogue after 1 second.
         Invoke("StartDialogue", 1.0f);
     }
@@ -132,34 +146,73 @@ public class Dialogue : MonoBehaviour
 
     public void CheckNext()
     {
-        if (textDisplay.text == GetCurrentSentence())
+        if (IsLineFullyRevealed())
         {
             NextLine();
         }
         else
         {
             StopAllCoroutines();
-            textDisplay.text = GetCurrentSentence();
+            textDisplay.ForceMeshUpdate();
+            textDisplay.maxVisibleCharacters = textDisplay.textInfo.characterCount;
         }
     }
 
     // Returns the sentence text for the current index based on the active device.
-    private string GetCurrentSentence()
+    private string GetCurrentSentenceRaw()
     {
         if (dialogueEntries == null || dialogueEntries.Length <= index)
             return "";
 
         DialogueEntry entry = dialogueEntries[index];
-        string activeDevice = InputManager.Instance?.ActiveDeviceType;
-        if ((activeDevice == "Keyboard" || activeDevice == "Mouse") && !string.IsNullOrEmpty(entry.keyboardText))
+        
+        // Only check device-specific text if the entry has it enabled
+        if (entry.hasDeviceSpecificText)
         {
-            return entry.keyboardText;
+            string activeDevice = InputManager.Instance?.ActiveDeviceType;
+            if ((activeDevice == "Keyboard" || activeDevice == "Mouse") && !string.IsNullOrEmpty(entry.keyboardText))
+            {
+                return entry.keyboardText;
+            }
+            else if (!string.IsNullOrEmpty(entry.controllerText) && activeDevice != "Keyboard" && activeDevice != "Mouse")
+            {
+                return entry.controllerText;
+            }
         }
-        else if (!string.IsNullOrEmpty(entry.controllerText) && activeDevice != "Keyboard" && activeDevice != "Mouse")
-        {
-            return entry.controllerText;
-        }
+        
         return entry.defaultText;
+    }
+
+    private string GetCurrentSentenceStyled()
+    {
+        return ApplyDialogueStyling(GetCurrentSentenceRaw());
+    }
+
+    private bool IsLineFullyRevealed()
+    {
+        textDisplay.ForceMeshUpdate();
+        int totalChars = textDisplay.textInfo.characterCount;
+        return totalChars == 0 || textDisplay.maxVisibleCharacters >= totalChars;
+    }
+
+    private string ApplyDialogueStyling(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+
+        // Convert **text** to bold using TMP rich text.
+        string output = Regex.Replace(input, @"\*\*(.+?)\*\*", "<b>$1</b>");
+
+        // Convert *text* to italics (single asterisks only).
+        output = Regex.Replace(output, @"(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)", "<i>$1</i>");
+
+        // Convert ~~text~~ to strikethrough.
+        output = Regex.Replace(output, @"~~(.+?)~~", "<s>$1</s>");
+
+        // Convert [color=#RRGGBB]text[/color] to TMP color tags.
+        output = Regex.Replace(output, @"\[color=(#?[A-Za-z0-9]+)\](.+?)\[/color\]", "<color=$1>$2</color>");
+
+        return output;
     }
 
     void Update()

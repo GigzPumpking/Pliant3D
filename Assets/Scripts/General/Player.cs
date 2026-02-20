@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public enum Directions {
     UP,
@@ -254,8 +255,14 @@ public class Player : KeyActionReceiver<Player>
             isMoving = false;
         }
 
-        if (transform.position.y < outOfBoundsY && !GameManager.Instance.isGameOver)
+        if (transform.position.y < outOfBoundsY && !GameManager.Instance.isGameOver
+                                                && SceneManager.GetActiveScene().name != "2-0 Meri"
+                                                && SceneManager.GetActiveScene().name != "3-0 Carrie"
+                                                && SceneManager.GetActiveScene().name != "11-0 Thanks"
+                                                && SceneManager.GetActiveScene().name != "0 Main Menu")
         {
+            Debug.LogWarning("s::" + SceneManager.GetActiveScene().name);
+            Debug.LogWarning("Game Over from Player.cs");
             GameManager.Instance?.GameOver();
         }
 
@@ -264,6 +271,12 @@ public class Player : KeyActionReceiver<Player>
 
     public void resetPosition() {
         transform.position = areaPositions[0];
+
+        // Reset grounded/airborne state so the player isn't stuck as "not grounded"
+        // after a respawn or scene reload.
+        isGrounded = true;
+        isJumping = false;
+        airborneGraceTimer = 0f;
     }
 
     void setMovementInput(InputAction.CallbackContext context) {
@@ -272,6 +285,17 @@ public class Player : KeyActionReceiver<Player>
         if (!isGrounded && transformation == Transformation.BULLDOZER) {
             movementInput = Vector2.zero;
             return;
+        }
+        
+        // Prevent movement during Terry's fall animation
+        if (transformation == Transformation.TERRY && animator != null)
+        {
+            AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            if (stateInfo.IsName("FrontFall_Terry"))
+            {
+                movementInput = Vector2.zero;
+                return;
+            }
         }
 
         Vector2 moveValue = InputManager.Instance.isListening
@@ -356,7 +380,18 @@ public class Player : KeyActionReceiver<Player>
             dir.z * movementSpeed
         );
 
-        if (!isJumping && airborneGraceTimer <= 0f && isGrounded && rbody.velocity.y > 0.1f)
+        // Check if Bulldozer is sprinting - if so, don't clamp velocity
+        bool isBulldozerSprinting = false;
+        if (transformation == Transformation.BULLDOZER && selectedGroupScript != null)
+        {
+            Bulldozer bulldozer = selectedGroupScript as Bulldozer;
+            if (bulldozer != null)
+            {
+                isBulldozerSprinting = bulldozer.IsSprinting();
+            }
+        }
+
+        if (!isJumping && airborneGraceTimer <= 0f && isGrounded && rbody.velocity.y > 0.1f && !isBulldozerSprinting)
         {
             rbody.velocity = new Vector3(
                 rbody.velocity.x,

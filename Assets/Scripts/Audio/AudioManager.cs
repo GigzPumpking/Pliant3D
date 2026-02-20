@@ -2,6 +2,8 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEditor.SceneManagement;
 
 [System.Serializable]
 public class AudioData
@@ -169,9 +171,24 @@ public class AudioManager : MonoBehaviour
 
     // --- Music Playback ---
 
-    public void PlayMusic(AudioData data)
+    //Keep track of new music sources just incase
+    List<AudioSource> additionalMusicSources = new List<AudioSource>();
+    public void PlayMusic(AudioData data, bool overrideCurrent = false)
     {
         if (data == null || data.clip == null) return;
+        if (overrideCurrent == false && musicSource != null)
+        {
+            AudioSource curr = this.AddComponent<AudioSource>();
+            additionalMusicSources.Add(curr);
+            curr.loop = data.loop;
+            curr.clip = data.clip;
+            curr.volume = data.volume;
+            curr.spatialBlend = 0.0f;
+            UpdateCurrentMusicVolume();
+            curr.Play();
+            return;
+        }
+        
         if (musicSource != null)
         {
             currentMusicData = data;
@@ -189,6 +206,16 @@ public class AudioManager : MonoBehaviour
         {
             musicSource.Stop();
         }
+    }
+
+    public void DeleteCurrentMusicSources()
+    {
+        musicSource.clip = null;
+        foreach(AudioSource audioSource in additionalMusicSources)
+        {
+            Destroy(audioSource);
+        }
+        additionalMusicSources.Clear();
     }
 
     // --- State Checks ---

@@ -13,9 +13,10 @@ public class ObjectiveUIFactory {
         currentObjectiveUI.DescriptionTXT.text = objective.description;
         //Link to ObjectiveTracker
         if(objectiveUIDict != null) objectiveUIDict.TryAdd(objective, currentObjectiveUI);
+        
         if (objectiveUIDict.ContainsKey(objective))
         {
-            //Debug.LogWarning($"Mapping objective UI for objective: {objective.description} to {currentObjectiveUI.name}");
+            Debug.LogWarning($"Mapping objective UI for objective: {objective.description} to {currentObjectiveUI.name}");
             if(objective.showTally) TallyBuilder.InitializeTallyUI(objective, "?");
         }
         

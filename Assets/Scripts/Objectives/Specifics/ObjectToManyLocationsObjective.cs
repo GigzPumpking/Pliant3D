@@ -25,6 +25,11 @@ public class ObjectToManyLocationsObjective : Objective {
         ObjectiveNode.OnNodeCompleted -= CheckCompletion;
     }
     
+    private void Start()
+    {
+        if (showTally) TallyBuilder.UpdateTallyUI(this, 0, targetLocations.Count);
+    }
+    
     private void CheckCompletion() {
         foreach (ObjectiveNode node in targetLocations) {
             if (node.isComplete)

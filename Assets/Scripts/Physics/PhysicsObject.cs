@@ -20,10 +20,17 @@ public class PhysicsObject : MonoBehaviour
     }
 
     // Resets the object's position and rotation, and notifies listeners.
+    //cache rb if we need to reset velocity and angular velocity in the future
+    private Rigidbody rb = null;
     public void ResetObject()
     {
         transform.position = initialPosition;
         transform.rotation = initialRotation;
+
+        TryGetComponent(out rb);
+        if(rb) rb.velocity = Vector3.zero;
+        
+        
 
         // Notify subscribers that a reset occurred.
         OnResetEvent?.Invoke();

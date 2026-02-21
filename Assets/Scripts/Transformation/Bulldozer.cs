@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI; 
+using System;
 
 public class Bulldozer : FormScript
 {
@@ -53,6 +54,9 @@ public class Bulldozer : FormScript
     private bool isPushing = false;
     private BoxCollider pushCollider;
     private CapsuleCollider normalCollider;
+    
+    //event raise channel for abilities
+    public static event Action<Transformation, int, Interactable> AbilityUsed;
 
     public override void Awake()
     {
@@ -118,11 +122,14 @@ public class Bulldozer : FormScript
         #endif
     }
     
+    
     public override void Ability1(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
             PushState(true);
+            //Raise event to be checked by AbilityPerformedObjective.cs or any other corresponding scripts
+            AbilityUsed?.Invoke(Transformation.BULLDOZER, 1, highlightedInteractable);
         }
         else if (context.canceled)
         {
@@ -134,11 +141,15 @@ public class Bulldozer : FormScript
     {
         if (context.performed)
         {
+            //Tells the script if the player is attempting to interact with a breakable object. If so, it breaks it
             if (highlightedInteractable != null && highlightedInteractable.HasProperty("Breakable"))
             {
+                //Raise event to be checked by AbilityPerformedObjective.cs or any other corresponding scripts
+                AbilityUsed?.Invoke(Transformation.BULLDOZER, 2, highlightedInteractable);
+                
                 highlightedInteractable.gameObject.SetActive(false);
                 highlightedInteractable = null;
-            }   
+            } 
             StartSprint();
         }
         else if (context.canceled)

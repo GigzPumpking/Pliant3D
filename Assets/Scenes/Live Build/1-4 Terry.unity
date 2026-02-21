@@ -631,6 +631,7 @@ Transform:
   m_Children:
   - {fileID: 759414026}
   - {fileID: 592770239}
+  - {fileID: 822908299}
   m_Father: {fileID: 0}
   m_RootOrder: 22
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -906,7 +907,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-24948
+  m_Name: pb_Mesh-27920
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -3643,6 +3644,18 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 697682376}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &624692823 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4770054862137888047, guid: 6f85904ba248a4cb9883955b670536e3,
+    type: 3}
+  m_PrefabInstance: {fileID: 697682376}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7483a6519fac549c58f15701be41fa70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &647865216
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4426,6 +4439,60 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3dec0dd9de384a6ea2bcdce0eec71c81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &822908298
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 822908299}
+  - component: {fileID: 822908300}
+  m_Layer: 0
+  m_Name: Break Cobweb
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &822908299
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 822908298}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 128619822}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &822908300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 822908298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e78fa1f98df147608c9afc39f7c45598, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  description: Break Cobwebs
+  isComplete: 0
+  showTally: 1
+  onCompleteEvents: []
+  whichForm: 02000000
+  whichAbility: 2
+  whichInteractable:
+  - {fileID: 1612261410}
+  - {fileID: 1658093241}
+  - {fileID: 624692823}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -4951,6 +5018,7 @@ MonoBehaviour:
   objectives:
   - {fileID: 759414027}
   - {fileID: 592770238}
+  - {fileID: 822908300}
   isComplete: 0
   onCompletionEvents: []
 --- !u!1 &976848428
@@ -8362,6 +8430,18 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1425052917}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1612261410 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4770054862137888047, guid: 6f85904ba248a4cb9883955b670536e3,
+    type: 3}
+  m_PrefabInstance: {fileID: 1425052917}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7483a6519fac549c58f15701be41fa70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1618861781
 GameObject:
   m_ObjectHideFlags: 0
@@ -8817,6 +8897,18 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1873464306}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1658093241 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4770054862137888047, guid: 6f85904ba248a4cb9883955b670536e3,
+    type: 3}
+  m_PrefabInstance: {fileID: 1873464306}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7483a6519fac549c58f15701be41fa70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!43 &1674665270
 Mesh:
   m_ObjectHideFlags: 0

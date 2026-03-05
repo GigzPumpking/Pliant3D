@@ -63,6 +63,13 @@ public abstract class FormScript : MonoBehaviour
         // Optional ability, can be overridden by subclasses
     }
 
+    /// <summary>
+    /// When true, Player will not update facing direction, sprite flip, or
+    /// animation move floats. Override in subclasses that need to lock facing
+    /// (e.g. Bulldozer while pushing).
+    /// </summary>
+    public virtual bool IsDirectionLocked => false;
+
     public float GetSpeed()
     {
         return speed;

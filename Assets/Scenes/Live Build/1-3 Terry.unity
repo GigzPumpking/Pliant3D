@@ -788,6 +788,46 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 241204379}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &241204381 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6595343896618376162, guid: 8d8c3281c80a24913afaf5c412c1bb33,
+    type: 3}
+  m_PrefabInstance: {fileID: 241204379}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &241204382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 241204381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7483a6519fac549c58f15701be41fa70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  properties:
+  - {fileID: 11400000, guid: 5473ed6d6b91a45be953a209cb8ae099, type: 2}
+  highlightColor: {r: 0, g: 1, b: 0, a: 1}
+--- !u!114 &241204383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 241204381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 208860f6cca5e45a480692fa30f5b22a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pushDrag: 4
+  pushAngularDrag: 0.5
+  maxSpeed: 0
+  settleSpeedThreshold: 0.15
+  settleDelay: 0.4
+  constrainToAxes: 0
+  chainForceMultiplier: 0.8
 --- !u!1 &246001915 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 6bc78090fe600a24aac001d9e60b45b4,
@@ -1041,7 +1081,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-1194958
+  m_Name: pb_Mesh-253150
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -1798,6 +1838,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_ConstrainProportionsScale
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2615991100851007782, guid: 9d8d4e8efe2e34272929ec073b603a85,
+        type: 3}
+      propertyPath: m_Mass
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 2615991100851007787, guid: 9d8d4e8efe2e34272929ec073b603a85,
         type: 3}
@@ -6373,6 +6418,40 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lookingFor: []
+--- !u!114 &1705495307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1705495298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7483a6519fac549c58f15701be41fa70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  properties:
+  - {fileID: 11400000, guid: 5473ed6d6b91a45be953a209cb8ae099, type: 2}
+  highlightColor: {r: 0, g: 1, b: 0, a: 1}
+--- !u!114 &1705495308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1705495298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 208860f6cca5e45a480692fa30f5b22a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pushDrag: 4
+  pushAngularDrag: 0.5
+  maxSpeed: 0
+  settleSpeedThreshold: 0.15
+  settleDelay: 0.4
+  constrainToAxes: 0
+  chainForceMultiplier: 0.8
 --- !u!4 &1737501241 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6941358332991207414, guid: 33b8654859fc5fc45a2f823f5ca3905a,
@@ -8049,8 +8128,28 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1117230621019193541, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
         type: 3}
+      propertyPath: pullForce
+      value: 2000
+      objectReference: {fileID: 0}
+    - target: {fileID: 1117230621019193541, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
+        type: 3}
+      propertyPath: pushForce
+      value: 2000
+      objectReference: {fileID: 0}
+    - target: {fileID: 1117230621019193541, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
+        type: 3}
+      propertyPath: referenceMass
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 1117230621019193541, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
+        type: 3}
       propertyPath: detectionRange
       value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1117230621019193541, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
+        type: 3}
+      propertyPath: maxContactDistance
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1563838582187938778, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
         type: 3}

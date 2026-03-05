@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731715, g: 0.13414735, b: 0.121078536, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -9445,18 +9445,19 @@ PrefabInstance:
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: dialogueLines.Array.data[0]
-      value: Hey there, hi there, ho there! Happy Monday! You must be Terry.
+      value: Hey there, hi there, ho there! Happy Monday! You must be **[color=#CFB32D]Terry[/color]**.
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: dialogueLines.Array.data[1]
-      value: '**[color=#FF6600]I''m Perry, YOUR BOSS[/color]**. And I''ve been working
-        here at this office for about 30 years now.'
+      value: I'm **[color=#FF6600]Perry[/color]**, your **[color=#FF6600]BOSS[/color]**.
+        And I've been working here at this office for about 30 years now so you better
+        follow my lead, haha.
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: dialogueLines.Array.data[2]
-      value: Anyways, here's your **AGENDA.** Use it to keep track of your tasks.
+      value: First, here's your **AGENDA.** Use it to keep track of your tasks.
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
@@ -9494,7 +9495,7 @@ PrefabInstance:
         type: 3}
       propertyPath: secondaryDialogue.Array.data[0].defaultText
       value: You know, I think I started when I was about your age! Time sure flies,
-        feels like it was only yesterday haha... **SIGH**
+        feels like it was only yesterday... *sighhh*.
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
@@ -10841,6 +10842,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Color.r
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7986067212760191123, guid: f09abbff6e9a448cab6f233042637973,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -14
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f09abbff6e9a448cab6f233042637973, type: 3}

@@ -20,9 +20,4 @@ public class ControlsMenu : SwappableMenu
         base.OnEnable();
         ((SwappableMenu)this).RegisterToUIManager(); //Register to the UIManager as a swappable menu
     }
-
-    private void OnValidate()
-    {
-        ActivateUIComponent(GetCurrentDeviceUI());
-    }
 }

@@ -27,6 +27,9 @@ public class UIManager : KeyActionReceiver<UIManager>
     private GameObject settings;
     private GameObject pauseButton;
     
+    [HideInInspector] private List<UIComponent> UIComponents = new List<UIComponent>();
+    [HideInInspector] private List<SwappableMenu> SwappableMenus = new List<SwappableMenu>();
+    
     private TextMeshProUGUI pauseButtonText;
 
     [SerializeField] private string pauseButtonTextKb = "PAUSE (ESC)";
@@ -81,7 +84,7 @@ public class UIManager : KeyActionReceiver<UIManager>
         pauseButton = transform.Find("Pause Button").gameObject;
         pauseButtonText = pauseButton.GetComponentInChildren<TextMeshProUGUI>();
         resumeButton = pauseMenu.transform.Find("Resume Button").gameObject;
-
+        
         pauseMenu.SetActive(false);
         UpdatePauseButtonVisibility();
 
@@ -98,6 +101,17 @@ public class UIManager : KeyActionReceiver<UIManager>
             pauseButtonText.text = pauseButtonTextController;
         }
         */
+        
+        //Handle Switching UI Components to designated devices
+        /*switch (InputManager.Instance?.ActiveDeviceType)
+        {
+            case "Mouse" or "Keyboard":
+                break;
+            case "Gamepad":
+                break;
+            default:
+                break;
+        }*/
     }
 
     public void CallGameManagerLevelReset()
@@ -289,5 +303,24 @@ public class UIManager : KeyActionReceiver<UIManager>
     public bool GetAutoSaveEnabled()
     {
         return GameManager.Instance != null && GameManager.Instance.AutoSaveEnabled;
+    }
+    
+    public void RegisterUIComponent(UIComponent component)
+    {
+        if (!UIComponents.Contains(component)) UIComponents.Add(component);
+    }
+    
+    public void RegisterSwappableMenu(SwappableMenu menu)
+    {
+        if (!SwappableMenus.Contains(menu)) SwappableMenus.Add(menu);
+    }
+    
+    public void UpdateUIComponents(InputDevice device)
+    {
+        foreach (SwappableMenu menu in SwappableMenus)
+        {
+            //Switch all swappable menus to the current device's menu option
+            menu.DesignateCurrentDeviceUI(device.displayName);
+        }
     }
 }

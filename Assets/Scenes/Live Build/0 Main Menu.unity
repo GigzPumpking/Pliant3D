@@ -718,6 +718,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultSelectedUIElement: {fileID: 1260433789}
+--- !u!114 &67838256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 67838254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9833e50419cd47ef98eb27d305a38c3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultButton: {fileID: 1260433789}
 --- !u!1 &93956715
 GameObject:
   m_ObjectHideFlags: 0
@@ -1547,18 +1560,6 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 843463694}
-        m_TargetAssemblyTypeName: Menu, Assembly-CSharp
-        m_MethodName: SetCurrentSelectedUIElement
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 1092799908}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -2714,6 +2715,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+      - m_Target: {fileID: 1095539012}
+        m_TargetAssemblyTypeName: UIStackedWindowTracker, Assembly-CSharp
+        m_MethodName: RegisterWindow
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 2653574432658311941}
+          m_ObjectArgumentAssemblyTypeName: UIPopUpWindow, Assembly-CSharp
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
 --- !u!114 &464912576
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3422,6 +3435,30 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 1640857429}
+        m_TargetAssemblyTypeName: Menu, Assembly-CSharp
+        m_MethodName: SetCurrentSelectedUIElement
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 678305259}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 1095539012}
+        m_TargetAssemblyTypeName: UIStackedWindowTracker, Assembly-CSharp
+        m_MethodName: RegisterWindow
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 843463695}
+          m_ObjectArgumentAssemblyTypeName: UIPopUpWindow, Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -4204,6 +4241,7 @@ GameObject:
   m_Component:
   - component: {fileID: 843463693}
   - component: {fileID: 843463694}
+  - component: {fileID: 843463695}
   m_Layer: 0
   m_Name: Window_Welcome
   m_TagString: Untagged
@@ -4251,6 +4289,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultSelectedUIElement: {fileID: 678305259}
+--- !u!114 &843463695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 843463692}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9833e50419cd47ef98eb27d305a38c3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultButton: {fileID: 678305259}
 --- !u!1 &846404772
 GameObject:
   m_ObjectHideFlags: 0
@@ -5182,6 +5233,30 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+      - m_Target: {fileID: 1640857429}
+        m_TargetAssemblyTypeName: Menu, Assembly-CSharp
+        m_MethodName: SetCurrentSelectedUIElement
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 1015248226}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 1095539012}
+        m_TargetAssemblyTypeName: UIStackedWindowTracker, Assembly-CSharp
+        m_MethodName: RegisterWindow
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 1678579340}
+          m_ObjectArgumentAssemblyTypeName: UIPopUpWindow, Assembly-CSharp
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
 --- !u!114 &1092799911
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5232,6 +5307,7 @@ GameObject:
   - component: {fileID: 1095539011}
   - component: {fileID: 1095539010}
   - component: {fileID: 1095539009}
+  - component: {fileID: 1095539012}
   m_Layer: 5
   m_Name: W95 Canvas
   m_TagString: Untagged
@@ -5328,6 +5404,18 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!114 &1095539012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1095539007}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 049294b1009a428a9f1ea3780bc28b21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1101882294
 GameObject:
   m_ObjectHideFlags: 0
@@ -5490,6 +5578,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1143806380}
   - component: {fileID: 1143806381}
+  - component: {fileID: 1143806382}
   m_Layer: 5
   m_Name: Window_NewEmail
   m_TagString: Untagged
@@ -5536,6 +5625,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultSelectedUIElement: {fileID: 1531484026}
+--- !u!114 &1143806382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1143806379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9833e50419cd47ef98eb27d305a38c3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultButton: {fileID: 1531484026}
 --- !u!1 &1177942084
 GameObject:
   m_ObjectHideFlags: 0
@@ -6462,6 +6564,7 @@ GameObject:
   - component: {fileID: 1640857428}
   - component: {fileID: 1640857427}
   - component: {fileID: 1640857429}
+  - component: {fileID: 1640857430}
   m_Layer: 5
   m_Name: Desktop_Taskbar
   m_TagString: Untagged
@@ -6545,6 +6648,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultSelectedUIElement: {fileID: 632673482}
+--- !u!114 &1640857430
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1640857425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9833e50419cd47ef98eb27d305a38c3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultButton: {fileID: 632673482}
 --- !u!1 &1678579338
 GameObject:
   m_ObjectHideFlags: 0
@@ -6554,6 +6670,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1678579339}
+  - component: {fileID: 1678579340}
   m_Layer: 5
   m_Name: Window_QuitConfirmation
   m_TagString: Untagged
@@ -6587,6 +6704,19 @@ RectTransform:
   m_AnchoredPosition: {x: 355, y: -146.56}
   m_SizeDelta: {x: 686.0236, y: 426.0204}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1678579340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1678579338}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9833e50419cd47ef98eb27d305a38c3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultButton: {fileID: 1015248226}
 --- !u!1 &1695165036
 GameObject:
   m_ObjectHideFlags: 0
@@ -6597,6 +6727,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1695165037}
   - component: {fileID: 1695165038}
+  - component: {fileID: 1695165039}
   m_Layer: 5
   m_Name: Window_CompanyEmail
   m_TagString: Untagged
@@ -6645,6 +6776,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultSelectedUIElement: {fileID: 379225962}
+--- !u!114 &1695165039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1695165036}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9833e50419cd47ef98eb27d305a38c3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultButton: {fileID: 379225962}
 --- !u!1 &1776383466
 GameObject:
   m_ObjectHideFlags: 0
@@ -6737,6 +6881,30 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 1640857429}
+        m_TargetAssemblyTypeName: Menu, Assembly-CSharp
+        m_MethodName: SetCurrentSelectedUIElement
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 1260433789}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 1095539012}
+        m_TargetAssemblyTypeName: UIStackedWindowTracker, Assembly-CSharp
+        m_MethodName: RegisterWindow
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 67838256}
+          m_ObjectArgumentAssemblyTypeName: UIPopUpWindow, Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -8728,6 +8896,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4895562722853379490, guid: cdb4ea987d5692f42a8f8b1d6cd5af93,
         type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4895562722853379490, guid: cdb4ea987d5692f42a8f8b1d6cd5af93,
+        type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
       objectReference: {fileID: 2653574432658311939}
@@ -8740,6 +8913,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5499763681108307605, guid: cdb4ea987d5692f42a8f8b1d6cd5af93,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5499763681108307605, guid: cdb4ea987d5692f42a8f8b1d6cd5af93,
         type: 3}
@@ -9037,3 +9215,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultSelectedUIElement: {fileID: 501766543}
+--- !u!114 &2653574432658311941
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 464998381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9833e50419cd47ef98eb27d305a38c3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultButton: {fileID: 1437153767}

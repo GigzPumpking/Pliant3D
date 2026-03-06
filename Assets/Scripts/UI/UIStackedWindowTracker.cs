@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,6 +10,15 @@ public class UIStackedWindowTracker : MonoBehaviour
     // Simple list where the last element is the top of the stack
     private readonly List<UIPopUpWindow> _stack = new List<UIPopUpWindow>();
 
+    // Windows waiting to have their sibling index set once it's safe
+    private readonly List<UIPopUpWindow> _pendingSetSibling = new List<UIPopUpWindow>();
+
+    // Frame-deferred actions (replacements for coroutines)
+    private bool _recalibrateNextFrame = false;
+    private GameObject _deferredSelectTarget = null;
+    private int _deferredSelectAttempts = 0;
+    private const int MaxDeferredSelectAttempts = 4; // try a few frames
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -18,6 +26,56 @@ public class UIStackedWindowTracker : MonoBehaviour
 
         // Register any already-active popup windows in the scene (bottom -> top)
         InitializeFromScene();
+    }
+
+    private void Update()
+    {
+        // Process pending SetAsLastSibling requests first (try to run them when UI is stable)
+        if (_pendingSetSibling.Count > 0)
+        {
+            // Copy and clear to avoid modification during iteration
+            var copy = _pendingSetSibling.ToArray();
+            _pendingSetSibling.Clear();
+            foreach (var w in copy)
+            {
+                if (w == null) continue;
+                var parent = w.transform.parent;
+                // Only set sibling when both the window and its parent are active in hierarchy
+                if (w.gameObject.activeInHierarchy && parent != null && parent.gameObject.activeInHierarchy)
+                {
+                    try { w.gameObject.transform.SetAsLastSibling(); }
+                    catch { /* ignore and retry next frame */ }
+                }
+                else
+                {
+                    // re-enqueue for next frame
+                    if (!_pendingSetSibling.Contains(w)) _pendingSetSibling.Add(w);
+                }
+            }
+        }
+
+        // Process a deferred recalibrate once per frame when requested
+        if (_recalibrateNextFrame)
+        {
+            _recalibrateNextFrame = false;
+            RecalibrateCurrentSelected();
+        }
+
+        // If there's a deferred select target, attempt to set it. Try for a few frames in case UI isn't ready yet.
+        if (_deferredSelectTarget != null && EventSystem.current != null)
+        {
+            // Try setting selection
+            Canvas.ForceUpdateCanvases();
+            EventSystem.current.SetSelectedGameObject(null);
+            EventSystem.current.SetSelectedGameObject(_deferredSelectTarget);
+
+            // If successful or we've exhausted attempts, clear the deferred target
+            if (EventSystem.current.currentSelectedGameObject != null || ++_deferredSelectAttempts >= MaxDeferredSelectAttempts)
+            {
+                _deferredSelectTarget = null;
+                _deferredSelectAttempts = 0;
+            }
+        }
     }
 
     // Register a window: if it's already in the stack, move it to the top; otherwise push it.
@@ -44,11 +102,11 @@ public class UIStackedWindowTracker : MonoBehaviour
         _stack.Remove(window);
         _stack.Add(window);
 
-        // Ensure the window is visually on top
-        window.gameObject.transform.SetAsLastSibling();
+        // Queue SetAsLastSibling so we don't try to change sibling during parent activation/deactivation
+        if (window != null && !_pendingSetSibling.Contains(window)) _pendingSetSibling.Add(window);
 
-        // Make sure selection is valid for the new top
-        StartCoroutine(DeferredRecalibrate());
+        // Defer recalibrate by one frame (replacement for DeferredRecalibrate coroutine)
+        _recalibrateNextFrame = true;
     }
 
     // Unregister a window: remove it from the stack and recalibrate selection to the new top
@@ -59,18 +117,19 @@ public class UIStackedWindowTracker : MonoBehaviour
         bool removed = _stack.Remove(window);
         if (!removed) return;
 
-        // If there's a new top, ensure it's active and on top so selection can be applied
+        // If there's a new top, ensure it's active and schedule it to be brought to front
         if (_stack.Count > 0)
         {
             var newTop = _stack[_stack.Count - 1];
             if (newTop != null)
             {
                 newTop.gameObject.SetActive(true);
-                newTop.gameObject.transform.SetAsLastSibling();
+                if (!_pendingSetSibling.Contains(newTop)) _pendingSetSibling.Add(newTop);
             }
         }
 
-        StartCoroutine(DeferredRecalibrate());
+        // Defer recalibrate by one frame
+        _recalibrateNextFrame = true;
     }
 
     // Recalibrate selection to the top window's best choice (lastActivated -> default -> first interactable)
@@ -95,14 +154,19 @@ public class UIStackedWindowTracker : MonoBehaviour
                 desired = FindFirstInteractableSelectable(top);
         }
 
-        if (desired != null)
+        if (desired != null && EventSystem.current != null)
         {
             EventSystem.current.SetSelectedGameObject(null);
             EventSystem.current.SetSelectedGameObject(desired);
+
+            // If Unity didn't accept the selection immediately, schedule a few frame attempts without coroutines
             if (EventSystem.current.currentSelectedGameObject == null)
-                StartCoroutine(DeferredSetSelected(desired));
+            {
+                _deferredSelectAttempts = 0;
+                _deferredSelectTarget = desired;
+            }
         }
-        else
+        else if (EventSystem.current != null)
         {
             EventSystem.current.SetSelectedGameObject(null);
         }
@@ -120,20 +184,6 @@ public class UIStackedWindowTracker : MonoBehaviour
         return null;
     }
 
-    private IEnumerator DeferredSetSelected(GameObject go)
-    {
-        yield return null; // wait one frame
-        if (EventSystem.current == null) yield break;
-        Canvas.ForceUpdateCanvases();
-        EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(go);
-    }
-
-    private IEnumerator DeferredRecalibrate()
-    {
-        yield return null; // wait one frame for UI teardown/setup
-        RecalibrateCurrentSelected();
-    }
 
     private void InitializeFromScene()
     {
@@ -151,7 +201,4 @@ public class UIStackedWindowTracker : MonoBehaviour
         foreach (var w in list)
             RegisterWindow(w);
     }
-
-    // Optional: expose a read-only snapshot for debugging/tests
-    public IList<UIPopUpWindow> GetStackSnapshot() => _stack.AsReadOnly();
 }

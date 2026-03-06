@@ -40,4 +40,15 @@ public abstract class Menu : MonoBehaviour
             EventSystem.current.SetSelectedGameObject(defaultSelectedUIElement);
         }
     }
+    public void SetCurrentSelectedUIElement(GameObject newSelected)
+    {
+        if (EventSystem.current != null)
+        {
+            EventSystem.current.SetSelectedGameObject(newSelected);
+        }
+        else
+        {
+            Debug.LogWarning("No EventSystem found in the scene. Please add one to handle UI navigation.");
+        }
+    }
 }

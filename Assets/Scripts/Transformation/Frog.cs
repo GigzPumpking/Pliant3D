@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
+using System;
+using UnityEngine.UIElements;   
 
 public class Frog : FormScript
 {
@@ -62,6 +63,9 @@ public class Frog : FormScript
     [SerializeField] private bool useWorldSpace = true;
 
     private SpriteRenderer _spriteRenderer;
+    
+    //event raise channel for abilities
+    public static event Action<Transformation, int, Interactable> AbilityUsed;
 
     // State variables for pull and grapple
     private bool isPulling = false;
@@ -313,6 +317,7 @@ public class Frog : FormScript
         if (context.performed) // Button pressed (started)
         {
             Jump();
+            AbilityUsed?.Invoke(Transformation.FROG, 1, null);
         }
         else if (context.canceled) // Button released
         {
@@ -329,6 +334,8 @@ public class Frog : FormScript
 
         if (context.performed) // Button pressed (started)
         {
+            AbilityUsed?.Invoke(Transformation.FROG, 2, intr);
+            
             if (intr.HasProperty("Hookable"))
             {
                 GrapplingHook(closestObject);

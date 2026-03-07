@@ -61,6 +61,7 @@ public class ObjectiveListing : MonoBehaviour {
         NPCInteractObjective.OnObjectiveComplete += SetCompletionOfObjective;
         TransformationSwapInteractObjective.OnObjectiveComplete += SetCompletionOfObjective;
         FetchObjective.OnObjectiveComplete += SetCompletionOfObjective;
+        AbilityPerformedObjective.OnObjectiveComplete += SetCompletionOfObjective;
         //add logic for the other strategies too
     }
 
@@ -71,6 +72,7 @@ public class ObjectiveListing : MonoBehaviour {
         NPCInteractObjective.OnObjectiveComplete -= SetCompletionOfObjective;
         TransformationSwapInteractObjective.OnObjectiveComplete -= SetCompletionOfObjective;
         FetchObjective.OnObjectiveComplete -= SetCompletionOfObjective;
+        AbilityPerformedObjective.OnObjectiveComplete -= SetCompletionOfObjective;
     }
 
     private void CheckCompletion() {

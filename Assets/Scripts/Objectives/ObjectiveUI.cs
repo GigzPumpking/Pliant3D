@@ -12,5 +12,6 @@ public class ObjectiveUI : MonoBehaviour {
     public void OnComplete() {
         animator.SetBool("Complete", true);
         CheckMarkImage.gameObject.SetActive(true);
+        GameManager.Instance.numTasksCompleted++;
     }
 }

@@ -31,6 +31,11 @@ public class ObjectsToLocationsObjective : Objective {
         ObjectiveNode.OnNodeCompleted -= CheckCompletion;
     }
     
+    private void Start()
+    {
+        if (showTally) TallyBuilder.UpdateTallyUI(this, 0, targetLocations.Count);
+    }
+    
     private void CheckCompletion() {
         if (anyObjectToLocation && targetLocations.Any())
         {

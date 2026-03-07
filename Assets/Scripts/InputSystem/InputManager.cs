@@ -69,6 +69,7 @@ public class InputManager : MonoBehaviour
         }
     }
 
+    private InputDevice lastUsedDevice;
     private void OnDeviceChange(InputDevice device, InputDeviceChange change)
     {
         if (change == InputDeviceChange.UsageChanged || change == InputDeviceChange.Added)
@@ -84,7 +85,7 @@ public class InputManager : MonoBehaviour
     {
         if (!isListening)
             return;
-
+        
         activeDevice = context.control.device; // Update the active device.
         string actionName = context.action.name;
         // Use the action map's name as the key.
@@ -93,6 +94,12 @@ public class InputManager : MonoBehaviour
         {
             dispatcher(actionName, context);
         }
+        
+        //CALL UI MANAGER TO SWAP DEVICE-DEPENDANT UI COMPONENTS IF NECESSARY
+        if(activeDevice != lastUsedDevice) UIManager.Instance?.UpdateUIComponents(activeDevice);
+        
+        //CACHE TO CHECK AGAINST CHANGES
+        lastUsedDevice = activeDevice;
     }
 
     // Registers a type dispatcher for a given script type name.

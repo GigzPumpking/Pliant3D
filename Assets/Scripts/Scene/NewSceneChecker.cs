@@ -59,13 +59,13 @@ public class NewSceneChecker : MonoBehaviour
         }
     }
 
-    bool hasntBeenCalled = true;
+    bool hasBeenCalled = false;
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.E) || Gamepad.current?.buttonSouth.wasPressedThisFrame == true && hasntBeenCalled)
+        if(Input.GetKeyDown(KeyCode.E) || Gamepad.current?.buttonSouth.wasPressedThisFrame == true && !hasBeenCalled)
         {
             CallLoadNextScene();
-            hasntBeenCalled = false;
+            hasBeenCalled = true;
         }
 
         if (!transitionText) return;
@@ -75,6 +75,7 @@ public class NewSceneChecker : MonoBehaviour
     
     public void CallLoadNextScene()
     {
+        if (!LoadingScreen.LoadingScreenActive) return;
         Debug.Log("Loading next scene: " + NextScene.TargetScene);
         UIManager.Instance?.FadeOut();
         NextScene.CallLoadNextScene();

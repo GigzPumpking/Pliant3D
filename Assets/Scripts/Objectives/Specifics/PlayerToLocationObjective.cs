@@ -26,6 +26,11 @@ public class PlayerToLocationObjective : Objective {
     private void OnDisable() {
         ObjectiveNode.OnNodeCompleted -= CheckCompletion;
     }
+    
+    private void Start()
+    {
+        if (showTally) TallyBuilder.UpdateTallyUI(this, 0, targetLocations.Count);
+    }
 
     private void CheckCompletion()
     {

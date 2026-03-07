@@ -1,13 +1,13 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using UnityEngine.InputSystem;
 
-public class ControlsMenu : Menu
+public class ControlsMenu : SwappableMenu
 {
-    [SerializeField] private Image keyboardImage;
-    [SerializeField] private Image controllerImage;
     [SerializeField] private TextMeshProUGUI controlsText;
-
+    
     private enum ControlType
     {
         Keyboard,
@@ -19,20 +19,24 @@ public class ControlsMenu : Menu
     protected override void OnEnable()
     {
         base.OnEnable();
+        ((SwappableMenu)this).RegisterToUIManager(); //Register to the UIManager as a swappable menu
+    }
 
-        if (InputManager.Instance.ActiveDeviceType == "Keyboard" || InputManager.Instance.ActiveDeviceType == "Mouse")
+    private void Start()
+    {
+        if (InputManager.Instance?.ActiveDeviceType == "Keyboard" || InputManager.Instance?.ActiveDeviceType == "Mouse")
         {
-            DisplayKeyboard();
+            DisplayController();
         }
         else
         {
-            DisplayController();
+            DisplayKeyboard();
         }
     }
 
     public void SwapControls()
     {
-        if (currentControlType == ControlType.Keyboard)
+        if (InputManager.Instance?.ActiveDeviceType == "Keyboard" || InputManager.Instance?.ActiveDeviceType == "Mouse") 
         {
             DisplayController();
         }
@@ -42,19 +46,13 @@ public class ControlsMenu : Menu
         }
     }
 
-    public void DisplayController()
+    private void DisplayController()
     {
-        currentControlType = ControlType.Controller;
-        keyboardImage.enabled = false;
-        controllerImage.enabled = true;
         controlsText.text = "GAMEPAD";
     }
 
-    public void DisplayKeyboard()
+    private void DisplayKeyboard()
     {
-        currentControlType = ControlType.Keyboard;
-        keyboardImage.enabled = true;
-        controllerImage.enabled = false;
         controlsText.text = "KEYBOARD";
     }
 }

@@ -32,12 +32,23 @@ public abstract class Menu : MonoBehaviour
     /// </summary>
     protected virtual void Update()
     {
-        // If there's no currently selected object, and a default is set, then reassign it.
+        /*// If there's no currently selected object, and a default is set, then reassign it.
         if (EventSystem.current != null &&
             EventSystem.current.currentSelectedGameObject == null &&
             defaultSelectedUIElement != null)
         {
             EventSystem.current.SetSelectedGameObject(defaultSelectedUIElement);
+        }*/
+    }
+    public void SetCurrentSelectedUIElement(GameObject newSelected)
+    {
+        if (EventSystem.current != null)
+        {
+            EventSystem.current.SetSelectedGameObject(newSelected);
+        }
+        else
+        {
+            Debug.LogWarning("No EventSystem found in the scene. Please add one to handle UI navigation.");
         }
     }
 }

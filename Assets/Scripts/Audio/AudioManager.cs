@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 
 [System.Serializable]
@@ -258,6 +259,14 @@ public class AudioManager : MonoBehaviour
         {
             musicSource.volume = currentMusicData.volume * overallMusicVolume * globalVolume;
         }
+
+        if (!additionalMusicSources.Any()) return;
+
+        foreach (AudioSource source in additionalMusicSources) 
+        { 
+            source.volume = overallMusicVolume * globalVolume;
+        }
+
     }
 
     public void SetGlobalVolume(float volume)
@@ -344,5 +353,12 @@ public class AudioManager : MonoBehaviour
     private void HandlePlayPooledSFX(AudioData data, Transform parent)
     {
         PlayOneShot(data, parent);
+    }
+
+    public void AddAdditionalMusicSource(AudioSource source)
+    {
+        if (additionalMusicSources.Contains(source)) return;
+        additionalMusicSources.Add(source);
+        UpdateCurrentMusicVolume();
     }
 }

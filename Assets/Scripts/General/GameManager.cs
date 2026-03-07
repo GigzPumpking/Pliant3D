@@ -18,6 +18,7 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     [SerializeField] private AudioData mainTheme;
     [SerializeField] private AudioData Ambience;
+    public int numTasksCompleted = 0;
 
     // Main menu scene name
     [SerializeField] private string mainMenuSceneName = "0 Main Menu";

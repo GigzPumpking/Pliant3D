@@ -328,33 +328,39 @@ public class Player : KeyActionReceiver<Player>
         prevH = h;
         prevV = v;
         
-        if (h && lastDominantAxis == Axis.Horizontal)
-        {
-            facingDirection     = vx > 0 ? Directions.RIGHT : Directions.LEFT;
-            lastHorizontalInput = facingDirection;
-        }
-        else if (v && lastDominantAxis == Axis.Vertical)
-        {
-            if (vy > 0)
-                facingDirection = (lastHorizontalInput == Directions.LEFT)
-                                 ? Directions.UP
-                                 : Directions.RIGHT;
-            else
-                facingDirection = (lastHorizontalInput == Directions.LEFT)
-                                 ? Directions.LEFT
-                                 : Directions.DOWN;
-        }
+        // When the active form locks direction, skip facing/flip/animation updates
+        bool directionLocked = selectedGroupScript != null && selectedGroupScript.IsDirectionLocked;
 
-
-        if (h)
+        if (!directionLocked)
         {
-            if (transformation == Transformation.BULLDOZER || transformation == Transformation.FROG)
+            if (h && lastDominantAxis == Axis.Horizontal)
             {
-                selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = (vx > 0);
+                facingDirection     = vx > 0 ? Directions.RIGHT : Directions.LEFT;
+                lastHorizontalInput = facingDirection;
             }
-            else if (transformation == Transformation.TERRY)
+            else if (v && lastDominantAxis == Axis.Vertical)
             {
-                selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
+                if (vy > 0)
+                    facingDirection = (lastHorizontalInput == Directions.LEFT)
+                                     ? Directions.UP
+                                     : Directions.RIGHT;
+                else
+                    facingDirection = (lastHorizontalInput == Directions.LEFT)
+                                     ? Directions.LEFT
+                                     : Directions.DOWN;
+            }
+
+
+            if (h)
+            {
+                if (transformation == Transformation.BULLDOZER || transformation == Transformation.FROG)
+                {
+                    selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = (vx > 0);
+                }
+                else if (transformation == Transformation.TERRY)
+                {
+                    selectedGroup.GetComponentInChildren<SpriteRenderer>().flipX = false;
+                }
             }
         }
         
@@ -362,7 +368,7 @@ public class Player : KeyActionReceiver<Player>
         if (animator != null)
         {
             bool isMoving = vx != 0 || vy != 0;
-            if (isMoving)
+            if (isMoving && !directionLocked)
             {
                 animator.SetFloat("MoveX", vx);
                 animator.SetFloat("MoveY", 3 * vy);
@@ -373,6 +379,19 @@ public class Player : KeyActionReceiver<Player>
         Vector3 camF = Camera.main.transform.forward; camF.y = 0; camF.Normalize();
         Vector3 camR = Camera.main.transform.right;   camR.y = 0; camR.Normalize();
         Vector3 dir  = (camF * vy + camR * vx).normalized;
+
+        // When direction is locked, only allow forward/backward along the locked facing
+        if (directionLocked)
+        {
+            Vector3 lockedDir = AnimationBasedFacingDirection;
+            lockedDir.y = 0f;
+            if (lockedDir.sqrMagnitude > 0.001f)
+            {
+                lockedDir.Normalize();
+                // Project input onto the locked axis; preserves sign (forward = push, backward = pull)
+                dir = lockedDir * Vector3.Dot(dir, lockedDir);
+            }
+        }
 
         rbody.velocity = new Vector3(
             dir.x * movementSpeed,

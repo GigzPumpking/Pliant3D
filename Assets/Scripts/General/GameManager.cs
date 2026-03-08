@@ -203,7 +203,7 @@ public class GameManager : KeyActionReceiver<GameManager>
     public float GetRatioOfTasksCompleted()
     {
         if (_numTasksAssigned == 0) return 0;
-        return ((float)_numTasksCompleted / _numTasksAssigned * 100);
+        return ((float)_numTasksCompleted / _numTasksAssigned );
     }
     
     public float GetPromotionRatio()

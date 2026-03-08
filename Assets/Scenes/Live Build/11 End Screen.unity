@@ -266,6 +266,41 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1095539008}
     m_Modifications:
+    - target: {fileID: 1101046907072077109, guid: 83dd8930fce9449a591766a219083b64,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1101046907072077109, guid: 83dd8930fce9449a591766a219083b64,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1101046907072077109, guid: 83dd8930fce9449a591766a219083b64,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 1522585667}
+    - target: {fileID: 1101046907072077109, guid: 83dd8930fce9449a591766a219083b64,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1101046907072077109, guid: 83dd8930fce9449a591766a219083b64,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: ActivatePanelFromButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 1101046907072077109, guid: 83dd8930fce9449a591766a219083b64,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: SceneSelectionTrigger, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1101046907072077109, guid: 83dd8930fce9449a591766a219083b64,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 2398762777404203218, guid: 83dd8930fce9449a591766a219083b64,
         type: 3}
       propertyPath: m_SizeDelta.x
@@ -459,7 +494,7 @@ PrefabInstance:
     - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 6
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
         type: 3}
@@ -469,23 +504,23 @@ PrefabInstance:
     - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Mode
-      value: 1
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 67838254}
+      objectReference: {fileID: 222475530}
     - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 67838255}
+      objectReference: {fileID: 1095539012}
     - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
-      objectReference: {fileID: 222475530}
+      objectReference: {fileID: 1678579338}
     - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
@@ -504,32 +539,37 @@ PrefabInstance:
     - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SetActive
-      objectReference: {fileID: 0}
-    - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: SetCurrentSelectedUIElement
-      objectReference: {fileID: 0}
-    - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
       value: CrumplePlay
       objectReference: {fileID: 0}
     - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
         type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: RegisterWindow
+      objectReference: {fileID: 0}
+    - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
+      value: SetActive
+      objectReference: {fileID: 0}
+    - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
+        type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: UnityEngine.GameObject, UnityEngine
+      value: MainMenuAudio, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
-      value: Menu, Assembly-CSharp
+      value: UIStackedWindowTracker, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
-      value: MainMenuAudio, Assembly-CSharp
+      value: UnityEngine.GameObject, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
         type: 3}
@@ -543,9 +583,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
         type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
+        type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgument
       value: 
-      objectReference: {fileID: 1776383466}
+      objectReference: {fileID: 1678579340}
     - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -554,7 +599,7 @@ PrefabInstance:
     - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.GameObject, UnityEngine
+      value: UIPopUpWindow, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 6050121870180833433, guid: 83dd8930fce9449a591766a219083b64,
         type: 3}
@@ -620,6 +665,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 231
+      objectReference: {fileID: 0}
+    - target: {fileID: 8608311262108805709, guid: 83dd8930fce9449a591766a219083b64,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8608311262108805709, guid: 83dd8930fce9449a591766a219083b64,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8608311262108805709, guid: 83dd8930fce9449a591766a219083b64,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8608311262108805709, guid: 83dd8930fce9449a591766a219083b64,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: UnityEngine.GameObject, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 8794035792900717790, guid: 83dd8930fce9449a591766a219083b64,
         type: 3}
@@ -1090,6 +1155,7 @@ GameObject:
   - component: {fileID: 180592634}
   - component: {fileID: 180592633}
   - component: {fileID: 180592632}
+  - component: {fileID: 180592635}
   m_Layer: 5
   m_Name: Button_Newsletter
   m_TagString: Untagged
@@ -1136,7 +1202,7 @@ MonoBehaviour:
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 464912575}
-    m_SelectOnRight: {fileID: 0}
+    m_SelectOnRight: {fileID: 1776383468}
   m_Transition: 2
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
@@ -1163,37 +1229,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 67838254}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 180592635}
+        m_TargetAssemblyTypeName: UIConditionWindowEndScreen, Assembly-CSharp
+        m_MethodName: FindScreenToShow
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 1640857429}
-        m_TargetAssemblyTypeName: Menu, Assembly-CSharp
-        m_MethodName: SetCurrentSelectedUIElement
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 1260433789}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 1095539012}
-        m_TargetAssemblyTypeName: UIStackedWindowTracker, Assembly-CSharp
-        m_MethodName: RegisterWindow
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 67838256}
-          m_ObjectArgumentAssemblyTypeName: UIPopUpWindow, Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -1237,6 +1279,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 180592630}
   m_CullTransparentMesh: 1
+--- !u!114 &180592635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 180592630}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26279f7975394a15aa0e876147977e53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PromotionScreen: {fileID: 843463695}
+  FiredScreen: {fileID: 976976642}
+  ScoreText: {fileID: 1537303697}
+  DesktopIcon: {fileID: 0}
 --- !u!1 &183861153
 GameObject:
   m_ObjectHideFlags: 0
@@ -1764,7 +1822,7 @@ MonoBehaviour:
     m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnDown: {fileID: 1343233303}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 2
@@ -1800,6 +1858,18 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1095539012}
+        m_TargetAssemblyTypeName: UIStackedWindowTracker, Assembly-CSharp
+        m_MethodName: UnregisterWindow
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 843463695}
+          m_ObjectArgumentAssemblyTypeName: UIPopUpWindow, Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -2549,9 +2619,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 379225967}
-        m_TargetAssemblyTypeName: SceneSelectionTrigger, Assembly-CSharp
-        m_MethodName: ActivatePanelFromButton
+      - m_Target: {fileID: 180592635}
+        m_TargetAssemblyTypeName: UIConditionWindowEndScreen, Assembly-CSharp
+        m_MethodName: FindScreenToShow
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3174,8 +3244,8 @@ MonoBehaviour:
   m_Navigation:
     m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 1092799910}
+    m_SelectOnUp: {fileID: 1343233303}
+    m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 2
@@ -3471,7 +3541,7 @@ MonoBehaviour:
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 632673484}
-    m_SelectOnRight: {fileID: 1776383468}
+    m_SelectOnRight: {fileID: 180592632}
   m_Transition: 2
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
@@ -3498,37 +3568,25 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 464998381}
+      - m_Target: {fileID: 1095539012}
+        m_TargetAssemblyTypeName: UIStackedWindowTracker, Assembly-CSharp
+        m_MethodName: RegisterWindow
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 1348933676}
+          m_ObjectArgumentAssemblyTypeName: UIPopUpWindow, Assembly-CSharp
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 1348933674}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
         m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 1640857429}
-        m_TargetAssemblyTypeName: Menu, Assembly-CSharp
-        m_MethodName: SetCurrentSelectedUIElement
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 1437153767}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 1095539012}
-        m_TargetAssemblyTypeName: UIStackedWindowTracker, Assembly-CSharp
-        m_MethodName: RegisterWindow
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 2653574432658311941}
-          m_ObjectArgumentAssemblyTypeName: UIPopUpWindow, Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -3811,13 +3869,13 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 1
-      - m_Target: {fileID: 843463694}
-        m_TargetAssemblyTypeName: Menu, Assembly-CSharp
-        m_MethodName: SetCurrentSelectedUIElement
+      - m_Target: {fileID: 1095539012}
+        m_TargetAssemblyTypeName: UIStackedWindowTracker, Assembly-CSharp
+        m_MethodName: UnregisterWindow
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_ObjectArgument: {fileID: 1678579340}
+          m_ObjectArgumentAssemblyTypeName: UIPopUpWindow, Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -3964,13 +4022,13 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 843463694}
-        m_TargetAssemblyTypeName: Menu, Assembly-CSharp
-        m_MethodName: SetCurrentSelectedUIElement
+      - m_Target: {fileID: 1095539012}
+        m_TargetAssemblyTypeName: UIStackedWindowTracker, Assembly-CSharp
+        m_MethodName: UnregisterWindow
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_ObjectArgument: {fileID: 1678579340}
+          m_ObjectArgumentAssemblyTypeName: UIPopUpWindow, Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -4116,7 +4174,7 @@ MonoBehaviour:
         m_MethodName: SetCurrentSelectedUIElement
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgument: {fileID: 1531484026}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
@@ -4128,7 +4186,7 @@ MonoBehaviour:
         m_MethodName: RegisterWindow
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 843463695}
+          m_ObjectArgument: {fileID: 1143806382}
           m_ObjectArgumentAssemblyTypeName: UIPopUpWindow, Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
@@ -5234,7 +5292,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d093b849cfc34d66a56a1a73e1368da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultSelectedUIElement: {fileID: 0}
+  defaultSelectedUIElement: {fileID: 1343233301}
 --- !u!114 &843463695
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5247,7 +5305,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9833e50419cd47ef98eb27d305a38c3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultButton: {fileID: 0}
+  defaultButton: {fileID: 1343233301}
 --- !u!1 &846404772
 GameObject:
   m_ObjectHideFlags: 0
@@ -5831,7 +5889,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &894942242
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5867,10 +5925,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnDown: {fileID: 1866487595}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
@@ -6722,7 +6780,6 @@ GameObject:
   - component: {fileID: 1085621952}
   - component: {fileID: 1085621951}
   - component: {fileID: 1085621950}
-  - component: {fileID: 1085621949}
   m_Layer: 5
   m_Name: Button_AccessNewsletter
   m_TagString: Untagged
@@ -6751,24 +6808,6 @@ RectTransform:
   m_AnchoredPosition: {x: 1.0500507, y: -162.13004}
   m_SizeDelta: {x: 329, y: 49}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1085621949
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1085621947}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 100090cda274e41a1aa177fcedd28c73, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  scenesToOffer:
-  - sceneName: 1-1 Terry
-    sceneToLoad: 1-1 Terry
-    useLoadingScreen: 1
-    loadingScreenSceneName: 1-0 Terry
-    loadingScreenDisplayTime: 5
 --- !u!114 &1085621950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6814,13 +6853,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 180592635}
+        m_TargetAssemblyTypeName: UIConditionWindowEndScreen, Assembly-CSharp
+        m_MethodName: FindScreenToShow
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -8612,8 +8651,8 @@ MonoBehaviour:
   m_Navigation:
     m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 1092799910}
+    m_SelectOnUp: {fileID: 277590646}
+    m_SelectOnDown: {fileID: 448494160}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 2
@@ -8649,6 +8688,18 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 1095539012}
+        m_TargetAssemblyTypeName: UIStackedWindowTracker, Assembly-CSharp
+        m_MethodName: RegisterWindow
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 67838256}
+          m_ObjectArgumentAssemblyTypeName: UIPopUpWindow, Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -9133,6 +9184,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1519602796}
   m_CullTransparentMesh: 1
+--- !u!114 &1522585667 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 77779385149820635, guid: 83dd8930fce9449a591766a219083b64,
+    type: 3}
+  m_PrefabInstance: {fileID: 67838252}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 100090cda274e41a1aa177fcedd28c73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1531484026
 GameObject:
   m_ObjectHideFlags: 0
@@ -9730,6 +9793,7 @@ GameObject:
   - component: {fileID: 1696267744}
   - component: {fileID: 1696267743}
   - component: {fileID: 1696267742}
+  - component: {fileID: 1696267745}
   m_Layer: 0
   m_Name: Button_MainMenu
   m_TagString: Untagged
@@ -9773,8 +9837,8 @@ MonoBehaviour:
   m_Navigation:
     m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 1092799910}
+    m_SelectOnUp: {fileID: 1696652674}
+    m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 2
@@ -9803,10 +9867,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1678579338}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 1696267745}
+        m_TargetAssemblyTypeName: SceneSelectionTrigger, Assembly-CSharp
+        m_MethodName: ActivatePanelFromButton
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -9853,6 +9917,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1696267740}
   m_CullTransparentMesh: 1
+--- !u!114 &1696267745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1696267740}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 100090cda274e41a1aa177fcedd28c73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scenesToOffer:
+  - sceneName: 0 Main Menu
+    sceneToLoad: 0 Main Menu
+    useLoadingScreen: 0
+    loadingScreenSceneName: 1-0 Terry
+    loadingScreenDisplayTime: 0
 --- !u!1 &1696652672
 GameObject:
   m_ObjectHideFlags: 0
@@ -9908,8 +9990,8 @@ MonoBehaviour:
   m_Navigation:
     m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 1092799910}
+    m_SelectOnUp: {fileID: 2058578704}
+    m_SelectOnDown: {fileID: 1696267742}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 2
@@ -9945,6 +10027,18 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 1095539012}
+        m_TargetAssemblyTypeName: UIStackedWindowTracker, Assembly-CSharp
+        m_MethodName: RegisterWindow
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 67838256}
+          m_ObjectArgumentAssemblyTypeName: UIPopUpWindow, Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -10317,7 +10411,7 @@ MonoBehaviour:
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 464912575}
+    m_SelectOnLeft: {fileID: 180592632}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 2
   m_Colors:
@@ -11073,7 +11167,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1866487594
 RectTransform:
   m_ObjectHideFlags: 0
@@ -11109,10 +11203,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnUp: {fileID: 894942243}
+    m_SelectOnDown: {fileID: 1092799910}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
@@ -11793,7 +11887,7 @@ MonoBehaviour:
     m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnDown: {fileID: 1696652674}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 2
@@ -11829,6 +11923,18 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1095539012}
+        m_TargetAssemblyTypeName: UIStackedWindowTracker, Assembly-CSharp
+        m_MethodName: UnregisterWindow
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 976976642}
+          m_ObjectArgumentAssemblyTypeName: UIPopUpWindow, Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 

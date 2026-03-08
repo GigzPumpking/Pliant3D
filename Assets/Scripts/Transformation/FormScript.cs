@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System;
 
 public abstract class FormScript : MonoBehaviour
 {
@@ -34,12 +33,13 @@ public abstract class FormScript : MonoBehaviour
                 Debug.LogWarning("playerScript is null! Unable to set speed.");
             }
         }
+        
     }
     
     public virtual void Awake()
     {
         player = transform.parent;
-
+        
         playerScript = player.GetComponent<Player>();
 
         rb = player.GetComponent<Rigidbody>();

@@ -631,6 +631,7 @@ Transform:
   m_Children:
   - {fileID: 759414026}
   - {fileID: 592770239}
+  - {fileID: 822908299}
   m_Father: {fileID: 0}
   m_RootOrder: 22
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -906,7 +907,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-24948
+  m_Name: pb_Mesh-258948
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -1457,7 +1458,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-24388
+  m_Name: pb_Mesh-258390
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -3154,7 +3155,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-24614
+  m_Name: pb_Mesh-258616
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -3428,7 +3429,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-24354
+  m_Name: pb_Mesh-258358
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -3643,6 +3644,18 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 697682376}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &624692823 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4770054862137888047, guid: 6f85904ba248a4cb9883955b670536e3,
+    type: 3}
+  m_PrefabInstance: {fileID: 697682376}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7483a6519fac549c58f15701be41fa70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &647865216
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4426,6 +4439,60 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3dec0dd9de384a6ea2bcdce0eec71c81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &822908298
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 822908299}
+  - component: {fileID: 822908300}
+  m_Layer: 0
+  m_Name: Break Cobweb
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &822908299
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 822908298}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 128619822}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &822908300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 822908298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e78fa1f98df147608c9afc39f7c45598, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  description: Break Cobwebs
+  isComplete: 0
+  showTally: 1
+  onCompleteEvents: []
+  whichForm: 02000000
+  whichAbility: 2
+  whichInteractable:
+  - {fileID: 1612261410}
+  - {fileID: 1658093241}
+  - {fileID: 624692823}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -4481,7 +4548,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-25066
+  m_Name: pb_Mesh-259064
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -6446,7 +6513,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-24888
+  m_Name: pb_Mesh-258888
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -8362,6 +8429,18 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1425052917}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1612261410 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4770054862137888047, guid: 6f85904ba248a4cb9883955b670536e3,
+    type: 3}
+  m_PrefabInstance: {fileID: 1425052917}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7483a6519fac549c58f15701be41fa70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1618861781
 GameObject:
   m_ObjectHideFlags: 0
@@ -8817,6 +8896,18 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1873464306}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1658093241 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4770054862137888047, guid: 6f85904ba248a4cb9883955b670536e3,
+    type: 3}
+  m_PrefabInstance: {fileID: 1873464306}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7483a6519fac549c58f15701be41fa70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!43 &1674665270
 Mesh:
   m_ObjectHideFlags: 0
@@ -9160,7 +9251,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-24054
+  m_Name: pb_Mesh-258058
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -9804,7 +9895,7 @@ PrefabInstance:
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: dialogueLines.Array.size
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
@@ -9819,23 +9910,26 @@ PrefabInstance:
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: dialogueLines.Array.data[1]
-      value: I'm guessing you're Terry. **[color=#189A00]Hi, I'm Meri![/color]**
+      value: I'm guessing you're the new guy, **[color=#CFB32D]Terry[/color]**. Hi,
+        I'm **[color=#DC7181]Meri[/color]**!
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: dialogueLines.Array.data[2]
       value: Were the notes I left behind helpful? I like to leave them around the
-        office to ease the onboarding experience.
+        office to ease the onboarding experience, especially since I know how **[color=#FF6600]Perry[/color]**
+        is.
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: dialogueLines.Array.data[3]
-      value: Actually don't answer that, you look a bit tired.
+      value: Actually don't answer that, you look a bit tired. Hope you get some
+        rest tonight and I'll catch you at my desk first thing tomorrow!
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: dialogueLines.Array.data[4]
-      value: Come on, let's go to my desk!
+      value: Tomorrow, we go to my desk!
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
@@ -9855,12 +9949,12 @@ PrefabInstance:
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: tertiaryDialogue.Array.data[0].defaultText
-      value: Let's skedaddle!
+      value: Let's call it a day and skedaddle!
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: secondaryDialogue.Array.data[0].defaultText
-      value: Did you get much sleep? You look exhausted!
+      value: You look exhausted! Go clock out and we'll catch up tomorrow!
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
@@ -11727,6 +11821,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Color.r
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7986067212760191123, guid: f09abbff6e9a448cab6f233042637973,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -14
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f09abbff6e9a448cab6f233042637973, type: 3}

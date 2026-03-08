@@ -12,6 +12,8 @@ public class PlayerData
     // Player's form
     public string playerForm; // e.g., "Terry", "Frog", "Bulldozer"
 
+    // # Tasks completed
+	public int numTasksCompleted;
     // Game settings
     public GameSettings settings;
 
@@ -22,6 +24,7 @@ public class PlayerData
     {
         settings = new GameSettings();
         objectStates = new Dictionary<string, ObjectState>();
+		numTasksCompleted = GameManager.Instance.numTasksCompleted;
     }
 }
 

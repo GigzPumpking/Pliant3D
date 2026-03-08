@@ -20,6 +20,9 @@ public class ObjectiveUIFactory {
             if(objective.showTally) TallyBuilder.InitializeTallyUI(objective, "?");
         }
         
+        //Reference GameManager to count number of tasks assigned +1
+        GameManager.AddNumTasksAssigned();
+        
         return currentObjectiveUI;
     }
 

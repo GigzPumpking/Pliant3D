@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using System.Linq.Expressions;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 public class GameManager : KeyActionReceiver<GameManager>
 {
@@ -18,7 +19,10 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     [SerializeField] private AudioData mainTheme;
     [SerializeField] private AudioData Ambience;
-    public int numTasksCompleted = 0;
+    private static int _numTasksCompleted = 0;
+    private static int _numTasksAssigned = 0;
+
+    [SerializeField] private float promotionRatio = 0.6f;
 
     // Main menu scene name
     [SerializeField] private string mainMenuSceneName = "0 Main Menu";
@@ -160,6 +164,47 @@ public class GameManager : KeyActionReceiver<GameManager>
             Reset();
         }
     }
+    
+    public static void SetNumTasksAssigned(int num)
+    {
+        _numTasksAssigned = num;
+    }
+
+    public static void AddNumTasksAssigned()
+    {
+        _numTasksAssigned++;
+    }
+    
+    public static void AddNumTasksCompleted()
+    {
+        _numTasksCompleted++;
+    }
+
+    public static int GetNumTasksAssigned()
+    {
+        return _numTasksAssigned;
+    }
+    
+    public static int GetNumTasksCompleted()
+    {
+        return _numTasksCompleted;
+    }
+    
+    public static int GetNumTasksRemaining()
+    {
+        return _numTasksAssigned - _numTasksCompleted;
+    }
+    
+    public static float GetRatioOfTasksCompleted()
+    {
+        if (_numTasksAssigned == 0) return 0;
+        return ((float)_numTasksCompleted / _numTasksAssigned * 100);
+    }
+    
+    public float GetPromotionRatio()
+    {
+        return Instance.promotionRatio;
+    }
 
     public void ToggleAutoSave()
     {
@@ -188,6 +233,11 @@ public class GameManager : KeyActionReceiver<GameManager>
     }
 
     public void Quit()
+    {
+        Application.Quit();
+    }
+    
+    public static void Quit(int exitCode)
     {
         Application.Quit();
     }

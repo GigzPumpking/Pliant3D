@@ -42,7 +42,7 @@ public abstract class Menu : MonoBehaviour
     }
     public void SetCurrentSelectedUIElement(GameObject newSelected)
     {
-        if (EventSystem.current != null)
+        if (EventSystem.current != null && newSelected != null)
         {
             EventSystem.current.SetSelectedGameObject(newSelected);
         }

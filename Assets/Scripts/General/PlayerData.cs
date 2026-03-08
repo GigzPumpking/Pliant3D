@@ -24,7 +24,7 @@ public class PlayerData
     {
         settings = new GameSettings();
         objectStates = new Dictionary<string, ObjectState>();
-		numTasksCompleted = GameManager.Instance.numTasksCompleted;
+		numTasksCompleted = GameManager.GetNumTasksCompleted();
     }
 }
 

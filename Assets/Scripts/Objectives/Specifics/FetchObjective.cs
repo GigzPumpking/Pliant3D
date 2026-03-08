@@ -212,9 +212,10 @@ using UnityEngine;
         public bool fetchedAll = false;
         private void CheckCompletion(Interact interact)
         {
+            if (!ObjectsToFetch.Any()) return;
             foreach(var obj in ObjectsToFetch)
             {
-                if (!obj.isFetched) return;
+                if (!obj.isFetched || !obj) return;
             }
             
             // Mark that all items have been fetched

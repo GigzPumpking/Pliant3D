@@ -21,7 +21,7 @@ public class UIConditionWindowEndScreen : MonoBehaviour
     
     public void FindScreenToShow()
     {
-        if (GameManager.GetRatioOfTasksCompleted() >= GameManager.Instance?.GetPromotionRatio())
+        if (GameManager.Instance?.GetRatioOfTasksCompleted() >= GameManager.Instance?.GetPromotionRatio())
         {
             ShowScreen(PromotionScreen);
         }
@@ -34,6 +34,6 @@ public class UIConditionWindowEndScreen : MonoBehaviour
     public void SetScoreText()
     {
         if (!GameManager.Instance) return;
-        ScoreText.text = (GameManager.GetRatioOfTasksCompleted() * 100) + "%";
+        ScoreText.text = (GameManager.Instance?.GetRatioOfTasksCompleted() * 100) + "%";
     }
 }

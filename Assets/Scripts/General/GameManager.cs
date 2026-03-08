@@ -19,8 +19,8 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     [SerializeField] private AudioData mainTheme;
     [SerializeField] private AudioData Ambience;
-    private static int _numTasksCompleted = 0;
-    private static int _numTasksAssigned = 0;
+    private int _numTasksCompleted = 0;
+    private int _numTasksAssigned = 0;
 
     [SerializeField] private float promotionRatio = 0.6f;
 
@@ -165,40 +165,45 @@ public class GameManager : KeyActionReceiver<GameManager>
         }
     }
     
-    public static void SetNumTasksAssigned(int num)
+    public void SetNumTasksAssigned(int num)
     {
         _numTasksAssigned = num;
     }
 
-    public static void AddNumTasksAssigned()
+    public void AddNumTasksAssigned()
     {
         _numTasksAssigned++;
     }
     
-    public static void AddNumTasksCompleted()
+    public void AddNumTasksCompleted()
     {
         _numTasksCompleted++;
     }
+    
+    public void SetNumTasksCompleted(int num)
+    {
+        _numTasksCompleted = num;
+    }
 
-    public static int GetNumTasksAssigned()
+    public int GetNumTasksAssigned()
     {
         return _numTasksAssigned;
     }
     
-    public static int GetNumTasksCompleted()
+    public int GetNumTasksCompleted()
     {
         return _numTasksCompleted;
     }
     
-    public static int GetNumTasksRemaining()
+    public int GetNumTasksRemaining()
     {
         return _numTasksAssigned - _numTasksCompleted;
     }
     
-    public static float GetRatioOfTasksCompleted()
+    public float GetRatioOfTasksCompleted()
     {
         if (_numTasksAssigned == 0) return 0;
-        return ((float)_numTasksCompleted / _numTasksAssigned * 100);
+        return ((float)_numTasksCompleted / _numTasksAssigned );
     }
     
     public float GetPromotionRatio()
@@ -305,6 +310,7 @@ public class GameManager : KeyActionReceiver<GameManager>
 
         // Restore auto-save preference
         AutoSaveEnabled = playerData.settings.autoSave;
+        SetNumTasksCompleted(_numTasksAssigned);
 
         // Apply player data after scene has loaded
         if (Player.Instance != null)

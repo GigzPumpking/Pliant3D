@@ -1421,6 +1421,21 @@ MonoBehaviour:
     loop: 0
   breakBoxCenter: {x: 0, y: 0.5, z: 1.5}
   breakBoxSize: {x: 3, y: 1, z: 3}
+  pushDetectHalfExtents: {x: 0.8, y: 0.5, z: 0.3}
+  pushDetectDistance: 1.2
+  pushForce: 2000
+  pullForce: 2000
+  maxContactDistance: 2.5
+  pullSpeedFraction: 0.5
+  pullStiffness: 15
+  referenceMass: 50
+  massInfluence: 0.7
+  minForceMultiplier: 0.15
+  maxForceMultiplier: 2.5
+  pushSpeedPenalty: 0.5
+  exclusionZoneMask:
+    serializedVersion: 2
+    m_Bits: 1024
   sprintModifier: 2
   maxSprintStamina: 100
   staminaDepletionRate: 35

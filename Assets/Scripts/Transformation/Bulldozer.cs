@@ -48,6 +48,10 @@ public class Bulldozer : FormScript
     [Range(0f, 1f)]
     [SerializeField] private float pushSpeedPenalty = 0.5f;
 
+    [Header("Exclusion Zones")]
+    [Tooltip("Layer(s) that PushExclusionZone trigger colliders live on. Set this to the specific layer to avoid unnecessary overlap checks.")]
+    [SerializeField] private LayerMask exclusionZoneMask = ~0;
+
     [Header("Sprint Settings")]
     [SerializeField] private float sprintModifier = 2f;
 
@@ -236,6 +240,8 @@ public class Bulldozer : FormScript
 
     private void FixedUpdate()
     {
+        UpdateExclusionZones();
+
         if (!isPushing)
         {
             ReleaseActivePushable();
@@ -319,8 +325,19 @@ public class Bulldozer : FormScript
         toObject.y = 0f;
         float distance = toObject.magnitude;
 
-        // Detach if the object drifts beyond contact range (only matters for pushing)
-        if (!isPulling && distance > maxContactDistance)
+        // For the contact-distance check, measure from the closest point on the object's
+        // collider surface (not its center) so large objects don't detach prematurely.
+        Collider activeCol = activePushable.GetComponent<Collider>();
+        if (activeCol == null) activeCol = activePushable.GetComponentInChildren<Collider>();
+        if (activeCol != null)
+        {
+            Vector3 closest = activeCol.ClosestPoint(transform.position);
+            closest.y = transform.position.y; // ignore vertical offset
+            distance = Vector3.Distance(closest, new Vector3(transform.position.x, closest.y, transform.position.z));
+        }
+
+        // Detach if the object drifts beyond contact range
+        if (distance > maxContactDistance)
         {
             ReleaseActivePushable();
             return;
@@ -346,9 +363,57 @@ public class Bulldozer : FormScript
             Vector3 newPos = Vector3.Lerp(activePushable.transform.position, targetPos,
                                           pullStiffness * Time.fixedDeltaTime);
 
+            // Prevent pulling through solid objects: compare overlaps at destination
+            // against overlaps at the current position so pre-existing contacts (e.g.
+            // the floor the object is resting on) don't incorrectly block movement.
             if (objRb != null)
             {
-                objRb.velocity = Vector3.zero; // clear residual forces
+                Vector3 moveVec = newPos - activePushable.transform.position;
+                float moveDist = moveVec.magnitude;
+
+                if (moveDist > 0.001f)
+                {
+                    Collider objCol = activePushable.GetComponent<Collider>();
+                    if (objCol == null) objCol = activePushable.GetComponentInChildren<Collider>();
+
+                    bool blocked = false;
+                    if (objCol != null)
+                    {
+                        Vector3 halfExtents = objCol.bounds.extents * 0.95f;
+                        Vector3 boundsOffset = objCol.bounds.center - activePushable.transform.position;
+
+                        // Colliders the object is already touching at its CURRENT position
+                        Collider[] currentOverlaps = Physics.OverlapBox(
+                            activePushable.transform.position + boundsOffset, halfExtents,
+                            activePushable.transform.rotation,
+                            Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+                        var currentSet = new HashSet<Collider>(currentOverlaps);
+
+                        // Colliders at the TARGET position
+                        Collider[] destOverlaps = Physics.OverlapBox(
+                            newPos + boundsOffset, halfExtents,
+                            activePushable.transform.rotation,
+                            Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+
+                        foreach (Collider overlap in destOverlaps)
+                        {
+                            if (overlap.transform.IsChildOf(activePushable.transform)) continue;
+                            if (overlap.transform.IsChildOf(transform)) continue;
+                            // Only block on colliders that aren't already being touched
+                            if (currentSet.Contains(overlap)) continue;
+                            blocked = true;
+                            break;
+                        }
+                    }
+
+                    if (blocked)
+                    {
+                        objRb.velocity = Vector3.zero;
+                        return;
+                    }
+                }
+
+                objRb.velocity = Vector3.zero;
                 objRb.MovePosition(newPos);
             }
 
@@ -596,24 +661,64 @@ public class Bulldozer : FormScript
         worldCenter = transform.position + worldRot * breakBoxCenter;
     }
 
-    private void OnTriggerEnter(Collider other)
+    /// <summary>
+    /// Polls for PushExclusionZone trigger colliders each physics frame using an OverlapBox.
+    /// This avoids relying on OnTriggerEnter/Exit, which are unreliable with compound colliders
+    /// and dependent on the Physics layer collision matrix.
+    /// </summary>
+    private void UpdateExclusionZones()
     {
-        PushExclusionZone zone = other.GetComponent<PushExclusionZone>();
-        if (zone == null || zone.Pushable == null) return;
+        // Mirror the BoxCast geometry used for push detection so the exclusion check
+        // activates at exactly the same range the bulldozer can first detect a pushable.
+        // The BoxCast sweeps from `origin` forward by `pushDetectDistance`; we replicate
+        // that volume as a single OverlapBox centered at the midpoint of the sweep.
+        Vector3 facingDir = Player.Instance != null ? Player.Instance.AnimationBasedFacingDirection : transform.forward;
+        facingDir.y = 0f;
+        if (facingDir.sqrMagnitude > 0.001f) facingDir.Normalize();
+        else facingDir = transform.forward;
 
-        excludedPushables.Add(zone.Pushable);
+        Vector3 sweepOrigin = transform.position + Vector3.up * pushDetectHalfExtents.y;
+        Vector3 boxCenter   = sweepOrigin + facingDir * (pushDetectDistance * 0.5f);
+        // Extend forward half-extent by half the sweep distance to cover the full range
+        Vector3 boxHalfExtents = new Vector3(
+            pushDetectHalfExtents.x,
+            pushDetectHalfExtents.y,
+            pushDetectHalfExtents.z + pushDetectDistance * 0.5f);
+        Quaternion boxRot = Quaternion.LookRotation(facingDir, Vector3.up);
 
-        // If we're currently pushing/pulling this exact object, release it
-        if (activePushable == zone.Pushable)
-            ReleaseActivePushable();
-    }
+        var currentZones = new HashSet<Pushable>();
+        Collider[] hits = Physics.OverlapBox(boxCenter, boxHalfExtents, boxRot,
+            exclusionZoneMask, QueryTriggerInteraction.Collide);
 
-    private void OnTriggerExit(Collider other)
-    {
-        PushExclusionZone zone = other.GetComponent<PushExclusionZone>();
-        if (zone == null || zone.Pushable == null) return;
+        foreach (Collider hit in hits)
+        {
+            PushExclusionZone zone = hit.GetComponent<PushExclusionZone>();
+            if (zone == null) zone = hit.GetComponentInParent<PushExclusionZone>();
+            if (zone != null && zone.Pushable != null)
+                currentZones.Add(zone.Pushable);
+        }
 
-        excludedPushables.Remove(zone.Pushable);
+        // Log and handle newly excluded pushables
+        foreach (Pushable p in currentZones)
+        {
+            if (excludedPushables.Add(p))
+            {
+                if (activePushable == p)
+                {
+                    ReleaseActivePushable();
+                }
+            }
+        }
+
+        // Log and remove pushables whose exclusion zone we've left
+        var toRemove = new List<Pushable>();
+        foreach (Pushable p in excludedPushables)
+            if (!currentZones.Contains(p)) toRemove.Add(p);
+
+        foreach (Pushable p in toRemove)
+        {
+            excludedPushables.Remove(p);
+        }
     }
 
     private void DetectAndHighlightBreakables()

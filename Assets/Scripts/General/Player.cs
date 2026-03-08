@@ -257,9 +257,12 @@ public class Player : KeyActionReceiver<Player>
 
         if (transform.position.y < outOfBoundsY && !GameManager.Instance.isGameOver
                                                 && SceneManager.GetActiveScene().name != "2-0 Meri"
-                                                && SceneManager.GetActiveScene().name != "3-0 Carrie"
+                                                && SceneManager.GetActiveScene().name != "3-0 Jerry"
                                                 && SceneManager.GetActiveScene().name != "11-0 Thanks"
-                                                && SceneManager.GetActiveScene().name != "0 Main Menu")
+                                                && SceneManager.GetActiveScene().name != "0 Main Menu"
+                                                && SceneManager.GetActiveScene().name != "11 End Screen"
+                                                && SceneManager.GetActiveScene().name != "4-0 Carrie"
+                                                && SceneManager.GetActiveScene().name != "5-0 Perry")
         {
             Debug.LogWarning("s::" + SceneManager.GetActiveScene().name);
             Debug.LogWarning("Game Over from Player.cs");

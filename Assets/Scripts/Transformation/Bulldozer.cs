@@ -8,8 +8,6 @@ using UnityEngine.UI;
 public class Bulldozer : FormScript
 {
     protected override float baseSpeed { get; set; } = 6f;
-    private int playerLayer = 3;
-    private int walkableLayer = 7;
 
     private Interactable highlightedInteractable;
 
@@ -92,6 +90,9 @@ public class Bulldozer : FormScript
     private bool isPulling = false;
     // Local-space offset from the bulldozer to the object, captured when pull begins
     private Vector3 pullAnchorOffset;
+
+    // Pushables currently excluded from push/pull (e.g. the ramp we're standing on)
+    private HashSet<Pushable> excludedPushables = new HashSet<Pushable>();
 
     /// <summary>
     /// Lock the player's facing direction while actively pushing/pulling.
@@ -254,7 +255,8 @@ public class Bulldozer : FormScript
             Interactable interactable = hit.collider.GetComponent<Interactable>();
             if (interactable == null) interactable = hit.collider.GetComponentInParent<Interactable>();
 
-            if (pushable != null && interactable != null && interactable.HasProperty("Pushable"))
+            if (pushable != null && interactable != null && interactable.HasProperty("Pushable")
+                && !excludedPushables.Contains(pushable))
             {
                 activePushable = pushable;
                 activePushable.BeginPush();
@@ -566,7 +568,6 @@ public class Bulldozer : FormScript
     // Objects are moved via applied force in FixedUpdate, not via mass differential.
     public void PushState(bool state)
     {
-        Physics.IgnoreLayerCollision(playerLayer, walkableLayer, state);
         isPushing = state;
         if (pushCollider != null) pushCollider.enabled = state;
         if (normalCollider != null) normalCollider.enabled = !state;
@@ -582,6 +583,26 @@ public class Bulldozer : FormScript
         Vector3 dirVec = Player.Instance != null ? Player.Instance.AnimationBasedFacingDirection : transform.forward;
         worldRot = Quaternion.LookRotation(dirVec, Vector3.up);
         worldCenter = transform.position + worldRot * breakBoxCenter;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        PushExclusionZone zone = other.GetComponent<PushExclusionZone>();
+        if (zone == null || zone.Pushable == null) return;
+
+        excludedPushables.Add(zone.Pushable);
+
+        // If we're currently pushing/pulling this exact object, release it
+        if (activePushable == zone.Pushable)
+            ReleaseActivePushable();
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        PushExclusionZone zone = other.GetComponent<PushExclusionZone>();
+        if (zone == null || zone.Pushable == null) return;
+
+        excludedPushables.Remove(zone.Pushable);
     }
 
     private void DetectAndHighlightBreakables()

@@ -21,7 +21,7 @@ public class ObjectiveUIFactory {
         }
         
         //Reference GameManager to count number of tasks assigned +1
-        GameManager.AddNumTasksAssigned();
+        GameManager.Instance?.AddNumTasksAssigned();
         
         return currentObjectiveUI;
     }

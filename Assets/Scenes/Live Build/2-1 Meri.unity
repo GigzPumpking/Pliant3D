@@ -8883,6 +8883,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 9
       objectReference: {fileID: 0}
+    - target: {fileID: 3431373233421400167, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461603, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: m_RootOrder
@@ -9028,22 +9033,24 @@ PrefabInstance:
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: baseDialogue.Array.data[1].defaultText
-      value: Let's start with something simple called a **FETCH TASK.**
+      value: Why don't you start by helping me with an **ERRAND?** An **ERRAND**
+        task is when you help co-workers retrieve needed items.
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: baseDialogue.Array.data[2].defaultText
-      value: Can you find my **YELLOW PUSH-PIN AND BRING IT BACK TO ME?**
+      value: For instance, can you find my **YELLOW PIN** and **BRING IT BACK TO
+        ME** please?
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: tertiaryDialogue.Array.data[0].defaultText
-      value: Look around Terry!
+      value: Look around, it should be nearby **[color=#CFB32D]TERRY[/color]**!
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: secondaryDialogue.Array.data[0].defaultText
-      value: Having trouble finding my **YELLOW PUSH-PIN?**
+      value: Having trouble finding my **YELLOW PIN**?
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
@@ -9151,7 +9158,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fc2e1fd64d74c8e87394d0a781889e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  description: Fetch Task
+  description: Find Meri's Yellow Pin
   isComplete: 0
   showTally: 0
   onCompleteEvents: []
@@ -9164,7 +9171,11 @@ MonoBehaviour:
     keyboardText: 
     controllerText: 
   questCompleteDialogue:
-  - defaultText: You did a great job handling the **FETCH TASK!**
+  - defaultText: You did a great job running your first **ERRAND**!
+    hasDeviceSpecificText: 0
+    keyboardText: 
+    controllerText: 
+  - defaultText: Take a look at your **AGENDA** for what to do next!
     hasDeviceSpecificText: 0
     keyboardText: 
     controllerText: 
@@ -9741,7 +9752,7 @@ MonoBehaviour:
   controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}
   interactionDistance: 0
   fetchDialogue:
-  - defaultText: Push-pin acquired. **RETURN ITEM TO MERI.**
+  - defaultText: Yellow pin acquired! **RETURN ITEM TO [color=#DC7181]MERI[/color].**
     hasDeviceSpecificText: 0
     keyboardText: 
     controllerText: 

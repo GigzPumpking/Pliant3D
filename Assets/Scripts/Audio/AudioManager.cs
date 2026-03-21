@@ -361,4 +361,9 @@ public class AudioManager : MonoBehaviour
         additionalMusicSources.Add(source);
         UpdateCurrentMusicVolume();
     }
+
+    public void PlayDefaultTrack()
+    {
+        musicSource.Play();
+    }
 }

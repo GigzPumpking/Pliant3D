@@ -15,8 +15,13 @@ public class AbilityPerformedObjective : Objective
     [SerializeField] AbilityType whichAbility;
     [SerializeField] List<Interactable> whichInteractable = new();
     
+    [Tooltip("If true, interactables that were already completed before a level reset or save load will be hidden on restore, preventing them from blocking the player.")]
+    [SerializeField] private bool hideCompletedInteractablesOnRestore = false;
+    
     private int numCompleted = 0;
     private int cachedTotal;
+    private List<string> _completedInteractableNames = new List<string>();
+
     private void Awake()
     {
         cachedTotal = whichInteractable.Count;
@@ -46,6 +51,8 @@ public class AbilityPerformedObjective : Objective
         //early return so we only get what we're looking for
         if (!whichForm.Contains(transformation) || !whichInteractable.Contains(interactable) || abilityNumber != (int)whichAbility) return;
 
+        _completedInteractableNames.Add(interactable.gameObject.name);
+
         if (showTally) TallyBuilder.UpdateTallyUI(this, ++numCompleted, cachedTotal);
         
         //check if the list is empty
@@ -56,5 +63,32 @@ public class AbilityPerformedObjective : Objective
         OnObjectiveComplete?.Invoke(this); //this needs to update the objective listing to mark the objective off as complete
         InvokeCompletionEvents();
         Debug.Log($"{gameObject.name} has successfully been completed!");
+    }
+
+    public override ObjectiveSaveState CaptureState()
+    {
+        var state = base.CaptureState();
+        state.numCompleted = numCompleted;
+        state.completedInteractableNames = new List<string>(_completedInteractableNames);
+        return state;
+    }
+
+    public override void RestoreState(ObjectiveSaveState state)
+    {
+        numCompleted = state.numCompleted;
+        _completedInteractableNames = new List<string>(state.completedInteractableNames ?? new List<string>());
+
+        // Remove already-completed interactables so they aren't required again,
+        // and optionally hide them so they don't block the player.
+        var completed = whichInteractable.Where(i => i != null && _completedInteractableNames.Contains(i.gameObject.name)).ToList();
+        if (hideCompletedInteractablesOnRestore)
+        {
+            foreach (var interactable in completed)
+                interactable.gameObject.SetActive(false);
+        }
+        whichInteractable.RemoveAll(i => i != null && _completedInteractableNames.Contains(i.gameObject.name));
+
+        if (showTally)
+            TallyBuilder.UpdateTallyUI(this, numCompleted, cachedTotal);
     }
 }

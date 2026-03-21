@@ -228,4 +228,15 @@ public class FetchableInteractable : Interactable, IInteractable
             }
         }
     }
+
+    /// <summary>
+    /// Marks this item as fetched and hides it without raising events or showing dialogue.
+    /// Used when restoring saved / game-over state.
+    /// </summary>
+    public void SetFetchedSilently()
+    {
+        isFetched = true;
+        SetInteractBubbleActive(false);
+        gameObject.SetActive(false);
+    }
 }

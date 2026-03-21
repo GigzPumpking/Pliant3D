@@ -778,6 +778,7 @@ MonoBehaviour:
   isComplete: 0
   showTally: 1
   onCompleteEvents: []
+  onRestoreEvents: []
   whichForm: 02000000
   whichAbility: 2
   whichInteractable:
@@ -787,6 +788,7 @@ MonoBehaviour:
   - {fileID: 4770054861524804322}
   - {fileID: 1400161159}
   - {fileID: 1147849903}
+  hideCompletedInteractablesOnRestore: 1
 --- !u!850595691 &56873638
 LightingSettings:
   m_ObjectHideFlags: 0
@@ -9466,6 +9468,7 @@ MonoBehaviour:
   isComplete: 0
   showTally: 0
   onCompleteEvents: []
+  onRestoreEvents: []
   npcToInteractWith: {fileID: 1601788058}
 --- !u!1 &600938320
 GameObject:
@@ -16108,6 +16111,7 @@ MonoBehaviour:
   isComplete: 0
   showTally: 1
   onCompleteEvents: []
+  onRestoreEvents: []
   targetLocations:
   - {fileID: 1431118420}
   - {fileID: 1674027097}
@@ -17394,6 +17398,21 @@ MonoBehaviour:
   isComplete: 0
   showTally: 0
   onCompleteEvents: []
+  onRestoreEvents:
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2033030689}
+        m_TargetAssemblyTypeName: AnimTrigger, Assembly-CSharp
+        m_MethodName: Trigger
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 2033030696}
@@ -27435,9 +27454,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
+      propertyPath: secondaryDialogue.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+        type: 3}
       propertyPath: objectiveToGive.Array.data[0]
       value: 
       objectReference: {fileID: 1112463490}
+    - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+        type: 3}
+      propertyPath: triggerEventsOnFirstInteractionOnly
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: baseDialogue.Array.data[0].defaultText
@@ -27459,6 +27488,11 @@ PrefabInstance:
         type: 3}
       propertyPath: baseDialogue.Array.data[3].defaultText
       value: You have 10 minutes (600 seconds), go!
+      objectReference: {fileID: 0}
+    - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+        type: 3}
+      propertyPath: secondaryDialogue.Array.data[0].defaultText
+      value: Good luck out there.
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
@@ -28857,6 +28891,7 @@ MonoBehaviour:
   isComplete: 0
   showTally: 0
   onCompleteEvents: []
+  onRestoreEvents: []
   ObjectsToFetch:
   - {fileID: 1885379712}
   requiresNPCReturn: 1
@@ -34449,6 +34484,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2663272747656032568, guid: 23446d82a88722a4c86c6e87f789520d,
+        type: 3}
+      propertyPath: m_Name
+      value: button_logic
       objectReference: {fileID: 0}
     - target: {fileID: 2663272747656032568, guid: 23446d82a88722a4c86c6e87f789520d,
         type: 3}

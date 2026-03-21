@@ -274,4 +274,37 @@ using UnityEngine;
             OnObjectiveComplete?.Invoke(this);
             Debug.Log("FetchObjective complete!");
         }
+
+        public override ObjectiveSaveState CaptureState()
+        {
+            var state = base.CaptureState();
+            state.fetchedAll = fetchedAll;
+            state.numCompleted = numCompleted;
+            state.fetchedItemNames = new List<string>();
+            foreach (var item in ObjectsToFetch)
+            {
+                if (item != null && item.isFetched)
+                    state.fetchedItemNames.Add(item.gameObject.name);
+            }
+            return state;
+        }
+
+        public override void RestoreState(ObjectiveSaveState state)
+        {
+            numCompleted = state.numCompleted;
+            fetchedAll = state.fetchedAll;
+
+            // Silently mark previously-fetched items and hide them
+            foreach (var item in ObjectsToFetch)
+            {
+                if (item != null && state.fetchedItemNames.Contains(item.gameObject.name))
+                {
+                    item.SetFetchedSilently();
+                }
+            }
+
+            // Update the tally UI to reflect restored progress
+            if (showTally)
+                TallyBuilder.UpdateTallyUI(this, numCompleted, ObjectsToFetch.Count);
+        }
     }

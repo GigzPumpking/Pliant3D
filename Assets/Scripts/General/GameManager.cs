@@ -60,6 +60,11 @@ public class GameManager : KeyActionReceiver<GameManager>
         }
     }
 
+    public AudioData GetMainTheme()
+    {
+        return mainTheme;
+    }
+
     // Static key mapping shared across all GameManager instances.
     public static Dictionary<string, Action<GameManager, InputAction.CallbackContext>> staticKeyMapping =
         new Dictionary<string, Action<GameManager, InputAction.CallbackContext>>()
@@ -76,13 +81,6 @@ public class GameManager : KeyActionReceiver<GameManager>
             instance = this;
         else
         {
-            //Handle Music Carryover between scenes
-            instance.mainTheme = this.mainTheme;
-            instance.Ambience  = this.Ambience;
-            AudioManager.Instance?.DeleteCurrentMusicSources();
-            AudioManager.Instance?.PlayMusic(mainTheme);
-            AudioManager.Instance?.PlayMusic(Ambience);
-            
             Destroy(this.gameObject);
             return;
         }
@@ -94,8 +92,18 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     void Start()
     {
-        AudioManager.Instance?.PlayMusic(mainTheme);
-        AudioManager.Instance?.PlayMusic(Ambience);
+        if (AudioManager.Instance != null)
+        {
+            if (AudioManager.Instance.playOnAwake)
+            {
+                //Handle Music Carryover between scenes
+                instance.mainTheme = this.mainTheme;
+                instance.Ambience = this.Ambience;
+                AudioManager.Instance?.DeleteCurrentMusicSources();
+                AudioManager.Instance?.PlayMusic(mainTheme);
+                AudioManager.Instance?.PlayMusic(Ambience);
+            }
+        }
     }
 
     public void SetPlayer(Transform player)

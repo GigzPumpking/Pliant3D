@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
+using UnityEngine.Serialization;
 
 [System.Serializable]
 public class AudioData
@@ -54,7 +55,8 @@ public class AudioManager : MonoBehaviour
     [Header("Startup Sound")]
     [SerializeField] private bool PlayStartupSound = false;
     [SerializeField] private AudioClip StartupSound;
-
+    
+    public bool playOnAwake = true;
     private void Awake()
     {
         
@@ -75,7 +77,7 @@ public class AudioManager : MonoBehaviour
             musicSource = gameObject.AddComponent<AudioSource>();
         }
 
-        if (PlayStartupSound && StartupSound)
+        if (PlayStartupSound && StartupSound && playOnAwake)
         {
             musicSource.Stop();
             AudioSource StartupSoundComponent = gameObject.AddComponent<AudioSource>();
@@ -157,6 +159,11 @@ public class AudioManager : MonoBehaviour
         return source;
     }
 
+    public void PlayMainTheme()
+    {
+        PlayMusic(GameManager.Instance?.GetMainTheme());
+    }
+
     public AudioSource PlaySound(AudioData data)
     {
         if (data == null || data.clip == null) return null;
@@ -192,7 +199,7 @@ public class AudioManager : MonoBehaviour
 
     //Keep track of new music sources just incase
     List<AudioSource> additionalMusicSources = new List<AudioSource>();
-    public void PlayMusic(AudioData data, bool overrideCurrent = false)
+    public void PlayMusic(AudioData data, bool overrideCurrent = false, bool playImmediately = true)
     {
         if (data == null || data.clip == null) return;
         if (overrideCurrent == false && musicSource != null)
@@ -204,7 +211,7 @@ public class AudioManager : MonoBehaviour
             curr.volume = data.volume;
             curr.spatialBlend = 0.0f;
             UpdateCurrentMusicVolume();
-            curr.Play();
+            if(playImmediately) curr.Play();
             return;
         }
         
@@ -215,7 +222,7 @@ public class AudioManager : MonoBehaviour
             musicSource.loop = data.loop;
             musicSource.spatialBlend = 0.0f;
             UpdateCurrentMusicVolume();
-            musicSource.Play();
+            if(playImmediately) musicSource.Play();
         }
     }
 
@@ -362,8 +369,8 @@ public class AudioManager : MonoBehaviour
         UpdateCurrentMusicVolume();
     }
 
-    public void PlayDefaultTrack()
+    public void PlayDefaultTrack(AudioClip clip = null)
     {
-        musicSource.Play();
+        
     }
 }

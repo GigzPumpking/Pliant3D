@@ -58,6 +58,9 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
     [Header("Events")]
     public List<UnityEvent> events = new List<UnityEvent>();
     
+    [Tooltip("If true, events will only be invoked on the first interaction with this NPC and ignored on all subsequent interactions.")]
+    [SerializeField] private bool triggerEventsOnFirstInteractionOnly = false;
+    
     // State
     public bool triggered { get; set; } = false;
     private bool objectiveGiven = false;
@@ -73,6 +76,21 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
     public static event Action<DialogueTrigger> InteractedObjective;
     public static ObjectiveTracker ObjectiveTracker;
     
+    /// <summary>
+    /// Whether this NPC has already given its objectives to the tracker.
+    /// </summary>
+    public bool ObjectiveGiven => objectiveGiven;
+
+    /// <summary>
+    /// The objectives this NPC can give.
+    /// </summary>
+    public List<Objective> ObjectivesToGive => objectiveToGive;
+
+    /// <summary>
+    /// Marks this NPC as having already given its objectives (prevents duplication on re-talk).
+    /// </summary>
+    public void MarkObjectiveGiven() { objectiveGiven = true; }
+
     // Track the first entry for EndDialogue matching
     private string currentFirstEntry = "";
     
@@ -325,9 +343,12 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
         // Increment interaction count for alternate dialogue tracking
         interactionCount++;
         
-        foreach(var evt in events)
+        if (!triggerEventsOnFirstInteractionOnly || interactionCount == 1)
         {
-            evt.Invoke();
+            foreach(var evt in events)
+            {
+                evt.Invoke();
+            }
         }
         
         if (!objectiveGiven && objectiveToGive != null && objectiveToGive.Count > 0)
@@ -432,6 +453,27 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
     /// Gets the current interaction count.
     /// </summary>
     public int GetInteractionCount() => interactionCount;
+
+    /// <summary>
+    /// Sets the interaction count directly. Used when restoring NPC state after
+    /// a scene reload so the NPC uses the correct dialogue stage.
+    /// </summary>
+    public void SetInteractionCount(int count)
+    {
+        interactionCount = count;
+    }
+
+    /// <summary>
+    /// Invokes the DialogueTrigger's event list without requiring a dialogue interaction.
+    /// Used during objective restore to replay first-interaction side effects (timers, etc.).
+    /// </summary>
+    public void InvokeEvents()
+    {
+        foreach (var evt in events)
+        {
+            evt?.Invoke();
+        }
+    }
     
     /// <summary>
     /// Updates the interact bubble sprite based on current input device.

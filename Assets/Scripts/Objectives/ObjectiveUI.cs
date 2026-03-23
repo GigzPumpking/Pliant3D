@@ -14,4 +14,13 @@ public class ObjectiveUI : MonoBehaviour {
         CheckMarkImage.gameObject.SetActive(true);
         GameManager.Instance?.AddNumTasksCompleted();
     }
+
+    /// <summary>
+    /// Shows the completed visual (checkmark + animation) without incrementing the task counter.
+    /// Used when restoring previously-completed objectives.
+    /// </summary>
+    public void SetCompletedVisual() {
+        animator.SetBool("Complete", true);
+        CheckMarkImage.gameObject.SetActive(true);
+    }
 }

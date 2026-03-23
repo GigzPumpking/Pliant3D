@@ -110,6 +110,7 @@ public class Player : KeyActionReceiver<Player>
         base.OnEnable();
         EventDispatcher.AddListener<StressDebuff>(StressDebuffHandler);
         EventDispatcher.AddListener<TogglePlayerMovement>(e => canMoveToggle(e.isEnabled));
+        EventDispatcher.AddListener<NewSceneLoaded>(OnNewSceneLoaded);
     }
 
     protected override void OnDisable()
@@ -117,6 +118,7 @@ public class Player : KeyActionReceiver<Player>
         base.OnDisable();
         EventDispatcher.RemoveListener<StressDebuff>(StressDebuffHandler);
         EventDispatcher.RemoveListener<TogglePlayerMovement>(e => canMoveToggle(e.isEnabled));
+        EventDispatcher.RemoveListener<NewSceneLoaded>(OnNewSceneLoaded);
     }
 
     private void Awake()
@@ -644,6 +646,11 @@ public class Player : KeyActionReceiver<Player>
     }
 
     public void StressDebuffHandler(StressDebuff e) {
+        SetTransformation(Transformation.TERRY);
+    }
+
+    private void OnNewSceneLoaded(NewSceneLoaded e)
+    {
         SetTransformation(Transformation.TERRY);
     }
 

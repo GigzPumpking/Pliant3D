@@ -20,10 +20,14 @@ public class PlayerData
     // A way to store the state of multiple objects in the scene
     public Dictionary<string, ObjectState> objectStates;
 
+    // Objective completion & fetch progress
+    public List<ObjectiveSaveState> objectiveStates;
+
     public PlayerData()
     {
         settings = new GameSettings();
         objectStates = new Dictionary<string, ObjectState>();
+        objectiveStates = new List<ObjectiveSaveState>();
         
         if(GameManager.Instance != null) numTasksCompleted = GameManager.Instance.GetNumTasksCompleted();
         else numTasksCompleted = 0;
@@ -46,4 +50,18 @@ public class ObjectState
     public float[] position;
     public float[] rotation;
     public bool isActive;
+}
+
+[System.Serializable]
+public class ObjectiveSaveState
+{
+    public string objectiveName;
+    public string description;
+    public bool isComplete;
+    public int numCompleted;
+    public bool fetchedAll;
+    public List<string> fetchedItemNames = new List<string>();
+    public List<string> completedInteractableNames = new List<string>();
+    // How many times the NPC that gave this objective had been talked to
+    public int npcInteractionCount;
 }

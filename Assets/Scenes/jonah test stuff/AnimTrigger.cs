@@ -21,7 +21,12 @@ public class AnimTrigger : MonoBehaviour
         }
     }
 
-
-
-    
+    /// <summary>
+    /// Directly sets the animation parameter to true. Assign this to an
+    /// Objective's On Restore Events list to replay the trigger on level reset.
+    /// </summary>
+    public void Trigger()
+    {
+        myAnimationController.SetBool(parameterName, true);
+    }
 }

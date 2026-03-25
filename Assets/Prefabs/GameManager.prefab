@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2536014238896151548}
   - component: {fileID: -6824069562137584864}
   - component: {fileID: 6055948509835098436}
+  - component: {fileID: 1286383207433458363}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -59,7 +60,16 @@ MonoBehaviour:
     volume: 0.478
     pitch: 1
     loop: 0
+  promotionRatio: 0.6
   mainMenuSceneName: 0 Main Menu
+  unsaveableScenes:
+  - 0 Main Menu
+  - 1-0 Terry
+  - 2-0 Meri
+  - 3-0 Jerry
+  - 4-0 Carrie
+  - 5-0 Perry
+  - 11-0 Thanks
 --- !u!114 &-6824069562137584864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -89,3 +99,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultInteractionDistance: 3
   updateInterval: 0.1
+--- !u!114 &1286383207433458363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2536014238896151549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50465a0abf4ce0d4f8c1eb87683db155, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelDialogues:
+  - sceneName: 3-1 Jerry
+    dialogueEntries:
+    - defaultText: Tired
+      hasDeviceSpecificText: 0
+      keyboardText: 
+      controllerText: 
+    - defaultText: Very Tired
+      hasDeviceSpecificText: 0
+      keyboardText: 
+      controllerText: 
+  triggerOnlyOnce: 1

@@ -46,6 +46,9 @@ public class ObjectiveTracker : MonoBehaviour {
         animator = GetComponent<Animator>();
 
         GetObjectiveDependencies();
+
+        // After UI is built, restore any pending objective states (game-over reset or save load)
+        StartCoroutine(RestorePendingObjectiveStates());
     }
     
     private void OnValidate()
@@ -85,6 +88,122 @@ public class ObjectiveTracker : MonoBehaviour {
             //create all corresponding individual UI for the objective listing (probably going to move into some sort of object pool)
         }
         SetMessyObjectives(messyObjectives);
+    }
+
+    /// <summary>
+    /// Waits one frame (so all Start methods finish), then restores any
+    /// previously completed objectives and fetch-item progress that was
+    /// captured before the scene reload (game-over reset or save load).
+    /// </summary>
+    private IEnumerator RestorePendingObjectiveStates()
+    {
+        yield return null; // let every Start() finish first
+
+        var pendingStates = GameManager.Instance?.GetPendingObjectiveStates();
+        if (pendingStates == null || pendingStates.Count == 0) yield break;
+
+        // --- Phase 1: Re-give NPC objectives that were previously given ---
+        // Build a set of objectives already known in listings
+        var knownKeys = new HashSet<string>();
+        foreach (var listing in objectiveListings)
+        {
+            foreach (var obj in listing.objectives)
+            {
+                if (obj != null)
+                    knownKeys.Add(obj.gameObject.name + "|" + obj.description);
+            }
+        }
+
+        // For each saved objective not in any listing, find the DialogueTrigger that owns it
+        foreach (var saved in pendingStates)
+        {
+            string key = saved.objectiveName + "|" + saved.description;
+            if (knownKeys.Contains(key)) continue;
+
+            foreach (var trigger in FindObjectsOfType<DialogueTrigger>())
+            {
+                var toGive = trigger.ObjectivesToGive;
+                if (toGive == null || toGive.Count == 0) continue;
+
+                bool found = toGive.Any(o => o != null
+                    && o.gameObject.name == saved.objectiveName
+                    && o.description == saved.description);
+
+                if (!found) continue;
+
+                // Mark the NPC as having already given its objectives
+                trigger.MarkObjectiveGiven();
+
+                // Restore the NPC's interaction count so it uses the correct
+                // dialogue stage (secondary/tertiary instead of base)
+                int count = saved.npcInteractionCount;
+                trigger.SetInteractionCount(count > 0 ? count : 1);
+
+                // Only replay NPC events if the objective is still in progress.
+                // If it's already complete, events are handled by onRestoreEvents
+                // on the Objective itself to avoid unwanted re-triggering.
+                if (!saved.isComplete)
+                    trigger.InvokeEvents();
+
+                // Now add the objectives to the tracker UI
+                AddObjective(toGive);
+
+                // Register all the newly-added objectives so we don't re-add them
+                foreach (var o in toGive)
+                {
+                    if (o != null)
+                        knownKeys.Add(o.gameObject.name + "|" + o.description);
+                }
+                break;
+            }
+        }
+
+        // --- Phase 2: Restore state for every tracked objective ---
+        int restoredCount = 0;
+
+        foreach (var listing in objectiveListings)
+        {
+            for (int i = 0; i < listing.objectives.Count; i++)
+            {
+                Objective objective = listing.objectives[i];
+                if (objective == null) continue;
+
+                // Match by name + description
+                ObjectiveSaveState saved = pendingStates.Find(
+                    s => s.objectiveName == objective.gameObject.name
+                      && s.description   == objective.description);
+
+                if (saved == null) continue;
+
+                // Let the subclass restore its own data (fetch items, tallies, etc.)
+                objective.RestoreState(saved);
+
+                if (saved.isComplete)
+                {
+                    objective.isComplete = true;
+                    restoredCount++;
+
+                    // Re-apply world-state side effects (e.g. lights, animations)
+                    objective.InvokeRestoreEvents();
+
+                    // Update the UI row directly (no event fire, no double-counting)
+                    if (i < listing.objectiveUIList.Count)
+                    {
+                        listing.objectiveUIList[i]?.SetCompletedVisual();
+                    }
+                    else if (ObjectiveListing.ObjectiveToUI.TryGetValue(objective, out var ui))
+                    {
+                        ui?.SetCompletedVisual();
+                    }
+                }
+            }
+        }
+
+        // Sync the completed-task counter to the restored value
+        GameManager.Instance?.SetNumTasksCompleted(restoredCount);
+
+        GameManager.Instance?.ClearPendingObjectiveStates();
+        Debug.Log($"Restored {restoredCount} completed objective(s) from pending state.");
     }
 
     void OpenTracker()

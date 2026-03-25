@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
@@ -23,6 +24,9 @@ public class GameManager : KeyActionReceiver<GameManager>
     private int _numTasksAssigned = 0;
 
     [SerializeField] private float promotionRatio = 0.6f;
+
+    // Objective states pending restoration after a scene reload (game-over reset or save load)
+    private List<ObjectiveSaveState> _pendingObjectiveStates;
 
     // Main menu scene name
     [SerializeField] private string mainMenuSceneName = "0 Main Menu";
@@ -136,6 +140,9 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     public void Reset()
     {
+        // Capture objective progress before the scene is destroyed
+        _pendingObjectiveStates = CaptureObjectiveStates();
+
         // Restart the game
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         try
@@ -229,6 +236,61 @@ public class GameManager : KeyActionReceiver<GameManager>
         AutoSaveEnabled = enabled;
     }
 
+    #region Objective State Persistence
+
+    /// <summary>
+    /// Snapshots every Objective in the current scene so their completion /
+    /// fetch-item state can be restored after a scene reload.
+    /// </summary>
+    public List<ObjectiveSaveState> CaptureObjectiveStates()
+    {
+        var states = new List<ObjectiveSaveState>();
+        // Only capture objectives that are actively tracked in a listing.
+        // This avoids capturing un-given NPC objectives that exist in the scene.
+        foreach (var listing in FindObjectsOfType<ObjectiveListing>())
+        {
+            foreach (var obj in listing.objectives)
+            {
+                if (obj != null)
+                    states.Add(obj.CaptureState());
+            }
+        }
+
+        // Annotate saved objectives with their NPC's interaction count so
+        // dialogue progression can be restored after a scene reload.
+        foreach (var trigger in FindObjectsOfType<DialogueTrigger>())
+        {
+            if (!trigger.ObjectiveGiven) continue;
+            var toGive = trigger.ObjectivesToGive;
+            if (toGive == null || toGive.Count == 0) continue;
+
+            int count = trigger.GetInteractionCount();
+            foreach (var obj in toGive)
+            {
+                if (obj == null) continue;
+                var saved = states.Find(
+                    s => s.objectiveName == obj.gameObject.name
+                      && s.description   == obj.description);
+                if (saved != null)
+                    saved.npcInteractionCount = count;
+            }
+        }
+
+        return states;
+    }
+
+    public List<ObjectiveSaveState> GetPendingObjectiveStates()
+    {
+        return _pendingObjectiveStates;
+    }
+
+    public void ClearPendingObjectiveStates()
+    {
+        _pendingObjectiveStates = null;
+    }
+
+    #endregion
+
     private void OnNewSceneLoaded(NewSceneLoaded e)
     {
         if (!AutoSaveEnabled) return;
@@ -272,7 +334,7 @@ public class GameManager : KeyActionReceiver<GameManager>
         PlayerData playerData = new PlayerData();
         playerData.sceneName = SceneManager.GetActiveScene().name;
         playerData.settings.autoSave = AutoSaveEnabled;
-
+        playerData.objectiveStates = CaptureObjectiveStates();
         if (Player.Instance != null)
         {
             /*
@@ -307,6 +369,9 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     private IEnumerator LoadSceneAndApplyData(PlayerData playerData)
     {
+        // Set pending objective states BEFORE the scene loads
+        _pendingObjectiveStates = playerData.objectiveStates;
+
         // Load the scene
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(playerData.sceneName);
 

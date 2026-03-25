@@ -9,7 +9,7 @@ public class ResetPlayer : MonoBehaviour
         // if it's the player, reset the player
         if (other.CompareTag("Player"))
         {
-            Player.Instance.resetPosition();
+            GameManager.Instance.GameOver();
         }
     }
 }

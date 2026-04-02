@@ -38,6 +38,8 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
     [Tooltip("Maximum distance from which the player can interact with this NPC. Set to 0 to use the global default.")]
     [SerializeField] private float interactionDistance = 0f;
     
+    private static float interactionCooldown = 1f;
+    
     [Tooltip("If true, this NPC requires Terry form to interact. Shows a 'Terry Required' indicator otherwise.")]
     [SerializeField] private bool requiresTerryForm = false;
     
@@ -45,6 +47,10 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
     public string[] dialogueLines;
     public string[] keyboardDialogueLines;
     public string[] controllerDialogueLines;
+    
+    [Header("Dialogue Portrait")]
+    [Tooltip("Sprite to display in the dialogue box portrait image when this NPC speaks.")]
+    [SerializeField] private Sprite npcPortrait;
     
     [Header("Interact Bubble")]
     public GameObject interactBubble;
@@ -69,6 +75,9 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
     
     // Track how many times the player has completed a dialogue with this NPC
     private int interactionCount = 0;
+    
+    // Cooldown tracking: time when last dialogue ended (static = shared across all NPCs)
+    private static float lastDialogueEndTime = float.NegativeInfinity;
     
     // Track last random index to avoid repeating the same dialogue twice in a row
     private int lastRandomIndex = -1;
@@ -126,6 +135,7 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
         // Can't interact if dialogue is already active or already triggered
         if (dialogue != null && dialogue.IsActive()) return false;
         if (triggered) return false;
+        if (Time.time - lastDialogueEndTime < interactionCooldown) return false;
         
         // Check if we have any dialogue to show
         DialogueEntry[] entries = GetActiveDialogue();
@@ -147,6 +157,7 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
     public void OnInteract()
     {
         if (dialogue == null || dialogue.IsActive() || triggered) return;
+        if (Time.time - lastDialogueEndTime < interactionCooldown) return;
         
         // Check Terry form requirement
         if (requiresTerryForm && Player.Instance != null)
@@ -170,6 +181,7 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
             currentFirstEntry = entries[0].defaultText;
         }
         
+        dialogue.SetPortrait(npcPortrait);
         triggered = true;
         dialogue.Appear();
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = false });
@@ -324,6 +336,7 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
             currentFirstEntry = entries[0].defaultText;
         }
 
+        dialogue.SetPortrait(npcPortrait);
         triggered = true;
         dialogue.Appear();
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = false });
@@ -336,6 +349,7 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
     {
         // Reset triggered state so the NPC can be interacted with again
         triggered = false;
+        lastDialogueEndTime = Time.time;
         
         // Check if this dialogue belongs to us using the tracked first entry
         if (string.IsNullOrEmpty(currentFirstEntry) || e.someEntry != currentFirstEntry) return;

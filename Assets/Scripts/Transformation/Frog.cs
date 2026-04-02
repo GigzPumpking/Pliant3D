@@ -47,18 +47,35 @@ public class Frog : FormScript
     private Interactable highlightedObject;
     private Transform closestObject;
 
-    [Header("Hook & Pull Settings")]
-    [Tooltip("The icon to display over hookable targets.")]
+    [Header("Tongue Settings")]
+    [Tooltip("The icon to display over hookable/pullable targets.")]
     [SerializeField] private GameObject hookTarget;
-    [Tooltip("Max duration/timeout for the grapple hook.")]
-    [SerializeField] private float hookDuration = 2f; // Now acts as a timeout
-    [Tooltip("The speed at which the frog moves towards the grapple point.")]
-    [SerializeField] private float hookSpeed = 30f; // Speed of the grapple pull
-    [SerializeField] private float pullSpeed = 5f; // Max speed at which the object is pulled.
-    [Tooltip("Defines how the pull speed accelerates over time while holding the button.")]
-    [SerializeField] private AnimationCurve pullAccelerationCurve = AnimationCurve.EaseInOut(0, 0.1f, 1, 1);
+    [Tooltip("Speed at which the tongue tip extends outward.")]
+    [SerializeField] private float tongueExtendSpeed = 25f;
+    [Tooltip("Speed at which the tongue retracts back to the player.")]
+    [SerializeField] private float tongueRetractSpeed = 20f;
+    [Tooltip("Maximum distance the tongue can reach before auto-retracting.")]
+    [SerializeField] private float tongueMaxDistance = 12f;
+    [Tooltip("Radius of the sphere collider at the tongue tip.")]
+    [SerializeField] private float tongueTipRadius = 0.4f;
+    [Tooltip("Speed at which the frog is pulled toward a Hookable target.")]
+    [SerializeField] private float grappleReelSpeed = 30f;
+    [Tooltip("Speed at which a Pullable object is dragged back during tongue retract.")]
+    [SerializeField] private float pullRetractSpeed = 15f;
+    [Tooltip("Maximum time in seconds the pull can last before auto-releasing.")]
+    [SerializeField] private float pullTimeout = 3f;
+    [Tooltip("Layers the tongue tip can collide with. Exclude ground layer if needed.")]
+    [SerializeField] private LayerMask tongueHitLayers = ~0;
 
-    [Header("Grapple Line")]
+    [Header("Tongue Easing")]
+    [Tooltip("Speed curve for extending. X = normalized distance (0–1), Y = speed multiplier (0–1). Ramps up fast, eases at end.")]
+    [SerializeField] private AnimationCurve tongueExtendCurve = new AnimationCurve(
+        new Keyframe(0f, 0.2f), new Keyframe(0.15f, 1f), new Keyframe(0.85f, 1f), new Keyframe(1f, 0.3f));
+    [Tooltip("Speed curve for retracting (empty). X = normalized distance (0=start, 1=arrived), Y = speed multiplier.")]
+    [SerializeField] private AnimationCurve tongueRetractCurve = new AnimationCurve(
+        new Keyframe(0f, 0.3f), new Keyframe(0.2f, 1f), new Keyframe(0.8f, 1f), new Keyframe(1f, 0.2f));
+
+    [Header("Tongue Line")]
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private bool useWorldSpace = true;
 
@@ -67,20 +84,16 @@ public class Frog : FormScript
     //event raise channel for abilities
     public static event Action<Transformation, int, Interactable> AbilityUsed;
 
-    // State variables for pull and grapple
-    private bool isPulling = false;
-    private Transform currentPullObject;
-    private float pullElapsedTime = 0f;
-    private Vector3 pullTargetPoint; // Single source of truth: the point we're pulling toward
-    private float lastDistanceToTarget = 0f; // Track distance to hook point
-    private float stuckTime = 0f;
-    private const float STUCK_TIMEOUT = 0.3f;
-    private const float MIN_PULL_DISTANCE = 2.0f; // Minimum distance to stop pulling
-    private bool originalKinematicState = false; // Store original kinematic state of pulled object
-
-    private bool isGrappling = false;
-    private Transform grappleTarget;
-    private Coroutine grappleCoroutine;
+    // Tongue state machine
+    private enum TongueState { Idle, Extending, Retracting, PullRetracting, GrappleReeling }
+    private TongueState tongueState = TongueState.Idle;
+    private Vector3 tongueTipPosition;
+    private Vector3 tongueDirection;
+    private GameObject tongueTipObject;
+    private Transform tongueHitTarget;
+    private Coroutine tongueCoroutine;
+    private bool originalKinematicState = false;
+    private const float MIN_PULL_DISTANCE = 1.5f;
 
     private bool canJumpLock = true;
 
@@ -186,6 +199,32 @@ public class Frog : FormScript
         lineRenderer.endColor = new Color(1f, 0f, 0f, 0.75f);
         lineRenderer.startWidth = 0.25f;
         lineRenderer.endWidth = 0.25f;
+
+        EnsureTongueTip();
+    }
+
+    /// <summary>Creates (or re-creates) the tongue tip sphere if it has been destroyed (e.g. scene reset).</summary>
+    private void EnsureTongueTip()
+    {
+        if (tongueTipObject != null) return;
+
+        tongueTipObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        tongueTipObject.name = "TongueTip";
+        tongueTipObject.transform.localScale = Vector3.one * tongueTipRadius * 2f;
+        // Remove the default collider — detection is done via SphereCast
+        var tipCollider = tongueTipObject.GetComponent<Collider>();
+        if (tipCollider != null) Destroy(tipCollider);
+        // Style: red semi-transparent sphere matching the line renderer
+        var tipRenderer = tongueTipObject.GetComponent<Renderer>();
+        if (tipRenderer != null)
+        {
+            var tipMat = new Material(Shader.Find("Sprites/Default"));
+            tipMat.color = new Color(1f, 0.2f, 0.2f, 0.85f);
+            tipRenderer.material = tipMat;
+        }
+        // Keep it alive across scene reloads (Player is DontDestroyOnLoad)
+        DontDestroyOnLoad(tongueTipObject);
+        tongueTipObject.SetActive(false);
     }
 
     public override void OnEnable()
@@ -201,12 +240,8 @@ public class Frog : FormScript
         highlightedObject = null;
         closestObject = null;
         
-        // Stop any ongoing actions
-        StopPullingObject();
-        if (isGrappling) 
-        {
-            StopGrapple();
-        }
+        // Stop any ongoing tongue action
+        StopTongue();
         EventDispatcher.RemoveListener<TogglePlayerMovement>(ToggleJump);
     }
 
@@ -215,12 +250,13 @@ public class Frog : FormScript
         canJumpLock = set.isEnabled;
     }
     
-    // *** Detects collision with the grapple target ***
+    // *** Detects collision with the tongue's grapple target ***
     private void OnCollisionEnter(Collision collision)
     {
-        if (isGrappling && collision.transform == grappleTarget)
+        if (tongueState == TongueState.GrappleReeling && tongueHitTarget != null
+            && collision.transform == tongueHitTarget)
         {
-            StopGrapple();
+            StopTongue();
         }
     }
 
@@ -269,38 +305,30 @@ public class Frog : FormScript
             Gizmos.DrawRay(facingStart, facingDir * 10f);
         }
 
-        // 4) Visualize pull distance calculation when pulling
-        if (isPulling && currentPullObject != null && player != null)
+        // 4) Visualize tongue tip and max range
+        if (tongueState != TongueState.Idle)
         {
-            // Draw player position reference (Magenta sphere)
+            // Draw tongue tip position
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(tongueTipPosition, tongueTipRadius);
+
+            // Draw tongue max range circle
+            Gizmos.color = new Color(1f, 0.5f, 0f, 0.3f);
+            Gizmos.DrawWireSphere(transform.position, tongueMaxDistance);
+        }
+
+        // Visualize pull retract target
+        if (tongueState == TongueState.PullRetracting && tongueHitTarget != null && player != null)
+        {
             Gizmos.color = Color.magenta;
             Gizmos.DrawWireSphere(player.position, 0.3f);
 
-            // Draw yellow sphere at pull target point (where tongue attaches)
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(pullTargetPoint, 0.25f);
-
-            // Draw minimum distance boundary (Cyan wire sphere)
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(player.position, MIN_PULL_DISTANCE);
 
-            // Draw line from player to target point (Green = safe, Red = too close)
-            float currentDist = Vector3.Distance(pullTargetPoint, player.position);
+            float currentDist = Vector3.Distance(tongueHitTarget.position, player.position);
             Gizmos.color = currentDist > MIN_PULL_DISTANCE ? Color.green : Color.red;
-            Gizmos.DrawLine(player.position, pullTargetPoint);
-
-            // Draw pull direction arrow (Blue) - from hook point toward player
-            Vector3 pullDir = (player.position - pullTargetPoint).normalized;
-            pullDir.y = 0;
-            Gizmos.color = Color.blue;
-            Vector3 arrowStart = pullTargetPoint; // Start from hook point, not object center
-            Vector3 arrowEnd = arrowStart + pullDir * 1.0f;
-            Gizmos.DrawLine(arrowStart, arrowEnd);
-            // Draw arrow head
-            Vector3 arrowRight = Quaternion.Euler(0, 30, 0) * -pullDir * 0.3f;
-            Vector3 arrowLeft = Quaternion.Euler(0, -30, 0) * -pullDir * 0.3f;
-            Gizmos.DrawLine(arrowEnd, arrowEnd + arrowRight);
-            Gizmos.DrawLine(arrowEnd, arrowEnd + arrowLeft);
+            Gizmos.DrawLine(player.position, tongueHitTarget.position);
         }
         
         // 5) Visualize ground check sphere
@@ -327,28 +355,19 @@ public class Frog : FormScript
 
     public override void Ability2(InputAction.CallbackContext context)
     {
-        if (closestObject == null || isGrappling) return; // Prevent new actions while grappling
-
-        var intr = closestObject.GetComponent<Interactable>();
-        if (intr == null) return;
-
-        if (context.performed) // Button pressed (started)
+        if (context.performed)
         {
+            // If tongue is already active, cancel gracefully (retract back to player)
+            if (tongueState != TongueState.Idle)
+            {
+                CancelTongueGracefully();
+                return;
+            }
+
+            Interactable intr = closestObject != null ? closestObject.GetComponent<Interactable>() : null;
             AbilityUsed?.Invoke(Transformation.FROG, 2, intr);
-            
-            if (intr.HasProperty("Hookable"))
-            {
-                GrapplingHook(closestObject);
-            }
-            else if (intr.HasProperty("Pullable"))
-            {
-                StartPullingObject(closestObject);
-            }
+            FireTongue();
             EventDispatcher.Raise<StressAbility>(new StressAbility());
-        }
-        else if (context.canceled) // Button released
-        {
-            StopPullingObject();
         }
     }
 
@@ -434,64 +453,31 @@ public class Frog : FormScript
             Debug.DrawLine(transform.position, groundCheckPosition, Color.red);
         }
 
-        if (isPulling && currentPullObject != null)
-        {
-            pullElapsedTime += Time.fixedDeltaTime;
-            ApplyContinuousPull();
-        }
     }
 
     private void Update()
     {
-        // Don't detect new objects while grappling
-        if (!isGrappling)
+        // Don't detect new objects while tongue is active
+        if (tongueState == TongueState.Idle)
         {
             DetectAndHighlightObjects();
         }
-        UpdateGrappleLine();
+        UpdateTongueLine();
     }
 
-    private void UpdateGrappleLine()
+    private void UpdateTongueLine()
     {
-        // Show line if pulling OR grappling
-        if (isPulling || isGrappling)
+        // Line renderer follows tongue tip position in all active states
+        if (tongueState != TongueState.Idle)
         {
             lineRenderer.enabled = true;
             Vector3 startCenter = GetComponentInChildren<Collider>()?.bounds.center ?? transform.position;
 
-            // Determine target for the line
-            Transform currentTarget = null;
-            if (isGrappling)
-                currentTarget = grappleTarget;
-            else if (isPulling)
-                currentTarget = currentPullObject;
+            Vector3 startPos = useWorldSpace ? startCenter : lineRenderer.transform.InverseTransformPoint(startCenter);
+            Vector3 endPos = useWorldSpace ? tongueTipPosition : lineRenderer.transform.InverseTransformPoint(tongueTipPosition);
 
-            if (currentTarget != null)
-            {
-                Vector3 endPoint;
-
-                if (isGrappling)
-                {
-                    // For grappling, aim for the center
-                    Collider targetCollider = currentTarget.GetComponent<Collider>();
-                    endPoint = targetCollider?.bounds.center ?? currentTarget.position;
-                }
-                else // isPulling
-                {
-                    // Use single source of truth for pull target
-                    endPoint = pullTargetPoint;
-                }
-
-                Vector3 startPos = useWorldSpace ? startCenter : lineRenderer.transform.InverseTransformPoint(startCenter);
-                Vector3 endPos = useWorldSpace ? endPoint : lineRenderer.transform.InverseTransformPoint(endPoint);
-
-                lineRenderer.SetPosition(0, startPos);
-                lineRenderer.SetPosition(1, endPos);
-            }
-            else
-            {
-                lineRenderer.enabled = false;
-            }
+            lineRenderer.SetPosition(0, startPos);
+            lineRenderer.SetPosition(1, endPos);
         }
         else
         {
@@ -529,7 +515,7 @@ public class Frog : FormScript
             .OrderBy(i => Vector3.Distance(transform.position, i.transform.position))
             .FirstOrDefault();
 
-        if (isPulling && currentPullObject == nearest?.transform) return;
+        if (tongueState == TongueState.PullRetracting && tongueHitTarget == nearest?.transform) return;
 
         if (nearest != highlightedObject)
         {
@@ -585,7 +571,7 @@ public class Frog : FormScript
                 }
             }
 
-            bool shouldShowHookTarget = targetForIcon != null && !isGrappling && !isPulling;
+            bool shouldShowHookTarget = targetForIcon != null && tongueState == TongueState.Idle;
             hookTarget.SetActive(shouldShowHookTarget);
 
             if (shouldShowHookTarget)
@@ -599,229 +585,448 @@ public class Frog : FormScript
         }
     }
 
-    private void GrapplingHook(Transform t)
+    // ==================== TONGUE SYSTEM ====================
+
+    private void FireTongue()
     {
-        grappleCoroutine = StartCoroutine(GrapplingHookCoroutine(t));
+        tongueCoroutine = StartCoroutine(TongueCoroutine());
     }
 
-    private IEnumerator GrapplingHookCoroutine(Transform t)
+    private Vector3 GetTongueOrigin()
     {
-        if (isGrappling) yield break; // Exit if already grappling
+        Collider col = GetComponentInChildren<Collider>();
+        return col != null ? col.bounds.center : transform.position;
+    }
 
-        // Check if facing front before playing tongue animation
+    private IEnumerator TongueCoroutine()
+    {
+        // --- Setup ---
         Vector3 facingDir = Player.Instance != null ? Player.Instance.AnimationBasedFacingDirection : Vector3.forward;
+
+        // Aim-assist: if a target is currently highlighted, aim at the same
+        // point the hook target icon is placed (CalculateHookPoint) for consistency.
+        if (closestObject != null)
+        {
+            Vector3 hookPoint = CalculateHookPoint(closestObject);
+            Vector3 toTarget = hookPoint - GetTongueOrigin();
+            toTarget.y = 0f;
+            if (toTarget.sqrMagnitude > 0.01f)
+            {
+                facingDir = toTarget.normalized;
+            }
+        }
+
         bool isFacingFront = facingDir == Vector3.left || facingDir == Vector3.back;
         if (!isFacingFront)
         {
             animator?.SetTrigger("Tongue");
         }
 
-        // --- Setup Phase ---
-        isGrappling = true;
-        grappleTarget = t;
+        tongueState = TongueState.Extending;
+        tongueDirection = facingDir;
+        tongueTipPosition = GetTongueOrigin();
+        tongueHitTarget = null;
         Player.Instance.canMoveToggle(false);
-        float elapsedTime = 0f;
 
-        // Make sure the grapple target stays highlighted by clearing other potential targets
         highlightedObject = null;
         closestObject = null;
-        if (hookTarget != null)
-        {
-            hookTarget.SetActive(false);
-        }
+        if (hookTarget != null) hookTarget.SetActive(false);
 
-        // --- Loop Phase ---
-        // This loop constantly pulls the frog towards the target until a collision or timeout.
-        while (isGrappling)
+        // Ensure tongue tip exists (may have been destroyed by a scene reset)
+        EnsureTongueTip();
+
+        // Show tongue tip sphere
+        tongueTipObject.SetActive(true);
+        tongueTipObject.transform.position = tongueTipPosition;
+
+        // === EXTEND PHASE ===
+        // Tongue tip sphere travels outward via SphereCast each physics step.
+        float distanceTraveled = 0f;
+
+        while (tongueState == TongueState.Extending)
         {
-            // 1. Check for timeout
-            if (elapsedTime >= hookDuration)
+            // Evaluate extend curve: 0 at launch, 1 at max distance
+            float extendT = Mathf.Clamp01(distanceTraveled / tongueMaxDistance);
+            float speedMul = tongueExtendCurve.Evaluate(extendT);
+            float step = tongueExtendSpeed * speedMul * Time.fixedDeltaTime;
+            bool hitDetected = false;
+
+            // SphereCast forward from tip to detect the first solid hit
+            RaycastHit hitInfo;
+            if (Physics.SphereCast(tongueTipPosition, tongueTipRadius, tongueDirection,
+                out hitInfo, step, tongueHitLayers, QueryTriggerInteraction.Ignore))
             {
-                Debug.LogWarning("Grapple timed out.");
-                break; // Exit the loop if it takes too long
+                // Ignore self / player colliders
+                bool isSelf = hitInfo.transform.IsChildOf(transform) || hitInfo.transform == transform
+                           || hitInfo.transform.IsChildOf(player) || hitInfo.transform == player;
+
+                if (!isSelf)
+                {
+                    // Advance tip to the hit surface
+                    tongueTipPosition += tongueDirection * hitInfo.distance;
+                    hitDetected = true;
+
+                    var intr = hitInfo.transform.GetComponent<Interactable>();
+                    if (intr != null && intr.isInteractable && intr.HasProperty("Hookable"))
+                    {
+                        tongueHitTarget = hitInfo.transform;
+                        tongueState = TongueState.GrappleReeling;
+                    }
+                    else if (intr != null && intr.isInteractable && intr.HasProperty("Pullable"))
+                    {
+                        tongueHitTarget = hitInfo.transform;
+                        tongueState = TongueState.PullRetracting;
+                    }
+                    else
+                    {
+                        // Hit a wall or non-interactable solid — retract empty
+                        tongueState = TongueState.Retracting;
+                    }
+                }
             }
 
-            // 2. Constantly update velocity to move towards the target
-            // This overrides forces like gravity or drag.
-            Vector3 direction = (grappleTarget.position - rb.position).normalized;
-            rb.velocity = direction * hookSpeed;
+            if (!hitDetected)
+            {
+                tongueTipPosition += tongueDirection * step;
+                distanceTraveled += step;
+            }
 
-            // 3. Increment timer and wait for the next physics update
-            elapsedTime += Time.fixedDeltaTime;
+            tongueTipObject.transform.position = tongueTipPosition;
+
+            // Max distance reached — begin retract
+            if (distanceTraveled >= tongueMaxDistance && tongueState == TongueState.Extending)
+            {
+                tongueState = TongueState.Retracting;
+            }
+
             yield return new WaitForFixedUpdate();
         }
 
-        // --- Cleanup Phase ---
-        // This part is reached only if the loop breaks due to a timeout.
-        // The OnCollisionEnter method handles cleanup if a collision occurs.
-        if (isGrappling)
+        // === RETRACT PHASE (empty — no target hit) ===
+        if (tongueState == TongueState.Retracting)
         {
-            StopGrapple();
-        }
-    }
-
-    // *** Helper function to stop the grapple cleanly ***
-    private void StopGrapple()
-    {
-        if (!isGrappling) return;
-
-        if (grappleCoroutine != null)
-        {
-            StopCoroutine(grappleCoroutine);
-            grappleCoroutine = null;
-        }
-
-        rb.velocity = Vector3.zero;
-        isGrappling = false;
-        grappleTarget = null;
-        Player.Instance.canMoveToggle(true);
-    }
-
-    private void StartPullingObject(Transform t)
-    {
-        if (isPulling) return;
-
-        Rigidbody pullableRb = t.GetComponent<Rigidbody>();
-        if (pullableRb == null)
-        {
-            Debug.LogWarning("Pullable object is missing a Rigidbody component.");
-            return;
-        }
-
-        currentPullObject = t;
-        isPulling = true;
-        pullElapsedTime = 0f;
-        stuckTime = 0f;
-
-        // Store original kinematic state and disable kinematic for pulling
-        originalKinematicState = pullableRb.isKinematic;
-        pullableRb.isKinematic = false;
-
-        animator?.SetBool("isPulling", true);
-        
-        // Calculate the hook point - this is our target
-        pullTargetPoint = CalculateHookPoint(t);
-        lastDistanceToTarget = Vector3.Distance(pullTargetPoint, transform.position);
-
-        Debug.Log($"[PULL START] Object: {t.name}, HookPoint: {pullTargetPoint}, InitialDist: {lastDistanceToTarget:F3}");
-
-        // If player is facing front, do not play tongue animation
-        Vector3 facingDir = Player.Instance != null ? Player.Instance.AnimationBasedFacingDirection : Vector3.forward;
-        bool isFacingFront = facingDir == Vector3.left || facingDir == Vector3.back;
-        if (!isFacingFront)
-        {
-            animator?.SetTrigger("Tongue");
-        }
-
-        Player.Instance.canMoveToggle(false);
-
-        if (hookTarget != null)
-        {
-            hookTarget.SetActive(false);
-        }
-    }
-
-    private void ApplyContinuousPull()
-    {
-        if (currentPullObject == null) { StopPullingObject(); return; }
-
-        Rigidbody pullableRb = currentPullObject.GetComponent<Rigidbody>();
-        if (pullableRb == null) { StopPullingObject(); return; }
-
-        // Recalculate hook point each frame (object might have rotated/moved)
-        pullTargetPoint = CalculateHookPoint(currentPullObject);
-        
-        // Calculate distance from hook point to player
-        float currentDistanceToTarget = Vector3.Distance(pullTargetPoint, transform.position);
-
-        // STOP CONDITION 1: Reached minimum distance
-        if (currentDistanceToTarget <= MIN_PULL_DISTANCE)
-        {
-            Debug.Log($"[PULL STOP] Reached target ({currentDistanceToTarget:F3} <= {MIN_PULL_DISTANCE})");
-            StopPullingObject();
-            return;
-        }
-
-        // STOP CONDITION 2: Check for collision with player
-        Collider objCol = currentPullObject.GetComponent<Collider>();
-        Collider plrCol = player.GetComponentInChildren<Collider>();
-        if (objCol != null && plrCol != null)
-        {
-            // Check if colliders are touching or overlapping
-            if (Physics.ComputePenetration(
-                objCol, objCol.transform.position, objCol.transform.rotation,
-                plrCol, plrCol.transform.position, plrCol.transform.rotation,
-                out Vector3 direction, out float distance))
+            float retractStartDist = Vector3.Distance(tongueTipPosition, GetTongueOrigin());
+            while (tongueState == TongueState.Retracting)
             {
-                Debug.LogWarning($"[PULL COLLISION] Object colliding with player. Penetration: {distance:F3}");
-                StopPullingObject();
-                return;
+                Vector3 origin = GetTongueOrigin();
+                Vector3 toPlayer = origin - tongueTipPosition;
+                float dist = toPlayer.magnitude;
+
+                // Evaluate retract curve: 0 at start of retract, 1 when arriving
+                float retractT = retractStartDist > 0.01f
+                    ? Mathf.Clamp01(1f - dist / retractStartDist)
+                    : 1f;
+                float speedMul = tongueRetractCurve.Evaluate(retractT);
+                float retractStep = tongueRetractSpeed * speedMul * Time.fixedDeltaTime;
+
+                if (dist <= retractStep)
+                {
+                    tongueTipPosition = origin;
+                    break;
+                }
+
+                tongueTipPosition += toPlayer.normalized * retractStep;
+                tongueTipObject.transform.position = tongueTipPosition;
+                yield return new WaitForFixedUpdate();
             }
         }
 
-        // STOP CONDITION 3: Not getting closer (stuck/sliding sideways)
-        float distanceChange = lastDistanceToTarget - currentDistanceToTarget;
-        if (distanceChange < -0.01f) // Moving away (with tiny tolerance)
+        // === GRAPPLE REEL PHASE (pull frog toward Hookable) ===
+        else if (tongueState == TongueState.GrappleReeling && tongueHitTarget != null)
         {
-            stuckTime += Time.fixedDeltaTime;
-            if (stuckTime >= STUCK_TIMEOUT)
+            while (tongueState == TongueState.GrappleReeling && tongueHitTarget != null)
             {
-                Debug.LogWarning($"[PULL STUCK] Not getting closer. DistChange: {distanceChange:F4}");
-                StopPullingObject();
-                return;
+                Vector3 targetPos = tongueHitTarget.GetComponent<Collider>()?.bounds.center
+                                    ?? tongueHitTarget.position;
+                tongueTipPosition = targetPos;
+                tongueTipObject.transform.position = tongueTipPosition;
+
+                Vector3 direction = (targetPos - rb.position).normalized;
+                rb.velocity = direction * grappleReelSpeed;
+
+                // Close enough — arrival (OnCollisionEnter also handles this)
+                if (Vector3.Distance(rb.position, targetPos) <= 1.5f)
+                {
+                    break;
+                }
+
+                yield return new WaitForFixedUpdate();
             }
+
+            rb.velocity = Vector3.zero;
         }
-        else
+
+        // === PULL RETRACT PHASE (retract tongue, dragging Pullable back) ===
+        else if (tongueState == TongueState.PullRetracting && tongueHitTarget != null)
         {
-            stuckTime = 0f; // Reset if making progress
-        }
-        
-        lastDistanceToTarget = currentDistanceToTarget;
-
-        // Calculate pull direction: from hook point toward player
-        // This ensures the object moves so the hook point approaches the player
-        Vector3 pullDirection = (transform.position - pullTargetPoint).normalized;
-        pullDirection.y = 0;
-
-        // Apply movement - physics will naturally handle collisions
-        float normalizedTime = Mathf.Clamp01(pullElapsedTime / 1.0f);
-        float speedFactor = pullAccelerationCurve.Evaluate(normalizedTime);
-        float moveAmount = pullSpeed * speedFactor * Time.fixedDeltaTime;
-
-        Vector3 newPosition = currentPullObject.position + pullDirection * moveAmount;
-        newPosition.y = currentPullObject.position.y; // Preserve Y
-        
-        Debug.Log($"[PULL] Dist: {currentDistanceToTarget:F3}, Change: {distanceChange:F4}, Moving: {moveAmount:F3}");
-        
-        // MovePosition with ContinuousDynamic collision detection will handle obstacles naturally
-        pullableRb.MovePosition(newPosition);
-    }
-
-    private void StopPullingObject()
-    {
-        if (isPulling)
-        {
-            Debug.Log($"[PULL END] Stopping pull");
-            Player.Instance.canMoveToggle(true);
-            animator?.SetBool("isPulling", false);
-            
-            if (currentPullObject != null)
+            Rigidbody pullableRb = tongueHitTarget.GetComponent<Rigidbody>();
+            Collider objCol = tongueHitTarget.GetComponent<Collider>();
+            if (pullableRb != null)
             {
-                Rigidbody pullableRb = currentPullObject.GetComponent<Rigidbody>();
+                originalKinematicState = pullableRb.isKinematic;
+                // Keep as a physics body so it naturally collides with walls/objects
+                // instead of clipping through or stopping abruptly.
+                pullableRb.isKinematic = false;
+                pullableRb.velocity = Vector3.zero;
+                pullableRb.angularVelocity = Vector3.zero;
+                // Freeze rotation so the object doesn't tumble during pull
+                pullableRb.freezeRotation = true;
+            }
+
+            animator?.SetBool("isPulling", true);
+
+            float massMul = 1f;
+
+            // Capture the pull direction as a straight line from object to player (XZ only).
+            Vector3 pullDest = GetTongueOrigin();
+            Vector3 initialPullAxis = pullDest - tongueHitTarget.position;
+            initialPullAxis.y = 0f;
+            float totalPullDist = initialPullAxis.magnitude;
+            Vector3 pullAxis = totalPullDist > 0.01f ? initialPullAxis / totalPullDist : Vector3.forward;
+
+            // Keep tongue tip anchored to the object's near-side surface
+            UpdateTongueTipOnObject(objCol);
+
+            float pullElapsed = 0f;
+
+            while (tongueState == TongueState.PullRetracting && tongueHitTarget != null)
+            {
+                // Timeout: auto-release if the pull takes too long (object stuck)
+                pullElapsed += Time.fixedDeltaTime;
+                if (pullElapsed >= pullTimeout)
+                {
+                    break;
+                }
+                Vector3 origin = GetTongueOrigin();
+                Vector3 toPlayer = origin - tongueHitTarget.position;
+                toPlayer.y = 0f;
+                float remainingDist = toPlayer.magnitude;
+
+                // Close enough to player — done
+                if (remainingDist <= MIN_PULL_DISTANCE)
+                {
+                    break;
+                }
+
+                // Evaluate retract curve for easing, then scale by mass
+                float retractT = totalPullDist > 0.01f
+                    ? Mathf.Clamp01(1f - remainingDist / totalPullDist)
+                    : 1f;
+                float easeMul = tongueRetractCurve.Evaluate(retractT);
+                float speed = pullRetractSpeed * easeMul * massMul;
+
+                // Apply velocity along the pull axis — physics handles wall collisions
                 if (pullableRb != null)
                 {
-                    pullableRb.velocity = Vector3.zero;
-                    pullableRb.angularVelocity = Vector3.zero;
-                    // Restore original kinematic state
-                    pullableRb.isKinematic = originalKinematicState;
+                    Vector3 desiredVel = pullAxis * speed;
+                    desiredVel.y = pullableRb.velocity.y; // preserve gravity
+                    pullableRb.velocity = desiredVel;
                 }
+
+                pullElapsed += Time.fixedDeltaTime;
+
+                // Keep tongue tip on the surface of the object facing the player
+                UpdateTongueTipOnObject(objCol);
+
+                // Stop if object collides with the player
+                Collider plrCol = player.GetComponentInChildren<Collider>();
+                if (objCol != null && plrCol != null)
+                {
+                    if (Physics.ComputePenetration(
+                        objCol, objCol.transform.position, objCol.transform.rotation,
+                        plrCol, plrCol.transform.position, plrCol.transform.rotation,
+                        out Vector3 penDir, out float penDist))
+                    {
+                        break;
+                    }
+                }
+
+                yield return new WaitForFixedUpdate();
+            }
+
+            // Clean up pullable
+            if (pullableRb != null)
+            {
+                pullableRb.velocity = Vector3.zero;
+                pullableRb.angularVelocity = Vector3.zero;
+                pullableRb.freezeRotation = false;
+                pullableRb.isKinematic = originalKinematicState;
+            }
+            animator?.SetBool("isPulling", false);
+            tongueHitTarget = null;
+
+            // Retract tongue visually back to the player instead of vanishing
+            tongueState = TongueState.Retracting;
+            float retractStartDist2 = Vector3.Distance(tongueTipPosition, GetTongueOrigin());
+            while (tongueState == TongueState.Retracting)
+            {
+                Vector3 retractOrigin = GetTongueOrigin();
+                Vector3 toFrog = retractOrigin - tongueTipPosition;
+                float dist = toFrog.magnitude;
+
+                float retractT2 = retractStartDist2 > 0.01f
+                    ? Mathf.Clamp01(1f - dist / retractStartDist2)
+                    : 1f;
+                float speedMul2 = tongueRetractCurve.Evaluate(retractT2);
+                float retractStep2 = tongueRetractSpeed * speedMul2 * Time.fixedDeltaTime;
+
+                if (dist <= retractStep2)
+                {
+                    tongueTipPosition = retractOrigin;
+                    break;
+                }
+
+                tongueTipPosition += toFrog.normalized * retractStep2;
+                if (tongueTipObject != null)
+                    tongueTipObject.transform.position = tongueTipPosition;
+
+                yield return new WaitForFixedUpdate();
             }
         }
-        isPulling = false;
-        currentPullObject = null;
-        pullElapsedTime = 0f;
-        stuckTime = 0f;
-        lastDistanceToTarget = 0f;
+
+        // === CLEANUP ===
+        CleanupTongue();
+    }
+
+    /// <summary>Cancels the current tongue action, releases any held object, and retracts the tongue visually.</summary>
+    private void CancelTongueGracefully()
+    {
+        if (tongueState == TongueState.Idle) return;
+        // Already retracting — let it finish
+        if (tongueState == TongueState.Retracting) return;
+
+        // Stop the active coroutine
+        if (tongueCoroutine != null)
+        {
+            StopCoroutine(tongueCoroutine);
+            tongueCoroutine = null;
+        }
+
+        // Release pulled object if any
+        if (tongueState == TongueState.PullRetracting && tongueHitTarget != null)
+        {
+            Rigidbody pullableRb = tongueHitTarget.GetComponent<Rigidbody>();
+            if (pullableRb != null)
+            {
+                pullableRb.velocity = Vector3.zero;
+                pullableRb.angularVelocity = Vector3.zero;
+                pullableRb.freezeRotation = false;
+                pullableRb.isKinematic = originalKinematicState;
+            }
+            animator?.SetBool("isPulling", false);
+        }
+
+        // Stop frog movement if grappling
+        if (tongueState == TongueState.GrappleReeling)
+        {
+            rb.velocity = Vector3.zero;
+        }
+
+        tongueHitTarget = null;
+
+        // Start retract animation
+        tongueState = TongueState.Retracting;
+        tongueCoroutine = StartCoroutine(RetractTongueCoroutine());
+    }
+
+    /// <summary>Animates the tongue tip back to the player, then cleans up.</summary>
+    private IEnumerator RetractTongueCoroutine()
+    {
+        float retractStartDist = Vector3.Distance(tongueTipPosition, GetTongueOrigin());
+
+        while (tongueState == TongueState.Retracting)
+        {
+            Vector3 origin = GetTongueOrigin();
+            Vector3 toPlayer = origin - tongueTipPosition;
+            float dist = toPlayer.magnitude;
+
+            float retractT = retractStartDist > 0.01f
+                ? Mathf.Clamp01(1f - dist / retractStartDist)
+                : 1f;
+            float speedMul = tongueRetractCurve.Evaluate(retractT);
+            float retractStep = tongueRetractSpeed * speedMul * Time.fixedDeltaTime;
+
+            if (dist <= retractStep)
+            {
+                tongueTipPosition = origin;
+                break;
+            }
+
+            tongueTipPosition += toPlayer.normalized * retractStep;
+            if (tongueTipObject != null)
+                tongueTipObject.transform.position = tongueTipPosition;
+
+            yield return new WaitForFixedUpdate();
+        }
+
+        CleanupTongue();
+    }
+
+    /// <summary>Force-stop the tongue from any state (used by OnDisable, external callers).</summary>
+    private void StopTongue()
+    {
+        if (tongueState == TongueState.Idle) return;
+
+        if (tongueCoroutine != null)
+        {
+            StopCoroutine(tongueCoroutine);
+            tongueCoroutine = null;
+        }
+
+        // If we were pulling, restore the pulled object
+        if (tongueState == TongueState.PullRetracting && tongueHitTarget != null)
+        {
+            Rigidbody pullableRb = tongueHitTarget.GetComponent<Rigidbody>();
+            if (pullableRb != null)
+            {
+                pullableRb.velocity = Vector3.zero;
+                pullableRb.angularVelocity = Vector3.zero;
+                pullableRb.isKinematic = originalKinematicState;
+            }
+            animator?.SetBool("isPulling", false);
+        }
+
+        if (tongueState == TongueState.GrappleReeling)
+        {
+            rb.velocity = Vector3.zero;
+        }
+
+        CleanupTongue();
+    }
+
+    private void CleanupTongue()
+    {
+        tongueState = TongueState.Idle;
+        tongueHitTarget = null;
+        if (tongueTipObject != null) tongueTipObject.SetActive(false);
+        Player.Instance.canMoveToggle(true);
+        tongueCoroutine = null;
+    }
+
+    /// <summary>
+    /// Positions the tongue tip sphere on the player-facing surface of the pulled object's
+    /// collider so the visual always looks attached, even on thin/flat objects like notecards.
+    /// The sphere is offset outward by its radius so it sits flush against the surface
+    /// instead of clipping through.
+    /// </summary>
+    private void UpdateTongueTipOnObject(Collider objCol)
+    {
+        if (objCol == null || tongueTipObject == null) return;
+
+        Vector3 playerPos = GetTongueOrigin();
+        // Get the closest point on the object's collider surface to the player
+        Vector3 surfacePoint = objCol.ClosestPoint(playerPos);
+
+        // Offset the sphere outward by its radius so it doesn't clip through thin objects.
+        // The normal points from the surface toward the player.
+        Vector3 toPlayer = playerPos - surfacePoint;
+        if (toPlayer.sqrMagnitude > 0.0001f)
+        {
+            surfacePoint += toPlayer.normalized * tongueTipRadius;
+        }
+
+        tongueTipPosition = surfacePoint;
+        tongueTipObject.transform.position = tongueTipPosition;
     }
 
     private void GetPullBoxTransform(out Vector3 worldCenter, out Quaternion worldRot)

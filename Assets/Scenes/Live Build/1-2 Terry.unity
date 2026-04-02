@@ -734,6 +734,7 @@ MonoBehaviour:
   isComplete: 0
   showTally: 1
   onCompleteEvents: []
+  onRestoreEvents: []
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 1368335033}
@@ -1405,10 +1406,12 @@ MonoBehaviour:
   isComplete: 0
   showTally: 0
   onCompleteEvents: []
+  onRestoreEvents: []
   whichForm: 01000000
   whichAbility: 2
   whichInteractable:
   - {fileID: 1448327782}
+  hideCompletedInteractablesOnRestore: 0
 --- !u!114 &394636687 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 240172313583642262, guid: 6102a42f46622c04994e750b30cd6bca,
@@ -8227,17 +8230,17 @@ PrefabInstance:
     - target: {fileID: 7764314525349162686, guid: f3fcfe7afbb80d0408384378bbfe0973,
         type: 3}
       propertyPath: m_Size.x
-      value: 19.700739
+      value: 2.4156566
       objectReference: {fileID: 0}
     - target: {fileID: 7764314525349162686, guid: f3fcfe7afbb80d0408384378bbfe0973,
         type: 3}
       propertyPath: m_Center.x
-      value: 0
+      value: 6.733557
       objectReference: {fileID: 0}
     - target: {fileID: 7764314525349162686, guid: f3fcfe7afbb80d0408384378bbfe0973,
         type: 3}
       propertyPath: m_Center.z
-      value: 0
+      value: 0.000001052343
       objectReference: {fileID: 0}
     - target: {fileID: 7764314525349162687, guid: f3fcfe7afbb80d0408384378bbfe0973,
         type: 3}
@@ -8727,6 +8730,7 @@ MonoBehaviour:
   isComplete: 0
   showTally: 0
   onCompleteEvents: []
+  onRestoreEvents: []
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 394636687}

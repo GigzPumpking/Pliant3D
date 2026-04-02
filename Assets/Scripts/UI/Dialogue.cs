@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 [System.Serializable]
@@ -23,6 +24,8 @@ public class Dialogue : MonoBehaviour
 {
     public TextMeshProUGUI textDisplay;
     [SerializeField] TextMeshProUGUI continueButton;
+    [Tooltip("Image component to display the NPC portrait assigned by DialogueTrigger.")]
+    [SerializeField] private Image portraitImage;
     public DialogueEntry[] dialogueEntries;
     public float textSpeed;
     private int index;
@@ -120,6 +123,13 @@ public class Dialogue : MonoBehaviour
     public void SetDialogueEntries(DialogueEntry[] entries)
     {
         this.dialogueEntries = entries;
+    }
+
+    public void SetPortrait(Sprite sprite)
+    {
+        if (portraitImage == null) return;
+        portraitImage.sprite = sprite;
+        portraitImage.gameObject.SetActive(sprite != null);
     }
 
     public bool IsActive()

@@ -58,8 +58,8 @@ public class Frog : FormScript
     [SerializeField] private float tongueMaxDistance = 12f;
     [Tooltip("Radius of the sphere collider at the tongue tip.")]
     [SerializeField] private float tongueTipRadius = 0.4f;
-    [Tooltip("Speed at which the frog is pulled toward a Hookable target.")]
-    [SerializeField] private float grappleReelSpeed = 30f;
+    [Tooltip("Peak speed at which the frog reels toward a Hookable target. Does not affect Pullable objects.")]
+    [SerializeField] private float grappleReelSpeed = 20f;
     [Tooltip("Speed at which a Pullable object is dragged back during tongue retract.")]
     [SerializeField] private float pullRetractSpeed = 15f;
     [Tooltip("Maximum time in seconds the pull can last before auto-releasing.")]
@@ -74,6 +74,9 @@ public class Frog : FormScript
     [Tooltip("Speed curve for retracting (empty). X = normalized distance (0=start, 1=arrived), Y = speed multiplier.")]
     [SerializeField] private AnimationCurve tongueRetractCurve = new AnimationCurve(
         new Keyframe(0f, 0.3f), new Keyframe(0.2f, 1f), new Keyframe(0.8f, 1f), new Keyframe(1f, 0.2f));
+    [Tooltip("Speed curve for grapple reeling (Hookable targets only). X = normalized progress toward target (0=start, 1=arrived), Y = speed multiplier. Quick snap to peak, slight ease at landing.")]
+    [SerializeField] private AnimationCurve grappleReelCurve = new AnimationCurve(
+        new Keyframe(0f, 0.25f), new Keyframe(0.12f, 1f), new Keyframe(0.75f, 1f), new Keyframe(1f, 0.45f));
 
     [Header("Tongue Line")]
     [SerializeField] private LineRenderer lineRenderer;
@@ -609,7 +612,6 @@ public class Frog : FormScript
         {
             Vector3 hookPoint = CalculateHookPoint(closestObject);
             Vector3 toTarget = hookPoint - GetTongueOrigin();
-            toTarget.y = 0f;
             if (toTarget.sqrMagnitude > 0.01f)
             {
                 facingDir = toTarget.normalized;
@@ -627,6 +629,10 @@ public class Frog : FormScript
         tongueTipPosition = GetTongueOrigin();
         tongueHitTarget = null;
         Player.Instance.canMoveToggle(false);
+
+        // Lock onto the highlighted target before clearing it so the extend phase
+        // can bypass any intervening colliders and connect directly.
+        Transform lockedTarget = closestObject;
 
         highlightedObject = null;
         closestObject = null;
@@ -660,7 +666,13 @@ public class Frog : FormScript
                 bool isSelf = hitInfo.transform.IsChildOf(transform) || hitInfo.transform == transform
                            || hitInfo.transform.IsChildOf(player) || hitInfo.transform == player;
 
-                if (!isSelf)
+                // If a target was locked when the tongue fired, ignore any collider that
+                // isn't that target — the icon confirmed a clear line-of-intent to it.
+                bool isBlocker = lockedTarget != null
+                    && hitInfo.transform != lockedTarget
+                    && !hitInfo.transform.IsChildOf(lockedTarget);
+
+                if (!isSelf && !isBlocker)
                 {
                     // Advance tip to the hit surface
                     tongueTipPosition += tongueDirection * hitInfo.distance;
@@ -734,18 +746,43 @@ public class Frog : FormScript
         // === GRAPPLE REEL PHASE (pull frog toward Hookable) ===
         else if (tongueState == TongueState.GrappleReeling && tongueHitTarget != null)
         {
+            Collider hookCollider = tongueHitTarget.GetComponent<Collider>();
+
+            // Arrival destination: slightly above the top of the collider so the frog
+            // clears the edge rather than stopping flush with the surface.
+            Vector3 ComputeArrivalPos()
+            {
+                if (hookCollider != null)
+                    return new Vector3(hookCollider.bounds.center.x,
+                                       hookCollider.bounds.max.y + 0.6f,
+                                       hookCollider.bounds.center.z);
+                return tongueHitTarget.position + Vector3.up * 1.1f;
+            }
+
+            float totalGrappleDist = Vector3.Distance(rb.position, ComputeArrivalPos());
+            // Straight-line direction is fixed at launch so the path never curves.
+            Vector3 reelDirection = totalGrappleDist > 0.01f
+                ? (ComputeArrivalPos() - rb.position).normalized
+                : Vector3.up;
+
             while (tongueState == TongueState.GrappleReeling && tongueHitTarget != null)
             {
-                Vector3 targetPos = tongueHitTarget.GetComponent<Collider>()?.bounds.center
-                                    ?? tongueHitTarget.position;
-                tongueTipPosition = targetPos;
-                tongueTipObject.transform.position = tongueTipPosition;
+                Vector3 arrivalPos = ComputeArrivalPos();
 
-                Vector3 direction = (targetPos - rb.position).normalized;
-                rb.velocity = direction * grappleReelSpeed;
+                // Keep tongue tip visually anchored to the near-side surface of the object.
+                UpdateTongueTipOnObject(hookCollider);
 
-                // Close enough — arrival (OnCollisionEnter also handles this)
-                if (Vector3.Distance(rb.position, targetPos) <= 1.5f)
+                float currentDist = Vector3.Distance(rb.position, arrivalPos);
+                // progress: 0 = just launched, 1 = arrived
+                float progress = totalGrappleDist > 0.01f
+                    ? Mathf.Clamp01(1f - currentDist / totalGrappleDist)
+                    : 1f;
+                float speedMul = grappleReelCurve.Evaluate(progress);
+
+                // Straight-line velocity — no mid-flight steering.
+                rb.velocity = reelDirection * grappleReelSpeed * speedMul;
+
+                if (currentDist <= 1.5f)
                 {
                     break;
                 }
@@ -753,7 +790,8 @@ public class Frog : FormScript
                 yield return new WaitForFixedUpdate();
             }
 
-            rb.velocity = Vector3.zero;
+            // Small upward pop so the frog clears the top edge and lands on the surface.
+            rb.velocity = Vector3.up * 4f;
         }
 
         // === PULL RETRACT PHASE (retract tongue, dragging Pullable back) ===

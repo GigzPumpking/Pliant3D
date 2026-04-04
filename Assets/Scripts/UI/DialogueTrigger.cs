@@ -75,6 +75,10 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
     
     // Track how many times the player has completed a dialogue with this NPC
     private int interactionCount = 0;
+
+    // Set to true when events are invoked via restore (InvokeEvents) so that
+    // subsequent NPC interactions don't re-fire them after a normal level reset.
+    private bool _suppressEvents = false;
     
     // Cooldown tracking: time when last dialogue ended (static = shared across all NPCs)
     private static float lastDialogueEndTime = float.NegativeInfinity;
@@ -181,9 +185,9 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
             currentFirstEntry = entries[0].defaultText;
         }
         
-        dialogue.SetPortrait(npcPortrait);
         triggered = true;
         dialogue.Appear();
+        dialogue.SetPortrait(npcPortrait);
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = false });
         
         // Raise interact event with this as the quest giver for objectives to listen
@@ -336,9 +340,9 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
             currentFirstEntry = entries[0].defaultText;
         }
 
-        dialogue.SetPortrait(npcPortrait);
         triggered = true;
         dialogue.Appear();
+        dialogue.SetPortrait(npcPortrait);
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = false });
         InteractedObjective?.Invoke(this);
         
@@ -357,7 +361,7 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
         // Increment interaction count for alternate dialogue tracking
         interactionCount++;
         
-        if (!triggerEventsOnFirstInteractionOnly || interactionCount == 1)
+        if (!_suppressEvents && (!triggerEventsOnFirstInteractionOnly || interactionCount == 1))
         {
             foreach(var evt in events)
             {
@@ -487,6 +491,9 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
         {
             evt?.Invoke();
         }
+        // Mark events as already invoked so the next real NPC interaction
+        // doesn't re-fire them (persists until a timer-failure scene reload).
+        _suppressEvents = true;
     }
     
     /// <summary>

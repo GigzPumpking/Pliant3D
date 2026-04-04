@@ -121,6 +121,11 @@ public class LevelIntroDialogueManager : MonoBehaviour
         // One extra frame so every scene object's Start() has run before we block input.
         yield return null;
 
+        // Fire the "Tired" trigger on Terry's animator now that the transformation has
+        // been reset to TERRY by the NewSceneLoaded handler.
+        Animator terryAnimator = Player.Instance.transform.Find("Terry")?.GetComponentInChildren<Animator>();
+        terryAnimator?.SetTrigger("Tired");
+
         Dialogue dialogue = UIManager.Instance.returnDialogue();
         if (dialogue == null || dialogue.IsActive())
             yield break;

@@ -99,8 +99,35 @@ public class ObjectiveTracker : MonoBehaviour {
     {
         yield return null; // let every Start() finish first
 
-        var pendingStates = GameManager.Instance?.GetPendingObjectiveStates();
-        if (pendingStates == null || pendingStates.Count == 0) yield break;
+        var pendingStates   = GameManager.Instance?.GetPendingObjectiveStates();
+        var pendingNpcStates = GameManager.Instance?.GetPendingNpcStates();
+
+        bool hasObjectiveStates = pendingStates    != null && pendingStates.Count    > 0;
+        bool hasNpcStates       = pendingNpcStates != null && pendingNpcStates.Count > 0;
+        if (!hasObjectiveStates && !hasNpcStates) yield break;
+
+        // Track which triggers have already been fully restored so Phase 1 doesn't
+        // double-invoke their events or overwrite the state set here.
+        var restoredTriggers = new HashSet<DialogueTrigger>();
+
+        // --- Phase 0: Directly restore NPC trigger states by name ---
+        // This is the primary restore path and covers NPCs regardless of whether
+        // their objectives are in a scene-placed listing or dynamically added.
+        if (hasNpcStates)
+        {
+            foreach (var trigger in FindObjectsOfType<DialogueTrigger>())
+            {
+                var npcState = pendingNpcStates.Find(s => s.npcName == trigger.gameObject.name);
+                if (npcState == null || npcState.interactionCount <= 0) continue;
+
+                trigger.SetInteractionCount(npcState.interactionCount);
+                if (trigger.ObjectivesToGive != null && trigger.ObjectivesToGive.Count > 0)
+                    trigger.MarkObjectiveGiven();
+                trigger.InvokeEvents();
+                restoredTriggers.Add(trigger);
+            }
+            GameManager.Instance?.ClearPendingNpcStates();
+        }
 
         // --- Phase 1: Re-give NPC objectives that were previously given ---
         // Build a set of objectives already known in listings
@@ -114,53 +141,59 @@ public class ObjectiveTracker : MonoBehaviour {
             }
         }
 
-        // For each saved objective not in any listing, find the DialogueTrigger that owns it
-        foreach (var saved in pendingStates)
+        // For each saved objective, restore the owning NPC's trigger state (fallback
+        // for saves that predate Phase 0) and add UI for dynamically-given objectives.
+        if (hasObjectiveStates)
         {
-            string key = saved.objectiveName + "|" + saved.description;
-            if (knownKeys.Contains(key)) continue;
-
-            foreach (var trigger in FindObjectsOfType<DialogueTrigger>())
+            foreach (var saved in pendingStates)
             {
-                var toGive = trigger.ObjectivesToGive;
-                if (toGive == null || toGive.Count == 0) continue;
+                string key = saved.objectiveName + "|" + saved.description;
+                bool alreadyInListing = knownKeys.Contains(key);
 
-                bool found = toGive.Any(o => o != null
-                    && o.gameObject.name == saved.objectiveName
-                    && o.description == saved.description);
-
-                if (!found) continue;
-
-                // Mark the NPC as having already given its objectives
-                trigger.MarkObjectiveGiven();
-
-                // Restore the NPC's interaction count so it uses the correct
-                // dialogue stage (secondary/tertiary instead of base)
-                int count = saved.npcInteractionCount;
-                trigger.SetInteractionCount(count > 0 ? count : 1);
-
-                // Only replay NPC events if the objective is still in progress.
-                // If it's already complete, events are handled by onRestoreEvents
-                // on the Objective itself to avoid unwanted re-triggering.
-                if (!saved.isComplete)
-                    trigger.InvokeEvents();
-
-                // Now add the objectives to the tracker UI
-                AddObjective(toGive);
-
-                // Register all the newly-added objectives so we don't re-add them
-                foreach (var o in toGive)
+                foreach (var trigger in FindObjectsOfType<DialogueTrigger>())
                 {
-                    if (o != null)
-                        knownKeys.Add(o.gameObject.name + "|" + o.description);
+                    var toGive = trigger.ObjectivesToGive;
+                    if (toGive == null || toGive.Count == 0) continue;
+
+                    bool found = toGive.Any(o => o != null
+                        && o.gameObject.name == saved.objectiveName
+                        && o.description == saved.description);
+
+                    if (!found) continue;
+
+                    // Fallback NPC trigger restore — only runs if Phase 0 didn't
+                    // already handle this trigger (e.g. loading an older save).
+                    if (!restoredTriggers.Contains(trigger))
+                    {
+                        trigger.MarkObjectiveGiven();
+
+                        int count = saved.npcInteractionCount;
+                        trigger.SetInteractionCount(count > 0 ? count : 1);
+
+                        trigger.InvokeEvents();
+                        restoredTriggers.Add(trigger);
+                    }
+
+                    // Only add to the tracker UI if not already present
+                    if (!alreadyInListing)
+                    {
+                        AddObjective(toGive);
+
+                        foreach (var o in toGive)
+                        {
+                            if (o != null)
+                                knownKeys.Add(o.gameObject.name + "|" + o.description);
+                        }
+                    }
+                    break;
                 }
-                break;
             }
         }
 
         // --- Phase 2: Restore state for every tracked objective ---
         int restoredCount = 0;
 
+        if (hasObjectiveStates)
         foreach (var listing in objectiveListings)
         {
             for (int i = 0; i < listing.objectives.Count; i++)

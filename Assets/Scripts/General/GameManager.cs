@@ -31,6 +31,15 @@ public class GameManager : KeyActionReceiver<GameManager>
     // Objective states pending restoration after a scene reload (game-over reset or save load)
     private List<ObjectiveSaveState> _pendingObjectiveStates;
 
+    // Timer remaining time pending restoration after a scene reload
+    private float _pendingTimerTime = -1f;
+
+    // Set to true when a timer expiry caused the game over; suppresses state capture on reset
+    private bool _timerFailed = false;
+
+    // NPC trigger interaction states pending restoration after a scene reload
+    private List<NpcTriggerSaveState> _pendingNpcStates;
+
     // Main menu scene name
     [SerializeField] private string mainMenuSceneName = "0 Main Menu";
     [SerializeField] private VideoPlayer outroVideoPlayer;
@@ -144,8 +153,32 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     public void Reset()
     {
-        // Capture objective progress before the scene is destroyed
-        _pendingObjectiveStates = CaptureObjectiveStates();
+        if (!_timerFailed)
+        {
+            // Capture objective progress before the scene is destroyed
+            _pendingObjectiveStates = CaptureObjectiveStates();
+
+            // Capture NPC trigger states before the scene is destroyed
+            _pendingNpcStates = CaptureNpcTriggerStates();
+
+            // Capture timer progress before the scene is destroyed
+            var timer = FindObjectOfType<ObjectiveTimer>();
+            if (timer != null && timer.HasStarted)
+            {
+                _pendingTimerTime = timer.GetCurrentTime();
+                Debug.Log($"[GameManager.Reset] Captured timer: {_pendingTimerTime:F1}s");
+            }
+            else
+                Debug.Log($"[GameManager.Reset] Timer not captured — found={timer != null}, hasStarted={timer?.HasStarted}");
+        }
+        else
+        {
+            // Timer failure: start fresh — wipe any saved state
+            _pendingObjectiveStates = null;
+            _pendingNpcStates = null;
+            _pendingTimerTime = -1f;
+            _timerFailed = false;
+        }
 
         // Restart the game
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
@@ -303,6 +336,28 @@ public class GameManager : KeyActionReceiver<GameManager>
         _pendingObjectiveStates = null;
     }
 
+    public float GetPendingTimerTime() => _pendingTimerTime;
+
+    public void ClearPendingTimerTime() => _pendingTimerTime = -1f;
+
+    public void SetTimerFailed() => _timerFailed = true;
+
+    private List<NpcTriggerSaveState> CaptureNpcTriggerStates()
+    {
+        var states = new List<NpcTriggerSaveState>();
+        foreach (var trigger in FindObjectsOfType<DialogueTrigger>())
+        {
+            int count = trigger.GetInteractionCount();
+            if (count > 0)
+                states.Add(new NpcTriggerSaveState { npcName = trigger.gameObject.name, interactionCount = count });
+        }
+        return states;
+    }
+
+    public List<NpcTriggerSaveState> GetPendingNpcStates() => _pendingNpcStates;
+
+    public void ClearPendingNpcStates() => _pendingNpcStates = null;
+
     #endregion
 
     private String prevSceneStr = "";
@@ -396,6 +451,15 @@ public class GameManager : KeyActionReceiver<GameManager>
         playerData.sceneName = SceneManager.GetActiveScene().name;
         playerData.settings.autoSave = AutoSaveEnabled;
         playerData.objectiveStates = CaptureObjectiveStates();
+
+        // Capture NPC trigger states
+        playerData.npcTriggerStates = CaptureNpcTriggerStates();
+
+        // Capture timer state if one is active in the scene
+        var timer = FindObjectOfType<ObjectiveTimer>();
+        if (timer != null && timer.HasStarted)
+            playerData.timerTime = timer.GetCurrentTime();
+
         if (Player.Instance != null)
         {
             /*
@@ -432,6 +496,14 @@ public class GameManager : KeyActionReceiver<GameManager>
     {
         // Set pending objective states BEFORE the scene loads
         _pendingObjectiveStates = playerData.objectiveStates;
+
+        // Restore NPC trigger states if saved
+        if (playerData.npcTriggerStates != null && playerData.npcTriggerStates.Count > 0)
+            _pendingNpcStates = playerData.npcTriggerStates;
+
+        // Restore timer state if it was saved
+        if (playerData.timerTime > 0f)
+            _pendingTimerTime = playerData.timerTime;
 
         // Load the scene
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(playerData.sceneName);

@@ -317,6 +317,7 @@ public class Bulldozer : FormScript
         Rigidbody objRb = activePushable.GetComponent<Rigidbody>();
         if (objRb != null && objRb.velocity.y < -1f)
         {
+            Debug.Log($"[Bulldozer] DETACH — falling check. objRb.velocity.y={objRb.velocity.y:F3}, isPulling={isPulling}");
             ReleaseActivePushable();
             return;
         }
@@ -336,11 +337,21 @@ public class Bulldozer : FormScript
             distance = Vector3.Distance(closest, new Vector3(transform.position.x, closest.y, transform.position.z));
         }
 
-        // Detach if the object drifts beyond contact range
+        // Detach if the object drifts beyond contact range.
+        // Skip this check while pulling — the anchor logic actively maintains the offset,
+        // so lag from lerp/collision shouldn't cause an unintended detach.
         if (distance > maxContactDistance)
         {
-            ReleaseActivePushable();
-            return;
+            if (!isPulling)
+            {
+                Debug.Log($"[Bulldozer] DETACH — distance check (push mode). distance={distance:F3}, maxContactDistance={maxContactDistance:F3}");
+                ReleaseActivePushable();
+                return;
+            }
+            else
+            {
+                Debug.Log($"[Bulldozer] WARNING — distance={distance:F3} exceeds maxContactDistance={maxContactDistance:F3} while pulling (not detaching).");
+            }
         }
 
         // --- Pulling: position-based attachment ---
@@ -377,6 +388,7 @@ public class Bulldozer : FormScript
                     if (objCol == null) objCol = activePushable.GetComponentInChildren<Collider>();
 
                     bool blocked = false;
+                    Collider blockingCollider = null;
                     if (objCol != null)
                     {
                         Vector3 halfExtents = objCol.bounds.extents * 0.95f;
@@ -395,12 +407,18 @@ public class Bulldozer : FormScript
                             activePushable.transform.rotation,
                             Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
 
+                        float objBottomY = objCol.bounds.min.y;
                         foreach (Collider overlap in destOverlaps)
                         {
                             if (overlap.transform.IsChildOf(activePushable.transform)) continue;
                             if (overlap.transform.IsChildOf(transform)) continue;
                             // Only block on colliders that aren't already being touched
                             if (currentSet.Contains(overlap)) continue;
+                            // Ignore colliders whose top surface is at or below the object's
+                            // bottom face — these are floor/sub-floor structures that shouldn't
+                            // block horizontal movement (the object slides along them, not into them).
+                            if (overlap.bounds.max.y <= objBottomY) continue;
+                            blockingCollider = overlap;
                             blocked = true;
                             break;
                         }
@@ -427,6 +445,7 @@ public class Bulldozer : FormScript
                     Vector3.Dot(vel.normalized, dirToObj.normalized) > 0.3f)
                 {
                     // Player started pushing again — switch back to push mode
+                    Debug.Log($"[Bulldozer] Switching PULL -> PUSH. dot={Vector3.Dot(vel.normalized, dirToObj.normalized):F3}");
                     isPulling = false;
                 }
             }
@@ -705,6 +724,7 @@ public class Bulldozer : FormScript
             {
                 if (activePushable == p)
                 {
+                    Debug.Log($"[Bulldozer] DETACH — exclusion zone. Pushable={p.name}, isPulling={isPulling}");
                     ReleaseActivePushable();
                 }
             }

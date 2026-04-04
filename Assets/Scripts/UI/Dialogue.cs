@@ -142,6 +142,10 @@ public class Dialogue : MonoBehaviour
         if (!ValidEntries())
             return;
 
+        // Reset portrait so it is hidden by default; callers that want a portrait
+        // should call SetPortrait() immediately after Appear().
+        SetPortrait(null);
+
         animator.Play("DialogueAppear");
         textDisplay.text = string.Empty;
         textDisplay.maxVisibleCharacters = 0;

@@ -652,6 +652,15 @@ public class Player : KeyActionReceiver<Player>
     private void OnNewSceneLoaded(NewSceneLoaded e)
     {
         SetTransformation(Transformation.TERRY);
+
+        // Clear any velocity accumulated during scenes with no floor (e.g. cutscene
+        // transitions) so the player doesn't clip through geometry in the next level.
+        if (rbody != null)
+            rbody.velocity = Vector3.zero;
+
+        isGrounded = true;
+        isJumping = false;
+        airborneGraceTimer = 0f;
     }
 
     public void Smoke() {

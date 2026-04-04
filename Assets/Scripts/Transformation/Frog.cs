@@ -619,7 +619,9 @@ public class Frog : FormScript
         }
 
         bool isFacingFront = facingDir == Vector3.left || facingDir == Vector3.back;
-        if (!isFacingFront)
+        // BackLeft = Vector3.forward, BackRight = Vector3.right (from UpdateAnimationBasedDirection)
+        bool isFacingBack = facingDir == Vector3.forward || facingDir == Vector3.right;
+        if (isFacingBack)
         {
             animator?.SetTrigger("Tongue");
         }

@@ -21,16 +21,49 @@ public class ObjectiveTimer : MonoBehaviour
     private bool hasStarted = false;
     public bool startAutomatically = true;
 
+    public bool HasStarted => hasStarted;
+    public float GetCurrentTime() => currentTime;
+
     void Start()
     {
         currentTime = 0;
         timerText.text = "";
         timerSlider.gameObject.SetActive(false);
-        if(startAutomatically) StartTimer();
+
+        // Restore pending timer time in Start() before any restore-path InvokeEvents() calls.
+        float pendingTime = GameManager.Instance?.GetPendingTimerTime() ?? -1f;
+        Debug.Log($"[ObjectiveTimer.Start] pendingTime={pendingTime:F1}, startAutomatically={startAutomatically}");
+        if (pendingTime > 0f)
+        {
+            hasStarted = true;
+            currentTime = pendingTime;
+            timerSlider.gameObject.SetActive(true);
+            if (timerSlider != null)
+            {
+                timerSlider.maxValue = totalTime;
+                timerSlider.value = currentTime;
+            }
+            SetTimeInMinutesAndSeconds(currentTime);
+            UpdateUI();
+            GameManager.Instance?.ClearPendingTimerTime();
+        }
+        else if (startAutomatically)
+        {
+            StartTimer();
+        }
     }
 
     public void StartTimer()
     {
+        // If the timer is already running (restored from pending state), ignore
+        // all subsequent calls — there may be multiple from the restore path.
+        if (hasStarted)
+        {
+            Debug.Log($"[ObjectiveTimer.StartTimer] skipped — already running at {currentTime:F1}s");
+            return;
+        }
+
+        Debug.Log($"[ObjectiveTimer.StartTimer] starting fresh");
         hasStarted = true;
         currentTime = totalTime;
         timerSlider.gameObject.SetActive(true);
@@ -62,6 +95,7 @@ public class ObjectiveTimer : MonoBehaviour
             if (GameManager.Instance != null && !GameManager.Instance.isGameOver && hasStarted)
             {
                 Debug.LogWarning("Game Over from ObjectiveTimer.cs");
+                GameManager.Instance?.SetTimerFailed();
                 GameManager.Instance?.GameOver();
                 currentTime = totalTime; // Reset timer for next round
             }
@@ -97,14 +131,15 @@ public class ObjectiveTimer : MonoBehaviour
 
     public void RestartScene()
     {
+        // Let GameManager.Reset() capture the timer state BEFORE we clear it.
+        GameManager.Instance?.Reset();
+
         currentTime = 0;
         timerText.text = "";
         timerSlider.gameObject.SetActive(false);
-        
         hasStarted = false;
         currentTime = totalTime;
         Player.Instance.canMoveToggle(true);
-        GameManager.Instance?.Reset();
     }
 
     public void Quit()

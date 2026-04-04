@@ -23,6 +23,12 @@ public class PlayerData
     // Objective completion & fetch progress
     public List<ObjectiveSaveState> objectiveStates;
 
+    // Saved timer time (-1 means no timer was active when saved)
+    public float timerTime = -1f;
+
+    // NPC trigger interaction states (dialogue progression / event suppression)
+    public List<NpcTriggerSaveState> npcTriggerStates = new List<NpcTriggerSaveState>();
+
     public PlayerData()
     {
         settings = new GameSettings();
@@ -64,4 +70,11 @@ public class ObjectiveSaveState
     public List<string> completedInteractableNames = new List<string>();
     // How many times the NPC that gave this objective had been talked to
     public int npcInteractionCount;
+}
+
+[System.Serializable]
+public class NpcTriggerSaveState
+{
+    public string npcName;
+    public int interactionCount;
 }

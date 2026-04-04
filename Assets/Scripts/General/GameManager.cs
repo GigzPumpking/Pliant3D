@@ -8,6 +8,7 @@ using UnityEngine.InputSystem;
 using System.Linq.Expressions;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
+using UnityEngine.Video;
 
 public class GameManager : KeyActionReceiver<GameManager>
 {
@@ -20,6 +21,8 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     [SerializeField] private AudioData mainTheme;
     [SerializeField] private AudioData Ambience;
+    private int _queuedTasksCompleted = 0;
+    private int _queuedTasksAssigned = 0;
     private int _numTasksCompleted = 0;
     private int _numTasksAssigned = 0;
 
@@ -30,6 +33,7 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     // Main menu scene name
     [SerializeField] private string mainMenuSceneName = "0 Main Menu";
+    [SerializeField] private VideoPlayer outroVideoPlayer;
 
     // Scenes where saving is not allowed (transitions, main menu, etc.)
     [SerializeField] private List<string> unsaveableScenes = new List<string>
@@ -179,6 +183,16 @@ public class GameManager : KeyActionReceiver<GameManager>
             Reset();
         }
     }
+
+    public void AddQueuedTaskComplete()
+    {
+        _queuedTasksCompleted++;
+    }
+
+    public void AddQueuedTaskAssigned()
+    {
+        _queuedTasksAssigned++;
+    }
     
     public void SetNumTasksAssigned(int num)
     {
@@ -291,8 +305,31 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     #endregion
 
+    private String prevSceneStr = "";
+    private String currSceneStr = "";
+
     private void OnNewSceneLoaded(NewSceneLoaded e)
     {
+        //IF A PREVIOUS SCENE HAS NOT BEEN SET,
+        if (prevSceneStr == "") prevSceneStr = SceneManager.GetActiveScene().name;
+        else prevSceneStr = currSceneStr;
+        
+        currSceneStr = SceneManager.GetActiveScene().name;
+
+        Debug.LogWarning("Loaded ");
+        //ONLY ADD COMPLETED TASKS WHEN THE PLAYER HAS FINISHED THE LEVEL THEY ARE ON
+        //SO ENSURE THAT THE NEW SCENE THAT WAS LOADED WAS NOT THE OLD SCENE (i.e a Level Reset)
+
+        if (prevSceneStr != currSceneStr)
+        {
+            _numTasksCompleted += _queuedTasksCompleted;
+            _numTasksAssigned += _queuedTasksAssigned;
+        }
+        //RESET QUEUED
+        _queuedTasksCompleted = 0;
+        _queuedTasksAssigned = 0;
+
+
         if (!AutoSaveEnabled) return;
 
         // Don't auto-save on unsaveable scenes (main menu, transitions, etc.)
@@ -300,6 +337,15 @@ public class GameManager : KeyActionReceiver<GameManager>
 
         SaveGame();
         Debug.Log("Auto-saved on scene load: " + e.sceneName);
+        
+        if (SceneManager.GetActiveScene().name != "11 End Screen")
+        {
+            AudioManager.Instance?.StopMusic();
+        }
+        
+        {
+            Debug.LogWarning($"Scene loaded ({e.sceneName}) does not match active scene ({SceneManager.GetActiveScene().name})");
+        }
     }
 
     private void OnDestroy()
@@ -309,6 +355,21 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     public void Quit()
     {
+        if(outroVideoPlayer) StartCoroutine(nameof(QuitCoroutine),0f); // Delay to allow outro video to start playing
+        else
+        {
+            Debug.Log("Outro Video Player is Null");
+            Application.Quit();
+        }
+    }
+
+    public IEnumerator QuitCoroutine()
+    {
+        Debug.Log("Playing Quit Coroutine");
+        outroVideoPlayer.gameObject.SetActive(true);
+        outroVideoPlayer.gameObject.transform.SetAsLastSibling();
+        outroVideoPlayer.Play();
+        yield return new WaitForSeconds((float)outroVideoPlayer.clip.length);
         Application.Quit();
     }
     

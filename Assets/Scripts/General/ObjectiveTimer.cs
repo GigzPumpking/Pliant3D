@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -39,6 +40,8 @@ public class ObjectiveTimer : MonoBehaviour
             timerSlider.maxValue = totalTime;
             timerSlider.value = totalTime;
         }
+        SetTimeInMinutesAndSeconds(currentTime);
+        UpdateUI();
     }
 
     void Update()
@@ -46,7 +49,10 @@ public class ObjectiveTimer : MonoBehaviour
         if (currentTime > 0 && hasStarted)
         {
             if (!GameManager.Instance.isGameOver)
+            {
                 currentTime -= Time.deltaTime;
+                SetTimeInMinutesAndSeconds(currentTime);
+            }
 
             UpdateUI();
         }
@@ -66,13 +72,27 @@ public class ObjectiveTimer : MonoBehaviour
     {
         if (timerText != null)
         {
-            timerText.text = "Deadline: " + currentTime.ToString("F0") + " seconds";
+            timerText.text = "Deadline: " + CurrentTimeInMinutesAndSeconds.Item1.ToString("00") + ":" + CurrentTimeInMinutesAndSeconds.Item2.ToString("00");
         }
 
         if (timerSlider != null)
         {
             timerSlider.value = currentTime;
         }
+    }
+
+    private (float, float) CurrentTimeInMinutesAndSeconds;
+    internal Tuple<float, float> ReturnInMinutesAndSeconds(float timeInSeconds)
+    {
+        return new Tuple<float, float>(
+            Mathf.Floor(timeInSeconds / 60), 
+            Mathf.Floor(timeInSeconds % 60)
+            );
+    }
+    
+    internal void SetTimeInMinutesAndSeconds(float timeInSeconds)
+    {
+        CurrentTimeInMinutesAndSeconds = (timeInSeconds / 60, timeInSeconds % 60);
     }
 
     public void RestartScene()

@@ -62,8 +62,8 @@ public class AutomaticDialogueTrigger : MonoBehaviour
     void ForceTerryForm()
     {
         if (!_collidedFresh) return;
-        if(LockoutBar.Instance) LockoutBar.Instance.AddCharge(Player.Instance.transformation);
-        Player.Instance?.SetTransformation(Transformation.TERRY);
+        //if(LockoutBar.Instance) LockoutBar.Instance.AddCharge(Player.Instance.transformation);
+        //Player.Instance?.SetTransformation(Transformation.TERRY);
         
         _collidedFresh = false;
     }

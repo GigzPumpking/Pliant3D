@@ -119,14 +119,14 @@ public class ObjectiveTimer : MonoBehaviour
     internal Tuple<float, float> ReturnInMinutesAndSeconds(float timeInSeconds)
     {
         return new Tuple<float, float>(
-            Mathf.Floor(timeInSeconds / 60), 
-            Mathf.RoundToInt(timeInSeconds % 60)
+            Mathf.FloorToInt(timeInSeconds / 60), 
+            Mathf.FloorToInt(timeInSeconds % 60)
             );
     }
     
     internal void SetTimeInMinutesAndSeconds(float timeInSeconds)
     {
-        CurrentTimeInMinutesAndSeconds = (Mathf.Floor(timeInSeconds / 60), Mathf.RoundToInt(timeInSeconds % 60));
+        CurrentTimeInMinutesAndSeconds = (Mathf.Floor(timeInSeconds / 60), Mathf.FloorToInt(timeInSeconds % 60));
     }
 
     public void RestartScene()

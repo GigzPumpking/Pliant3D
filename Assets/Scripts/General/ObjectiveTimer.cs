@@ -64,6 +64,7 @@ public class ObjectiveTimer : MonoBehaviour
         }
 
         Debug.Log($"[ObjectiveTimer.StartTimer] starting fresh");
+        
         hasStarted = true;
         currentTime = totalTime;
         timerSlider.gameObject.SetActive(true);
@@ -73,7 +74,6 @@ public class ObjectiveTimer : MonoBehaviour
             timerSlider.maxValue = totalTime;
             timerSlider.value = totalTime;
         }
-        SetTimeInMinutesAndSeconds(currentTime);
         UpdateUI();
     }
 
@@ -106,7 +106,7 @@ public class ObjectiveTimer : MonoBehaviour
     {
         if (timerText != null)
         {
-            timerText.text = "Deadline: " + CurrentTimeInMinutesAndSeconds.Item1.ToString("00") + ":" + CurrentTimeInMinutesAndSeconds.Item2.ToString("00");
+            timerText.text = CurrentTimeInMinutesAndSeconds.Item1.ToString("00") + ":" + CurrentTimeInMinutesAndSeconds.Item2.ToString("00");
         }
 
         if (timerSlider != null)
@@ -120,13 +120,13 @@ public class ObjectiveTimer : MonoBehaviour
     {
         return new Tuple<float, float>(
             Mathf.Floor(timeInSeconds / 60), 
-            Mathf.Floor(timeInSeconds % 60)
+            Mathf.RoundToInt(timeInSeconds % 60)
             );
     }
     
     internal void SetTimeInMinutesAndSeconds(float timeInSeconds)
     {
-        CurrentTimeInMinutesAndSeconds = (timeInSeconds / 60, timeInSeconds % 60);
+        CurrentTimeInMinutesAndSeconds = (Mathf.Floor(timeInSeconds / 60), Mathf.RoundToInt(timeInSeconds % 60));
     }
 
     public void RestartScene()

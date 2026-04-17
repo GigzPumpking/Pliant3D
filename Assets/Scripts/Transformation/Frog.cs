@@ -51,17 +51,17 @@ public class Frog : FormScript
     [Tooltip("The icon to display over hookable/pullable targets.")]
     [SerializeField] private GameObject hookTarget;
     [Tooltip("Speed at which the tongue tip extends outward.")]
-    [SerializeField] private float tongueExtendSpeed = 25f;
+    [SerializeField] private float tongueExtendSpeed = 45f;
     [Tooltip("Speed at which the tongue retracts back to the player.")]
-    [SerializeField] private float tongueRetractSpeed = 20f;
+    [SerializeField] private float tongueRetractSpeed = 25f;
     [Tooltip("Maximum distance the tongue can reach before auto-retracting.")]
     [SerializeField] private float tongueMaxDistance = 12f;
     [Tooltip("Radius of the sphere collider at the tongue tip.")]
-    [SerializeField] private float tongueTipRadius = 0.4f;
+    [SerializeField] private float tongueTipRadius = 0.24f;
     [Tooltip("Peak speed at which the frog reels toward a Hookable target. Does not affect Pullable objects.")]
     [SerializeField] private float grappleReelSpeed = 20f;
     [Tooltip("Speed at which a Pullable object is dragged back during tongue retract.")]
-    [SerializeField] private float pullRetractSpeed = 15f;
+    [SerializeField] private float pullRetractSpeed = 25f;
     [Tooltip("Maximum time in seconds the pull can last before auto-releasing.")]
     [SerializeField] private float pullTimeout = 3f;
     [Tooltip("Layers the tongue tip can collide with. Exclude ground layer if needed.")]
@@ -81,6 +81,12 @@ public class Frog : FormScript
     [Header("Tongue Line")]
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private bool useWorldSpace = true;
+
+    [Header("Tongue Sway")]
+    [Tooltip("How far the tongue midpoint sways perpendicular to its direction while extending/retracting.")]
+    [SerializeField] private float swayAmplitude = 0.12f;
+    [Tooltip("Speed of the oscillation while the tongue is in motion.")]
+    [SerializeField] private float swayFrequency = 8f;
 
     private SpriteRenderer _spriteRenderer;
     
@@ -192,16 +198,22 @@ public class Frog : FormScript
         if (lineRenderer == null)
         {
             lineRenderer = gameObject.AddComponent<LineRenderer>();
-            lineRenderer.positionCount = 2;
             lineRenderer.useWorldSpace = useWorldSpace;
         }
+        lineRenderer.positionCount = 3;
         var mat = new Material(Shader.Find("Sprites/Default"));
-        mat.color = new Color(1f, 0f, 0f, 0.75f);
+        mat.color = new Color(1f, 0.45f, 0.55f, 0.9f);
         lineRenderer.material = mat;
-        lineRenderer.startColor = new Color(1f, 0f, 0f, 0.75f);
-        lineRenderer.endColor = new Color(1f, 0f, 0f, 0.75f);
-        lineRenderer.startWidth = 0.25f;
-        lineRenderer.endWidth = 0.25f;
+        lineRenderer.startColor = new Color(1f, 0.45f, 0.55f, 0.9f);
+        lineRenderer.endColor = new Color(0.9f, 0.35f, 0.45f, 0.95f);
+        lineRenderer.widthMultiplier = 0.35f;
+        lineRenderer.widthCurve = new AnimationCurve(
+            new Keyframe(0f, 0.85f),
+            new Keyframe(0.25f, 1f),
+            new Keyframe(0.75f, 0.85f),
+            new Keyframe(1f, 0.6f));
+        lineRenderer.numCornerVertices = 5;
+        lineRenderer.numCapVertices = 5;
 
         EnsureTongueTip();
     }
@@ -217,12 +229,12 @@ public class Frog : FormScript
         // Remove the default collider — detection is done via SphereCast
         var tipCollider = tongueTipObject.GetComponent<Collider>();
         if (tipCollider != null) Destroy(tipCollider);
-        // Style: red semi-transparent sphere matching the line renderer
+        // Style: bulbous pink flesh-tone sphere matching the tongue line renderer
         var tipRenderer = tongueTipObject.GetComponent<Renderer>();
         if (tipRenderer != null)
         {
             var tipMat = new Material(Shader.Find("Sprites/Default"));
-            tipMat.color = new Color(1f, 0.2f, 0.2f, 0.85f);
+            tipMat.color = new Color(0.9f, 0.3f, 0.42f, 1f);
             tipRenderer.material = tipMat;
         }
         // Keep it alive across scene reloads (Player is DontDestroyOnLoad)
@@ -479,8 +491,25 @@ public class Frog : FormScript
             Vector3 startPos = useWorldSpace ? startCenter : lineRenderer.transform.InverseTransformPoint(startCenter);
             Vector3 endPos = useWorldSpace ? tongueTipPosition : lineRenderer.transform.InverseTransformPoint(tongueTipPosition);
 
-            lineRenderer.SetPosition(0, startPos);
-            lineRenderer.SetPosition(1, endPos);
+            // Sway: sinusoidal midpoint offset during extend/retract; taut during grapple/pull
+            bool shouldSway = tongueState == TongueState.Extending || tongueState == TongueState.Retracting;
+            if (shouldSway && swayAmplitude > 0f)
+            {
+                lineRenderer.positionCount = 3;
+                float sway = Mathf.Sin(Time.time * swayFrequency) * swayAmplitude;
+                Vector3 swayDir = Vector3.Cross(tongueDirection, Vector3.up).normalized;
+                if (swayDir.sqrMagnitude < 0.01f) swayDir = transform.right;
+                Vector3 midPos = Vector3.Lerp(startPos, endPos, 0.5f) + swayDir * sway;
+                lineRenderer.SetPosition(0, startPos);
+                lineRenderer.SetPosition(1, midPos);
+                lineRenderer.SetPosition(2, endPos);
+            }
+            else
+            {
+                lineRenderer.positionCount = 2;
+                lineRenderer.SetPosition(0, startPos);
+                lineRenderer.SetPosition(1, endPos);
+            }
         }
         else
         {
@@ -513,7 +542,11 @@ public class Frog : FormScript
             .Select(c => c.GetComponent<Interactable>())
             .Where(i => i != null && i.isInteractable && i.HasProperty("Pullable"));
 
-        var all = hookables.Concat(pullables);
+        var unstickables = hookCols
+            .Select(c => c.GetComponent<Interactable>())
+            .Where(i => i != null && i.isInteractable && i.HasProperty("Unstickable"));
+
+        var all = hookables.Concat(pullables).Concat(unstickables);
         var nearest = all
             .OrderBy(i => Vector3.Distance(transform.position, i.transform.position))
             .FirstOrDefault();
@@ -572,6 +605,14 @@ public class Frog : FormScript
                         }
                     }
                 }
+
+                // If no pullables either, check for an unstickable object.
+                if (targetForIcon == null)
+                {
+                    var nearestUnstickable = unstickables.OrderBy(i => Vector3.Distance(transform.position, i.transform.position)).FirstOrDefault();
+                    if (nearestUnstickable != null)
+                        targetForIcon = nearestUnstickable.transform;
+                }
             }
 
             bool shouldShowHookTarget = targetForIcon != null && tongueState == TongueState.Idle;
@@ -606,6 +647,17 @@ public class Frog : FormScript
         // --- Setup ---
         Vector3 facingDir = Player.Instance != null ? Player.Instance.AnimationBasedFacingDirection : Vector3.forward;
 
+        // Trigger the animation based on the current facing direction BEFORE aim-assist
+        // overwrites facingDir with a diagonal toward the target, which would never match
+        // the cardinal-direction equality checks below.
+        bool isFacingFront = facingDir == Vector3.left || facingDir == Vector3.back;
+        // BackLeft = Vector3.forward, BackRight = Vector3.right (from UpdateAnimationBasedDirection)
+        bool isFacingBack = facingDir == Vector3.forward || facingDir == Vector3.right;
+        if (isFacingBack || isFacingFront)
+        {
+            animator?.SetTrigger("Tongue");
+        }
+
         // Aim-assist: if a target is currently highlighted, aim at the same
         // point the hook target icon is placed (CalculateHookPoint) for consistency.
         if (closestObject != null)
@@ -616,14 +668,6 @@ public class Frog : FormScript
             {
                 facingDir = toTarget.normalized;
             }
-        }
-
-        bool isFacingFront = facingDir == Vector3.left || facingDir == Vector3.back;
-        // BackLeft = Vector3.forward, BackRight = Vector3.right (from UpdateAnimationBasedDirection)
-        bool isFacingBack = facingDir == Vector3.forward || facingDir == Vector3.right;
-        if (isFacingBack)
-        {
-            animator?.SetTrigger("Tongue");
         }
 
         tongueState = TongueState.Extending;
@@ -690,6 +734,13 @@ public class Frog : FormScript
                     {
                         tongueHitTarget = hitInfo.transform;
                         tongueState = TongueState.PullRetracting;
+                    }
+                    else if (intr != null && intr.isInteractable && intr.HasProperty("Unstickable"))
+                    {
+                        // Sticker pulled off the wall — destroy it and retract immediately.
+                        AbilityUsed?.Invoke(Transformation.FROG, 2, intr);
+                        Destroy(hitInfo.transform.gameObject);
+                        tongueState = TongueState.Retracting;
                     }
                     else
                     {

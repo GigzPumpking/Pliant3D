@@ -396,7 +396,7 @@ RectTransform:
   m_GameObject: {fileID: 1405122860634385297}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.75, y: 0.75, z: 1}
+  m_LocalScale: {x: 0.6, y: 0.6, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6339521557683436428}
@@ -1568,12 +1568,12 @@ MonoBehaviour:
   grappleBoxCenter: {x: 0, y: 3, z: 5.5}
   grappleBoxSize: {x: 8, y: 6, z: 11}
   hookTarget: {fileID: 1405122860634385297}
-  tongueExtendSpeed: 25
-  tongueRetractSpeed: 20
+  tongueExtendSpeed: 45
+  tongueRetractSpeed: 25
   tongueMaxDistance: 12
-  tongueTipRadius: 0.4
+  tongueTipRadius: 0.24
   grappleReelSpeed: 30
-  pullRetractSpeed: 15
+  pullRetractSpeed: 25
   pullTimeout: 3
   tongueHitLayers:
     serializedVersion: 2
@@ -1706,6 +1706,8 @@ MonoBehaviour:
     m_RotationOrder: 4
   lineRenderer: {fileID: 2437418168144846100}
   useWorldSpace: 1
+  swayAmplitude: 0.12
+  swayFrequency: 8
 --- !u!120 &2437418168144846100
 LineRenderer:
   m_ObjectHideFlags: 0

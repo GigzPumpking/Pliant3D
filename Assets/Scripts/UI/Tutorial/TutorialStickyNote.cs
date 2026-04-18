@@ -24,8 +24,18 @@ public class TutorialStickyNote : MonoBehaviour
         OnHide();
     }
 
-    public IEnumerator CompleteTask()
+    public IEnumerator CompleteTask(AudioData data)
     {
+		//Play Sound
+		if(data != null) AudioManager.Instance.PlayOneShot(data);
+        CompletionStamp?.gameObject.SetActive(true);
+        yield return new WaitForSeconds(1.5f);
+        OnHide();
+    }
+
+	public IEnumerator CompleteTask()
+    {
+		//Play Sound
         CompletionStamp?.gameObject.SetActive(true);
         yield return new WaitForSeconds(1.5f);
         OnHide();

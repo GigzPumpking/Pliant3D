@@ -68,7 +68,7 @@ public class Frog : FormScript
     [SerializeField] private LayerMask tongueHitLayers = ~0;
 
     [Header("Tongue Easing")]
-    [Tooltip("Speed curve for extending. X = normalized distance (0–1), Y = speed multiplier (0–1). Ramps up fast, eases at end.")]
+    [Tooltip("Speed curve for extending. X = normalized distance (0-1), Y = speed multiplier (0–1). Ramps up fast, eases at end.")]
     [SerializeField] private AnimationCurve tongueExtendCurve = new AnimationCurve(
         new Keyframe(0f, 0.2f), new Keyframe(0.15f, 1f), new Keyframe(0.85f, 1f), new Keyframe(1f, 0.3f));
     [Tooltip("Speed curve for retracting (empty). X = normalized distance (0=start, 1=arrived), Y = speed multiplier.")]
@@ -94,10 +94,13 @@ public class Frog : FormScript
     public static event Action<Transformation, int, Interactable> AbilityUsed;
 
     // Tongue state machine
-    private enum TongueState { Idle, Extending, Retracting, PullRetracting, GrappleReeling }
+    private enum TongueState { Idle, Extending, Retracting, PullRetracting, GrappleReeling, UnstickRetracting }
     private TongueState tongueState = TongueState.Idle;
     private Vector3 tongueTipPosition;
     private Vector3 tongueDirection;
+    // Cached facing direction from the last idle frame — insulates tongue firing from
+    // mid-animation sprite transitions that can briefly read as "BackRight" (Vector3.right).
+    private Vector3 cachedFacingDirection = Vector3.forward;
     private GameObject tongueTipObject;
     private Transform tongueHitTarget;
     private Coroutine tongueCoroutine;
@@ -475,6 +478,14 @@ public class Frog : FormScript
         // Don't detect new objects while tongue is active
         if (tongueState == TongueState.Idle)
         {
+            // Cache facing direction only while idle so mid-animation sprite transitions
+            // (which can briefly produce incorrect directions) never affect the next tongue fire.
+            if (Player.Instance != null)
+            {
+                Vector3 dir = Player.Instance.AnimationBasedFacingDirection;
+                if (dir.sqrMagnitude > 0.01f)
+                    cachedFacingDirection = dir;
+            }
             DetectAndHighlightObjects();
         }
         UpdateTongueLine();
@@ -645,7 +656,10 @@ public class Frog : FormScript
     private IEnumerator TongueCoroutine()
     {
         // --- Setup ---
-        Vector3 facingDir = Player.Instance != null ? Player.Instance.AnimationBasedFacingDirection : Vector3.forward;
+        // Use the cached idle-frame direction instead of reading AnimationBasedFacingDirection
+        // live — the tongue animation may already be playing at this point, causing the
+        // sprite-based direction to transiently read as the wrong cardinal (e.g. Vector3.right).
+        Vector3 facingDir = cachedFacingDirection;
 
         // Trigger the animation based on the current facing direction BEFORE aim-assist
         // overwrites facingDir with a diagonal toward the target, which would never match
@@ -737,10 +751,10 @@ public class Frog : FormScript
                     }
                     else if (intr != null && intr.isInteractable && intr.HasProperty("Unstickable"))
                     {
-                        // Sticker pulled off the wall — destroy it and retract immediately.
+                        // Sticker pulled off the wall — drag it toward the frog before destroying.
                         AbilityUsed?.Invoke(Transformation.FROG, 2, intr);
-                        Destroy(hitInfo.transform.gameObject);
-                        tongueState = TongueState.Retracting;
+                        tongueHitTarget = hitInfo.transform;
+                        tongueState = TongueState.UnstickRetracting;
                     }
                     else
                     {
@@ -975,6 +989,122 @@ public class Frog : FormScript
             }
         }
 
+        // === UNSTICK RETRACT PHASE (drag Unstickable to frog, then destroy it) ===
+        else if (tongueState == TongueState.UnstickRetracting && tongueHitTarget != null)
+        {
+            Collider objCol = tongueHitTarget.GetComponent<Collider>();
+            Rigidbody unstickRb = tongueHitTarget.GetComponent<Rigidbody>();
+            bool wasKinematic = false;
+            if (unstickRb != null)
+            {
+                wasKinematic = unstickRb.isKinematic;
+                unstickRb.isKinematic = false;
+                unstickRb.velocity = Vector3.zero;
+                unstickRb.angularVelocity = Vector3.zero;
+                unstickRb.freezeRotation = true;
+            }
+
+            Vector3 pullDest = GetTongueOrigin();
+            Vector3 initialAxis = pullDest - tongueHitTarget.position;
+            initialAxis.y = 0f;
+            float totalUnstickDist = initialAxis.magnitude;
+            Vector3 unstickAxis = totalUnstickDist > 0.01f ? initialAxis / totalUnstickDist : tongueDirection;
+
+            UpdateTongueTipOnObject(objCol);
+
+            float unstickElapsed = 0f;
+
+            while (tongueState == TongueState.UnstickRetracting && tongueHitTarget != null)
+            {
+                unstickElapsed += Time.fixedDeltaTime;
+                if (unstickElapsed >= pullTimeout) break;
+
+                Vector3 origin = GetTongueOrigin();
+                Vector3 toPlayer = origin - tongueHitTarget.position;
+                toPlayer.y = 0f;
+                float remainingDist = toPlayer.magnitude;
+
+                if (remainingDist <= MIN_PULL_DISTANCE) break;
+
+                float retractT = totalUnstickDist > 0.01f
+                    ? Mathf.Clamp01(1f - remainingDist / totalUnstickDist)
+                    : 1f;
+                float easeMul = tongueRetractCurve.Evaluate(retractT);
+                float speed = pullRetractSpeed * easeMul;
+                float step = speed * Time.fixedDeltaTime;
+
+                if (unstickRb != null)
+                {
+                    Vector3 desiredVel = unstickAxis * speed;
+                    desiredVel.y = unstickRb.velocity.y;
+                    unstickRb.velocity = desiredVel;
+                }
+                else
+                {
+                    // No Rigidbody — move transform directly
+                    tongueHitTarget.position = Vector3.MoveTowards(
+                        tongueHitTarget.position, origin, step);
+                }
+
+                UpdateTongueTipOnObject(objCol);
+
+                // Stop when the object physically overlaps the player
+                Collider plrCol = player.GetComponentInChildren<Collider>();
+                if (objCol != null && plrCol != null)
+                {
+                    if (Physics.ComputePenetration(
+                        objCol, objCol.transform.position, objCol.transform.rotation,
+                        plrCol, plrCol.transform.position, plrCol.transform.rotation,
+                        out Vector3 _, out float _))
+                    {
+                        break;
+                    }
+                }
+
+                yield return new WaitForFixedUpdate();
+            }
+
+            // Arrived — destroy the sticker
+            if (unstickRb != null)
+            {
+                unstickRb.velocity = Vector3.zero;
+                unstickRb.angularVelocity = Vector3.zero;
+                unstickRb.freezeRotation = false;
+                unstickRb.isKinematic = wasKinematic;
+            }
+            if (tongueHitTarget != null)
+                Destroy(tongueHitTarget.gameObject);
+            tongueHitTarget = null;
+
+            // Retract tongue visually
+            tongueState = TongueState.Retracting;
+            float unstickRetractDist = Vector3.Distance(tongueTipPosition, GetTongueOrigin());
+            while (tongueState == TongueState.Retracting)
+            {
+                Vector3 retractOrigin = GetTongueOrigin();
+                Vector3 toFrog = retractOrigin - tongueTipPosition;
+                float dist = toFrog.magnitude;
+
+                float retractT = unstickRetractDist > 0.01f
+                    ? Mathf.Clamp01(1f - dist / unstickRetractDist)
+                    : 1f;
+                float speedMul = tongueRetractCurve.Evaluate(retractT);
+                float retractStep = tongueRetractSpeed * speedMul * Time.fixedDeltaTime;
+
+                if (dist <= retractStep)
+                {
+                    tongueTipPosition = retractOrigin;
+                    break;
+                }
+
+                tongueTipPosition += toFrog.normalized * retractStep;
+                if (tongueTipObject != null)
+                    tongueTipObject.transform.position = tongueTipPosition;
+
+                yield return new WaitForFixedUpdate();
+            }
+        }
+
         // === CLEANUP ===
         CleanupTongue();
     }
@@ -1005,6 +1135,20 @@ public class Frog : FormScript
                 pullableRb.isKinematic = originalKinematicState;
             }
             animator?.SetBool("isPulling", false);
+        }
+
+        // Destroy unstickable if cancel interrupted mid-pull
+        if (tongueState == TongueState.UnstickRetracting && tongueHitTarget != null)
+        {
+            Rigidbody unstickRb = tongueHitTarget.GetComponent<Rigidbody>();
+            if (unstickRb != null)
+            {
+                unstickRb.velocity = Vector3.zero;
+                unstickRb.angularVelocity = Vector3.zero;
+                unstickRb.freezeRotation = false;
+                unstickRb.isKinematic = originalKinematicState;
+            }
+            Destroy(tongueHitTarget.gameObject);
         }
 
         // Stop frog movement if grappling
@@ -1075,6 +1219,19 @@ public class Frog : FormScript
                 pullableRb.isKinematic = originalKinematicState;
             }
             animator?.SetBool("isPulling", false);
+        }
+
+        // Destroy unstickable on force-stop
+        if (tongueState == TongueState.UnstickRetracting && tongueHitTarget != null)
+        {
+            Rigidbody unstickRb = tongueHitTarget.GetComponent<Rigidbody>();
+            if (unstickRb != null)
+            {
+                unstickRb.velocity = Vector3.zero;
+                unstickRb.angularVelocity = Vector3.zero;
+                unstickRb.isKinematic = originalKinematicState;
+            }
+            Destroy(tongueHitTarget.gameObject);
         }
 
         if (tongueState == TongueState.GrappleReeling)

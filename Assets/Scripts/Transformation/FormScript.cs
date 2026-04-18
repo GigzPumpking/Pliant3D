@@ -13,6 +13,8 @@ public abstract class FormScript : MonoBehaviour
     protected Animator animator;
 
     [SerializeField] protected AudioData initialSound;
+    [SerializeField] protected AudioData ability1Sound;
+    [SerializeField] protected AudioData ability2Sound;
 
     [SerializeField] protected abstract float baseSpeed { get; set; }
 
@@ -34,6 +36,11 @@ public abstract class FormScript : MonoBehaviour
             }
         }
         
+    }
+
+    protected virtual void PlayAbilitySound(AudioData data)
+    {
+        if(data != null) AudioManager.Instance?.PlayOneShot(data);
     }
     
     public virtual void Awake()

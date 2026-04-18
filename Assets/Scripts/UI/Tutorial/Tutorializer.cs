@@ -24,6 +24,9 @@ public class Tutorializer : MonoBehaviour
     [SerializeField] private Sprite StickyNoteGraphicFallBack;
     [SerializeField] private ObjectiveListing _objectiveListing;
     [SerializeField] private TutorialStickyNote _tutorialStickyNote;
+
+	[Header("SoundFX")]
+	[SerializeField] private AudioData tutorialCompleteSFX;
     private UnityEvent ue;  
     
     private readonly Dictionary<int, Color> _boxColors = new Dictionary<int, Color>()
@@ -121,7 +124,7 @@ public class Tutorializer : MonoBehaviour
     {
         Debug.LogWarning($"Dropping barrier: {exitColliderBox?.gameObject.name}");
         
-        StartCoroutine(_tutorialStickyNote.CompleteTask());
+        StartCoroutine(_tutorialStickyNote.CompleteTask(tutorialCompleteSFX));
         
         //potentially just disable or destroy the entire tutorial area after completion?
         automaticDialogueTrigger.gameObject.SetActive(false);

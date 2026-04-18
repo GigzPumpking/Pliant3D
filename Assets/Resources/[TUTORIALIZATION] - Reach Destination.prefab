@@ -47,7 +47,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   description: 
   isComplete: 0
+  showTally: 0
   onCompleteEvents: []
+  onRestoreEvents: []
   autoCheckChildrenForNodes: 1
   targetLocations: []
 --- !u!1 &6234198497812095852
@@ -113,6 +115,11 @@ MonoBehaviour:
     type: 3}
   _objectiveListing: {fileID: 621427417437859114}
   _tutorialStickyNote: {fileID: 2785142590105209762}
+  tutorialCompleteSFX:
+    clip: {fileID: 8300000, guid: 066436eb0713d45c29605fec90bf1a43, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
 --- !u!1001 &2436027996418935311
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -453,6 +460,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Tutorial Area
+      objectReference: {fileID: 0}
+    - target: {fileID: 8917777897701650908, guid: c0cfc9c4ad6915c41ab6af87a9c0776d,
+        type: 3}
+      propertyPath: m_SortingLayer
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c0cfc9c4ad6915c41ab6af87a9c0776d, type: 3}

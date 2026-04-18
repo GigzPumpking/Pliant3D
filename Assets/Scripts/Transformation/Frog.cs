@@ -405,6 +405,7 @@ public class Frog : FormScript
         Player.Instance?.SetJumpingState(true);
         Player.Instance?.RegisterAirborneImpulse();
         animator?.SetTrigger("Jump");
+		PlayAbilitySound(ability1Sound);
         rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         EventDispatcher.Raise<StressAbility>(new StressAbility());
     }
@@ -651,6 +652,8 @@ public class Frog : FormScript
         // Tongue tip sphere travels outward via SphereCast each physics step.
         float distanceTraveled = 0f;
 
+		//Play sound
+		PlayAbilitySound(ability2Sound);
         while (tongueState == TongueState.Extending)
         {
             // Evaluate extend curve: 0 at launch, 1 at max distance

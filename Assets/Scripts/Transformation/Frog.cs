@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System;
-using UnityEngine.UIElements;   
+using UnityEngine.UI;
 
 public class Frog : FormScript
 {
@@ -82,6 +82,16 @@ public class Frog : FormScript
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private bool useWorldSpace = true;
 
+    [Header("Unstick Minigame")]
+    [Tooltip("Maximum fill value of the unstick bar.")]
+    [SerializeField] private float unstickBarMax = 100f;
+    [Tooltip("How much the bar fills per button press.")]
+    [SerializeField] private float unstickFillPerPress = 25f;
+    [Tooltip("Assign a UI Slider to display the unstick bar (same slot as Bulldozer's stamina slider).")]
+    [SerializeField] private Slider unstickSlider;
+    [Tooltip("(Optional) Canvas Group of the unstick bar UI for alpha control.")]
+    [SerializeField] private CanvasGroup unstickCanvasGroup;
+
     [Header("Tongue Sway")]
     [Tooltip("How far the tongue midpoint sways perpendicular to its direction while extending/retracting.")]
     [SerializeField] private float swayAmplitude = 0.12f;
@@ -89,12 +99,16 @@ public class Frog : FormScript
     [SerializeField] private float swayFrequency = 8f;
 
     private SpriteRenderer _spriteRenderer;
-    
+
+    // Unstick minigame state
+    private float currentUnstickProgress = 0f;
+    private bool unstickButtonPressed = false;
+
     //event raise channel for abilities
     public static event Action<Transformation, int, Interactable> AbilityUsed;
 
     // Tongue state machine
-    private enum TongueState { Idle, Extending, Retracting, PullRetracting, GrappleReeling, UnstickRetracting }
+    private enum TongueState { Idle, Extending, Retracting, PullRetracting, GrappleReeling, UnstickMinigame, UnstickRetracting }
     private TongueState tongueState = TongueState.Idle;
     private Vector3 tongueTipPosition;
     private Vector3 tongueDirection;
@@ -198,6 +212,14 @@ public class Frog : FormScript
             hookTarget.SetActive(false);
         }
 
+        if (unstickSlider != null)
+        {
+            unstickSlider.maxValue = unstickBarMax;
+            unstickSlider.value = 0f;
+        }
+        if (unstickCanvasGroup != null)
+            unstickCanvasGroup.alpha = 0f;
+
         if (lineRenderer == null)
         {
             lineRenderer = gameObject.AddComponent<LineRenderer>();
@@ -248,6 +270,10 @@ public class Frog : FormScript
     public override void OnEnable()
     {
         EventDispatcher.AddListener<TogglePlayerMovement>(ToggleJump);
+        currentUnstickProgress = 0f;
+        unstickButtonPressed = false;
+        if (unstickCanvasGroup != null)
+            unstickCanvasGroup.alpha = 0f;
         base.OnEnable();
     }
 
@@ -375,6 +401,13 @@ public class Frog : FormScript
     {
         if (context.performed)
         {
+            // In unstick minigame: each press fills the bar instead of cancelling
+            if (tongueState == TongueState.UnstickMinigame)
+            {
+                unstickButtonPressed = true;
+                return;
+            }
+
             // If tongue is already active, cancel gracefully (retract back to player)
             if (tongueState != TongueState.Idle)
             {
@@ -754,10 +787,10 @@ public class Frog : FormScript
                     }
                     else if (intr != null && intr.isInteractable && intr.HasProperty("Unstickable"))
                     {
-                        // Sticker pulled off the wall — drag it toward the frog before destroying.
+                        // Tongue reaches the sticker — pause for minigame before pulling.
                         AbilityUsed?.Invoke(Transformation.FROG, 2, intr);
                         tongueHitTarget = hitInfo.transform;
-                        tongueState = TongueState.UnstickRetracting;
+                        tongueState = TongueState.UnstickMinigame;
                     }
                     else
                     {
@@ -992,119 +1025,161 @@ public class Frog : FormScript
             }
         }
 
-        // === UNSTICK RETRACT PHASE (drag Unstickable to frog, then destroy it) ===
-        else if (tongueState == TongueState.UnstickRetracting && tongueHitTarget != null)
+        // === UNSTICK MINIGAME + RETRACT (tongue pauses on Unstickable; fill bar, then pull) ===
+        else if (tongueState == TongueState.UnstickMinigame && tongueHitTarget != null)
         {
             Collider objCol = tongueHitTarget.GetComponent<Collider>();
-            Rigidbody unstickRb = tongueHitTarget.GetComponent<Rigidbody>();
-            bool wasKinematic = false;
-            if (unstickRb != null)
+
+            // --- Minigame phase: player presses the tongue button to fill the bar ---
+            currentUnstickProgress = 0f;
+            unstickButtonPressed = false;
+            if (unstickSlider != null)
             {
-                wasKinematic = unstickRb.isKinematic;
-                unstickRb.isKinematic = false;
-                unstickRb.velocity = Vector3.zero;
-                unstickRb.angularVelocity = Vector3.zero;
-                unstickRb.freezeRotation = true;
+                unstickSlider.maxValue = unstickBarMax;
+                unstickSlider.value = 0f;
+            }
+            if (unstickCanvasGroup != null)
+                unstickCanvasGroup.alpha = 1f;
+
+            while (tongueState == TongueState.UnstickMinigame && tongueHitTarget != null)
+            {
+                UpdateTongueTipOnObject(objCol);
+
+                if (unstickButtonPressed)
+                {
+                    unstickButtonPressed = false;
+                    currentUnstickProgress = Mathf.Min(currentUnstickProgress + unstickFillPerPress, unstickBarMax);
+                    if (unstickSlider != null)
+                        unstickSlider.value = currentUnstickProgress;
+                }
+
+                if (currentUnstickProgress >= unstickBarMax)
+                    break;
+
+                yield return new WaitForFixedUpdate();
             }
 
-            Vector3 pullDest = GetTongueOrigin();
-            Vector3 initialAxis = pullDest - tongueHitTarget.position;
-            initialAxis.y = 0f;
-            float totalUnstickDist = initialAxis.magnitude;
-            Vector3 unstickAxis = totalUnstickDist > 0.01f ? initialAxis / totalUnstickDist : tongueDirection;
+            // Hide bar
+            if (unstickCanvasGroup != null)
+                unstickCanvasGroup.alpha = 0f;
+            if (unstickSlider != null)
+                unstickSlider.value = 0f;
 
-            UpdateTongueTipOnObject(objCol);
-
-            float unstickElapsed = 0f;
-
-            while (tongueState == TongueState.UnstickRetracting && tongueHitTarget != null)
+            // Only pull if bar was fully filled (not cancelled externally)
+            if (tongueHitTarget != null && currentUnstickProgress >= unstickBarMax)
             {
-                unstickElapsed += Time.fixedDeltaTime;
-                if (unstickElapsed >= pullTimeout) break;
+                tongueState = TongueState.UnstickRetracting;
 
-                Vector3 origin = GetTongueOrigin();
-                Vector3 toPlayer = origin - tongueHitTarget.position;
-                toPlayer.y = 0f;
-                float remainingDist = toPlayer.magnitude;
-
-                if (remainingDist <= MIN_PULL_DISTANCE) break;
-
-                float retractT = totalUnstickDist > 0.01f
-                    ? Mathf.Clamp01(1f - remainingDist / totalUnstickDist)
-                    : 1f;
-                float easeMul = tongueRetractCurve.Evaluate(retractT);
-                float speed = pullRetractSpeed * easeMul;
-                float step = speed * Time.fixedDeltaTime;
-
+                Rigidbody unstickRb = tongueHitTarget.GetComponent<Rigidbody>();
+                bool wasKinematic = false;
                 if (unstickRb != null)
                 {
-                    Vector3 desiredVel = unstickAxis * speed;
-                    desiredVel.y = unstickRb.velocity.y;
-                    unstickRb.velocity = desiredVel;
+                    wasKinematic = unstickRb.isKinematic;
+                    unstickRb.isKinematic = false;
+                    unstickRb.velocity = Vector3.zero;
+                    unstickRb.angularVelocity = Vector3.zero;
+                    unstickRb.freezeRotation = true;
                 }
-                else
-                {
-                    // No Rigidbody — move transform directly
-                    tongueHitTarget.position = Vector3.MoveTowards(
-                        tongueHitTarget.position, origin, step);
-                }
+
+                Vector3 pullDest = GetTongueOrigin();
+                Vector3 initialAxis = pullDest - tongueHitTarget.position;
+                initialAxis.y = 0f;
+                float totalUnstickDist = initialAxis.magnitude;
+                Vector3 unstickAxis = totalUnstickDist > 0.01f ? initialAxis / totalUnstickDist : tongueDirection;
 
                 UpdateTongueTipOnObject(objCol);
 
-                // Stop when the object physically overlaps the player
-                Collider plrCol = player.GetComponentInChildren<Collider>();
-                if (objCol != null && plrCol != null)
+                float unstickElapsed = 0f;
+
+                while (tongueState == TongueState.UnstickRetracting && tongueHitTarget != null)
                 {
-                    if (Physics.ComputePenetration(
-                        objCol, objCol.transform.position, objCol.transform.rotation,
-                        plrCol, plrCol.transform.position, plrCol.transform.rotation,
-                        out Vector3 _, out float _))
+                    unstickElapsed += Time.fixedDeltaTime;
+                    if (unstickElapsed >= pullTimeout) break;
+
+                    Vector3 origin = GetTongueOrigin();
+                    Vector3 toPlayer = origin - tongueHitTarget.position;
+                    toPlayer.y = 0f;
+                    float remainingDist = toPlayer.magnitude;
+
+                    if (remainingDist <= MIN_PULL_DISTANCE) break;
+
+                    float retractT = totalUnstickDist > 0.01f
+                        ? Mathf.Clamp01(1f - remainingDist / totalUnstickDist)
+                        : 1f;
+                    float easeMul = tongueRetractCurve.Evaluate(retractT);
+                    float speed = pullRetractSpeed * easeMul;
+                    float step = speed * Time.fixedDeltaTime;
+
+                    if (unstickRb != null)
                     {
+                        Vector3 desiredVel = unstickAxis * speed;
+                        desiredVel.y = unstickRb.velocity.y;
+                        unstickRb.velocity = desiredVel;
+                    }
+                    else
+                    {
+                        // No Rigidbody — move transform directly
+                        tongueHitTarget.position = Vector3.MoveTowards(
+                            tongueHitTarget.position, origin, step);
+                    }
+
+                    UpdateTongueTipOnObject(objCol);
+
+                    // Stop when the object physically overlaps the player
+                    Collider plrCol = player.GetComponentInChildren<Collider>();
+                    if (objCol != null && plrCol != null)
+                    {
+                        if (Physics.ComputePenetration(
+                            objCol, objCol.transform.position, objCol.transform.rotation,
+                            plrCol, plrCol.transform.position, plrCol.transform.rotation,
+                            out Vector3 _, out float _))
+                        {
+                            break;
+                        }
+                    }
+
+                    yield return new WaitForFixedUpdate();
+                }
+
+                // Arrived — destroy the sticker
+                if (unstickRb != null)
+                {
+                    unstickRb.velocity = Vector3.zero;
+                    unstickRb.angularVelocity = Vector3.zero;
+                    unstickRb.freezeRotation = false;
+                    unstickRb.isKinematic = wasKinematic;
+                }
+                if (tongueHitTarget != null)
+                    Destroy(tongueHitTarget.gameObject);
+                tongueHitTarget = null;
+
+                // Retract tongue visually
+                tongueState = TongueState.Retracting;
+                float unstickRetractDist = Vector3.Distance(tongueTipPosition, GetTongueOrigin());
+                while (tongueState == TongueState.Retracting)
+                {
+                    Vector3 retractOrigin = GetTongueOrigin();
+                    Vector3 toFrog = retractOrigin - tongueTipPosition;
+                    float dist = toFrog.magnitude;
+
+                    float retractT = unstickRetractDist > 0.01f
+                        ? Mathf.Clamp01(1f - dist / unstickRetractDist)
+                        : 1f;
+                    float speedMul = tongueRetractCurve.Evaluate(retractT);
+                    float retractStep = tongueRetractSpeed * speedMul * Time.fixedDeltaTime;
+
+                    if (dist <= retractStep)
+                    {
+                        tongueTipPosition = retractOrigin;
                         break;
                     }
+
+                    tongueTipPosition += toFrog.normalized * retractStep;
+                    if (tongueTipObject != null)
+                        tongueTipObject.transform.position = tongueTipPosition;
+
+                    yield return new WaitForFixedUpdate();
                 }
-
-                yield return new WaitForFixedUpdate();
-            }
-
-            // Arrived — destroy the sticker
-            if (unstickRb != null)
-            {
-                unstickRb.velocity = Vector3.zero;
-                unstickRb.angularVelocity = Vector3.zero;
-                unstickRb.freezeRotation = false;
-                unstickRb.isKinematic = wasKinematic;
-            }
-            if (tongueHitTarget != null)
-                Destroy(tongueHitTarget.gameObject);
-            tongueHitTarget = null;
-
-            // Retract tongue visually
-            tongueState = TongueState.Retracting;
-            float unstickRetractDist = Vector3.Distance(tongueTipPosition, GetTongueOrigin());
-            while (tongueState == TongueState.Retracting)
-            {
-                Vector3 retractOrigin = GetTongueOrigin();
-                Vector3 toFrog = retractOrigin - tongueTipPosition;
-                float dist = toFrog.magnitude;
-
-                float retractT = unstickRetractDist > 0.01f
-                    ? Mathf.Clamp01(1f - dist / unstickRetractDist)
-                    : 1f;
-                float speedMul = tongueRetractCurve.Evaluate(retractT);
-                float retractStep = tongueRetractSpeed * speedMul * Time.fixedDeltaTime;
-
-                if (dist <= retractStep)
-                {
-                    tongueTipPosition = retractOrigin;
-                    break;
-                }
-
-                tongueTipPosition += toFrog.normalized * retractStep;
-                if (tongueTipObject != null)
-                    tongueTipObject.transform.position = tongueTipPosition;
-
-                yield return new WaitForFixedUpdate();
             }
         }
 
@@ -1138,6 +1213,14 @@ public class Frog : FormScript
                 pullableRb.isKinematic = originalKinematicState;
             }
             animator?.SetBool("isPulling", false);
+        }
+
+        // Hide bar and release target if minigame was in progress (do not destroy the object)
+        if (tongueState == TongueState.UnstickMinigame)
+        {
+            if (unstickCanvasGroup != null) unstickCanvasGroup.alpha = 0f;
+            if (unstickSlider != null) unstickSlider.value = 0f;
+            tongueHitTarget = null;
         }
 
         // Destroy unstickable if cancel interrupted mid-pull
@@ -1222,6 +1305,13 @@ public class Frog : FormScript
                 pullableRb.isKinematic = originalKinematicState;
             }
             animator?.SetBool("isPulling", false);
+        }
+
+        // Hide bar without destroying if minigame was active (player did not fill bar)
+        if (tongueState == TongueState.UnstickMinigame)
+        {
+            if (unstickCanvasGroup != null) unstickCanvasGroup.alpha = 0f;
+            if (unstickSlider != null) unstickSlider.value = 0f;
         }
 
         // Destroy unstickable on force-stop

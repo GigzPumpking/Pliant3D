@@ -91,6 +91,12 @@ public class Frog : FormScript
     [SerializeField] private Slider unstickSlider;
     [Tooltip("(Optional) Canvas Group of the unstick bar UI for alpha control.")]
     [SerializeField] private CanvasGroup unstickCanvasGroup;
+    [Tooltip("Rate at which the unstick bar drains per second when above 0.")]
+    [SerializeField] private float unstickBarDrainRate = 15f;
+    [Tooltip("Screen-space UI object shown during the minigame. Positioned in screen space above the unstickable object.")]
+    [SerializeField] private GameObject unstickPrompt;
+    [Tooltip("World-space vertical offset above the unstickable object's collider top used when placing the unstick prompt.")]
+    [SerializeField] private float unstickPromptYOffset = 0.5f;
 
     [Header("Tongue Sway")]
     [Tooltip("How far the tongue midpoint sways perpendicular to its direction while extending/retracting.")]
@@ -212,6 +218,9 @@ public class Frog : FormScript
             hookTarget.SetActive(false);
         }
 
+        if (unstickPrompt != null)
+            unstickPrompt.SetActive(false);
+
         if (unstickSlider != null)
         {
             unstickSlider.maxValue = unstickBarMax;
@@ -274,6 +283,8 @@ public class Frog : FormScript
         unstickButtonPressed = false;
         if (unstickCanvasGroup != null)
             unstickCanvasGroup.alpha = 0f;
+        if (unstickPrompt != null)
+            unstickPrompt.SetActive(false);
         base.OnEnable();
     }
 
@@ -1040,30 +1051,51 @@ public class Frog : FormScript
             }
             if (unstickCanvasGroup != null)
                 unstickCanvasGroup.alpha = 1f;
+            if (unstickPrompt != null)
+                unstickPrompt.SetActive(true);
 
             while (tongueState == TongueState.UnstickMinigame && tongueHitTarget != null)
             {
                 UpdateTongueTipOnObject(objCol);
 
+                // Keep prompt positioned above the unstickable object in screen space
+                if (unstickPrompt != null && Camera.main != null)
+                {
+                    Bounds b = objCol != null ? objCol.bounds : new Bounds(tongueHitTarget.position, Vector3.zero);
+                    Vector3 worldTop = new Vector3(tongueHitTarget.position.x, b.max.y + unstickPromptYOffset, tongueHitTarget.position.z);
+                    unstickPrompt.transform.position = Camera.main.WorldToScreenPoint(worldTop);
+                }
+
                 if (unstickButtonPressed)
                 {
                     unstickButtonPressed = false;
                     currentUnstickProgress = Mathf.Min(currentUnstickProgress + unstickFillPerPress, unstickBarMax);
-                    if (unstickSlider != null)
-                        unstickSlider.value = currentUnstickProgress;
                 }
 
+                // Check completion before drain so a button press that reaches 100 isn't undone
                 if (currentUnstickProgress >= unstickBarMax)
+                {
+                    if (unstickSlider != null)
+                        unstickSlider.value = currentUnstickProgress;
                     break;
+                }
+
+                if (currentUnstickProgress > 0f)
+                    currentUnstickProgress = Mathf.Max(0f, currentUnstickProgress - unstickBarDrainRate * Time.fixedDeltaTime);
+
+                if (unstickSlider != null)
+                    unstickSlider.value = currentUnstickProgress;
 
                 yield return new WaitForFixedUpdate();
             }
 
-            // Hide bar
+            // Hide bar and prompt
             if (unstickCanvasGroup != null)
                 unstickCanvasGroup.alpha = 0f;
             if (unstickSlider != null)
                 unstickSlider.value = 0f;
+            if (unstickPrompt != null)
+                unstickPrompt.SetActive(false);
 
             // Only pull if bar was fully filled (not cancelled externally)
             if (tongueHitTarget != null && currentUnstickProgress >= unstickBarMax)

@@ -1292,7 +1292,6 @@ GameObject:
   m_Component:
   - component: {fileID: 222475529}
   - component: {fileID: 222475530}
-  - component: {fileID: 222475531}
   m_Layer: 0
   m_Name: TitleScreen
   m_TagString: Untagged
@@ -1328,20 +1327,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 015e2749c22a54741b4f99feab4e769a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &222475531
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 222475528}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3021560f1922f88469d289b033e4e3ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  audioClip: {fileID: 0}
-  playOnStart: 1
 --- !u!1 &226347480
 GameObject:
   m_ObjectHideFlags: 0
@@ -3794,6 +3779,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   audioClip: {fileID: 8300000, guid: 8b9e8a2acf5cf684abf43e001aa2ed77, type: 3}
   playOnStart: 1
+  playOnce: 1
 --- !u!222 &628647346
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6132,6 +6118,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   audioClip: {fileID: 0}
   playOnStart: 1
+  playOnce: 1
 --- !u!222 &1000049774
 CanvasRenderer:
   m_ObjectHideFlags: 0

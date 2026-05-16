@@ -56,6 +56,8 @@ public class GameManager : KeyActionReceiver<GameManager>
         "11-0 Thanks"
     };
 
+    [HideInInspector] public bool VideoHasPlayed = false;
+
     /// <summary>
     /// Returns true if the current scene allows saving.
     /// </summary>

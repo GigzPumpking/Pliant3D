@@ -106,14 +106,14 @@ public class GamepadCursor : MonoBehaviour
         {
             cursorTransform.gameObject.SetActive(false);
             Cursor.visible = true;
-            currentMouse.WarpCursorPosition(virtualMouse.position.ReadValue());
+            if(currentMouse != null && virtualMouse != null) currentMouse.WarpCursorPosition(virtualMouse.position.ReadValue());
             previousControlScheme = mouseScheme;
         }
         else if (playerInput.currentControlScheme == gamepadScheme && previousControlScheme != gamepadScheme)
         {
             cursorTransform.gameObject.SetActive(true);
             Cursor.visible = false;
-            InputState.Change(virtualMouse.position, currentMouse.position.ReadValue());
+            if(currentMouse != null && virtualMouse != null)  InputState.Change(virtualMouse.position, currentMouse.position.ReadValue());
             AnchorCursor(currentMouse.position.ReadValue());
             previousControlScheme = gamepadScheme;
         }

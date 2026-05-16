@@ -13,7 +13,7 @@ public class GamepadCursor : MonoBehaviour
     private RectTransform cursorTransform;
     [SerializeField]
     private Canvas canvas;
-    [SerializeField] 
+    [SerializeField]
     private RectTransform canvasRectTransform;
     [SerializeField]
     private float cursorSpeed = 1000f;
@@ -110,12 +110,12 @@ public class GamepadCursor : MonoBehaviour
             previousControlScheme = mouseScheme;
         }
         else if (playerInput.currentControlScheme == gamepadScheme && previousControlScheme != gamepadScheme)
-            {
+        {
             cursorTransform.gameObject.SetActive(true);
             Cursor.visible = false;
             InputState.Change(virtualMouse.position, currentMouse.position.ReadValue());
             AnchorCursor(currentMouse.position.ReadValue());
             previousControlScheme = gamepadScheme;
-            }
+        }
     }
 }

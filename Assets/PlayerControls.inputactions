@@ -628,7 +628,7 @@
             "actions": [
                 {
                     "name": "Navigate",
-                    "type": "Value",
+                    "type": "PassThrough",
                     "id": "1984607c-792c-49e1-8249-0f873121ff73",
                     "expectedControlType": "Vector2",
                     "processors": "",
@@ -1017,6 +1017,17 @@
                 },
                 {
                     "name": "",
+                    "id": "a0693a26-5ce4-477f-b34e-05b0e13d7f3a",
+                    "path": "<VirtualMouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Point",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "7e45285f-6d5d-4294-91e4-b12e7ab2d101",
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
@@ -1055,6 +1066,17 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "XR",
+                    "action": "Click",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d8549b63-05d1-4ccf-b4e1-bb0e5bb66be3",
+                    "path": "<VirtualMouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
                     "action": "Click",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -1263,6 +1285,11 @@
                 {
                     "devicePath": "<Gamepad>",
                     "isOptional": false,
+                    "isOR": false
+                },
+                {
+                    "devicePath": "<VirtualMouse>",
+                    "isOptional": true,
                     "isOR": false
                 }
             ]

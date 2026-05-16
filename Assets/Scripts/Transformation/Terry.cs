@@ -21,6 +21,7 @@ public class Terry : FormScript
 
     private SpriteRenderer _bubbleSpriteRenderer;
     private Vector3 _originalBubbleScale;
+    private bool _bubbleScaleInitialized = false;
 
     /// <summary>Called by BurningInteractable via IInteractable.SetInteractBubbleActive.</summary>
     public void SetBurningPromptActive(bool active)
@@ -36,7 +37,16 @@ public class Terry : FormScript
 
         if (burningInteractBubble != null)
         {
-            _originalBubbleScale = burningInteractBubble.transform.localScale;
+            if (!_bubbleScaleInitialized)
+            {
+                _originalBubbleScale = burningInteractBubble.transform.localScale;
+                _bubbleScaleInitialized = true;
+            }
+            else
+            {
+                // Reset scale in case it was left at a modified value before this OnEnable
+                burningInteractBubble.transform.localScale = _originalBubbleScale;
+            }
             burningInteractBubble.SetActive(false);
         }
     }

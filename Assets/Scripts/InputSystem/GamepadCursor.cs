@@ -99,6 +99,7 @@ public class GamepadCursor : MonoBehaviour
         cursorTransform.anchoredPosition = anchoredPosition;
     }
 
+    
     private void OnControlsChanged(PlayerInput input)
     {
         if (playerInput.currentControlScheme == mouseScheme && previousControlScheme != mouseScheme)

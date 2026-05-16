@@ -1,17 +1,20 @@
+using System.Collections;
 using UnityEngine;
 
 /// <summary>
 /// An interactable for objects that are on fire. Only Terry can extinguish them,
-/// and only while Terry.HasFireExtinguisher is true. Extinguishing causes the
-/// object to disappear (SetActive false).
-/// Add a "Burning" InteractableProperty in the Inspector if you need other systems
-/// to identify this object by that tag; the extinguish logic here is self-contained.
+/// and only while Terry.HasFireExtinguisher is true. On extinguish the child
+/// animation object plays its Extinguish trigger, then the whole object is hidden.
 /// </summary>
 public class BurningInteractable : MonoBehaviour, IInteractable
 {
     [Header("Interaction Settings")]
     [Tooltip("Maximum distance from which the player can interact. Set to 0 to use the global default.")]
     [SerializeField] private float interactionDistance = 10f;
+
+    [Header("Extinguish Animation")]
+    [Tooltip("Child GameObject with an Animator that has an 'Extinguish' trigger. Shown in place of the fire while the animation plays.")]
+    [SerializeField] private GameObject extinguishAnimObject;
 
     private bool _isExtinguished = false;
 
@@ -49,6 +52,22 @@ public class BurningInteractable : MonoBehaviour, IInteractable
             InteractionManager.Instance.Unregister(this);
 
         Debug.Log($"[BurningInteractable] {gameObject.name} was extinguished.");
+
+        if (extinguishAnimObject != null)
+            StartCoroutine(ExtinguishAnimCoroutine());
+        else
+            gameObject.SetActive(false);
+    }
+
+    private IEnumerator ExtinguishAnimCoroutine()
+    {
+        extinguishAnimObject.SetActive(true);
+
+        Animator anim = extinguishAnimObject.GetComponent<Animator>();
+        if (anim != null)
+            anim.SetTrigger("Extinguish");
+
+        yield return new WaitForSeconds(9f);
 
         gameObject.SetActive(false);
     }

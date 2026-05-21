@@ -16,6 +16,10 @@ public class LevelIntroDialogueManager : MonoBehaviour
     //  Data
     // -------------------------------------------------------------------------
 
+    [Header("Dialogue Portrait")]
+    [Tooltip("Sprite to display in the dialogue box portrait image when this NPC speaks.")]
+    [SerializeField] private Sprite npcPortrait;
+
     [System.Serializable]
     public class LevelDialogue
     {
@@ -141,5 +145,6 @@ public class LevelIntroDialogueManager : MonoBehaviour
         dialogue.SetDialogueEntries(levelDialogue.dialogueEntries);
         _activeFirstEntry = levelDialogue.dialogueEntries[0].defaultText;
         dialogue.Appear();
+        dialogue.SetPortrait(npcPortrait);
     }
 }

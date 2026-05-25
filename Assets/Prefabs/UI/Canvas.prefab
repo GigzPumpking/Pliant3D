@@ -288,7 +288,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2804898386289280725
 RectTransform:
   m_ObjectHideFlags: 0
@@ -709,7 +709,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1530547159263034101
 RectTransform:
   m_ObjectHideFlags: 0
@@ -747,7 +747,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &4004870837191506305
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1113,7 +1113,6 @@ RectTransform:
   - {fileID: 3912074288048712510}
   - {fileID: 2391279421145443406}
   - {fileID: 6756029574908447664}
-  - {fileID: 5789557461896784365}
   m_Father: {fileID: 2688863442393495803}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1293,7 +1292,7 @@ GameObject:
   - component: {fileID: 5789557461896784365}
   - component: {fileID: 8367931839930149655}
   m_Layer: 5
-  m_Name: Toggle
+  m_Name: AutoSave-Toggle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1306,19 +1305,19 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1483496322917160179}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7255112207169892569}
   - {fileID: 7807342663310291270}
-  m_Father: {fileID: 6627596925596283535}
-  m_RootOrder: 10
+  m_Father: {fileID: 8099374174947672854}
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -312, y: -419}
+  m_AnchoredPosition: {x: 155, y: -403.00003}
   m_SizeDelta: {x: 160, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &8367931839930149655
@@ -1398,7 +1397,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3246515424989563211
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4261,7 +4260,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &8035190620328693820
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5090,7 +5089,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &9169708925388956831
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6348,7 +6347,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6918812426288946563
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6773,7 +6772,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &208411866701086552
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7750,6 +7749,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: DayBanner
+      objectReference: {fileID: 0}
+    - target: {fileID: 4740985890095223299, guid: bb6763022e2907045984df81f47235aa,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8148653810235234408, guid: bb6763022e2907045984df81f47235aa,
         type: 3}

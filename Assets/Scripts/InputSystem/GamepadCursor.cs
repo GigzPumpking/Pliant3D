@@ -102,6 +102,7 @@ public class GamepadCursor : MonoBehaviour
     
     private void OnControlsChanged(PlayerInput input)
     {
+        // If player is currently using mouse & keyboard and wasn't before (so doesn't update more than needed) set gamepad cursor inactive and system cursor visible
         if (playerInput.currentControlScheme == mouseScheme && previousControlScheme != mouseScheme)
         {
             cursorTransform.gameObject.SetActive(false);
@@ -109,12 +110,13 @@ public class GamepadCursor : MonoBehaviour
             if(currentMouse != null && virtualMouse != null) currentMouse.WarpCursorPosition(virtualMouse.position.ReadValue());
             previousControlScheme = mouseScheme;
         }
+        // If player is currently using gamepad and wasn't before (so doesn't update more than needed) set gamepad cursor active and system cursor invisible
         else if (playerInput.currentControlScheme == gamepadScheme && previousControlScheme != gamepadScheme)
         {
             cursorTransform.gameObject.SetActive(true);
             Cursor.visible = false;
             if(currentMouse != null && virtualMouse != null)  InputState.Change(virtualMouse.position, currentMouse.position.ReadValue());
-            AnchorCursor(currentMouse.position.ReadValue());
+            if (currentMouse != null) AnchorCursor(currentMouse.position.ReadValue());
             previousControlScheme = gamepadScheme;
         }
     }

@@ -91,4 +91,10 @@ public class NewSceneChecker : MonoBehaviour
     {
         Application.Quit();
     }
+
+    public void GoToMainMenu()
+    {
+        UIManager.Instance?.FadeOut();
+        SceneManager.LoadScene("0 Main Menu");
+    }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class InputManager : MonoBehaviour
 {
@@ -37,6 +38,7 @@ public class InputManager : MonoBehaviour
 
         InitializeInputActions();
         InputSystem.onDeviceChange += OnDeviceChange;
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void InitializeInputActions()
@@ -60,12 +62,24 @@ public class InputManager : MonoBehaviour
             return;
 
         InputSystem.onDeviceChange -= OnDeviceChange;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
 
         foreach (var action in actionMap.Values)
         {
             action.performed -= OnActionPerformed;
             action.canceled -= OnActionPerformed;
             action.Disable();
+        }
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // PlayerInput/UI may disable shared action maps during scene transitions.
+        // Ensure our actions are re-enabled for gameplay scenes.
+        foreach (var action in actionMap.Values)
+        {
+            if (!action.enabled)
+                action.Enable();
         }
     }
 

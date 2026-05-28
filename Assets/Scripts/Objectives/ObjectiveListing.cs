@@ -17,7 +17,7 @@ public class ObjectiveListing : MonoBehaviour {
     [Header("Objectives & Status")]
     public List<Objective> objectives = new();
     public bool isComplete;
-    [SerializeField] private List<UnityEvent> onCompletionEvents;
+    [SerializeField] private List<UnityEvent> onCompletionEvents = new();
     
     public static event Action<ObjectiveListing> OnObjectiveListingComplete;
     public static Dictionary<Objective, ObjectiveUI> ObjectiveToUI = new();
@@ -62,6 +62,7 @@ public class ObjectiveListing : MonoBehaviour {
         TransformationSwapInteractObjective.OnObjectiveComplete += SetCompletionOfObjective;
         FetchObjective.OnObjectiveComplete += SetCompletionOfObjective;
         AbilityPerformedObjective.OnObjectiveComplete += SetCompletionOfObjective;
+        CustomEventObjective.OnObjectiveComplete += SetCompletionOfObjective;
         //add logic for the other strategies too
     }
 
@@ -73,34 +74,48 @@ public class ObjectiveListing : MonoBehaviour {
         TransformationSwapInteractObjective.OnObjectiveComplete -= SetCompletionOfObjective;
         FetchObjective.OnObjectiveComplete -= SetCompletionOfObjective;
         AbilityPerformedObjective.OnObjectiveComplete -= SetCompletionOfObjective;
+        CustomEventObjective.OnObjectiveComplete -= SetCompletionOfObjective;
     }
 
     private void CheckCompletion() {
+        if (isComplete) return;
+        if (objectives == null || objectives.Count == 0) return;
+
         foreach (Objective objective in objectives)
         {
-            if (!objective.isComplete) return;
+            if (!objective || !objective.isComplete)
+            {
+                return;
+            }
         }
 
         isComplete = true;
-        
+
         OnObjectiveListingComplete?.Invoke(this);
         InvokeOnCompleteEvents();
-        //will get listened to by 'ObjectiveTracker.cs', will play corresponding animation
     }
     
     //VERY inefficient for now
     private void SetCompletionOfObjective(Objective objective) {
-        if (objectives.Contains(objective))
+        int index = objectives.IndexOf(objective);
+
+        if (index < 0)
         {
-            //handle the animations
-            //bad for now
-            if(objectiveUIList.Any()) objectiveUIList.ElementAt(objectives.IndexOf(objective)).OnComplete();
+            return;
         }
+
+        if (objectiveUIList.Count > index && objectiveUIList[index])
+        {
+            objectiveUIList[index].OnComplete();
+        }
+
         CheckCompletion();
     }
 
     private void InvokeOnCompleteEvents()
     {
+        if (onCompletionEvents == null) return;
+        
         foreach (UnityEvent ev in this.onCompletionEvents)
         {
             ev?.Invoke();

@@ -92,6 +92,7 @@ public class GamepadCursor : MonoBehaviour
 
     private void AnchorCursor(Vector2 position)
     {
+        if(!canvas || !canvasRectTransform) return;
         Vector2 anchoredPosition;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             canvasRectTransform, position, canvas.renderMode

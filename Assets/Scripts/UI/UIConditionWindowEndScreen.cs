@@ -34,6 +34,9 @@ public class UIConditionWindowEndScreen : MonoBehaviour
     public void SetScoreText()
     {
         if (!GameManager.Instance) return;
-        ScoreText.text = (GameManager.Instance?.GetRatioOfTasksCompleted() * 100) + "%";
+        float ratio = GameManager.Instance.GetRatioOfTasksCompleted() * 100;
+        int roundedUp = Mathf.RoundToInt(ratio);
+        
+        ScoreText.text = roundedUp.ToString() + "%";
     }
 }

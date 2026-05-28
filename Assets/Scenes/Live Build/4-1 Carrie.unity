@@ -3104,6 +3104,8 @@ MonoBehaviour:
   onRestoreEvents: []
   ObjectsToFetch:
   - {fileID: 1887301568}
+  questGiver: {fileID: 0}
+  fetchedObjectiveDescription: 
   requiresNPCReturn: 1
   itemsReadyDialogue:
   - defaultText: You found it! Thank you so much!
@@ -6606,7 +6608,7 @@ Transform:
   m_Children:
   - {fileID: 597364615}
   - {fileID: 1112463489}
-  - {fileID: 365195394}
+  - {fileID: 907287010}
   - {fileID: 519165711}
   - {fileID: 113109762}
   m_Father: {fileID: 0}
@@ -9265,63 +9267,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 364571500}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &365195393
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 365195394}
-  - component: {fileID: 365195395}
-  m_Layer: 0
-  m_Name: Collect all stickers
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &365195394
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 365195393}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 247037571}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &365195395
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 365195393}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e78fa1f98df147608c9afc39f7c45598, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  description: Collect stickers
-  isComplete: 0
-  showTally: 1
-  onCompleteEvents: []
-  onRestoreEvents: []
-  whichForm: 01000000
-  whichAbility: 2
-  whichInteractable:
-  - {fileID: 961042247}
-  - {fileID: 881522505}
-  - {fileID: 878076646}
-  - {fileID: 1629247745}
-  hideCompletedInteractablesOnRestore: 1
 --- !u!1 &366880441 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2688863442393495800, guid: f09abbff6e9a448cab6f233042637973,
@@ -12255,7 +12200,17 @@ PrefabInstance:
         type: 3}
       propertyPath: objectiveToGive.Array.data[0]
       value: 
-      objectReference: {fileID: 365195395}
+      objectReference: {fileID: 907287011}
+    - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+        type: 3}
+      propertyPath: objectiveToGive.Array.data[1]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+        type: 3}
+      propertyPath: objectiveToGive.Array.data[2]
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: baseDialogue.Array.data[0].defaultText
@@ -12810,6 +12765,8 @@ MonoBehaviour:
   onRestoreEvents: []
   ObjectsToFetch:
   - {fileID: 2050788125}
+  questGiver: {fileID: 1823953089}
+  fetchedObjectiveDescription: Return item to CHANDLER
   requiresNPCReturn: 1
   itemsReadyDialogue:
   - defaultText: You found it! Thank you so much!
@@ -14974,7 +14931,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &597364615
 Transform:
   m_ObjectHideFlags: 0
@@ -15007,7 +14964,7 @@ MonoBehaviour:
   showTally: 0
   onCompleteEvents: []
   onRestoreEvents: []
-  npcToInteractWith: {fileID: 0}
+  npcToInteractWith: {fileID: 2094526556}
 --- !u!1001 &598832686
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18891,7 +18848,7 @@ PrefabInstance:
         type: 3}
       propertyPath: objectiveToGive.Array.data[0]
       value: 
-      objectReference: {fileID: 1823953088}
+      objectReference: {fileID: 519165712}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: baseDialogue.Array.data[0].defaultText
@@ -23079,6 +23036,61 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 905040929}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &907287009
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 907287010}
+  - component: {fileID: 907287011}
+  m_Layer: 0
+  m_Name: Collect all stickers
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &907287010
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 907287009}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 247037571}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &907287011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 907287009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e4bc7c6a5dd4caeadf2f8d323874ffc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  description: Collect all stickers
+  isComplete: 0
+  showTally: 1
+  onCompleteEvents: []
+  onRestoreEvents: []
+  ObjectiveObjects:
+  - {fileID: 961042246}
+  - {fileID: 881522504}
+  - {fileID: 878076645}
+  - {fileID: 1629247744}
+  hideCompletedInteractablesOnRestore: 1
 --- !u!4 &909500692 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1070439015040466526, guid: 60b448caeaff3dc4d9f7e246339f76c2,
@@ -46998,53 +47010,24 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1817138650}
   m_Mesh: {fileID: -6374362171028808858, guid: a9ccc087e3ca0b2478a55217d5155894, type: 3}
---- !u!1 &1823953086 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3493604527745461608, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
-    type: 3}
-  m_PrefabInstance: {fileID: 753165910}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1823953087 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3493604527745461603, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
     type: 3}
   m_PrefabInstance: {fileID: 753165910}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1823953088
+--- !u!114 &1823953089 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+    type: 3}
+  m_PrefabInstance: {fileID: 753165910}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1823953086}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fc2e1fd64d74c8e87394d0a781889e5, type: 3}
+  m_Script: {fileID: 11500000, guid: 4b3bf43e44d6246e8a2a29751ea654ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  description: Fetch Task
-  isComplete: 0
-  showTally: 0
-  onCompleteEvents: []
-  onRestoreEvents: []
-  ObjectsToFetch:
-  - {fileID: 2050788125}
-  requiresNPCReturn: 1
-  itemsReadyDialogue:
-  - defaultText: Perfect! This is exactly what I'm looking for!
-    hasDeviceSpecificText: 0
-    keyboardText: 
-    controllerText: 
-  questCompleteDialogue:
-  - defaultText: You did a great job handling the **FETCH TASK!**
-    hasDeviceSpecificText: 0
-    keyboardText: 
-    controllerText: 
-  useAlternateNPC: 0
-  alternateNPC: {fileID: 0}
-  alternateItemsReadyDialogue: []
-  alternateQuestCompleteDialogue: []
-  fetchedAll: 0
 --- !u!1001 &1827821812
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -48338,7 +48321,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dc3b26dc2e84378b9f2dffb5c29867a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectiveListingPrefab: {fileID: 0}
+  objectiveListingPrefab: {fileID: 5255057810303734648, guid: 6abde08700902ba47ac9357e6ee789c5,
+    type: 3}
   objectiveUIList: []
   objectives:
   - {fileID: 597364616}
@@ -53284,7 +53268,7 @@ MonoBehaviour:
   controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}
   interactionDistance: 0
   fetchDialogue:
-  - defaultText: Push-pin acquired. **RETURN ITEM TO NPC 2.**
+  - defaultText: Push-pin acquired. **RETURN YELLOW PUSH-PIN TO CHANDLER.**
     hasDeviceSpecificText: 0
     keyboardText: 
     controllerText: 

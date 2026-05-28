@@ -17,7 +17,11 @@ public class NPCInteractObjective : Objective {
 
     private void CheckCompletion(DialogueTrigger trigger)
     {
-        if (trigger != npcToInteractWith) return;
+        if (trigger != npcToInteractWith)
+        {
+            Debug.LogWarning($"Spoke with {trigger.gameObject.name} but need to speak with {npcToInteractWith.gameObject.name} to complete objective.");
+            return;
+        }
         isComplete = true;
         OnObjectiveComplete?.Invoke(this);
         InvokeCompletionEvents();

@@ -47,6 +47,7 @@ public class SceneSelectionTrigger : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             Debug.Log("Player entered the trigger. Attempting to show scene selection panel.");
+            EventDispatcher.Raise(new NewSceneLoaded());
             ShowAndPopulatePanel();
         }
     }

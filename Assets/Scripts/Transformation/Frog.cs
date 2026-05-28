@@ -1169,7 +1169,7 @@ public class Frog : FormScript
                             break;
                         }
                     }
-
+                    
                     yield return new WaitForFixedUpdate();
                 }
 
@@ -1181,9 +1181,20 @@ public class Frog : FormScript
                     unstickRb.freezeRotation = false;
                     unstickRb.isKinematic = wasKinematic;
                 }
+
                 if (tongueHitTarget != null)
+                {
+                    GameObject pulledObject = tongueHitTarget.gameObject;
+                    if (CustomEventObjective.TryCompleteAnyForObject(pulledObject, out CustomEventObjective completedObjective))
+                    {
+                        Debug.Log($"Pulled object '{pulledObject.name}' counted toward objective '{completedObjective.description}'.");
+                    }
                     Destroy(tongueHitTarget.gameObject);
+                }
+
                 tongueHitTarget = null;
+                
+                Debug.LogWarning("Right here");
 
                 // Retract tongue visually
                 tongueState = TongueState.Retracting;

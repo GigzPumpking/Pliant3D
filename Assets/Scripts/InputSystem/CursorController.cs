@@ -30,7 +30,8 @@ public class CursorController : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            //TODO: Possibly uncomment if Cursor controller stays active between scenes (active during pause menu) will need to creat fuctionality to reattach serialized fields between scenes
+            //DontDestroyOnLoad(gameObject);
         }
         else
         {

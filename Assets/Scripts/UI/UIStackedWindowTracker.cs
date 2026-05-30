@@ -58,7 +58,8 @@ public class UIStackedWindowTracker : MonoBehaviour
         if (_recalibrateNextFrame)
         {
             _recalibrateNextFrame = false;
-            RecalibrateCurrentSelected();
+            //TODO: Turned off since navigation is handled by cursor now. Uncomment if direction nav returns.
+            //RecalibrateCurrentSelected();
         }
 
         // If there's a deferred select target, attempt to set it. Try for a few frames in case UI isn't ready yet.

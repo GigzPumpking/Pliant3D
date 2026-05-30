@@ -8,9 +8,10 @@ public class UIPopUpWindow : MonoBehaviour
 
     public void Awake()
     {
+        //TODO: Turned off since navigation is handled by cursor now. Uncomment if direction nav returns.
         //Try to find the default button if it wasn't assigned in the inspector
         //this will neccessitate null checks for this variable
-        if (!defaultButton) GetComponentInChildren<Button>(true);
+        // if (!defaultButton) GetComponentInChildren<Button>(true);
 	
     }
     public void OnEnable()

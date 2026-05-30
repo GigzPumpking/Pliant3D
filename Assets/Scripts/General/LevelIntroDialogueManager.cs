@@ -58,6 +58,9 @@ public class LevelIntroDialogueManager : MonoBehaviour
     // used to match the EndDialogue event raised by Dialogue.cs.
     private string _activeFirstEntry = null;
 
+    // Cached reference to Terry's Animator so we can check when the Tired animation finishes.
+    private Animator _terryAnimator;
+
     // -------------------------------------------------------------------------
     //  Unity lifecycle
     // -------------------------------------------------------------------------
@@ -105,12 +108,34 @@ public class LevelIntroDialogueManager : MonoBehaviour
 
     private void OnEndDialogue(EndDialogue e)
     {
-        // Dialogue.cs already raises TogglePlayerMovement { isEnabled = true } on the last
-        // line, so movement is re-enabled automatically. We only need to clear our state.
         if (_activeFirstEntry == null || e.someEntry != _activeFirstEntry)
             return;
 
         _activeFirstEntry = null;
+
+        // If the Tired animation is still playing when the dialogue ends, keep movement
+        // locked until the animation finishes (Dialogue.cs re-enables movement after this
+        // callback, so we wait one frame and then re-block).
+        if (_terryAnimator != null &&
+            _terryAnimator.GetCurrentAnimatorStateInfo(0).IsName("FrontLeft_Tired_Terry"))
+        {
+            StartCoroutine(WaitForTiredAnimationToFinish());
+        }
+    }
+
+    private IEnumerator WaitForTiredAnimationToFinish()
+    {
+        // Yield one frame so Dialogue.cs's TogglePlayerMovement { isEnabled = true } fires first.
+        yield return null;
+
+        // Re-block movement while the Tired animation is still running.
+        EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = false });
+
+        yield return new WaitUntil(() =>
+            _terryAnimator == null ||
+            !_terryAnimator.GetCurrentAnimatorStateInfo(0).IsName("FrontLeft_Tired_Terry"));
+
+        EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
     }
 
     // -------------------------------------------------------------------------
@@ -127,8 +152,8 @@ public class LevelIntroDialogueManager : MonoBehaviour
 
         // Fire the "Tired" trigger on Terry's animator now that the transformation has
         // been reset to TERRY by the NewSceneLoaded handler.
-        Animator terryAnimator = Player.Instance.transform.Find("Terry")?.GetComponentInChildren<Animator>();
-        terryAnimator?.SetTrigger("Tired");
+        _terryAnimator = Player.Instance.transform.Find("Terry")?.GetComponentInChildren<Animator>();
+        _terryAnimator?.SetTrigger("Tired");
 
         Dialogue dialogue = UIManager.Instance.returnDialogue();
         if (dialogue == null || dialogue.IsActive())

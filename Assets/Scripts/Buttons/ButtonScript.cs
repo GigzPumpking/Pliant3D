@@ -6,6 +6,9 @@ public abstract class ButtonScript : MonoBehaviour
 {
     private Animator animator;
 
+    /// <summary>True once Press() has been called at least once.</summary>
+    public bool HasBeenTriggered { get; private set; }
+
     void Start()
     {
         animator = GetComponent<Animator>();
@@ -16,6 +19,7 @@ public abstract class ButtonScript : MonoBehaviour
     {
         if (animator == null) animator = GetComponent<Animator>();
         animator.SetTrigger("Press");
+        HasBeenTriggered = true;
         OnPress();
     }
 

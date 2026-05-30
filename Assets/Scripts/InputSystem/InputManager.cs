@@ -141,6 +141,18 @@ public class InputManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Check if an input action is currently pressed/held down.
+    /// </summary>
+    public bool IsActionPressed(string actionName)
+    {
+        if (actionMap.TryGetValue(actionName, out var action))
+        {
+            return action.IsPressed();
+        }
+        return false;
+    }
+
     // Utility to retrieve a value from an action (e.g., for axis values).
     public T GetActionValue<T>(string actionName) where T : struct
     {

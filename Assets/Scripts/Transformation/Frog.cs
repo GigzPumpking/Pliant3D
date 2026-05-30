@@ -91,6 +91,10 @@ public class Frog : FormScript
     [SerializeField] private Slider unstickSlider;
     [Tooltip("(Optional) Canvas Group of the unstick bar UI for alpha control.")]
     [SerializeField] private CanvasGroup unstickCanvasGroup;
+
+    public Slider UnstickSlider => unstickSlider;
+    public CanvasGroup UnstickCanvasGroup => unstickCanvasGroup;
+
     [Tooltip("Rate at which the unstick bar drains per second when above 0.")]
     [SerializeField] private float unstickBarDrainRate = 15f;
     [Tooltip("Screen-space UI object shown during the minigame. Positioned in screen space above the unstickable object.")]

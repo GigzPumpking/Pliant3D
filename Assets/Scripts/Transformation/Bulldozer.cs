@@ -71,6 +71,10 @@ public class Bulldozer : FormScript
 
     [Tooltip("(Optional) Assign the Canvas Group of the stamina UI to allow fading.")]
     [SerializeField] private CanvasGroup staminaCanvasGroup;
+
+    public Slider StaminaSlider => staminaSlider;
+    public CanvasGroup StaminaCanvasGroup => staminaCanvasGroup;
+
     [Tooltip("How long to wait after stamina is full before fading the bar out.")]
     [SerializeField] private float staminaFadeOutDelay = 1.0f;
     [Tooltip("How long the fade-out animation takes.")]

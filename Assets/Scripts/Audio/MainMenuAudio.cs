@@ -22,7 +22,7 @@ public class MainMenuAudio : MonoBehaviour
     public void PlayGame(PlayGame e)
     {
         StopBackground();
-        PlaySound("Main Menu Play", audioSource);
+        //PlaySound("Main Menu Play", audioSource);
     }
 
     public void QuitGame(QuitGame e)

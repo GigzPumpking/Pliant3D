@@ -113,7 +113,7 @@ public class GameManager : KeyActionReceiver<GameManager>
     {
         if (AudioManager.Instance != null)
         {
-            if (AudioManager.Instance.playOnAwake)
+            if (AudioManager.Instance.playOnAwake && !AudioManager.Instance.IsMusicPlaying())
             {
                 //Handle Music Carryover between scenes
                 instance.mainTheme = this.mainTheme;
@@ -221,16 +221,19 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     public void AddQueuedTaskComplete()
     {
+        Debug.LogWarning("Adding Queued Task Complete");
         _queuedTasksCompleted++;
     }
 
     public void AddQueuedTaskAssigned()
     {
+        Debug.LogWarning("Adding Queued Task Assign");
         _queuedTasksAssigned++;
     }
     
     public void SetNumTasksAssigned(int num)
     {
+        Debug.LogWarning("Adding Task Assigned");
         _numTasksAssigned = num;
     }
 
@@ -246,6 +249,7 @@ public class GameManager : KeyActionReceiver<GameManager>
     
     public void SetNumTasksCompleted(int num)
     {
+        Debug.LogWarning("Adding Task Complete");
         _numTasksCompleted = num;
     }
 
@@ -267,7 +271,8 @@ public class GameManager : KeyActionReceiver<GameManager>
     public float GetRatioOfTasksCompleted()
     {
         if (_numTasksAssigned == 0) return 0;
-        return ((float)_numTasksCompleted / _numTasksAssigned );
+                
+        return (float)_numTasksCompleted/ (float)_numTasksAssigned;
     }
     
     public float GetPromotionRatio()
@@ -367,10 +372,6 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     private void OnNewSceneLoaded(NewSceneLoaded e)
     {
-        //IF A PREVIOUS SCENE HAS NOT BEEN SET,
-        if (prevSceneStr == "") prevSceneStr = SceneManager.GetActiveScene().name;
-        else prevSceneStr = currSceneStr;
-        
         currSceneStr = SceneManager.GetActiveScene().name;
 
         Debug.LogWarning("Loaded ");
@@ -379,13 +380,14 @@ public class GameManager : KeyActionReceiver<GameManager>
 
         if (prevSceneStr != currSceneStr)
         {
-            _numTasksCompleted += _queuedTasksCompleted;
-            _numTasksAssigned += _queuedTasksAssigned;
+            SetNumTasksCompleted(_numTasksCompleted + _queuedTasksCompleted);
+            SetNumTasksAssigned(_numTasksAssigned + _queuedTasksAssigned);
         }
         //RESET QUEUED
         _queuedTasksCompleted = 0;
         _queuedTasksAssigned = 0;
-
+        
+        prevSceneStr = SceneManager.GetActiveScene().name;
 
         if (!AutoSaveEnabled) return;
 

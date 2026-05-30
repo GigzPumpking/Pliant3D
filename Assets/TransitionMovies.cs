@@ -36,7 +36,7 @@ public class TransitionMovies : MonoBehaviour
         yield return new WaitWhile(() => videoPlayer.isPlaying);
         Debug.LogWarning("Playing video complete");
         gameObject.SetActive(false);
-        AudioManager.Instance?.PlayMainTheme();
+        if(!AudioManager.Instance.IsMusicPlaying()) AudioManager.Instance?.PlayMainTheme();
         yield return null;
     }
 

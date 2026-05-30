@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class Terry : FormScript
 {
@@ -18,6 +19,15 @@ public class Terry : FormScript
     [SerializeField] private GameObject burningInteractBubble;
     [SerializeField] private Sprite keyboardSprite;
     [SerializeField] private Sprite controllerSprite;
+
+    [Header("Extinguish Progress Bar")]
+    [Tooltip("Slider displayed beneath Terry to show hold-to-extinguish progress. Assign the slider that is a child of Terry's world-space canvas.")]
+    [SerializeField] private Slider extinguishProgressSlider;
+    [Tooltip("(Optional) Canvas Group on the slider's parent for alpha fade in/out.")]
+    [SerializeField] private CanvasGroup extinguishProgressCanvasGroup;
+
+    public Slider ExtinguishProgressSlider => extinguishProgressSlider;
+    public CanvasGroup ExtinguishProgressCanvasGroup => extinguishProgressCanvasGroup;
 
     private SpriteRenderer _bubbleSpriteRenderer;
     private Vector3 _originalBubbleScale;

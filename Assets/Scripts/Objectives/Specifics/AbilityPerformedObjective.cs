@@ -29,7 +29,6 @@ public class AbilityPerformedObjective : Objective
 
     private void OnEnable()
     {
-        
         Bulldozer.AbilityUsed += CheckCompletion;
         Frog.AbilityUsed += CheckCompletion;
     }

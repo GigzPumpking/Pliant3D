@@ -190,13 +190,6 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
         dialogue.SetPortrait(npcPortrait);
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = false });
         
-        // Raise interact event with this as the quest giver for objectives to listen
-        Interact thisInteract = new Interact();
-        thisInteract.questGiver = this;
-        EventDispatcher.Raise<Interact>(thisInteract);
-        
-        InteractedObjective?.Invoke(this);
-        
         // Hide interact bubble during dialogue
         SetInteractBubbleActive(false);
     }
@@ -226,6 +219,7 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
         }
         
         EventDispatcher.AddListener<EndDialogue>(OnEndDialogue);
+        
         
         if (interactBubble != null)
         {
@@ -351,32 +345,58 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
 
     void OnEndDialogue(EndDialogue e) 
     {
-        // Reset triggered state so the NPC can be interacted with again
+        // Only the NPC that started the current dialogue should handle this.
+        if (!triggered) return;
+
+        // Check if this dialogue belongs to us using the tracked first entry.
+        if (string.IsNullOrEmpty(currentFirstEntry) || e.someEntry != currentFirstEntry) return;
+
+        // Reset triggered state so the NPC can be interacted with again.
         triggered = false;
         lastDialogueEndTime = Time.time;
-        
-        // Check if this dialogue belongs to us using the tracked first entry
-        if (string.IsNullOrEmpty(currentFirstEntry) || e.someEntry != currentFirstEntry) return;
-        
-        // Increment interaction count for alternate dialogue tracking
+
+        // Prevent this same dialogue end from being handled again.
+        currentFirstEntry = "";
+
+        // Increment interaction count for alternate dialogue tracking.
         interactionCount++;
-        
+
+        // This is okay: it is your objective-specific event.
+        InteractedObjective?.Invoke(this);
+
         if (!_suppressEvents && (!triggerEventsOnFirstInteractionOnly || interactionCount == 1))
         {
-            foreach(var evt in events)
+            foreach (var evt in events)
             {
-                evt.Invoke();
+                evt?.Invoke();
             }
         }
-        
+
         if (!objectiveGiven && objectiveToGive != null && objectiveToGive.Count > 0)
         {
-            if (!ObjectiveTracker) ObjectiveTracker = GameObject.FindObjectOfType<ObjectiveTracker>();
-            ObjectiveTracker.AddObjective(objectiveToGive);
-            objectiveGiven = true;
+            if (!ObjectiveTracker)
+            {
+                ObjectiveTracker = GameObject.FindObjectOfType<ObjectiveTracker>();
+            }
+
+            if (ObjectiveTracker)
+            {
+                ObjectiveTracker.AddObjective(objectiveToGive);
+                objectiveGiven = true;
+
+                //failsafe
+                foreach(var obj in objectiveToGive)
+                {
+                    FetchObjective fetchObj = obj as FetchObjective;
+                    if(fetchObj != null)
+                    {
+                        fetchObj.RegisterQuestGiver(this);
+                    }
+                }
+            }
         }
-        
-        // Force InteractionManager to update so bubble reappears if still in range
+
+        // Force InteractionManager to update so bubble reappears if still in range.
         InteractionManager.Instance?.ForceUpdate();
     }
 

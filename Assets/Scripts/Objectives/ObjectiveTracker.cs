@@ -1,24 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Serialization;
-using System;
 
-public class ObjectiveTracker : MonoBehaviour {
+public class ObjectiveTracker : MonoBehaviour
+{
     [Header("UI Prefabs"), Tooltip("The format of how Objective UI's will be presented.")]
     public GameObject objectiveUIPrefab = default;
+
+    [Tooltip("This is the visual Objective Listing UI prefab. It does NOT need ObjectiveListing.cs.")]
     public GameObject objectiveListingPrefabFallback = default;
-    
-    [Header("UI Containers")] [SerializeField]
+
+    [Header("UI Containers")]
     public GameObject objectiveListingsUIHolder = default;
+
     private List<GameObject> objectiveListingsUI = new();
-    
+
     [Header("Get Objective Listings From"), Tooltip("Drag and drop the gameobject that holds all your objective listings in here.")]
     [SerializeField] private GameObject objectiveListingsHolder = default;
-        
+
     [Header("Managing Variables (Populates during runtime)")]
     [SerializeField] private List<ObjectiveListing> objectiveListings = new();
 
@@ -27,30 +27,38 @@ public class ObjectiveTracker : MonoBehaviour {
     public float tapeSpacing = 5f;
     public bool messyObjectives;
     public float messyObjectiveTilt = 5f;
-    
+
+    [Header("Objective Listing Rules")]
+    [SerializeField] private int maxObjectivesPerListing = 5;
+
     private bool isClosed = true;
     private Animator animator;
-    
-    private void OnEnable() {
+
+    private readonly HashSet<ObjectiveListing> runtimeObjectiveListings = new();
+
+    private void OnEnable()
+    {
         ObjectiveListing.OnObjectiveListingComplete += UICompleteObjective;
         NextSceneTrigger.NextSceneTriggered += ClearAndRefetchObjectives;
     }
-    
-    private void OnDisable() {
+
+    private void OnDisable()
+    {
         ObjectiveListing.OnObjectiveListingComplete -= UICompleteObjective;
         NextSceneTrigger.NextSceneTriggered -= ClearAndRefetchObjectives;
     }
-    
+
     void Start()
     {
         animator = GetComponent<Animator>();
 
+        ObjectiveListing.ObjectiveToUI.Clear();
+
         GetObjectiveDependencies();
 
-        // After UI is built, restore any pending objective states (game-over reset or save load)
         StartCoroutine(RestorePendingObjectiveStates());
     }
-    
+
     private void OnValidate()
     {
         SetMessyObjectives(messyObjectives);
@@ -60,89 +68,137 @@ public class ObjectiveTracker : MonoBehaviour {
     {
         if (Input.GetKeyDown(KeyCode.Return))
         {
-            switch (isClosed)
+            if (isClosed)
             {
-                case true:
-                    OpenTracker();
-                    break;
-                case false:
-                    CloseTracker();
-                    break;
+                OpenTracker();
+            }
+            else
+            {
+                CloseTracker();
             }
         }
     }
 
-    void GetObjectiveDependencies() {
-        if (!objectiveListingsHolder) objectiveListingsHolder = GameObject.Find("Objective Listings");
-        //get each objective listing within the gameobject 'objectiveListingsHolder'
-        foreach (ObjectiveListing listingObject in objectiveListingsHolder.GetComponentsInChildren<ObjectiveListing>()) {
-            if (!objectiveListingsHolder) return;
-            //add it to the tracker
-            objectiveListings.Add(listingObject);
-            //add an instance of the Objective Listing UI to the tracker
-            var prefabToUse = !listingObject.objectiveListingPrefab ? objectiveListingPrefabFallback : listingObject.objectiveListingPrefab;
-            
-            objectiveListingsUI.Add(
-                ObjectiveUIFactory.CreateObjectiveListingUI(listingObject, prefabToUse, objectiveUIPrefab, objectiveListingsUIHolder, ObjectiveListing.ObjectiveToUI));
-            
-            //create all corresponding individual UI for the objective listing (probably going to move into some sort of object pool)
+    void GetObjectiveDependencies()
+    {
+        if (!objectiveListingsHolder)
+        {
+            objectiveListingsHolder = GameObject.Find("Objective Listings");
         }
+
+        if (!objectiveListingsHolder)
+        {
+            Debug.LogError("ObjectiveTracker could not find 'Objective Listings' holder.");
+            return;
+        }
+
+        if (!objectiveListingsUIHolder)
+        {
+            Debug.LogError("ObjectiveTracker is missing objectiveListingsUIHolder.");
+            return;
+        }
+
+        objectiveListings.Clear();
+        objectiveListingsUI.Clear();
+
+        ObjectiveListing[] sceneListings = objectiveListingsHolder.GetComponentsInChildren<ObjectiveListing>(true);
+
+        foreach (ObjectiveListing listingObject in sceneListings)
+        {
+            if (!listingObject) continue;
+            if (listingObject.isComplete) continue;
+            if (CountValidObjectives(listingObject) == 0) continue;
+
+            GameObject prefabToUse = listingObject.objectiveListingPrefab
+                ? listingObject.objectiveListingPrefab
+                : objectiveListingPrefabFallback;
+
+            if (!prefabToUse)
+            {
+                Debug.LogError($"No Objective Listing UI prefab assigned for {listingObject.name}, and fallback is missing.");
+                continue;
+            }
+
+            GameObject listingUI = ObjectiveUIFactory.CreateObjectiveListingUI(
+                listingObject,
+                prefabToUse,
+                objectiveUIPrefab,
+                objectiveListingsUIHolder,
+                ObjectiveListing.ObjectiveToUI
+            );
+
+            if (!listingUI)
+            {
+                Debug.LogError($"Failed to create UI listing for {listingObject.name}.");
+                continue;
+            }
+
+            objectiveListings.Add(listingObject);
+            objectiveListingsUI.Add(listingUI);
+        }
+
         SetMessyObjectives(messyObjectives);
     }
 
-    /// <summary>
-    /// Waits one frame (so all Start methods finish), then restores any
-    /// previously completed objectives and fetch-item progress that was
-    /// captured before the scene reload (game-over reset or save load).
-    /// </summary>
     private IEnumerator RestorePendingObjectiveStates()
     {
-        yield return null; // let every Start() finish first
+        yield return null;
 
-        var pendingStates   = GameManager.Instance?.GetPendingObjectiveStates();
+        PurgeDestroyedReferences();
+
+        var pendingStates = GameManager.Instance?.GetPendingObjectiveStates();
         var pendingNpcStates = GameManager.Instance?.GetPendingNpcStates();
 
-        bool hasObjectiveStates = pendingStates    != null && pendingStates.Count    > 0;
-        bool hasNpcStates       = pendingNpcStates != null && pendingNpcStates.Count > 0;
-        if (!hasObjectiveStates && !hasNpcStates) yield break;
+        bool hasObjectiveStates = pendingStates != null && pendingStates.Count > 0;
+        bool hasNpcStates = pendingNpcStates != null && pendingNpcStates.Count > 0;
 
-        // Track which triggers have already been fully restored so Phase 1 doesn't
-        // double-invoke their events or overwrite the state set here.
+        if (!hasObjectiveStates && !hasNpcStates)
+        {
+            yield break;
+        }
+
         var restoredTriggers = new HashSet<DialogueTrigger>();
 
-        // --- Phase 0: Directly restore NPC trigger states by name ---
-        // This is the primary restore path and covers NPCs regardless of whether
-        // their objectives are in a scene-placed listing or dynamically added.
         if (hasNpcStates)
         {
             foreach (var trigger in FindObjectsOfType<DialogueTrigger>())
             {
                 var npcState = pendingNpcStates.Find(s => s.npcName == trigger.gameObject.name);
-                if (npcState == null || npcState.interactionCount <= 0) continue;
+
+                if (npcState == null || npcState.interactionCount <= 0)
+                {
+                    continue;
+                }
 
                 trigger.SetInteractionCount(npcState.interactionCount);
+
                 if (trigger.ObjectivesToGive != null && trigger.ObjectivesToGive.Count > 0)
+                {
                     trigger.MarkObjectiveGiven();
+                }
+
                 trigger.InvokeEvents();
                 restoredTriggers.Add(trigger);
             }
+
             GameManager.Instance?.ClearPendingNpcStates();
         }
 
-        // --- Phase 1: Re-give NPC objectives that were previously given ---
-        // Build a set of objectives already known in listings
         var knownKeys = new HashSet<string>();
+
         foreach (var listing in objectiveListings)
         {
+            if (!listing) continue;
+
             foreach (var obj in listing.objectives)
             {
                 if (obj != null)
+                {
                     knownKeys.Add(obj.gameObject.name + "|" + obj.description);
+                }
             }
         }
 
-        // For each saved objective, restore the owning NPC's trigger state (fallback
-        // for saves that predate Phase 0) and add UI for dynamically-given objectives.
         if (hasObjectiveStates)
         {
             foreach (var saved in pendingStates)
@@ -153,16 +209,23 @@ public class ObjectiveTracker : MonoBehaviour {
                 foreach (var trigger in FindObjectsOfType<DialogueTrigger>())
                 {
                     var toGive = trigger.ObjectivesToGive;
-                    if (toGive == null || toGive.Count == 0) continue;
 
-                    bool found = toGive.Any(o => o != null
-                        && o.gameObject.name == saved.objectiveName
-                        && o.description == saved.description);
+                    if (toGive == null || toGive.Count == 0)
+                    {
+                        continue;
+                    }
 
-                    if (!found) continue;
+                    bool found = toGive.Any(o =>
+                        o != null &&
+                        o.gameObject.name == saved.objectiveName &&
+                        o.description == saved.description
+                    );
 
-                    // Fallback NPC trigger restore — only runs if Phase 0 didn't
-                    // already handle this trigger (e.g. loading an older save).
+                    if (!found)
+                    {
+                        continue;
+                    }
+
                     if (!restoredTriggers.Contains(trigger))
                     {
                         trigger.MarkObjectiveGiven();
@@ -174,7 +237,6 @@ public class ObjectiveTracker : MonoBehaviour {
                         restoredTriggers.Add(trigger);
                     }
 
-                    // Only add to the tracker UI if not already present
                     if (!alreadyInListing)
                     {
                         AddObjective(toGive);
@@ -182,122 +244,510 @@ public class ObjectiveTracker : MonoBehaviour {
                         foreach (var o in toGive)
                         {
                             if (o != null)
+                            {
                                 knownKeys.Add(o.gameObject.name + "|" + o.description);
+                            }
                         }
                     }
+
                     break;
                 }
             }
         }
 
-        // --- Phase 2: Restore state for every tracked objective ---
         int restoredCount = 0;
 
         if (hasObjectiveStates)
-        foreach (var listing in objectiveListings)
         {
-            for (int i = 0; i < listing.objectives.Count; i++)
+            foreach (var listing in objectiveListings)
             {
-                Objective objective = listing.objectives[i];
-                if (objective == null) continue;
+                if (!listing) continue;
 
-                // Match by name + description
-                ObjectiveSaveState saved = pendingStates.Find(
-                    s => s.objectiveName == objective.gameObject.name
-                      && s.description   == objective.description);
-
-                if (saved == null) continue;
-
-                // Let the subclass restore its own data (fetch items, tallies, etc.)
-                objective.RestoreState(saved);
-
-                if (saved.isComplete)
+                for (int i = 0; i < listing.objectives.Count; i++)
                 {
-                    objective.isComplete = true;
-                    restoredCount++;
+                    Objective objective = listing.objectives[i];
 
-                    // Re-apply world-state side effects (e.g. lights, animations)
-                    objective.InvokeRestoreEvents();
-
-                    // Update the UI row directly (no event fire, no double-counting)
-                    if (i < listing.objectiveUIList.Count)
+                    if (objective == null)
                     {
-                        listing.objectiveUIList[i]?.SetCompletedVisual();
+                        continue;
                     }
-                    else if (ObjectiveListing.ObjectiveToUI.TryGetValue(objective, out var ui))
+
+                    ObjectiveSaveState saved = pendingStates.Find(
+                        s => s.objectiveName == objective.gameObject.name &&
+                             s.description == objective.description
+                    );
+
+                    if (saved == null)
                     {
-                        ui?.SetCompletedVisual();
+                        continue;
+                    }
+
+                    objective.RestoreState(saved);
+
+                    if (saved.isComplete)
+                    {
+                        objective.isComplete = true;
+                        restoredCount++;
+
+                        objective.InvokeRestoreEvents();
+
+                        if (i < listing.objectiveUIList.Count)
+                        {
+                            listing.objectiveUIList[i]?.SetCompletedVisual();
+                        }
+                        else if (ObjectiveListing.ObjectiveToUI.TryGetValue(objective, out var ui))
+                        {
+                            ui?.SetCompletedVisual();
+                        }
                     }
                 }
             }
         }
 
-        // Sync the completed-task counter to the restored value
         GameManager.Instance?.SetNumTasksCompleted(restoredCount);
 
         GameManager.Instance?.ClearPendingObjectiveStates();
+
         Debug.Log($"Restored {restoredCount} completed objective(s) from pending state.");
     }
 
     void OpenTracker()
     {
-        animator.SetBool("TrackerOpen", true);
+        if (animator)
+        {
+            animator.SetBool("TrackerOpen", true);
+        }
+
         isClosed = false;
     }
 
     void CloseTracker()
     {
-        animator.SetBool("TrackerOpen", false);
+        if (animator)
+        {
+            animator.SetBool("TrackerOpen", false);
+        }
+
         isClosed = true;
     }
-    
-    private void UICompleteObjective(ObjectiveListing listing) {
-        //destory them
-        if(objectiveListingsUI.Contains(listing.gameObject)) Destroy(objectiveListingsUI?.ElementAt(objectiveListings.IndexOf(listing)).gameObject);
-        if(objectiveListings.Contains(listing)) Destroy(objectiveListings?.ElementAt(objectiveListings.IndexOf(listing)).gameObject);
-        
-        Debug.Log("Destroying UI listing");
+
+    private void UICompleteObjective(ObjectiveListing listing)
+    {
+        if (!listing)
+        {
+            return;
+        }
+
+        PurgeDestroyedReferences();
+
+        int activeListingUICount = objectiveListingsUI.Count(ui => ui);
+
+        // If this is the only visible Objective Listing UI, keep it on screen.
+        if (activeListingUICount <= 1)
+        {
+            Debug.Log("Objective listing completed, but it is the only listing UI present, so it will stay visible.");
+            SetMessyObjectives(messyObjectives);
+            return;
+        }
+
+        int index = objectiveListings.IndexOf(listing);
+
+        if (index < 0)
+        {
+            return;
+        }
+
+        foreach (Objective objective in listing.objectives)
+        {
+            if (objective != null)
+            {
+                ObjectiveListing.ObjectiveToUI.Remove(objective);
+            }
+        }
+
+        GameObject listingUIObject = null;
+
+        if (index < objectiveListingsUI.Count)
+        {
+            listingUIObject = objectiveListingsUI[index];
+        }
+
+        objectiveListings.RemoveAt(index);
+
+        if (index < objectiveListingsUI.Count)
+        {
+            objectiveListingsUI.RemoveAt(index);
+        }
+
+        if (listingUIObject)
+        {
+            Destroy(listingUIObject);
+        }
+
+        listing.objectiveUIList.Clear();
+
+        if (runtimeObjectiveListings.Contains(listing))
+        {
+            runtimeObjectiveListings.Remove(listing);
+
+            if (listing.gameObject)
+            {
+                Destroy(listing.gameObject);
+            }
+        }
+
+        Debug.Log("Destroying completed objective UI listing because more than one listing UI is present.");
+
+        SetMessyObjectives(messyObjectives);
     }
 
-    private void ClearAndRefetchObjectives() {
-        foreach (ObjectiveListing listing in objectiveListings) {
-            UICompleteObjective(listing);
+    private void ClearAndRefetchObjectives()
+    {
+        foreach (GameObject listingUI in objectiveListingsUI.ToList())
+        {
+            if (listingUI)
+            {
+                Destroy(listingUI);
+            }
         }
-        
+
+        foreach (ObjectiveListing runtimeListing in runtimeObjectiveListings.ToList())
+        {
+            if (runtimeListing)
+            {
+                Destroy(runtimeListing.gameObject);
+            }
+        }
+
+        runtimeObjectiveListings.Clear();
         objectiveListings.Clear();
         objectiveListingsUI.Clear();
+        ObjectiveListing.ObjectiveToUI.Clear();
+
         GetObjectiveDependencies();
     }
 
     public void SetMessyObjectives(bool set)
     {
-        //rotate to look messy
+        PurgeDestroyedReferences();
+
+        if (objectiveListingsUI == null)
+        {
+            return;
+        }
+
         if (set)
         {
             int idx = 1;
+
             foreach (GameObject listing in objectiveListingsUI)
             {
+                if (!listing) continue;
+
                 int flip = (idx % 2) == 0 ? -1 : 1;
-                listing.gameObject.transform.rotation = Quaternion.Euler(0f, 0f, messyObjectiveTilt * flip);
+                listing.transform.rotation = Quaternion.Euler(0f, 0f, messyObjectiveTilt * flip);
                 idx++;
             }
         }
-        //straight objectives to look neat
         else
         {
             foreach (GameObject listing in objectiveListingsUI)
             {
-                listing.gameObject.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+                if (!listing) continue;
+
+                listing.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
             }
         }
     }
 
-    public void AddObjective(List<Objective> objective)
+    public void AddObjective(List<Objective> objectivesToAdd)
     {
-        objectiveListingsUI.Add(
-                ObjectiveUIFactory.AddToObjectiveToListingUI(objectiveListings.First(), objective, 
-                    objectiveListingPrefabFallback, objectiveUIPrefab, objectiveListingsUI.First(), ObjectiveListing.ObjectiveToUI));
-        Debug.LogWarning($"{objectiveListings.First().gameObject.name} for objective {objective}");
-            //create all corresponding individual UI for the objective listing (probably going to move into some sort of object pool)
+        if (objectivesToAdd == null || objectivesToAdd.Count == 0)
+        {
+            return;
+        }
+
+        if (!EnsureRequiredReferences())
+        {
+            return;
+        }
+
+        PurgeDestroyedReferences();
+
+        int addedCount = 0;
+
+        foreach (Objective objective in objectivesToAdd)
+        {
+            if (!objective) continue;
+
+            if (IsObjectiveAlreadyTracked(objective))
+            {
+                Debug.LogWarning($"Objective '{objective.description}' is already tracked. Skipping duplicate.");
+                continue;
+            }
+
+            ObjectiveListing targetListing = GetOrCreateListingWithSpace();
+
+            if (!targetListing)
+            {
+                Debug.LogError($"Could not create/find an ObjectiveListing for objective '{objective.description}'.");
+                continue;
+            }
+
+            GameObject targetListingUI = GetUIForListing(targetListing);
+
+            if (!targetListingUI)
+            {
+                Debug.LogError($"Could not find/create UI for ObjectiveListing '{targetListing.name}'.");
+                continue;
+            }
+
+            ObjectiveUIFactory.AddToObjectiveToListingUI(
+                targetListing,
+                new List<Objective> { objective },
+                targetListingUI,
+                objectiveUIPrefab,
+                ObjectiveListing.ObjectiveToUI
+            );
+            
+            // If we add a new incomplete objective to a previously completed listing,
+            // the listing must become incomplete again so it can complete later.
+            if (!objective.isComplete)
+            {
+                targetListing.isComplete = false;
+            }
+
+            addedCount++;
+        }
+
+        if (addedCount > 0)
+        {
+            Debug.LogWarning($"Added {addedCount} objective(s). Active listing count: {objectiveListings.Count}.");
+            SetMessyObjectives(messyObjectives);
+        }
+    }
+    
+    private ObjectiveListing GetOrCreateListingWithSpace()
+    {
+        PurgeDestroyedReferences();
+
+        // Prefer an active, incomplete listing with room.
+        foreach (ObjectiveListing listing in objectiveListings)
+        {
+            if (!listing) continue;
+
+            if (!listing.isComplete && CountValidObjectives(listing) < maxObjectivesPerListing)
+            {
+                return listing;
+            }
+        }
+        
+        // If there is only one listing UI visible, reuse it even if it is complete,
+        // as long as it still has room.
+        int activeListingUICount = objectiveListingsUI.Count(ui => ui);
+
+        if (activeListingUICount <= 1)
+        {
+            foreach (ObjectiveListing listing in objectiveListings)
+            {
+                if (!listing) continue;
+
+                if (CountValidObjectives(listing) < maxObjectivesPerListing)
+                {
+                    return listing;
+                }
+            }
+        }
+
+        // Otherwise all available listings are full or completed so create a new one.
+        return CreateRuntimeObjectiveListing();
+    }
+
+    private ObjectiveListing CreateRuntimeObjectiveListing()
+    {
+        if (!EnsureRequiredReferences())
+        {
+            return null;
+        }
+
+        GameObject runtimeListingObj = new GameObject($"Runtime Objective Listing {objectiveListings.Count + 1}");
+        runtimeListingObj.transform.SetParent(objectiveListingsHolder.transform);
+
+        ObjectiveListing runtimeListing = runtimeListingObj.AddComponent<ObjectiveListing>();
+        runtimeListing.objectiveListingPrefab = objectiveListingPrefabFallback;
+
+        GameObject listingUI = ObjectiveUIFactory.CreateObjectiveListingUI(
+            runtimeListing,
+            objectiveListingPrefabFallback,
+            objectiveUIPrefab,
+            objectiveListingsUIHolder,
+            ObjectiveListing.ObjectiveToUI
+        );
+
+        if (!listingUI)
+        {
+            Destroy(runtimeListingObj);
+            return null;
+        }
+
+        runtimeObjectiveListings.Add(runtimeListing);
+        objectiveListings.Add(runtimeListing);
+        objectiveListingsUI.Add(listingUI);
+
+        return runtimeListing;
+    }
+
+    private GameObject GetUIForListing(ObjectiveListing listing)
+    {
+        if (!listing)
+        {
+            return null;
+        }
+
+        int index = objectiveListings.IndexOf(listing);
+
+        if (index >= 0 && index < objectiveListingsUI.Count && objectiveListingsUI[index])
+        {
+            return objectiveListingsUI[index];
+        }
+
+        GameObject prefabToUse = listing.objectiveListingPrefab
+            ? listing.objectiveListingPrefab
+            : objectiveListingPrefabFallback;
+
+        GameObject listingUI = ObjectiveUIFactory.CreateObjectiveListingUI(
+            listing,
+            prefabToUse,
+            objectiveUIPrefab,
+            objectiveListingsUIHolder,
+            ObjectiveListing.ObjectiveToUI
+        );
+
+        if (!listingUI)
+        {
+            return null;
+        }
+
+        if (index >= 0)
+        {
+            while (objectiveListingsUI.Count <= index)
+            {
+                objectiveListingsUI.Add(null);
+            }
+
+            objectiveListingsUI[index] = listingUI;
+        }
+        else
+        {
+            objectiveListings.Add(listing);
+            objectiveListingsUI.Add(listingUI);
+        }
+
+        return listingUI;
+    }
+
+    private bool IsObjectiveAlreadyTracked(Objective objective)
+    {
+        if (!objective)
+        {
+            return true;
+        }
+
+        foreach (ObjectiveListing listing in objectiveListings)
+        {
+            if (!listing) continue;
+
+            if (listing.objectives.Contains(objective))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private int CountValidObjectives(ObjectiveListing listing)
+    {
+        if (!listing || listing.objectives == null)
+        {
+            return 0;
+        }
+
+        int count = 0;
+
+        foreach (Objective objective in listing.objectives)
+        {
+            if (objective)
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    private bool EnsureRequiredReferences()
+    {
+        if (!objectiveListingsHolder)
+        {
+            objectiveListingsHolder = GameObject.Find("Objective Listings");
+        }
+
+        if (!objectiveListingsHolder)
+        {
+            Debug.LogError("ObjectiveTracker is missing objectiveListingsHolder and could not find 'Objective Listings'.");
+            return false;
+        }
+
+        if (!objectiveListingsUIHolder)
+        {
+            Debug.LogError("ObjectiveTracker is missing objectiveListingsUIHolder.");
+            return false;
+        }
+
+        if (!objectiveListingPrefabFallback)
+        {
+            Debug.LogError("ObjectiveTracker is missing objectiveListingPrefabFallback.");
+            return false;
+        }
+
+        if (!objectiveUIPrefab)
+        {
+            Debug.LogError("ObjectiveTracker is missing objectiveUIPrefab.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private void PurgeDestroyedReferences()
+    {
+        for (int i = objectiveListings.Count - 1; i >= 0; i--)
+        {
+            if (!objectiveListings[i])
+            {
+                objectiveListings.RemoveAt(i);
+
+                if (i < objectiveListingsUI.Count)
+                {
+                    objectiveListingsUI.RemoveAt(i);
+                }
+            }
+        }
+
+        for (int i = objectiveListingsUI.Count - 1; i >= 0; i--)
+        {
+            if (!objectiveListingsUI[i])
+            {
+                objectiveListingsUI.RemoveAt(i);
+
+                if (i < objectiveListings.Count)
+                {
+                    objectiveListings.RemoveAt(i);
+                }
+            }
+        }
+
+        runtimeObjectiveListings.RemoveWhere(listing => !listing);
     }
 }

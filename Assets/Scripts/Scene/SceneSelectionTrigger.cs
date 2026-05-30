@@ -33,20 +33,34 @@ public class SceneSelectionTrigger : MonoBehaviour
     [Tooltip("The list of scenes that will be presented as choices in the UI panel.")]
     public List<SceneEntry> scenesToOffer = new List<SceneEntry>();
 
+    [Header("Dependency")]
+    [Tooltip("Optional. If assigned, this trigger will only work after the referenced ButtonScript has been pressed.")]
+    [SerializeField] private ButtonScript requiredButton;
+
+    private bool IsActive => requiredButton == null || requiredButton.HasBeenTriggered;
+
     // Private cache for the UI component to avoid repeated calls to GetComponent.
     private SceneSelectionPanelUI _panelUIComponent;
 
     public void ActivatePanelFromButton()
     {
+        if (!IsActive)
+        {
+            Debug.Log("ActivatePanelFromButton called but dependency not yet satisfied.");
+            return;
+        }
         Debug.Log("ActivatePanelFromButton called. Attempting to show scene selection panel.");
         ShowAndPopulatePanel();
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        if (!IsActive) return;
+
         if (other.CompareTag("Player"))
         {
             Debug.Log("Player entered the trigger. Attempting to show scene selection panel.");
+            EventDispatcher.Raise(new NewSceneLoaded());
             ShowAndPopulatePanel();
         }
     }
@@ -82,6 +96,8 @@ public class SceneSelectionTrigger : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
+        if (!IsActive) return;
+
         if (other.CompareTag("Player"))
         {
             // Check if the panel is currently active before trying to deactivate it.

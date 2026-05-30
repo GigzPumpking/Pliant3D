@@ -91,6 +91,10 @@ public class Frog : FormScript
     [SerializeField] private Slider unstickSlider;
     [Tooltip("(Optional) Canvas Group of the unstick bar UI for alpha control.")]
     [SerializeField] private CanvasGroup unstickCanvasGroup;
+
+    public Slider UnstickSlider => unstickSlider;
+    public CanvasGroup UnstickCanvasGroup => unstickCanvasGroup;
+
     [Tooltip("Rate at which the unstick bar drains per second when above 0.")]
     [SerializeField] private float unstickBarDrainRate = 15f;
     [Tooltip("Screen-space UI object shown during the minigame. Positioned in screen space above the unstickable object.")]
@@ -1169,7 +1173,7 @@ public class Frog : FormScript
                             break;
                         }
                     }
-
+                    
                     yield return new WaitForFixedUpdate();
                 }
 
@@ -1181,9 +1185,20 @@ public class Frog : FormScript
                     unstickRb.freezeRotation = false;
                     unstickRb.isKinematic = wasKinematic;
                 }
+
                 if (tongueHitTarget != null)
+                {
+                    GameObject pulledObject = tongueHitTarget.gameObject;
+                    if (CustomEventObjective.TryCompleteAnyForObject(pulledObject, out CustomEventObjective completedObjective))
+                    {
+                        Debug.Log($"Pulled object '{pulledObject.name}' counted toward objective '{completedObjective.description}'.");
+                    }
                     Destroy(tongueHitTarget.gameObject);
+                }
+
                 tongueHitTarget = null;
+                
+                Debug.LogWarning("Right here");
 
                 // Retract tongue visually
                 tongueState = TongueState.Retracting;

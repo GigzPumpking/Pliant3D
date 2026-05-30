@@ -87,6 +87,11 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        
+    }
+
     private IEnumerator WaitForStartupSound()
     {
         yield return new WaitForSeconds(musicSource.clip.length);
@@ -161,7 +166,7 @@ public class AudioManager : MonoBehaviour
 
     public void PlayMainTheme()
     {
-        PlayMusic(GameManager.Instance?.GetMainTheme());
+        if(!IsMusicPlaying()) PlayMusic(GameManager.Instance?.GetMainTheme());
     }
 
     public AudioSource PlaySound(AudioData data)
@@ -236,7 +241,7 @@ public class AudioManager : MonoBehaviour
 
     public void DeleteCurrentMusicSources()
     {
-        musicSource.clip = null;
+        musicSource.Stop();
         foreach(AudioSource audioSource in additionalMusicSources)
         {
             Destroy(audioSource);
@@ -256,7 +261,7 @@ public class AudioManager : MonoBehaviour
         return false;
     }
 
-    public bool IsMusicPlaying() => musicSource.isPlaying;
+    public bool IsMusicPlaying() => musicSource.isPlaying || additionalMusicSources.Any(src => src.isPlaying);
 
     // --- Volume & Mute Controls ---
 
@@ -373,4 +378,5 @@ public class AudioManager : MonoBehaviour
     {
         
     }
+    
 }

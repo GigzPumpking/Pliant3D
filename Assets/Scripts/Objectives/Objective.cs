@@ -24,6 +24,7 @@ public class Objective : MonoBehaviour, IObjective {
     {
         foreach(UnityEvent ev in onRestoreEvents) ev?.Invoke();
     }
+    
 
     /// <summary>
     /// Captures the current state of this objective for saving.

@@ -1,60 +1,134 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-public class ObjectiveUIFactory {
-    public static ObjectiveUI CreateObjectiveUI(Objective objective, GameObject prefab, GameObject parent, Dictionary<Objective, ObjectiveUI> objectiveUIDict = null) {
-        if (!objective || !prefab || !parent) return null;
-        
-        GameObject currentObj = GameObject.Instantiate(prefab, parent.transform);
-        Debug.LogWarning($"instantiating {currentObj.name}");
-        
-        ObjectiveUI currentObjectiveUI = currentObj.GetComponent<ObjectiveUI>();
-        currentObjectiveUI.DescriptionTXT.text = objective.description;
-        //Link to ObjectiveTracker
-        if(objectiveUIDict != null) objectiveUIDict.TryAdd(objective, currentObjectiveUI);
-        
-        if (objectiveUIDict.ContainsKey(objective))
+public class ObjectiveUIFactory
+{
+    public static ObjectiveUI CreateObjectiveUI(
+        Objective objective,
+        GameObject prefab,
+        GameObject parent,
+        Dictionary<Objective, ObjectiveUI> objectiveUIDict = null)
+    {
+        if (!objective || !prefab || !parent)
         {
-            Debug.LogWarning($"Mapping objective UI for objective: {objective.description} to {currentObjectiveUI.name}");
-            if(objective.showTally) TallyBuilder.InitializeTallyUI(objective, "?");
+            return null;
         }
-        
-        //Reference GameManager to count number of tasks assigned +1
+
+        GameObject currentObj = GameObject.Instantiate(prefab, parent.transform);
+        Debug.LogWarning($"Instantiating {currentObj.name}");
+
+        ObjectiveUI currentObjectiveUI = currentObj.GetComponent<ObjectiveUI>();
+
+        if (!currentObjectiveUI)
+        {
+            Debug.LogError($"Objective UI prefab '{prefab.name}' does not have an ObjectiveUI component.");
+            return null;
+        }
+
+        if (currentObjectiveUI.DescriptionTXT)
+        {
+            currentObjectiveUI.DescriptionTXT.text = objective.description;
+        }
+
+        if (objectiveUIDict != null)
+        {
+            objectiveUIDict[objective] = currentObjectiveUI;
+
+            Debug.LogWarning($"Mapping objective UI for objective: {objective.description} to {currentObjectiveUI.name}");
+
+            if (objective.showTally)
+            {
+                if (objective is CustomEventObjective customEventObjective)
+                {
+                    customEventObjective.RefreshTallyUI();
+                }
+                else
+                {
+                    TallyBuilder.UpdateTallyUI(objective, 0, 1);
+                }
+            }
+        }
+
+        if (objective.isComplete)
+        {
+            currentObjectiveUI.SetCompletedVisual();
+        }
+
         GameManager.Instance?.AddQueuedTaskAssigned();
-        
+
         return currentObjectiveUI;
     }
 
-    public static GameObject CreateObjectiveListingUI(ObjectiveListing objectiveListing, GameObject prefab, GameObject parent) {
-        if (!objectiveListing || !prefab || !parent) return null;
-        
-        return GameObject.Instantiate(prefab, parent.transform);
-    }
-    
-    public static GameObject CreateObjectiveListingUI(ObjectiveListing objectiveListing, GameObject objectiveListingsPrefab, GameObject objectiveUIPrefab, GameObject parent, 
-        Dictionary<Objective, ObjectiveUI> objectiveUIDict = null) {
-        //instantiate an instance of the listing UI
-        GameObject currentListing = GameObject.Instantiate(objectiveListingsPrefab, parent.transform);
-        
-        //instantiate an instance of it's objective UI
-        foreach (Objective objective in objectiveListing.objectives) {
-            if (!objective) continue;
-            objectiveListing.objectiveUIList.Add(CreateObjectiveUI(objective, objectiveUIPrefab, currentListing, objectiveUIDict));
-        }
-        
-        return currentListing;
-    }
-
-    public static GameObject AddToObjectiveToListingUI(ObjectiveListing objectiveListing, List<Objective> objectives, GameObject objectiveListingPrefab, GameObject objectiveUIPrefab, GameObject parent,
+    public static GameObject CreateObjectiveListingUI(
+        ObjectiveListing objectiveListing,
+        GameObject objectiveListingUIPrefab,
+        GameObject objectiveUIPrefab,
+        GameObject parent,
         Dictionary<Objective, ObjectiveUI> objectiveUIDict = null)
     {
-        foreach(Objective obj in objectives)
+        if (!objectiveListing || !objectiveListingUIPrefab || !objectiveUIPrefab || !parent)
         {
-            objectiveListing.objectives.Add(obj);
-            objectiveListing.objectiveUIList.Add(CreateObjectiveUI(obj, objectiveUIPrefab, parent, objectiveUIDict));
-            Debug.LogWarning($"Attached to {objectiveListing.gameObject.name}");
+            return null;
         }
-        return objectiveListing.gameObject;
+
+        GameObject currentListingUI = GameObject.Instantiate(objectiveListingUIPrefab, parent.transform);
+
+        objectiveListing.objectiveUIList.Clear();
+
+        foreach (Objective objective in objectiveListing.objectives)
+        {
+            if (!objective) continue;
+
+            ObjectiveUI objectiveUI = CreateObjectiveUI(
+                objective,
+                objectiveUIPrefab,
+                currentListingUI,
+                objectiveUIDict
+            );
+
+            if (objectiveUI)
+            {
+                objectiveListing.objectiveUIList.Add(objectiveUI);
+            }
+        }
+
+        return currentListingUI;
+    }
+
+    public static GameObject AddToObjectiveToListingUI(
+        ObjectiveListing objectiveListing,
+        List<Objective> objectives,
+        GameObject objectiveListingUI,
+        GameObject objectiveUIPrefab,
+        Dictionary<Objective, ObjectiveUI> objectiveUIDict = null)
+    {
+        if (!objectiveListing || objectives == null || !objectiveListingUI || !objectiveUIPrefab)
+        {
+            return null;
+        }
+
+        foreach (Objective obj in objectives)
+        {
+            if (!obj) continue;
+
+            if (!objectiveListing.objectives.Contains(obj))
+            {
+                objectiveListing.objectives.Add(obj);
+            }
+
+            ObjectiveUI objectiveUI = CreateObjectiveUI(
+                obj,
+                objectiveUIPrefab,
+                objectiveListingUI,
+                objectiveUIDict
+            );
+
+            if (objectiveUI)
+            {
+                objectiveListing.objectiveUIList.Add(objectiveUI);
+            }
+        }
+
+        return objectiveListingUI;
     }
 }

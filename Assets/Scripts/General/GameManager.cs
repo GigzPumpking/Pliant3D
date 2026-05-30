@@ -113,7 +113,7 @@ public class GameManager : KeyActionReceiver<GameManager>
     {
         if (AudioManager.Instance != null)
         {
-            if (AudioManager.Instance.playOnAwake && !AudioManager.Instance.IsMusicPlaying())
+            if (AudioManager.Instance.playOnAwake)
             {
                 //Handle Music Carryover between scenes
                 instance.mainTheme = this.mainTheme;

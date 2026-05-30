@@ -241,7 +241,7 @@ public class AudioManager : MonoBehaviour
 
     public void DeleteCurrentMusicSources()
     {
-        musicSource.Stop();
+        musicSource.clip = null;
         foreach(AudioSource audioSource in additionalMusicSources)
         {
             Destroy(audioSource);

@@ -78,10 +78,10 @@ public class BurningInteractable : MonoBehaviour, IInteractable
 
         float holdTarget = extinguishDuration * holdCompletionThreshold;
 
-        // Disable player movement
+        // Lock movement for the entire hold phase — restored on completion or forced exit only.
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = false });
 
-        // Show UI progress bar (only covers the hold portion — slider max = holdTarget)
+        // Show progress bar
         Slider slider = GetProgressSlider();
         CanvasGroup cg = GetProgressCanvasGroup();
         if (slider != null)
@@ -89,11 +89,12 @@ public class BurningInteractable : MonoBehaviour, IInteractable
             slider.maxValue = holdTarget;
             slider.value = _currentProgress;
         }
-        if (cg != null)
-            cg.alpha = 1f;
+        if (cg != null) cg.alpha = 1f;
 
-        // Hide bubble prompt
-        SetInteractBubbleActive(false);
+        // Hide press bubble and show hold bubble for the duration of the minigame
+        Terry terry = GetTerry();
+        terry?.SetBurningPromptActive(false);
+        terry?.SetHoldExtinguishPromptActive(true);
 
         // Activate animator and fire trigger once
         if (extinguishAnimObject != null)
@@ -106,21 +107,23 @@ public class BurningInteractable : MonoBehaviour, IInteractable
             {
                 _animator.SetTrigger("Extinguish");
                 _animatorTriggered = true;
-                _animator.speed = 0f; // Start paused
+                _animator.speed = 0f;
             }
         }
 
-        // === PHASE 1: player must hold the button up to holdTarget ===
+        bool forcedExit = false;
+
+        // === HOLD PHASE: runs until the bar is full or a forced exit occurs ===
+        // Releasing the button only pauses the animator; movement stays locked and the
+        // bar keeps its value. The player just holds again to resume.
         while (_isMinigameActive && _currentProgress < holdTarget)
         {
-            if (!IsInteractable())
-                break;
+            if (!IsInteractable()) { forcedExit = true; break; }
 
             if (Player.Instance != null)
             {
                 float distance = Vector3.Distance(Player.Instance.transform.position, transform.position);
-                if (distance > GetInteractionDistance() + 1.5f)
-                    break;
+                if (distance > GetInteractionDistance() + 1.5f) { forcedExit = true; break; }
             }
 
             bool isHolding = InputManager.Instance != null && InputManager.Instance.IsActionPressed("Interact");
@@ -133,38 +136,33 @@ public class BurningInteractable : MonoBehaviour, IInteractable
             else
             {
                 if (_animator != null) _animator.speed = 0f;
-                break; // Released — pause and let the player resume later
             }
 
-            if (slider != null)
-                slider.value = _currentProgress;
-
+            if (slider != null) slider.value = _currentProgress;
             yield return null;
         }
 
-        bool completedHold = _currentProgress >= holdTarget;
+        bool completedHold = !forcedExit && _currentProgress >= holdTarget;
 
         _isMinigameActive = false;
 
-        // Re-enable player movement regardless of outcome
+        // Always restore movement and clean up UI when the loop ends
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
-
-        if (!completedHold)
-        {
-            // Player released early — hide bar, pause animator, restore prompt
-            if (cg != null) cg.alpha = 0f;
-            if (_animator != null) _animator.speed = 0f;
-            SetInteractBubbleActive(true);
-            yield break;
-        }
-
-        // === PHASE 2: hold complete — hide bar, let animation finish on its own ===
+        terry?.SetHoldExtinguishPromptActive(false);
         if (cg != null) cg.alpha = 0f;
         if (slider != null) slider.value = 0f;
 
+        if (!completedHold)
+        {
+            // Forced out of range or lost eligibility — pause animator and let
+            // InteractionManager restore the correct bubble when the player returns.
+            if (_animator != null) _animator.speed = 0f;
+            yield break;
+        }
+
+        // === AUTO-COMPLETE PHASE: last portion plays on its own ===
         if (_animator != null) _animator.speed = 1f;
 
-        // Wait for the remaining animation time (the last 25%)
         float remainingTime = extinguishDuration - holdTarget;
         yield return new WaitForSeconds(remainingTime);
 
@@ -179,9 +177,18 @@ public class BurningInteractable : MonoBehaviour, IInteractable
 
     public void SetInteractBubbleActive(bool active)
     {
-        // The bubble lives on Terry, not on this object.
-        Terry terry = Player.Instance?.GetComponentInChildren<Terry>();
-        terry?.SetBurningPromptActive(active);
+        Terry terry = GetTerry();
+        if (terry == null) return;
+
+        if (active)
+        {
+            terry.SetBurningPromptActive(false);
+            terry.SetHoldExtinguishPromptActive(true);
+        }
+        else
+        {
+            terry.SetHoldExtinguishPromptActive(false);
+        }
     }
 
     #endregion

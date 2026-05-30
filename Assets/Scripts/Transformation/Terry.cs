@@ -29,6 +29,16 @@ public class Terry : FormScript
     public Slider ExtinguishProgressSlider => extinguishProgressSlider;
     public CanvasGroup ExtinguishProgressCanvasGroup => extinguishProgressCanvasGroup;
 
+    [Header("Hold to Extinguish Bubble")]
+    [Tooltip("Shown during the extinguish minigame prompting the player to hold the interact button.")]
+    [SerializeField] private GameObject holdExtinguishBubble;
+    [SerializeField] private Sprite holdKeyboardSprite;
+    [SerializeField] private Sprite holdControllerSprite;
+
+    private SpriteRenderer _holdBubbleSpriteRenderer;
+    private Vector3 _originalHoldBubbleScale;
+    private bool _holdBubbleScaleInitialized = false;
+
     private SpriteRenderer _bubbleSpriteRenderer;
     private Vector3 _originalBubbleScale;
     private bool _bubbleScaleInitialized = false;
@@ -38,6 +48,13 @@ public class Terry : FormScript
     {
         if (burningInteractBubble == null) return;
         burningInteractBubble.SetActive(active);
+    }
+
+    /// <summary>Called by BurningInteractable during the hold minigame to prompt the player to hold the interact button.</summary>
+    public void SetHoldExtinguishPromptActive(bool active)
+    {
+        if (holdExtinguishBubble == null) return;
+        holdExtinguishBubble.SetActive(active);
     }
 
     public override void OnEnable()
@@ -59,6 +76,16 @@ public class Terry : FormScript
             }
             burningInteractBubble.SetActive(false);
         }
+
+        if (holdExtinguishBubble != null)
+        {
+            holdExtinguishBubble.SetActive(false);
+        }
+
+        if (extinguishProgressCanvasGroup != null)
+            extinguishProgressCanvasGroup.alpha = 0f;
+        if (extinguishProgressSlider != null)
+            extinguishProgressSlider.value = 0f;
     }
 
     public void OnDisable()
@@ -70,11 +97,17 @@ public class Terry : FormScript
     {
         HasFireExtinguisher = false;
         SetBurningPromptActive(false);
+        SetHoldExtinguishPromptActive(false);
+        if (extinguishProgressCanvasGroup != null)
+            extinguishProgressCanvasGroup.alpha = 0f;
+        if (extinguishProgressSlider != null)
+            extinguishProgressSlider.value = 0f;
     }
 
     private void Update()
     {
         UpdateBubbleSprite();
+        UpdateHoldBubbleSprite();
     }
 
     private void UpdateBubbleSprite()
@@ -98,6 +131,36 @@ public class Terry : FormScript
         {
             _bubbleSpriteRenderer.sprite = controllerSprite;
             burningInteractBubble.transform.localScale = _originalBubbleScale;
+        }
+    }
+
+    private void UpdateHoldBubbleSprite()
+    {
+        if (holdExtinguishBubble == null || !holdExtinguishBubble.activeSelf) return;
+
+        if (_holdBubbleSpriteRenderer == null)
+            _holdBubbleSpriteRenderer = holdExtinguishBubble.GetComponentInChildren<SpriteRenderer>();
+
+        if (_holdBubbleSpriteRenderer == null) return;
+
+        if (!_holdBubbleScaleInitialized)
+        {
+            _originalHoldBubbleScale = _holdBubbleSpriteRenderer.transform.localScale;
+            _holdBubbleScaleInitialized = true;
+        }
+
+        bool isKeyboard = InputManager.Instance?.ActiveDeviceType == "Keyboard"
+                       || InputManager.Instance?.ActiveDeviceType == "Mouse";
+
+        if (isKeyboard)
+        {
+            _holdBubbleSpriteRenderer.sprite = holdKeyboardSprite;
+            _holdBubbleSpriteRenderer.transform.localScale = _originalHoldBubbleScale * 3f;
+        }
+        else
+        {
+            _holdBubbleSpriteRenderer.sprite = holdControllerSprite;
+            _holdBubbleSpriteRenderer.transform.localScale = _originalHoldBubbleScale;
         }
     }
 

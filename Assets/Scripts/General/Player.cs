@@ -100,7 +100,8 @@ public class Player : KeyActionReceiver<Player>
             { "Interact", (instance, ctx) => instance.InteractHandler(ctx) },
             { "Ability1", (instance, ctx) => instance.Ability1Handler(ctx) },
             { "Ability2", (instance, ctx) => instance.Ability2Handler(ctx) },
-            { "Ability3", (instance, ctx) => instance.Ability3Handler(ctx) }
+            { "Ability3", (instance, ctx) => instance.Ability3Handler(ctx) },
+            { "Unstick", (instance, ctx) => instance.UnstickHandler(ctx) }
         };
 
     protected override Dictionary<string, Action<Player, InputAction.CallbackContext>> KeyMapping => staticKeyMapping;
@@ -550,6 +551,11 @@ public class Player : KeyActionReceiver<Player>
     void Ability3Handler(InputAction.CallbackContext context) {
         if (UIManager.Instance && UIManager.Instance.isPaused) return;
         selectedGroup.GetComponent<FormScript>().Ability3(context);
+    }
+
+    void UnstickHandler(InputAction.CallbackContext context) {
+        if (UIManager.Instance && UIManager.Instance.isPaused) return;
+        selectedGroup.GetComponent<FormScript>().Unstick(context);
     }
 
     void InputHandler() {

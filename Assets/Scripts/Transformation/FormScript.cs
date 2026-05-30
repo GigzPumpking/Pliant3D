@@ -70,6 +70,11 @@ public abstract class FormScript : MonoBehaviour
         // Optional ability, can be overridden by subclasses
     }
 
+    public virtual void Unstick(InputAction.CallbackContext context)
+    {
+        // Optional unstick minigame input, can be overridden by subclasses
+    }
+
     /// <summary>
     /// When true, Player will not update facing direction, sprite flip, or
     /// animation move floats. Override in subclasses that need to lock facing

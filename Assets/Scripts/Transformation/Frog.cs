@@ -412,17 +412,18 @@ public class Frog : FormScript
         }
     }
 
+    public override void Unstick(InputAction.CallbackContext context)
+    {
+        if (context.performed && tongueState == TongueState.UnstickMinigame)
+        {
+            unstickButtonPressed = true;
+        }
+    }
+
     public override void Ability2(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            // In unstick minigame: each press fills the bar instead of cancelling
-            if (tongueState == TongueState.UnstickMinigame)
-            {
-                unstickButtonPressed = true;
-                return;
-            }
-
             // If tongue is already active, cancel gracefully (retract back to player)
             if (tongueState != TongueState.Idle)
             {

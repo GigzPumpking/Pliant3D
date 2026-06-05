@@ -14,12 +14,30 @@ public class ObjectsToLocationsObjective : Objective {
     //LEAVE 0 IF YOU WANT ALL OBJECTS TO BE PLACED
     [Tooltip("Leave 0 if you want all objects to be placed")]
     public int setNumberOfNeeded;
+
+    private int numCompleted = 0;
+    private int cachedTotal;
     
     private void Awake()
     {
-        if (!targetLocations.Any()) return;
+        RefreshCachedTotal();
+
+        if (targetLocations == null || !targetLocations.Any()) return;
         for (int i = 0; i < targetLocations.Count; ++i) {
-            targetLocations[i].lookingFor.Add(i < lookingFor.Count ? lookingFor[i] : lookingFor.Last());
+            if (!targetLocations[i]) continue;
+            if (lookingFor == null || lookingFor.Count == 0) continue;
+
+            if (targetLocations[i].lookingFor == null)
+            {
+                targetLocations[i].lookingFor = new List<GameObject>();
+            }
+
+            GameObject targetObject = i < lookingFor.Count ? lookingFor[i] : lookingFor.Last();
+
+            if (targetObject && !targetLocations[i].lookingFor.Contains(targetObject))
+            {
+                targetLocations[i].lookingFor.Add(targetObject);
+            }
         }
     }
     
@@ -33,36 +51,108 @@ public class ObjectsToLocationsObjective : Objective {
     
     private void Start()
     {
-        if (showTally) TallyBuilder.UpdateTallyUI(this, 0, targetLocations.Count);
+        RefreshCachedTotal();
+        RefreshTallyUI();
+    }
+
+    private void OnValidate()
+    {
+        RefreshCachedTotal();
+    }
+
+    private void RefreshCachedTotal()
+    {
+        int currentTotal = targetLocations != null ? targetLocations.Count(node => node != null) : 0;
+
+        if (!Application.isPlaying)
+        {
+            cachedTotal = currentTotal;
+            return;
+        }
+
+        if (cachedTotal <= 0)
+        {
+            cachedTotal = currentTotal;
+        }
+    }
+
+    private int GetRequiredTotal()
+    {
+        if (setNumberOfNeeded > 0)
+        {
+            return setNumberOfNeeded;
+        }
+
+        if (anyObjectToLocation)
+        {
+            return cachedTotal > 0 ? 1 : 0;
+        }
+
+        return cachedTotal;
+    }
+
+    private void RefreshCompletedCount()
+    {
+        int completedCount = targetLocations != null ? targetLocations.Count(curr => curr != null && curr.isComplete) : 0;
+        int requiredTotal = GetRequiredTotal();
+
+        numCompleted = requiredTotal > 0 ? Mathf.Clamp(completedCount, 0, requiredTotal) : completedCount;
+    }
+
+    public override void RefreshTallyUI()
+    {
+        RefreshCachedTotal();
+        RefreshCompletedCount();
+
+        if (showTally)
+        {
+            TallyBuilder.UpdateTallyUI(this, numCompleted, GetRequiredTotal());
+        }
     }
     
     private void CheckCompletion() {
+        if (isComplete) return;
+        if (targetLocations == null || !targetLocations.Any()) return;
+
+        RefreshTallyUI();
+
         if (anyObjectToLocation && targetLocations.Any())
         {
             foreach (ObjectiveNode node in targetLocations)
             {
-                if (node.isComplete) break;
+                if (node != null && node.isComplete)
+                {
+                    isComplete = true;
+                    RefreshTallyUI();
+                    OnObjectiveComplete?.Invoke(this); //Listened to by 'ObjectiveListing.cs'
+                    InvokeCompletionEvents();
+                    Debug.Log($"{gameObject.name} has successfully been completed!");
+                    return;
+                }
             }
-            
-            isComplete = true;
-            OnObjectiveComplete?.Invoke(this); //Listened to by 'ObjectiveListing.cs'
-            InvokeCompletionEvents();
-            Debug.Log($"{gameObject.name} has successfully been completed!");
+
+            return;
         }
         else
         {
-            foreach (ObjectiveNode node in targetLocations)
+            int completedCount = targetLocations.Count(curr => curr != null && curr.isComplete);
+            int requiredTotal = GetRequiredTotal();
+
+            if (setNumberOfNeeded != 0)
             {
-                if (node.isComplete)
+                if (completedCount < requiredTotal) return;
+            }
+            else
+            {
+                foreach (ObjectiveNode node in targetLocations)
                 {
-                    if(showTally) TallyBuilder.UpdateTallyUI(this, targetLocations.Count(curr => curr.isComplete), setNumberOfNeeded == 0 ? targetLocations.Count : setNumberOfNeeded);
-                    if (setNumberOfNeeded != 0 &&
-                        targetLocations.Count(curr => curr.isComplete) >= setNumberOfNeeded) break;
+                    if (!node) continue;
+                    if (!node.isComplete) return;
                 }
-                else return;
             }
 
             isComplete = true;
+            RefreshTallyUI();
             OnObjectiveComplete?.Invoke(this); //Listened to by 'ObjectiveListing.cs'
             InvokeCompletionEvents();
             Debug.Log($"{gameObject.name} has successfully been completed!");

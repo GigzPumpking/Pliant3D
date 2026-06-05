@@ -76,6 +76,7 @@ using UnityEngine;
         
         //Tally the number of items fetched
         public int numCompleted { get; set; }
+        private int cachedTotal;
         
         //reference the objects to fetch/flag if all objects are fetched, then check if npc actually got the object, if so objective complete
         
@@ -146,8 +147,15 @@ using UnityEngine;
         
         #endregion
 
+        private void Awake()
+        {
+            RefreshCachedTotal();
+        }
+
         private void Start()
         {
+            RefreshCachedTotal();
+
             if(!questGiver) questGiver = GetComponent<DialogueTrigger>();
 
             EnsureQuestGiverProxy();
@@ -167,7 +175,8 @@ using UnityEngine;
             }
             
             //UPDATE TALLY AT START (This kinda sucks tho)
-            TallyBuilder.InitializeTallyUI(this, ObjectsToFetch.Count);
+            TallyBuilder.InitializeTallyUI(this, cachedTotal);
+            RefreshTallyUI();
             UpdateObjectiveDescriptionUI();
         }
         
@@ -205,6 +214,27 @@ using UnityEngine;
                 {
                     alternateNPC.RefreshDialogueProviders();
                 }
+            }
+        }
+
+        private void OnValidate()
+        {
+            RefreshCachedTotal();
+        }
+
+        private void RefreshCachedTotal()
+        {
+            int currentTotal = ObjectsToFetch != null ? ObjectsToFetch.Count(obj => obj != null) : 0;
+
+            if (!Application.isPlaying)
+            {
+                cachedTotal = currentTotal;
+                return;
+            }
+
+            if (cachedTotal <= 0)
+            {
+                cachedTotal = currentTotal;
             }
         }
 
@@ -247,7 +277,7 @@ using UnityEngine;
 
             if (showTally)
             {
-                ObjectiveListing.ObjectiveToUI[this].DescriptionTXT.text = $"{currentDescription} ({numCompleted}/{ObjectsToFetch.Count})";
+                ObjectiveListing.ObjectiveToUI[this].DescriptionTXT.text = $"{currentDescription} ({numCompleted}/{cachedTotal})";
             }
             else
             {
@@ -281,6 +311,7 @@ using UnityEngine;
             }
 
             numCompleted = ObjectsToFetch.Count(obj => obj != null && obj.isFetched);
+            numCompleted = Mathf.Clamp(numCompleted, 0, cachedTotal);
             UpdateObjectiveDescriptionUI();
         }
 
@@ -340,6 +371,7 @@ using UnityEngine;
             InvokeCompletionEvents();
             isComplete = true;
             RefreshNPCDialogue();
+            RefreshTallyUI();
             UpdateObjectiveDescriptionUI();
             OnObjectiveComplete?.Invoke(this);
             Debug.Log("FetchObjective complete!");
@@ -361,6 +393,8 @@ using UnityEngine;
 
         public override void RestoreState(ObjectiveSaveState state)
         {
+            RefreshCachedTotal();
+
             numCompleted = state.numCompleted;
             fetchedAll = state.fetchedAll;
 
@@ -373,11 +407,23 @@ using UnityEngine;
                 }
             }
 
+            numCompleted = Mathf.Clamp(numCompleted, 0, cachedTotal);
+
             // Update the tally UI to reflect restored progress
             if (showTally)
-                TallyBuilder.UpdateTallyUI(this, numCompleted, ObjectsToFetch.Count);
+                TallyBuilder.UpdateTallyUI(this, numCompleted, cachedTotal);
 
             RefreshNPCDialogue();
             UpdateObjectiveDescriptionUI();
+        }
+
+        public override void RefreshTallyUI()
+        {
+            RefreshCachedTotal();
+
+            if (showTally)
+            {
+                TallyBuilder.UpdateTallyUI(this, numCompleted, cachedTotal);
+            }
         }
     }

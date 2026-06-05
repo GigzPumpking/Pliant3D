@@ -24,7 +24,7 @@ public class AbilityPerformedObjective : Objective
 
     private void Awake()
     {
-        cachedTotal = whichInteractable.Count;
+        RefreshCachedTotal();
     }
 
     private void OnEnable()
@@ -41,24 +41,60 @@ public class AbilityPerformedObjective : Objective
 
     private void Start()
     {
-        if (showTally) TallyBuilder.UpdateTallyUI(this, 0, cachedTotal);
+        RefreshCachedTotal();
+        RefreshTallyUI();
+    }
+
+    private void OnValidate()
+    {
+        RefreshCachedTotal();
+    }
+
+    private void RefreshCachedTotal()
+    {
+        int currentTotal = whichInteractable != null ? whichInteractable.Count(obj => obj != null) : 0;
+
+        if (!Application.isPlaying)
+        {
+            cachedTotal = currentTotal;
+            return;
+        }
+
+        if (cachedTotal <= 0)
+        {
+            cachedTotal = currentTotal;
+        }
+    }
+
+    public override void RefreshTallyUI()
+    {
+        RefreshCachedTotal();
+
+        if (showTally)
+        {
+            TallyBuilder.UpdateTallyUI(this, numCompleted, cachedTotal);
+        }
     }
 
     private void CheckCompletion(Transformation transformation, int abilityNumber, Interactable interactable)
     {
         Debug.Log($"Ability Performed by {transformation} with ability number {abilityNumber} on {interactable}");
         //early return so we only get what we're looking for
-        if (!whichForm.Contains(transformation) || !whichInteractable.Contains(interactable) || abilityNumber != (int)whichAbility) return;
+        if (!interactable || !whichForm.Contains(transformation) || !whichInteractable.Contains(interactable) || abilityNumber != (int)whichAbility) return;
+
+        if (_completedInteractableNames.Contains(interactable.gameObject.name)) return;
 
         _completedInteractableNames.Add(interactable.gameObject.name);
 
-        if (showTally) TallyBuilder.UpdateTallyUI(this, ++numCompleted, cachedTotal);
+        numCompleted = Mathf.Clamp(_completedInteractableNames.Count, 0, cachedTotal);
+        RefreshTallyUI();
         
         //check if the list is empty
         whichInteractable.Remove(interactable);
-        if (whichInteractable.Any()) return;
+        if (whichInteractable.Any(i => i != null)) return;
         
         isComplete = true;
+        RefreshTallyUI();
         OnObjectiveComplete?.Invoke(this); //this needs to update the objective listing to mark the objective off as complete
         InvokeCompletionEvents();
         Debug.Log($"{gameObject.name} has successfully been completed!");
@@ -74,6 +110,8 @@ public class AbilityPerformedObjective : Objective
 
     public override void RestoreState(ObjectiveSaveState state)
     {
+        RefreshCachedTotal();
+
         numCompleted = state.numCompleted;
         _completedInteractableNames = new List<string>(state.completedInteractableNames ?? new List<string>());
 
@@ -87,7 +125,8 @@ public class AbilityPerformedObjective : Objective
         }
         whichInteractable.RemoveAll(i => i != null && _completedInteractableNames.Contains(i.gameObject.name));
 
-        if (showTally)
-            TallyBuilder.UpdateTallyUI(this, numCompleted, cachedTotal);
+        numCompleted = Mathf.Clamp(_completedInteractableNames.Count, 0, cachedTotal);
+
+        RefreshTallyUI();
     }
 }

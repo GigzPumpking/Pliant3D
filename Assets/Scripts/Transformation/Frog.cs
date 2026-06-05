@@ -1198,8 +1198,6 @@ public class Frog : FormScript
                 }
 
                 tongueHitTarget = null;
-                
-                Debug.LogWarning("Right here");
 
                 // Retract tongue visually
                 tongueState = TongueState.Retracting;

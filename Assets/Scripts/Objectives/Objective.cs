@@ -49,4 +49,12 @@ public class Objective : MonoBehaviour, IObjective {
     {
         // Base class: nothing extra to restore.
     }
+    
+    //TALLY STUFF
+    public virtual void RefreshTallyUI()
+    {
+        if (!showTally) return;
+
+        TallyBuilder.UpdateTallyUI(this, 0, 1);
+    }
 }

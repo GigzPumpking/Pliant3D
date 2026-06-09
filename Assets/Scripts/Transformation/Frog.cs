@@ -424,12 +424,7 @@ public class Frog : FormScript
     {
         if (context.performed)
         {
-            // If tongue is already active, cancel gracefully (retract back to player)
-            if (tongueState != TongueState.Idle)
-            {
-                CancelTongueGracefully();
-                return;
-            }
+            if (tongueState != TongueState.Idle) return;
 
             Interactable intr = closestObject != null ? closestObject.GetComponent<Interactable>() : null;
             AbilityUsed?.Invoke(Transformation.FROG, 2, intr);

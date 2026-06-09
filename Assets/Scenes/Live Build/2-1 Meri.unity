@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731715, g: 0.13414735, b: 0.121078536, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -4075,6 +4075,11 @@ MonoBehaviour:
   burningInteractBubble: {fileID: 0}
   keyboardSprite: {fileID: 0}
   controllerSprite: {fileID: 0}
+  extinguishProgressSlider: {fileID: 0}
+  extinguishProgressCanvasGroup: {fileID: 0}
+  holdExtinguishBubble: {fileID: 0}
+  holdKeyboardSprite: {fileID: 0}
+  holdControllerSprite: {fileID: 0}
 --- !u!82 &623297483
 AudioSource:
   m_ObjectHideFlags: 0
@@ -9683,6 +9688,8 @@ MonoBehaviour:
   onRestoreEvents: []
   ObjectsToFetch:
   - {fileID: 1496597894}
+  questGiver: {fileID: 0}
+  fetchedObjectiveDescription: 
   requiresNPCReturn: 1
   itemsReadyDialogue:
   - defaultText: Perfect! This is exactly what I'm looking for!
@@ -12923,6 +12930,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: floor 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1789458065550273224, guid: 8a1f3fc7ab021254ca94e6148e047a02,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 893d1bed0625e1f41b742f9f1df3b4ec, type: 2}
     - target: {fileID: 5667276892595153958, guid: 8a1f3fc7ab021254ca94e6148e047a02,
         type: 3}
       propertyPath: m_RootOrder
@@ -14984,6 +14996,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_TagString
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 6886625394974568286, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6907846692751768463, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
         type: 3}

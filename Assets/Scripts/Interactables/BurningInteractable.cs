@@ -167,6 +167,12 @@ public class BurningInteractable : MonoBehaviour, IInteractable
         yield return new WaitForSeconds(remainingTime);
 
         _isExtinguished = true;
+        
+        //Raise custom event dispatcher
+        if (CustomEventObjective.TryCompleteAnyForObject(this.gameObject, out CustomEventObjective completedObjective))
+        {
+            Debug.Log($"Extinguished object '{this.gameObject.name}' counted toward objective '{completedObjective.description}'.");
+        }
 
         if (InteractionManager.Instance != null)
             InteractionManager.Instance.Unregister(this);

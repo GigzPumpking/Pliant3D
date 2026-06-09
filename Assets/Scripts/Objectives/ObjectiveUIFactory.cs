@@ -35,18 +35,11 @@ public class ObjectiveUIFactory
             objectiveUIDict[objective] = currentObjectiveUI;
 
             Debug.LogWarning($"Mapping objective UI for objective: {objective.description} to {currentObjectiveUI.name}");
+        }
 
-            if (objective.showTally)
-            {
-                if (objective is CustomEventObjective customEventObjective)
-                {
-                    customEventObjective.RefreshTallyUI();
-                }
-                else
-                {
-                    TallyBuilder.UpdateTallyUI(objective, 0, 1);
-                }
-            }
+        if (objective.showTally)
+        {
+            objective.RefreshTallyUI();
         }
 
         if (objective.isComplete)

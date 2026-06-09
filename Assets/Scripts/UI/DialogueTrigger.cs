@@ -372,32 +372,76 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
             }
         }
 
-        if (!objectiveGiven && objectiveToGive != null && objectiveToGive.Count > 0)
-        {
-            if (!ObjectiveTracker)
-            {
-                ObjectiveTracker = GameObject.FindObjectOfType<ObjectiveTracker>();
-            }
-
-            if (ObjectiveTracker)
-            {
-                ObjectiveTracker.AddObjective(objectiveToGive);
-                objectiveGiven = true;
-
-                //failsafe
-                foreach(var obj in objectiveToGive)
-                {
-                    FetchObjective fetchObj = obj as FetchObjective;
-                    if(fetchObj != null)
-                    {
-                        fetchObj.RegisterQuestGiver(this);
-                    }
-                }
-            }
-        }
+        TryGiveObjectives();
 
         // Force InteractionManager to update so bubble reappears if still in range.
         InteractionManager.Instance?.ForceUpdate();
+    }
+
+    private void TryGiveObjectives()
+    {
+        if (objectiveToGive == null || objectiveToGive.Count == 0)
+        {
+            return;
+        }
+
+        List<Objective> objectivesToAdd = new List<Objective>();
+
+        foreach (Objective objective in objectiveToGive)
+        {
+            if (!objective) continue;
+            if (objective.isComplete) continue;
+
+            if (!objectiveGiven || !IsObjectiveUITracked(objective))
+            {
+                objectivesToAdd.Add(objective);
+            }
+        }
+
+        if (objectivesToAdd.Count == 0)
+        {
+            RegisterFetchObjectiveQuestGivers();
+            return;
+        }
+
+        if (!ObjectiveTracker)
+        {
+            ObjectiveTracker = GameObject.FindObjectOfType<ObjectiveTracker>();
+        }
+
+        if (ObjectiveTracker)
+        {
+            ObjectiveTracker.AddObjective(objectivesToAdd);
+            objectiveGiven = true;
+            RegisterFetchObjectiveQuestGivers();
+        }
+    }
+
+    private bool IsObjectiveUITracked(Objective objective)
+    {
+        if (!objective)
+        {
+            return false;
+        }
+
+        if (!ObjectiveListing.ObjectiveToUI.TryGetValue(objective, out ObjectiveUI objectiveUI))
+        {
+            return false;
+        }
+
+        return objectiveUI != null;
+    }
+
+    private void RegisterFetchObjectiveQuestGivers()
+    {
+        foreach(var obj in objectiveToGive)
+        {
+            FetchObjective fetchObj = obj as FetchObjective;
+            if(fetchObj != null)
+            {
+                fetchObj.RegisterQuestGiver(this);
+            }
+        }
     }
 
     void Update()

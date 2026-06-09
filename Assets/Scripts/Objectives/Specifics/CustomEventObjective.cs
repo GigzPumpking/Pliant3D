@@ -19,7 +19,7 @@ public class CustomEventObjective : Objective
     private int cachedTotal;
     private int numCompleted = 0;
 
-    public int TotalRequired => ObjectiveObjects != null ? ObjectiveObjects.Count(obj => obj != null) : 0;
+    public int TotalRequired => cachedTotal;
     public int NumCompleted => numCompleted;
 
     private void Awake()
@@ -50,10 +50,21 @@ public class CustomEventObjective : Objective
 
     private void RefreshCachedTotal()
     {
-        cachedTotal = ObjectiveObjects != null ? ObjectiveObjects.Count(obj => obj != null) : 0;
+        int currentTotal = ObjectiveObjects != null ? ObjectiveObjects.Count(obj => obj != null) : 0;
+
+        if (!Application.isPlaying)
+        {
+            cachedTotal = currentTotal;
+            return;
+        }
+
+        if (cachedTotal <= 0)
+        {
+            cachedTotal = currentTotal;
+        }
     }
 
-    public void RefreshTallyUI()
+    public override void RefreshTallyUI()
     {
         RefreshCachedTotal();
 
@@ -221,6 +232,8 @@ public class CustomEventObjective : Objective
         }
 
         isComplete = true;
+
+        RefreshTallyUI();
 
         OnObjectiveComplete?.Invoke(this);
         InvokeCompletionEvents();

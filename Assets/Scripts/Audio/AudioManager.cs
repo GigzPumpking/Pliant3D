@@ -128,6 +128,7 @@ public class AudioManager : MonoBehaviour
             source.pitch = randomizePitch ? UnityEngine.Random.Range(lowestPitch, highestPitch) : 1f;
             source.spatialBlend = 1.0f;
             source.volume = data.volume * overallSFXVolume * globalVolume;
+            source.clip = data.clip;
             source.PlayOneShot(data.clip);
             StartCoroutine(ReturnAfterPlay(source, data.clip.length, parent));
         }
@@ -139,9 +140,12 @@ public class AudioManager : MonoBehaviour
         AudioSource source = AudioPool.Instance.GetAudioSource(null);
         if (source != null)
         {
+            Debug.Log($"Playing SFX: {data.clip.name} | data.volume: {data.volume} | overallSFXVolume: {overallSFXVolume} | globalVolume: {globalVolume} | final: {source.volume}");
+            
             source.pitch = randomizePitch ? UnityEngine.Random.Range(lowestPitch, highestPitch) : 1f;
             source.spatialBlend = 0.0f;
             source.volume = data.volume * overallSFXVolume * globalVolume;
+            source.clip = data.clip;
             source.PlayOneShot(data.clip);
             StartCoroutine(ReturnAfterPlay(source, data.clip.length, null));
         }
@@ -153,6 +157,8 @@ public class AudioManager : MonoBehaviour
         AudioSource source = AudioPool.Instance.GetAudioSource(parent);
         if (source != null)
         {
+            Debug.Log($"Playing SFX: {data.clip.name} | data.volume: {data.volume} | overallSFXVolume: {overallSFXVolume} | globalVolume: {globalVolume} | final: {source.volume}");
+            
             source.clip = data.clip;
             source.pitch = randomizePitch ? UnityEngine.Random.Range(lowestPitch, highestPitch) : 1f;
             source.volume = data.volume * overallSFXVolume * globalVolume;
@@ -241,7 +247,7 @@ public class AudioManager : MonoBehaviour
 
     public void DeleteCurrentMusicSources()
     {
-        musicSource.Stop();
+        musicSource.clip = null;
         foreach(AudioSource audioSource in additionalMusicSources)
         {
             Destroy(audioSource);

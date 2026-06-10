@@ -38,6 +38,7 @@ public class SceneSelectionTrigger : MonoBehaviour
     [SerializeField] private ButtonScript requiredButton;
 
     private bool IsActive => requiredButton == null || requiredButton.HasBeenTriggered;
+    private bool Collided = false;
 
     // Private cache for the UI component to avoid repeated calls to GetComponent.
     private SceneSelectionPanelUI _panelUIComponent;
@@ -56,12 +57,17 @@ public class SceneSelectionTrigger : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!IsActive) return;
+        // If collision already detected ignore rest of function to stop duplication calls
+        if (Collided) return;
+        
 
         if (other.CompareTag("Player"))
         {
             Debug.Log("Player entered the trigger. Attempting to show scene selection panel.");
             EventDispatcher.Raise(new NewSceneLoaded());
             ShowAndPopulatePanel();
+            // Set Collided to true to stop repeats
+            Collided = true;
         }
     }
 

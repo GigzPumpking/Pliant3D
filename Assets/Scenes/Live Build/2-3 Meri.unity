@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731715, g: 0.13414735, b: 0.121078536, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -3768,8 +3768,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 6.91, y: 11.56, z: 8.5}
-  m_Center: {x: -3.07, y: 0.68, z: 0}
+  m_Size: {x: 6.298956, y: 6.372977, z: 7.806835}
+  m_Center: {x: -2.7644777, y: 1.3258755, z: 0.55568504}
 --- !u!1 &418190276
 GameObject:
   m_ObjectHideFlags: 0
@@ -5329,7 +5329,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 585655140}
   m_LocalRotation: {x: -0, y: -0.000000014901159, z: -0, w: 1}
-  m_LocalPosition: {x: -134.25, y: 1.9, z: -63.94}
+  m_LocalPosition: {x: -134.649, y: 1.9, z: -63.44}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5485,6 +5485,11 @@ MonoBehaviour:
   burningInteractBubble: {fileID: 0}
   keyboardSprite: {fileID: 0}
   controllerSprite: {fileID: 0}
+  extinguishProgressSlider: {fileID: 0}
+  extinguishProgressCanvasGroup: {fileID: 0}
+  holdExtinguishBubble: {fileID: 0}
+  holdKeyboardSprite: {fileID: 0}
+  holdControllerSprite: {fileID: 0}
 --- !u!82 &623297483
 AudioSource:
   m_ObjectHideFlags: 0
@@ -6408,17 +6413,17 @@ PrefabInstance:
     - target: {fileID: 425647402605839638, guid: 22f55ed1496ffd746ba4db42bebc6ce2,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.569378
+      value: -3.32
       objectReference: {fileID: 0}
     - target: {fileID: 425647402605839638, guid: 22f55ed1496ffd746ba4db42bebc6ce2,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.4309464
+      value: 1.43
       objectReference: {fileID: 0}
     - target: {fileID: 425647402605839638, guid: 22f55ed1496ffd746ba4db42bebc6ce2,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.8053513
+      value: 1.84
       objectReference: {fileID: 0}
     - target: {fileID: 425647402605839638, guid: 22f55ed1496ffd746ba4db42bebc6ce2,
         type: 3}
@@ -11546,17 +11551,17 @@ PrefabInstance:
     - target: {fileID: 425647402605839638, guid: 22f55ed1496ffd746ba4db42bebc6ce2,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.763958
+      value: -3.3306255
       objectReference: {fileID: 0}
     - target: {fileID: 425647402605839638, guid: 22f55ed1496ffd746ba4db42bebc6ce2,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.491005
+      value: 1.489054
       objectReference: {fileID: 0}
     - target: {fileID: 425647402605839638, guid: 22f55ed1496ffd746ba4db42bebc6ce2,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 2.9393845
+      value: 3.004649
       objectReference: {fileID: 0}
     - target: {fileID: 425647402605839638, guid: 22f55ed1496ffd746ba4db42bebc6ce2,
         type: 3}
@@ -13180,6 +13185,8 @@ MonoBehaviour:
   ObjectsToFetch:
   - {fileID: 0}
   - {fileID: 0}
+  questGiver: {fileID: 0}
+  fetchedObjectiveDescription: 
   requiresNPCReturn: 1
   itemsReadyDialogue: []
   questCompleteDialogue: []
@@ -17010,6 +17017,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_TagString
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 6886625394974568286, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6907846692751768463, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
         type: 3}

@@ -10380,6 +10380,18 @@ Animator:
     type: 3}
   m_PrefabInstance: {fileID: 2062814062}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &404039068 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1624605165569458322, guid: 1303892b2f5324f4d93a4192b7422668,
+    type: 3}
+  m_PrefabInstance: {fileID: 2062814062}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47d3f7003b56445b19cb2420d3c44328, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &407243316
 GameObject:
   m_ObjectHideFlags: 0
@@ -27524,7 +27536,21 @@ MonoBehaviour:
   isComplete: 0
   showTally: 0
   onCompleteEvents: []
-  onRestoreEvents: []
+  onRestoreEvents:
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 404039068}
+        m_TargetAssemblyTypeName: ObjectRemovalButton, Assembly-CSharp
+        m_MethodName: OnPress
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 394216563}
@@ -56468,7 +56494,7 @@ PrefabInstance:
     - target: {fileID: 7986067212760191123, guid: f09abbff6e9a448cab6f233042637973,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -14.0000305
+      value: -14
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f09abbff6e9a448cab6f233042637973, type: 3}

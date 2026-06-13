@@ -45,7 +45,7 @@ public class Player : KeyActionReceiver<Player>
     private bool prevH = false;
     private bool prevV = false;
 
-    // track last non‑zero horizontal so we know which way “left” refers to
+    // track last non-zero horizontal so we know which way “left” refers to
     private Directions lastHorizontalInput = Directions.RIGHT;
 
     [SerializeField] bool isGrounded = true;
@@ -61,6 +61,10 @@ public class Player : KeyActionReceiver<Player>
     // Jumping and Movement Variables
     [SerializeField] float movementSpeed = 5f;
     private Vector2 movementInput;
+    
+    // NEW: Stores the calculated direction from Update to be applied in FixedUpdate
+    private Vector3 calculatedMoveDir = Vector3.zero;
+    
     float timeElapsed = 0f;
     public bool canMove = true;
 
@@ -169,6 +173,7 @@ public class Player : KeyActionReceiver<Player>
     public void stopMovement() {
         rbody.velocity = Vector3.zero;
         movementInput = Vector2.zero;
+        calculatedMoveDir = Vector3.zero;
 
         animator?.SetBool("isWalking", false);
     }
@@ -251,11 +256,12 @@ public class Player : KeyActionReceiver<Player>
         if (canMove)
         {
             InputHandler();
-            MoveHandler();
+            CalculateMovement(); // Determines intent, applies sprite logic
         }
         else
         { 
             isMoving = false;
+            calculatedMoveDir = Vector3.zero;
         }
 
         if (transform.position.y < outOfBoundsY && !GameManager.Instance.isGameOver
@@ -273,6 +279,39 @@ public class Player : KeyActionReceiver<Player>
         }
 
         UpdateAnimationBasedDirection();
+    }
+
+    // NEW: Apply the actual physics movement in FixedUpdate
+    private void FixedUpdate()
+    {
+        if (!canMove) return;
+
+        // Apply horizontal/depth velocity while maintaining current vertical velocity
+        rbody.velocity = new Vector3(
+            calculatedMoveDir.x * movementSpeed,
+            rbody.velocity.y,
+            calculatedMoveDir.z * movementSpeed
+        );
+
+        // Check if Bulldozer is sprinting - if so, don't clamp velocity
+        bool isBulldozerSprinting = false;
+        if (transformation == Transformation.BULLDOZER && selectedGroupScript != null)
+        {
+            Bulldozer bulldozer = selectedGroupScript as Bulldozer;
+            if (bulldozer != null)
+            {
+                isBulldozerSprinting = bulldozer.IsSprinting();
+            }
+        }
+
+        if (!isJumping && airborneGraceTimer <= 0f && isGrounded && rbody.velocity.y > 0.1f && !isBulldozerSprinting)
+        {
+            rbody.velocity = new Vector3(
+                rbody.velocity.x,
+                0,
+                rbody.velocity.z
+            );
+        }
     }
 
     public void resetPosition() {
@@ -319,8 +358,8 @@ public class Player : KeyActionReceiver<Player>
         movementInput = moveValue;
     }
 
-
-    void MoveHandler() {
+    // Renamed from MoveHandler. Calculates intent and updates sprites.
+    void CalculateMovement() {
         float vx = movementInput.x;
         float vy = movementInput.y;
         float thr = minMoveThreshold;
@@ -356,7 +395,6 @@ public class Player : KeyActionReceiver<Player>
                                      : Directions.DOWN;
             }
 
-
             if (h)
             {
                 if (transformation == Transformation.BULLDOZER || transformation == Transformation.FROG)
@@ -370,7 +408,6 @@ public class Player : KeyActionReceiver<Player>
             }
         }
         
-
         if (animator != null)
         {
             bool isMoving = vx != 0 || vy != 0;
@@ -399,31 +436,8 @@ public class Player : KeyActionReceiver<Player>
             }
         }
 
-        rbody.velocity = new Vector3(
-            dir.x * movementSpeed,
-            rbody.velocity.y,
-            dir.z * movementSpeed
-        );
-
-        // Check if Bulldozer is sprinting - if so, don't clamp velocity
-        bool isBulldozerSprinting = false;
-        if (transformation == Transformation.BULLDOZER && selectedGroupScript != null)
-        {
-            Bulldozer bulldozer = selectedGroupScript as Bulldozer;
-            if (bulldozer != null)
-            {
-                isBulldozerSprinting = bulldozer.IsSprinting();
-            }
-        }
-
-        if (!isJumping && airborneGraceTimer <= 0f && isGrounded && rbody.velocity.y > 0.1f && !isBulldozerSprinting)
-        {
-            rbody.velocity = new Vector3(
-                rbody.velocity.x,
-                0,
-                rbody.velocity.z
-            );
-        }
+        // Pass calculated direction to FixedUpdate
+        calculatedMoveDir = dir;
     }
     
     private string GetCurrentSpriteName()
@@ -436,99 +450,60 @@ public class Player : KeyActionReceiver<Player>
         return selectedGroupSprite.sprite.name;
     }
 
-    // This is the logic that determines direction from animation state.
     private void UpdateAnimationBasedDirection()
     {
-        Vector3 dirVec = Vector3.forward; // Default direction
-        
-        if (selectedGroupSprite == null || animator == null)
-        {
-            AnimationBasedFacingDirection = dirVec;
-            return;
-        }
+        if (selectedGroupScript != null && selectedGroupScript.IsDirectionLocked) return;
+        if (selectedGroupSprite == null || animator == null) return;
+
+        // NEW: Default to our EXISTING direction! 
+        // If an animation (like Idle or Tongue) doesn't have a directional keyword in its name,
+        // we just maintain the last known direction instead of breaking and snapping to forward.
+        Vector3 dirVec = AnimationBasedFacingDirection == Vector3.zero ? Vector3.forward : AnimationBasedFacingDirection;
 
         bool isFlippedX = selectedGroupSprite.flipX;
         string spriteName = GetCurrentSpriteName();
 
-        // Special handling for Frog's "Left" sprites - these are pure left/right facing
-        if (spriteName.StartsWith("Left"))
+        // Changed .StartsWith to .Contains to catch names like "Frog_Idle_FrontLeft"
+        if (spriteName.Contains("FrontLeft"))
+        {
+            if (transformation == Transformation.BULLDOZER)
+                dirVec = isFlippedX ? Vector3.back : Vector3.left;
+            else
+                dirVec = Vector3.left;
+        }
+        else if (spriteName.Contains("FrontRight"))
+        {
+            dirVec = Vector3.back;
+        }
+        else if (spriteName.Contains("BackLeft"))
+        {
+            if (transformation == Transformation.BULLDOZER)
+                dirVec = isFlippedX ? Vector3.right : Vector3.forward;
+            else
+                dirVec = Vector3.forward;
+        }
+        else if (spriteName.Contains("BackRight"))
+        {
+            dirVec = Vector3.right;
+        }
+        else if (spriteName.Contains("Left")) // Pure Left/Right
         {
             if (transformation == Transformation.FROG)
-            {
-                // Frog's "Left" sprites use flipX to distinguish left from right
-                // flipX = false: facing pure west (left) - between forward and left
-                // flipX = true: facing pure east (right) - between back and right
-                dirVec = isFlippedX 
-                    ? new Vector3(1, 0, -1).normalized  // East: between back (0,0,-1) and right (1,0,0)
-                    : new Vector3(-1, 0, 1).normalized; // West: between left (-1,0,0) and forward (0,0,1)
-            }
+                dirVec = isFlippedX ? new Vector3(1, 0, -1).normalized : new Vector3(-1, 0, 1).normalized;
             else
-            {
-                // Other transformations default to left
                 dirVec = Vector3.left;
-            }
         }
-        // Sprites with specific "Left" or "Right" directions
-        // These function as if isFlippedX is false or true, respectively, ignoring the variable.
-        else if (spriteName.StartsWith("FrontLeft"))
+        else if (spriteName.Contains("Back"))
         {
-            // if Transformation is BULLDOZER, use the isFlippedX to determine direction
-            if (transformation == Transformation.BULLDOZER)
-            {
-                dirVec = isFlippedX ? Vector3.back : Vector3.left; // South (FACING DOWN) or West (FACING LEFT)
-            }
-            else
-            {
-                dirVec = Vector3.left;   // South (FACING DOWN)
-            }
+            dirVec = isFlippedX ? Vector3.right : Vector3.forward;
         }
-        else if (spriteName.StartsWith("FrontRight"))
+        else if (spriteName.Contains("Front"))
         {
-            dirVec = Vector3.back;  // East (FACING RIGHT)
-        }
-        else if (spriteName.StartsWith("BackLeft"))
-        {
-            if (transformation == Transformation.BULLDOZER)
-            {
-                dirVec = isFlippedX ? Vector3.right : Vector3.forward; // North (FACING UP) or West (FACING LEFT)
-            }
-            else
-            {
-                dirVec = Vector3.forward;    // West (FACING LEFT)
-            }
-        }
-        else if (spriteName.StartsWith("BackRight"))
-        {
-            dirVec = Vector3.right; // North (FACING UP)
-        }
-        // Fallback to generic "Front" or "Back" sprites which use isFlippedX
-        else if (spriteName.StartsWith("Back"))
-        {
-            if (!isFlippedX)
-            {
-                dirVec = Vector3.forward;    // West (FACING LEFT)
-            }
-            else
-            {
-                dirVec = Vector3.right; // North (FACING UP)
-            }
-        }
-        else if (spriteName.StartsWith("Front"))
-        {
-            if (!isFlippedX)
-            {
-                dirVec = Vector3.left;   // South (FACING DOWN)
-            }
-            else
-            {
-                dirVec = Vector3.back;  // East (FACING RIGHT)
-            }
+            dirVec = isFlippedX ? Vector3.back : Vector3.left;
         }
 
-        // Update the public property for other scripts to read.
         AnimationBasedFacingDirection = dirVec;
     }
-
 
     public void SetVelocity(Vector3 velocity) {
         rbody.velocity = velocity;

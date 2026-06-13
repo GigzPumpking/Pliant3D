@@ -1087,7 +1087,7 @@ PrefabInstance:
     - target: {fileID: 27891611814833633, guid: 8aae0371ff2914a469f6b52af2faeae6,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 27891611814833638, guid: 8aae0371ff2914a469f6b52af2faeae6,
         type: 3}
@@ -47718,6 +47718,85 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1342462644}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1001 &1343711080
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3583816273124031016, guid: b69218cbccad1482d96ea6cf6d1ba5d9,
+        type: 3}
+      propertyPath: m_Name
+      value: SceneResetTimer
+      objectReference: {fileID: 0}
+    - target: {fileID: 3583816273124031019, guid: b69218cbccad1482d96ea6cf6d1ba5d9,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 42
+      objectReference: {fileID: 0}
+    - target: {fileID: 3583816273124031019, guid: b69218cbccad1482d96ea6cf6d1ba5d9,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3583816273124031019, guid: b69218cbccad1482d96ea6cf6d1ba5d9,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3583816273124031019, guid: b69218cbccad1482d96ea6cf6d1ba5d9,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.000015258789
+      objectReference: {fileID: 0}
+    - target: {fileID: 3583816273124031019, guid: b69218cbccad1482d96ea6cf6d1ba5d9,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3583816273124031019, guid: b69218cbccad1482d96ea6cf6d1ba5d9,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3583816273124031019, guid: b69218cbccad1482d96ea6cf6d1ba5d9,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3583816273124031019, guid: b69218cbccad1482d96ea6cf6d1ba5d9,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3583816273124031019, guid: b69218cbccad1482d96ea6cf6d1ba5d9,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3583816273124031019, guid: b69218cbccad1482d96ea6cf6d1ba5d9,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3583816273124031019, guid: b69218cbccad1482d96ea6cf6d1ba5d9,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3583816274054649193, guid: b69218cbccad1482d96ea6cf6d1ba5d9,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3583816274054649193, guid: b69218cbccad1482d96ea6cf6d1ba5d9,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: b69218cbccad1482d96ea6cf6d1ba5d9, type: 3}
 --- !u!43 &1349233931
 Mesh:
   m_ObjectHideFlags: 0
@@ -54439,7 +54518,7 @@ PrefabInstance:
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: baseDialogue.Array.size
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
@@ -54508,8 +54587,7 @@ PrefabInstance:
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: baseDialogue.Array.data[3].defaultText
-      value: You're gonna need to grab the **FIRE EXTINGUISHER** behind me BUT your
-        **TERRY FORM IS A REQUIREMENT** to pick-up and use it.
+      value: You have 10 minutes kiddo, get to it!
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
@@ -54542,7 +54620,7 @@ PrefabInstance:
         type: 3}
       propertyPath: events.Array.data[0].m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1768918196}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: events.Array.data[0].m_PersistentCalls.m_Calls.Array.data[1].m_Target
@@ -57936,6 +58014,18 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1356595207}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1768918196 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3583816273124031018, guid: b69218cbccad1482d96ea6cf6d1ba5d9,
+    type: 3}
+  m_PrefabInstance: {fileID: 1343711080}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 411358f4d60854dc9a0c8c71ffcad42b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1772610619 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4598209653656255625, guid: 60debc230538ff249a9a15f0be1373ed,

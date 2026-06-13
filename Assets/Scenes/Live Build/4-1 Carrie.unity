@@ -5721,6 +5721,7 @@ Transform:
   - {fileID: 907287010}
   - {fileID: 519165711}
   - {fileID: 113109762}
+  - {fileID: 1611034442}
   m_Father: {fileID: 0}
   m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -33222,6 +33223,58 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1611034441
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1611034442}
+  - component: {fileID: 1611034443}
+  m_Layer: 0
+  m_Name: Clock out for the day
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1611034442
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1611034441}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 247037571}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1611034443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1611034441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d9e37210b14429d9412d09612eab3e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  description: Clock out for the day
+  isComplete: 0
+  showTally: 0
+  onCompleteEvents: []
+  onRestoreEvents: []
+  autoCheckChildrenForNodes: 1
+  targetLocations:
+  - {fileID: 1662593797}
 --- !u!1001 &1611084236
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -34639,6 +34692,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1662593797 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5237844407405600071, guid: a9a9ac27c506e84428174b081696a1a4,
+    type: 3}
+  m_PrefabInstance: {fileID: 1719811943}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3dec0dd9de384a6ea2bcdce0eec71c81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1666582750 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7907413652165339951, guid: b1e9b186e7b5ee94aaae9c47ab82bbd0,
@@ -39777,7 +39842,7 @@ GameObject:
   - component: {fileID: 1873333000}
   - component: {fileID: 1873333001}
   m_Layer: 0
-  m_Name: Jerry 3
+  m_Name: Carrie 4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -39815,6 +39880,7 @@ MonoBehaviour:
   objectiveUIList: []
   objectives:
   - {fileID: 597364616}
+  - {fileID: 1611034443}
   isComplete: 0
   onCompletionEvents: []
 --- !u!4 &1875012716 stripped

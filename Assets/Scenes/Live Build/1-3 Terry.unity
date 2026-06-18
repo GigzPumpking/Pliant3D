@@ -1286,6 +1286,25 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: b55fb66e3a7433d4f8819aecf2c41fde, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6102a42f46622c04994e750b30cd6bca, type: 3}
+--- !u!1 &147592575 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3469478508274088529, guid: 6102a42f46622c04994e750b30cd6bca,
+    type: 3}
+  m_PrefabInstance: {fileID: 147592574}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &147592576
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 147592575}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.0007411861, y: 0.0047926893, z: 0.007297822}
+  m_Center: {x: 0.00026510924, y: 0.0023963423, z: -0.000000005355104}
 --- !u!1001 &201196823
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3843,6 +3862,11 @@ MonoBehaviour:
   burningInteractBubble: {fileID: 0}
   keyboardSprite: {fileID: 0}
   controllerSprite: {fileID: 0}
+  extinguishProgressSlider: {fileID: 0}
+  extinguishProgressCanvasGroup: {fileID: 0}
+  holdExtinguishBubble: {fileID: 0}
+  holdKeyboardSprite: {fileID: 0}
+  holdControllerSprite: {fileID: 0}
 --- !u!82 &623297483
 AudioSource:
   m_ObjectHideFlags: 0
@@ -14675,6 +14699,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_TagString
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 6886625394974568286, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6907846692751768463, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
         type: 3}

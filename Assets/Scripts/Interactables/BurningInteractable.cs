@@ -163,6 +163,11 @@ public class BurningInteractable : MonoBehaviour, IInteractable
         // === AUTO-COMPLETE PHASE: last portion plays on its own ===
         if (_animator != null) _animator.speed = 1f;
 
+        // Immediately disable the killzone so the player can walk through the dwindling fire
+        // while the remaining animation plays out.
+        Transform killzone = transform.Find("Killzone");
+        if (killzone != null) killzone.gameObject.SetActive(false);
+
         float remainingTime = extinguishDuration - holdTarget;
         yield return new WaitForSeconds(remainingTime);
 
@@ -183,18 +188,9 @@ public class BurningInteractable : MonoBehaviour, IInteractable
 
     public void SetInteractBubbleActive(bool active)
     {
-        Terry terry = GetTerry();
-        if (terry == null) return;
-
-        if (active)
-        {
-            terry.SetBurningPromptActive(false);
-            terry.SetHoldExtinguishPromptActive(true);
-        }
-        else
-        {
-            terry.SetHoldExtinguishPromptActive(false);
-        }
+        // Show/hide the press-to-interact prompt on Terry.
+        // The hold bubble is managed directly by ExtinguishHoldCoroutine.
+        GetTerry()?.SetBurningPromptActive(active);
     }
 
     #endregion

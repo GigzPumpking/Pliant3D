@@ -117,4 +117,49 @@ public class PlayerToLocationObjective : Objective {
                !targetLocations.Contains(child.GetComponent<ObjectiveNode>())) targetLocations.Add(child.GetComponent<ObjectiveNode>());
         }
     }
+
+    public override ObjectiveSaveState CaptureState()
+    {
+        var state = base.CaptureState();
+        state.numCompleted = numCompleted;
+        state.completedInteractableNames = targetLocations
+            .Where(n => n != null && n.isComplete)
+            .Select(n => GetNodePath(n))
+            .ToList();
+        return state;
+    }
+
+    public override void RestoreState(ObjectiveSaveState state)
+    {
+        if (state == null) return;
+
+        var savedPaths = state.completedInteractableNames;
+        if (savedPaths == null || savedPaths.Count == 0) return;
+
+        foreach (ObjectiveNode node in targetLocations)
+        {
+            if (node == null) continue;
+            if (savedPaths.Contains(GetNodePath(node)))
+            {
+                node.SetCompleteSilently();
+            }
+        }
+
+        RefreshCompletedCount();
+        RefreshTallyUI();
+    }
+
+    private string GetNodePath(ObjectiveNode node) => GetHierarchyPath(node.transform);
+
+    private string GetHierarchyPath(Transform t)
+    {
+        if (t == null) return "";
+        string path = t.name;
+        while (t.parent != null)
+        {
+            t = t.parent;
+            path = t.name + "/" + path;
+        }
+        return path;
+    }
 }

@@ -19,11 +19,21 @@ public class ObjectiveNode : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (isComplete) return;
         if (!lookingFor.Contains(other.gameObject)) return;
         lookingFor.Remove(other.gameObject);
 
         if (lookingFor.Any()) return;
         isComplete = true;
         OnNodeCompleted?.Invoke();
+    }
+
+    /// <summary>
+    /// Marks this node complete without broadcasting OnNodeCompleted.
+    /// Used by objective RestoreState to silently reinstate saved node progress.
+    /// </summary>
+    public void SetCompleteSilently()
+    {
+        isComplete = true;
     }
 }

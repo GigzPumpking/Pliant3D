@@ -100,6 +100,51 @@ public class ObjectToManyLocationsObjective : Objective {
         InvokeCompletionEvents();
         Debug.Log($"{gameObject.name} has successfully been completed!");
     }
+
+    public override ObjectiveSaveState CaptureState()
+    {
+        var state = base.CaptureState();
+        state.numCompleted = numCompleted;
+        state.completedInteractableNames = targetLocations
+            .Where(n => n != null && n.isComplete)
+            .Select(n => GetNodePath(n))
+            .ToList();
+        return state;
+    }
+
+    public override void RestoreState(ObjectiveSaveState state)
+    {
+        if (state == null) return;
+
+        var savedPaths = state.completedInteractableNames;
+        if (savedPaths == null || savedPaths.Count == 0) return;
+
+        foreach (ObjectiveNode node in targetLocations)
+        {
+            if (node == null) continue;
+            if (savedPaths.Contains(GetNodePath(node)))
+            {
+                node.SetCompleteSilently();
+            }
+        }
+
+        RefreshCompletedCount();
+        RefreshTallyUI();
+    }
+
+    private string GetNodePath(ObjectiveNode node) => GetHierarchyPath(node.transform);
+
+    private string GetHierarchyPath(Transform t)
+    {
+        if (t == null) return "";
+        string path = t.name;
+        while (t.parent != null)
+        {
+            t = t.parent;
+            path = t.name + "/" + path;
+        }
+        return path;
+    }
 }
 
 public class ManyObjectsToLocationObjective : Objective {
@@ -197,5 +242,54 @@ public class ManyObjectsToLocationObjective : Objective {
         OnObjectiveComplete?.Invoke(this); //this needs to update the objective listing to mark the objective off as complete
         InvokeCompletionEvents();
         Debug.Log($"{gameObject.name} has successfully been completed!");
+    }
+
+    public override ObjectiveSaveState CaptureState()
+    {
+        var state = base.CaptureState();
+        state.numCompleted = numCompleted;
+        // "placed" items = in the master lookingFor list but no longer in the node's live list
+        if (targetLocation != null && targetLocation.lookingFor != null)
+        {
+            state.completedInteractableNames = lookingFor
+                .Where(obj => obj != null && !targetLocation.lookingFor.Contains(obj))
+                .Select(obj => GetHierarchyPath(obj.transform))
+                .ToList();
+        }
+        return state;
+    }
+
+    public override void RestoreState(ObjectiveSaveState state)
+    {
+        if (state == null) return;
+        if (targetLocation == null || targetLocation.lookingFor == null) return;
+
+        var savedPaths = state.completedInteractableNames;
+        if (savedPaths == null || savedPaths.Count == 0) return;
+
+        foreach (GameObject obj in lookingFor)
+        {
+            if (obj == null) continue;
+            // Accept hierarchy path (current format) or plain name (old save fallback)
+            if (savedPaths.Contains(GetHierarchyPath(obj.transform)) || savedPaths.Contains(obj.name))
+            {
+                targetLocation.lookingFor.Remove(obj);
+            }
+        }
+
+        RefreshCompletedCount();
+        RefreshTallyUI();
+    }
+
+    private string GetHierarchyPath(Transform t)
+    {
+        if (t == null) return "";
+        string path = t.name;
+        while (t.parent != null)
+        {
+            t = t.parent;
+            path = t.name + "/" + path;
+        }
+        return path;
     }
 }

@@ -271,7 +271,8 @@ public class Player : KeyActionReceiver<Player>
                                                 && SceneManager.GetActiveScene().name != "0 Main Menu"
                                                 && SceneManager.GetActiveScene().name != "11 End Screen"
                                                 && SceneManager.GetActiveScene().name != "4-0 Carrie"
-                                                && SceneManager.GetActiveScene().name != "5-0 Perry")
+                                                && SceneManager.GetActiveScene().name != "5-0 Perry"
+                                                && SceneManager.GetActiveScene().name != "11-0 End")
         {
             Debug.LogWarning("s::" + SceneManager.GetActiveScene().name);
             Debug.LogWarning("Game Over from Player.cs");

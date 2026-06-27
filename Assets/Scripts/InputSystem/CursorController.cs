@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public enum ModeOfCursor
 {
@@ -31,7 +32,7 @@ public class CursorController : MonoBehaviour
         {
             Instance = this;
             //TODO: Possibly uncomment if Cursor controller stays active between scenes (active during pause menu) will need to creat fuctionality to reattach serialized fields between scenes
-            //DontDestroyOnLoad(gameObject);
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -45,6 +46,12 @@ public class CursorController : MonoBehaviour
         Cursor.SetCursor(cursorTextureDefault, clickPosition, CursorMode.Auto);
         gamepadCursorImage = gamepadCursor.GetComponent<Image>();
 
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        gamepadCursor.SetActive(scene.name != "0 Main Menu");
     }
 
     public void SetToMode(ModeOfCursor modeOfCursor)

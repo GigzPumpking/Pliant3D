@@ -439,6 +439,11 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     public void MainMenu()
     {
+        // Reset pause state so the persistent UIManager overlay does not block
+        // mouse input on the Main Menu buttons after scene load.
+        Time.timeScale = 1;
+        UIManager.Instance?.ForceClosePauseMenu();
+
         // Load the main menu scene
         SceneManager.LoadScene(mainMenuSceneName);
     }

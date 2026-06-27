@@ -265,6 +265,19 @@ public class UIManager : KeyActionReceiver<UIManager>
         }
     }
 
+    /// <summary>
+    /// Closes the pause menu and resets time scale without side effects (no sound).
+    /// Call this before loading the main menu so the persistent pause overlay
+    /// does not block raycasts in the new scene.
+    /// </summary>
+    public void ForceClosePauseMenu()
+    {
+        if (!pauseMenu.activeSelf) return;
+        resumeButton?.SetActive(false);
+        pauseMenu?.SetActive(false);
+        Time.timeScale = 1;
+    }
+
     public void ResetLevel()
     {
         Scene currentScene = SceneManager.GetActiveScene();

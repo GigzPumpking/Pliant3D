@@ -1,22 +1,41 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MainMenuAudio : MonoBehaviour
 {
+    private static MainMenuAudio instance;
     private AudioSource audioSource;
 
     private void Start()
     {
+
+        if (instance == null)
+            instance = this;
+        else
+        {
+            Destroy(this.gameObject);
+            return;
+        }
+        DontDestroyOnLoad(this.gameObject);
+
         audioSource = GetComponent<AudioSource>();
         EventDispatcher.AddListener<PlayGame>(PlayGame);
         EventDispatcher.AddListener<QuitGame>(QuitGame);
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        gameObject.SetActive(scene.name == "0 Main Menu");
     }
 
     private void OnDestroy()
     {
         EventDispatcher.RemoveListener<PlayGame>(PlayGame);
         EventDispatcher.RemoveListener<QuitGame>(QuitGame);
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     public void PlayGame(PlayGame e)

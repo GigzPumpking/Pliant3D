@@ -85,6 +85,7 @@ public class SceneSelectionPanelUI : MonoBehaviour
 
         if (sceneEntry.useLoadingScreen)
         {
+            Debug.Log($"Setting up multi-step transition to '{sceneEntry.sceneToLoad}' via loading screen '{sceneEntry.loadingScreenSceneName}'.");
             // Set up the multi-step transition via the NextScene script
             NextScene.SetupLoadingScreenTransition(
                 sceneEntry.loadingScreenSceneName,

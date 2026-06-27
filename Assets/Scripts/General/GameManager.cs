@@ -301,7 +301,7 @@ public class GameManager : KeyActionReceiver<GameManager>
         var states = new List<ObjectiveSaveState>();
         // Only capture objectives that are actively tracked in a listing.
         // This avoids capturing un-given NPC objectives that exist in the scene.
-        foreach (var listing in FindObjectsOfType<ObjectiveListing>())
+        foreach (var listing in FindObjectsOfType<ObjectiveListing>(true))
         {
             foreach (var obj in listing.objectives)
             {

@@ -99,9 +99,10 @@ public class UIStackedWindowTracker : MonoBehaviour
             prevTop.SetLastActivatedButton(selected);
         }
 
-        EventSystem.current?.SetSelectedGameObject(window.defaultButton != null
-            ? window.defaultButton
-            : window.GetLastActivatedButton());
+        // TODO: Turned off to stop preselection of buttons turn back on if cursor removed
+        // EventSystem.current?.SetSelectedGameObject(window.defaultButton != null
+        //     ? window.defaultButton
+        //     : window.GetLastActivatedButton());
 
         // If already in stack, remove it so we can move it to top
         _stack.Remove(window);

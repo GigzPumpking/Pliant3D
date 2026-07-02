@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class UIPopUpWindow : MonoBehaviour
 {
-    public GameObject defaultButton;
+    //public GameObject defaultButton;
 	[SerializeField] private AudioData onOpenSound;
 
     public void Awake()

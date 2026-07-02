@@ -89,14 +89,15 @@ public class UIStackedWindowTracker : MonoBehaviour
         {
             var prevTop = _stack[_stack.Count - 1];
             var selected = EventSystem.current?.currentSelectedGameObject;
-            if (selected == null || !selected.activeInHierarchy)
-            {
-                if (prevTop.defaultButton != null && prevTop.defaultButton.activeInHierarchy)
-                    selected = prevTop.defaultButton;
-                else
-                    selected = FindFirstInteractableSelectable(prevTop);
-            }
-            prevTop.SetLastActivatedButton(selected);
+            // TODO: Uncommment if cursor navigation is removed
+            // if (selected == null || !selected.activeInHierarchy)
+            // {
+            //     if (prevTop.defaultButton != null && prevTop.defaultButton.activeInHierarchy)
+            //         selected = prevTop.defaultButton;
+            //     else
+            //         selected = FindFirstInteractableSelectable(prevTop);
+            // }
+            // prevTop.SetLastActivatedButton(selected);
         }
 
         // TODO: Turned off to stop preselection of buttons turn back on if cursor removed
@@ -152,13 +153,14 @@ public class UIStackedWindowTracker : MonoBehaviour
         if (top == null) { EventSystem.current.SetSelectedGameObject(null); return; }
 
         GameObject desired = top.GetLastActivatedButton();
-        if (desired == null || !desired.activeInHierarchy)
-        {
-            if (top.defaultButton != null && top.defaultButton.activeInHierarchy)
-                desired = top.defaultButton;
-            else
-                desired = FindFirstInteractableSelectable(top);
-        }
+        // TODO: Uncomment if cursor navigation removed
+        // if (desired == null || !desired.activeInHierarchy)
+        // {
+        //     if (top.defaultButton != null && top.defaultButton.activeInHierarchy)
+        //         desired = top.defaultButton;
+        //     else
+        //         desired = FindFirstInteractableSelectable(top);
+        // }
 
         if (desired != null && EventSystem.current != null)
         {

@@ -6,14 +6,18 @@ public class MainMenuAudio : MonoBehaviour
 {
     private AudioSource audioSource;
 
-    private void Start()
+    private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
+    }
+
+    private void OnEnable()
+    {
         EventDispatcher.AddListener<PlayGame>(PlayGame);
         EventDispatcher.AddListener<QuitGame>(QuitGame);
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
         EventDispatcher.RemoveListener<PlayGame>(PlayGame);
         EventDispatcher.RemoveListener<QuitGame>(QuitGame);

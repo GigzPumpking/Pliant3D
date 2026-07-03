@@ -30,6 +30,15 @@ public abstract class ButtonScript : MonoBehaviour
         OnRelease();
     }
 
+    /// <summary>
+    /// Marks this button as triggered without playing the press animation or calling OnPress().
+    /// Used by Tutorializer.RestoreTutorialSection() to restore gate state after a reset.
+    /// </summary>
+    public void SetTriggeredSilently()
+    {
+        HasBeenTriggered = true;
+    }
+
     public abstract void OnPress();
 
     public abstract void OnRelease();

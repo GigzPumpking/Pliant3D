@@ -10,6 +10,13 @@ public class ObjectiveTimer : MonoBehaviour
     [Tooltip("The total time for the countdown in seconds.")]
     public float totalTime = 60.0f;
 
+    [Header("Timer Expire Behavior")]
+    [Tooltip("If enabled, the timer will load a scene instead of triggering game over when it reaches zero.")]
+    public bool loadSceneOnExpire = false;
+
+    [Tooltip("The scene to load when the timer expires and scene loading is enabled.")]
+    public string sceneToLoadOnExpire = "";
+
     [Header("UI Elements (Optional)")]
     [Tooltip("Assign a UI Text element here to display the remaining time.")]
     public TextMeshProUGUI timerText;
@@ -94,10 +101,30 @@ public class ObjectiveTimer : MonoBehaviour
             currentTime = 0;
             if (GameManager.Instance != null && !GameManager.Instance.isGameOver && hasStarted)
             {
-                Debug.LogWarning("Game Over from ObjectiveTimer.cs");
-                GameManager.Instance?.SetTimerFailed();
-                GameManager.Instance?.GameOver();
-                currentTime = totalTime; // Reset timer for next round
+                hasStarted = false;
+
+                if (loadSceneOnExpire && !string.IsNullOrEmpty(sceneToLoadOnExpire))
+                {
+                    Debug.LogWarning($"ObjectiveTimer expired. Loading scene '{sceneToLoadOnExpire}'.");
+                    NextScene.TargetScene = sceneToLoadOnExpire;
+
+                    if (UIManager.Instance != null)
+                    {
+                        UIManager.Instance.FadeIn();
+                    }
+                    else
+                    {
+                        Debug.LogError("UIManager instance not found! Loading expire scene directly.");
+                        SceneManager.LoadScene(sceneToLoadOnExpire);
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("Game Over from ObjectiveTimer.cs");
+                    GameManager.Instance?.SetTimerFailed();
+                    GameManager.Instance?.GameOver();
+                    currentTime = totalTime; // Reset timer for next round
+                }
             }
         }
     }

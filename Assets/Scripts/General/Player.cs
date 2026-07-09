@@ -47,6 +47,9 @@ public class Player : KeyActionReceiver<Player>
 
     // track last non-zero horizontal so we know which way “left” refers to
     private Directions lastHorizontalInput = Directions.RIGHT;
+    
+    // track if walk Sound is active or not
+    private bool WalkSoundActive = false;
 
     [SerializeField] bool isGrounded = true;
     public bool IsGrounded => isGrounded;
@@ -411,13 +414,27 @@ public class Player : KeyActionReceiver<Player>
         
         if (animator != null)
         {
-            bool isMoving = vx != 0 || vy != 0;
+            isMoving = vx != 0 || vy != 0;
             if (isMoving && !directionLocked)
             {
                 animator.SetFloat("MoveX", vx);
                 animator.SetFloat("MoveY", 3 * vy);
             }
             animator.SetBool("isWalking", vx != 0 || vy != 0);
+        }
+
+        if (selectedGroupScript != null)
+        {
+            if (isMoving && !WalkSoundActive)
+            {
+                selectedGroupScript.PlayWalkSound();
+                WalkSoundActive = true;
+            }
+            else if (!isMoving && WalkSoundActive)
+            {
+                selectedGroupScript.EndWalkSound();
+                WalkSoundActive = false;
+            }
         }
         
         Vector3 camF = Camera.main.transform.forward; camF.y = 0; camF.Normalize();

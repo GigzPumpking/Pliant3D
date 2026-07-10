@@ -2595,7 +2595,10 @@ MonoBehaviour:
   - 0 Main Menu
   - 1-0 Terry
   - 2-0 Meri
-  - 3-0 Temp End
+  - 3-0 Jerry
+  - 4-0 Carrie
+  - 5-0 Perry
+  - 11 End Screen
   GameOverPanel: {fileID: 2892353391451549319}
   backButtons:
   - {fileID: 5580488043863519711}
@@ -2620,7 +2623,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2688863441334184282
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2638,7 +2641,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -22, y: 0}
+  m_AnchoredPosition: {x: -16.100098, y: 0}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 1, y: 0}
 --- !u!222 &2688863441334184284
@@ -2669,10 +2672,11 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Pliant_Dev8
+  m_text: Pliant_Alpha7
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: cc0df2cee847644bab0c573a5c655c43, type: 2}
+  m_sharedMaterial: {fileID: -237460987752328464, guid: cc0df2cee847644bab0c573a5c655c43,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2696,7 +2700,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 32.8
+  m_fontSize: 30.95
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2829,7 +2833,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2688863442393495803
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2870,6 +2874,7 @@ GameObject:
   - component: {fileID: 2688863442407292816}
   - component: {fileID: 2688863442407292817}
   - component: {fileID: 2688863442407292819}
+  - component: {fileID: 567571964}
   m_Layer: 5
   m_Name: SceneTransition
   m_TagString: Untagged
@@ -2956,6 +2961,20 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &567571964
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2688863442407292815}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbe91606aee3c1d448ee28698e5cf567, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  loadNextByDefault: 1
+  transitionAnimator: {fileID: 2688863442407292819}
 --- !u!1 &2792016611126502186
 GameObject:
   m_ObjectHideFlags: 0
@@ -7642,6 +7661,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8231049183864556418, guid: 729cadc51d08fcb4a906cc35bd211f1f,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -14
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 729cadc51d08fcb4a906cc35bd211f1f, type: 3}
 --- !u!1 &2892353391451549319 stripped
@@ -8156,7 +8180,7 @@ PrefabInstance:
     - target: {fileID: 2739434876537354742, guid: 79eed6f10cab941fd99ec46d9afc9067,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3522954457051676892, guid: 79eed6f10cab941fd99ec46d9afc9067,
         type: 3}

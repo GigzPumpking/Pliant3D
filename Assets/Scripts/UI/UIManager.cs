@@ -202,11 +202,6 @@ public class UIManager : KeyActionReceiver<UIManager>
         pauseButton.SetActive(!shouldHide);
     }
 
-    public void FadeOut()
-    {
-        sceneTransition.GetComponent<Animator>().SetTrigger("FadeOut");
-    }
-
     public void FadeIn()
     {
         loadingScreen.mainCamera = Camera.main;
@@ -214,10 +209,23 @@ public class UIManager : KeyActionReceiver<UIManager>
         sceneTransition.GetComponent<Animator>().SetTrigger("FadeIn");
     }
 
+    public void LoadSceneWithFade(string sceneName)
+    {
+        if (sceneTransition != null)
+        {
+            loadingScreen.mainCamera = Camera.main;
+            sceneTransition.SetActive(true);
+        }
+        else
+        {
+            Debug.LogWarning("Scene transition GameObject is not assigned.");
+        }
+        sceneTransition.GetComponent<LoadNextScene>().Load(sceneName);
+    }
+
     public void FadeOut(NewSceneLoaded e)
     {
         loadingScreen.mainCamera = Camera.main;
-        FadeOut();
     }
 
     public Dialogue returnDialogue()

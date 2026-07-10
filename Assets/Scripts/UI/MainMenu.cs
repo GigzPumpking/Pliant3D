@@ -40,16 +40,4 @@ public class MainMenu : MonoBehaviour
             }
         }
     }
-
-    public void PlayGame()
-    {
-        EventDispatcher.Raise<PlayGame>(new PlayGame());
-        SceneLoader.Instance.LoadNextScene(levelSceneName);
-    }
-
-    public void QuitGame()
-    {
-        EventDispatcher.Raise<QuitGame>(new QuitGame());
-        SceneLoader.Instance.QuitFade();
-    }
 }

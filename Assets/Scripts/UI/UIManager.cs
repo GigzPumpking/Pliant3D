@@ -19,8 +19,6 @@ public class UIManager : KeyActionReceiver<UIManager>
     public UILoadingScreen loadingScreen;
     public DayBanner dayBanner;
 
-    public GameObject scenePanelPrefab;
-
     private GameObject pauseMenu;
     private GameObject pauseMain;
     private GameObject controls;
@@ -230,11 +228,6 @@ public class UIManager : KeyActionReceiver<UIManager>
     public GameObject returnPauseMenu()
     {
         return pauseMenu;
-    }
-
-    public GameObject returnScenePanel()
-    {
-        return scenePanelPrefab;
     }
 
     // Overload to support InputAction.CallbackContext.

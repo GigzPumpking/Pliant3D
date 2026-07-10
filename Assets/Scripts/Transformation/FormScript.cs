@@ -15,10 +15,12 @@ public abstract class FormScript : MonoBehaviour
     [SerializeField] protected AudioData initialSound;
     [SerializeField] protected AudioData ability1Sound;
     [SerializeField] protected AudioData ability2Sound;
+    [SerializeField] protected AudioData walkSound;
 
     [SerializeField] protected abstract float baseSpeed { get; set; }
 
     private float _speed; // Backing field for the speed property
+    private bool isWalkSoundPlaying = false;
 
     protected virtual float speed
     {
@@ -41,6 +43,25 @@ public abstract class FormScript : MonoBehaviour
     protected virtual void PlayAbilitySound(AudioData data)
     {
         if(data != null) AudioManager.Instance?.PlayOneShot(data);
+    }
+
+    public virtual void PlayWalkSound()
+    {
+        if (walkSound != null && !isWalkSoundPlaying)
+        {
+            if (!walkSound.loop) walkSound.loop = true;
+            AudioManager.Instance?.PlaySound(walkSound);
+            isWalkSoundPlaying = true;
+        }
+    }
+
+    public virtual void EndWalkSound()
+    {
+        if (walkSound != null && isWalkSoundPlaying)
+        {
+            AudioManager.Instance?.StopSound(walkSound);
+            isWalkSoundPlaying = false;
+        }
     }
     
     public virtual void Awake()

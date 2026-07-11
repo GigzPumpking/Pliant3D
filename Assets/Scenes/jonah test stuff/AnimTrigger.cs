@@ -20,8 +20,38 @@ public class AnimTrigger : MonoBehaviour
 
     public bool IsTriggered { get; private set; } = false;
 
+    private ColoredInteractable coloredInteractable;
+
+    private void Awake()
+    {
+        coloredInteractable = GetComponent<ColoredInteractable>();
+    }
+
+    private void OnEnable()
+    {
+        if (coloredInteractable != null)
+        {
+            Bulldozer.AbilityUsed += OnAbilityUsed;
+            Frog.AbilityUsed += OnAbilityUsed;
+        }
+    }
+
+    private void OnDisable()
+    {
+        Bulldozer.AbilityUsed -= OnAbilityUsed;
+        Frog.AbilityUsed -= OnAbilityUsed;
+    }
+
+    private void OnAbilityUsed(Transformation transformation, int abilityIndex, Interactable interactable)
+    {
+        if (interactable == null || interactable != coloredInteractable) return;
+        Trigger();
+    }
+
     private void OnTriggerEnter(Collider other) 
     {
+        if (targetTag == null || targetTag == "") return;
+
         if (!other.CompareTag(targetTag)) return;
 
         if (!IsActive)
@@ -36,8 +66,8 @@ public class AnimTrigger : MonoBehaviour
 
     private void OnTriggerExit(Collider other) 
     {
-        if (!IsActive) return;
-
+        if (!IsActive || targetTag == null || targetTag == "") return;
+        
         if (other.CompareTag(targetTag)) 
         {
             myAnimationController.SetBool(parameterName, false);
@@ -50,6 +80,9 @@ public class AnimTrigger : MonoBehaviour
 
         myAnimationController.SetBool(parameterName, true);
         IsTriggered = true;
+
+        if (coloredInteractable != null)
+            coloredInteractable.isInteractable = false;
     }
 
     private void TryShowBlockedDialogue()

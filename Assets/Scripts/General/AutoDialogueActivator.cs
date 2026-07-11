@@ -5,12 +5,20 @@ public class AutoDialogueActivator : MonoBehaviour
     [Tooltip("Reference to the DialogueTrigger to activate.")]
     public DialogueTrigger dialogueTrigger;
     private bool hasTriggered = false;
+    public bool HasTriggered => hasTriggered;
     private IsometricCamera isoCam;
     private Transform originalTarget;
 
     private void Awake()
     {
         isoCam = FindObjectOfType<IsometricCamera>();
+    }
+
+    private void Start()
+    {
+        var pending = GameManager.Instance?.GetPendingAutoDialogueStates();
+        if (pending != null && pending.Contains(gameObject.name))
+            hasTriggered = true;
     }
 
     void OnEnable()

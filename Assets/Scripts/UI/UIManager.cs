@@ -166,6 +166,17 @@ public class UIManager : KeyActionReceiver<UIManager>
         }
     }
 
+    public void Resume()
+    {
+        if (pauseMenu.activeSelf)
+        {
+            UpdatePauseButtonVisibility();
+            resumeButton?.SetActive(false);
+            pauseMenu?.SetActive(false);
+            Time.timeScale = 1;
+        }
+    }
+
     public void Quit()
     {
         if (GameManager.Instance != null)
@@ -279,6 +290,7 @@ public class UIManager : KeyActionReceiver<UIManager>
 
     public void LoadGame()
     {
+        Resume(); // Ensure the game is not paused before loading
         GameManager.Instance?.LoadGame();
     }
 

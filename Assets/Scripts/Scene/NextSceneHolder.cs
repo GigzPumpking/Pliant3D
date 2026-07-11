@@ -16,7 +16,8 @@ public class NextSceneHolder : MonoBehaviour
         if (UIManager.Instance != null)
         {
             Debug.Log($"Loading scene '{sceneName}' with fade transition.");
-            UIManager.Instance.LoadSceneWithFade(sceneName);
+            UIManager.Instance?.Resume();
+            UIManager.Instance?.LoadSceneWithFade(sceneName);
         }
         else
         {

@@ -29,6 +29,9 @@ public class PlayerData
     // NPC trigger interaction states (dialogue progression / event suppression)
     public List<NpcTriggerSaveState> npcTriggerStates = new List<NpcTriggerSaveState>();
 
+    // Names of AutoDialogueActivators that have already been triggered
+    public List<string> triggeredAutoDialogueNames = new List<string>();
+
     public PlayerData()
     {
         settings = new GameSettings();

@@ -46,6 +46,9 @@ public class GameManager : KeyActionReceiver<GameManager>
     // NPC trigger interaction states pending restoration after a scene reload
     private List<NpcTriggerSaveState> _pendingNpcStates;
 
+    // AutoDialogueActivator triggered states pending restoration after a scene reload
+    private List<string> _pendingAutoDialogueStates;
+
     // Main menu scene name
     [SerializeField] private string mainMenuSceneName = "0 Main Menu";
     [SerializeField] private string endMenuSceneName = "11-0 End";
@@ -162,6 +165,9 @@ public class GameManager : KeyActionReceiver<GameManager>
             // Capture NPC trigger states before the scene is destroyed
             _pendingNpcStates = CaptureNpcTriggerStates();
 
+            // Capture auto dialogue triggered states before the scene is destroyed
+            _pendingAutoDialogueStates = CaptureAutoDialogueStates();
+
             // Capture timer progress before the scene is destroyed
             var timer = FindObjectOfType<ObjectiveTimer>();
             if (timer != null && timer.HasStarted)
@@ -177,6 +183,7 @@ public class GameManager : KeyActionReceiver<GameManager>
             // Timer failure: start fresh — wipe any saved state
             _pendingObjectiveStates = null;
             _pendingNpcStates = null;
+            _pendingAutoDialogueStates = null;
             _pendingTimerTime = -1f;
             _timerFailed = false;
         }
@@ -398,6 +405,21 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     public void ClearPendingNpcStates() => _pendingNpcStates = null;
 
+    private List<string> CaptureAutoDialogueStates()
+    {
+        var names = new List<string>();
+        foreach (var activator in FindObjectsOfType<AutoDialogueActivator>(true))
+        {
+            if (activator.HasTriggered)
+                names.Add(activator.gameObject.name);
+        }
+        return names;
+    }
+
+    public List<string> GetPendingAutoDialogueStates() => _pendingAutoDialogueStates;
+
+    public void ClearPendingAutoDialogueStates() => _pendingAutoDialogueStates = null;
+
     #endregion
 
     private String prevSceneStr = "";
@@ -492,6 +514,9 @@ public class GameManager : KeyActionReceiver<GameManager>
         // Capture NPC trigger states
         playerData.npcTriggerStates = CaptureNpcTriggerStates();
 
+        // Capture auto dialogue triggered states
+        playerData.triggeredAutoDialogueNames = CaptureAutoDialogueStates();
+
         // Capture timer state if one is active in the scene
         var timer = FindObjectOfType<ObjectiveTimer>();
         if (timer != null && timer.HasStarted)
@@ -538,17 +563,34 @@ public class GameManager : KeyActionReceiver<GameManager>
         if (playerData.npcTriggerStates != null && playerData.npcTriggerStates.Count > 0)
             _pendingNpcStates = playerData.npcTriggerStates;
 
+        // Restore auto dialogue triggered states if saved
+        if (playerData.triggeredAutoDialogueNames != null && playerData.triggeredAutoDialogueNames.Count > 0)
+            _pendingAutoDialogueStates = playerData.triggeredAutoDialogueNames;
+
         // Restore timer state if it was saved
         if (playerData.timerTime > 0f)
             _pendingTimerTime = playerData.timerTime;
 
-        // Load the scene
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(playerData.sceneName);
-
-        // Wait until the scene is fully loaded
-        while (!asyncLoad.isDone)
+        // Load the scene using UIManager's fade transition if available, otherwise load directly
+        if (UIManager.Instance != null)
         {
-            yield return null;
+            UIManager.Instance.LoadSceneWithFade(playerData.sceneName);
+            // Wait until the scene is fully loaded
+            while (SceneManager.GetActiveScene().name != playerData.sceneName)
+            {
+                yield return null;
+            }
+        }
+        else
+        {
+            Debug.LogWarning("UIManager instance is not available. Loading scene without fade.");
+            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(playerData.sceneName);
+
+            // Wait until the scene is fully loaded
+            while (!asyncLoad.isDone)
+            {
+                yield return null;
+            }
         }
 
         // Restore auto-save preference

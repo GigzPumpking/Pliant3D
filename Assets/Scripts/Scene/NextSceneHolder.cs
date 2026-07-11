@@ -5,10 +5,10 @@ public class NextSceneHolder : MonoBehaviour
     public string sceneName;
 
     [Header("Dependency")]
-    [Tooltip("Optional. If assigned, this trigger will only work after the referenced ButtonScript has been pressed.")]
-    [SerializeField] private ButtonScript requiredButton;
+    [Tooltip("Optional. If assigned, this trigger will only work after the referenced AnimTrigger has been triggered.")]
+    [SerializeField] private AnimTrigger requiredAnimTrigger;
 
-    private bool IsActive => requiredButton == null || requiredButton.HasBeenTriggered;
+    private bool IsActive => requiredAnimTrigger == null || requiredAnimTrigger.IsTriggered;
     private bool Collided = false;
 
     public void LoadNextScene()

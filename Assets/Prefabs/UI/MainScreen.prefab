@@ -581,7 +581,6 @@ GameObject:
   - component: {fileID: 6839354837628390580}
   - component: {fileID: 6839354837628390583}
   - component: {fileID: 6839354837628390582}
-  - component: {fileID: 6839354837628390581}
   - component: {fileID: 6839354837628390570}
   m_Layer: 5
   m_Name: Button_AccessReport
@@ -718,25 +717,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
---- !u!114 &6839354837628390581
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6839354837628390576}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 100090cda274e41a1aa177fcedd28c73, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  scenesToOffer:
-  - sceneName: 1-1 Terry
-    sceneToLoad: 1-1 Terry
-    useLoadingScreen: 0
-    loadingScreenSceneName: 1-0 Terry
-    loadingScreenDisplayTime: 5
-  requiredButton: {fileID: 0}
 --- !u!114 &6839354837628390570
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1276,8 +1256,8 @@ GameObject:
   - component: {fileID: 6839354837693460872}
   - component: {fileID: 6839354837693460875}
   - component: {fileID: 6839354837693460874}
-  - component: {fileID: 6839354837693460873}
   - component: {fileID: 6839354837693460878}
+  - component: {fileID: 6839354837854456798}
   m_Layer: 5
   m_Name: Button_MainMenu
   m_TagString: Untagged
@@ -1389,7 +1369,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 6839354837693460873}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SceneSelectionTrigger, Assembly-CSharp
         m_MethodName: ActivatePanelFromButton
         m_Mode: 1
@@ -1401,25 +1381,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 1
---- !u!114 &6839354837693460873
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6839354837693460884}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 100090cda274e41a1aa177fcedd28c73, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  scenesToOffer:
-  - sceneName: 0 Main Menu
-    sceneToLoad: 0 Main Menu
-    useLoadingScreen: 0
-    loadingScreenSceneName: 1-0 Terry
-    loadingScreenDisplayTime: 0
-  requiredButton: {fileID: 0}
 --- !u!114 &6839354837693460878
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1433,6 +1394,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   modeOfCursor: 1
+--- !u!114 &6839354837854456798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6839354837693460884}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0895ed87e6f515b42934783199ccac78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneName: 0-0 Main Menu
+  requiredAnimTrigger: {fileID: 0}
 --- !u!1 &6839354837719586051
 GameObject:
   m_ObjectHideFlags: 0
@@ -10591,8 +10566,8 @@ GameObject:
   - component: {fileID: 6839354839515854394}
   - component: {fileID: 6839354839515854341}
   - component: {fileID: 6839354839515854340}
-  - component: {fileID: 6839354839515854395}
   - component: {fileID: 6839354839515854392}
+  - component: {fileID: 6839354837854456796}
   m_Layer: 5
   m_Name: Button_MainMenu
   m_TagString: Untagged
@@ -10704,7 +10679,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 6839354839515854395}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SceneSelectionTrigger, Assembly-CSharp
         m_MethodName: ActivatePanelFromButton
         m_Mode: 1
@@ -10716,25 +10691,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
---- !u!114 &6839354839515854395
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6839354839515854342}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 100090cda274e41a1aa177fcedd28c73, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  scenesToOffer:
-  - sceneName: 0 Main Menu
-    sceneToLoad: 0 Main Menu
-    useLoadingScreen: 0
-    loadingScreenSceneName: 1-0 Terry
-    loadingScreenDisplayTime: 0
-  requiredButton: {fileID: 0}
 --- !u!114 &6839354839515854392
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10748,6 +10704,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   modeOfCursor: 1
+--- !u!114 &6839354837854456796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6839354839515854342}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0895ed87e6f515b42934783199ccac78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneName: 0-0 Main Menu
+  requiredAnimTrigger: {fileID: 0}
 --- !u!1 &6839354839523400002
 GameObject:
   m_ObjectHideFlags: 0

@@ -411,7 +411,7 @@ public class GameManager : KeyActionReceiver<GameManager>
         foreach (var activator in FindObjectsOfType<AutoDialogueActivator>(true))
         {
             if (activator.HasTriggered)
-                names.Add(activator.gameObject.name);
+                names.Add(activator.ScenePath);
         }
         return names;
     }

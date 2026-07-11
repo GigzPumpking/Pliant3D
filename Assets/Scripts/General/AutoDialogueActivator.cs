@@ -6,6 +6,19 @@ public class AutoDialogueActivator : MonoBehaviour
     public DialogueTrigger dialogueTrigger;
     private bool hasTriggered = false;
     public bool HasTriggered => hasTriggered;
+
+    // Full hierarchy path — unique even when multiple activators share the same name.
+    public string ScenePath
+    {
+        get
+        {
+            var path = gameObject.name;
+            var parent = transform.parent;
+            while (parent != null) { path = parent.name + "/" + path; parent = parent.parent; }
+            return path;
+        }
+    }
+
     private IsometricCamera isoCam;
     private Transform originalTarget;
 
@@ -17,7 +30,7 @@ public class AutoDialogueActivator : MonoBehaviour
     private void Start()
     {
         var pending = GameManager.Instance?.GetPendingAutoDialogueStates();
-        if (pending != null && pending.Contains(gameObject.name))
+        if (pending != null && pending.Contains(ScenePath))
             hasTriggered = true;
     }
 

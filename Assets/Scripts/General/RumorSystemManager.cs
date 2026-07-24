@@ -35,8 +35,8 @@ public class RumorSystemManager : MonoBehaviour
     [System.Serializable]
     public class LevelRumor
     {
-        [Tooltip("Exact scene name (as it appears in Build Settings) that should trigger this rumor entry.")]
-        public string sceneName;
+        [Tooltip("The level id that this rumor it tied to load from such as level 1.")]
+        public LevelId levelId;
 
         [Tooltip("Character Picture for Rumor")]
         public Sprite characterPicture;
@@ -95,7 +95,7 @@ public class RumorSystemManager : MonoBehaviour
     [Header("Level Rumors")] [Tooltip("Each entry maps a scene name to the rumor that shows when that level loads.")]
     [SerializeField] private List<LevelRumor> levelRumors = new List<LevelRumor>();
     
-    private Dictionary<string, LevelRumor> rumorMap;
+    private Dictionary<LevelId, LevelRumor> rumorMap;
     
     #endregion
     
@@ -150,15 +150,21 @@ public class RumorSystemManager : MonoBehaviour
     {
        if (rumorMap == null) return;
 
-       if (!rumorMap.TryGetValue(scene.sceneName, out LevelRumor match))
+       if (LevelManager.Instance != null && LevelManager.Instance.IsLevelScene(scene.sceneName, out LevelData level))
        {
-           Debug.LogWarning($"[RumorSystem] No rumor configured for scene '{scene.sceneName}'.", this);
-           //TODO: Uncomment this if wanting to blank out UI element if no scene is found. Currently want UI elements to carry over during levels
-           //ClearUI();
-           return;
+           if (rumorMap.TryGetValue(level.levelId, out LevelRumor match))
+           {
+               ApplyRumorToUI(match);
+           }
+           else
+           {
+               Debug.LogWarning($"[RumorSystem] No rumor configured for '{level.levelId}' in scene '{scene.sceneName}'.", this);
+           }
        }
-       
-       ApplyRumorToUI(match);
+       else
+       {
+           ClearUI();
+       }
     }
     
     #endregion
@@ -173,22 +179,16 @@ public class RumorSystemManager : MonoBehaviour
     /// </summary>
     private void BuildRumorMap()
     {
-        rumorMap = new Dictionary<string, LevelRumor>();
+        rumorMap = new Dictionary<LevelId, LevelRumor>();
         foreach (var rumor in levelRumors)
         {
-            if (string.IsNullOrEmpty(rumor.sceneName))
+            if (rumorMap.ContainsKey(rumor.levelId))
             {
-                Debug.LogError("[RumorSystem] LevelRumor entry has empty sceneName. Skipping.", this);
+                Debug.LogError($"[RumorSystem] Duplicate levelId '{rumor.levelId}' found in LevelRumors. Using first entry.", this);
                 continue;
             }
 
-            if (rumorMap.ContainsKey(rumor.sceneName))
-            {
-                Debug.LogError($"[RumorSystem] Duplicate sceneName '{rumor.sceneName}' found in LevelRumors. Using first entry.", this);
-                continue;
-            }
-
-            rumorMap.Add(rumor.sceneName, rumor);
+            rumorMap.Add(rumor.levelId, rumor);
         }
     }
     
@@ -234,18 +234,12 @@ public class RumorSystemManager : MonoBehaviour
     private void OnValidate()
     {
         // Validate data integrity in edit mode
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var seen = new HashSet<LevelId>();
         foreach (var rumor in levelRumors)
         {
-            if (string.IsNullOrEmpty(rumor.sceneName))
+            if (!seen.Add(rumor.levelId))
             {
-                Debug.LogWarning("[RumorSystem] A LevelRumor entry is missing a sceneName.");
-                continue;
-            }
-
-            if (!seen.Add(rumor.sceneName))
-            {
-                Debug.LogWarning($"[RumorSystem] Duplicate sceneName '{rumor.sceneName}' found in LevelRumors list.");
+                Debug.LogWarning($"[RumorSystem] Duplicate levelId '{rumor.levelId}' found in LevelRumors list.");
             }
         }
     }
@@ -337,15 +331,15 @@ public class RumorSystemManager : MonoBehaviour
     /// Function to show a specific Rumor in the UI section using the passed scene name.
     /// </summary>
     /// <param name="sceneName"></param>
-    public void ShowRumor(string sceneName)
+    public void ShowRumor(LevelId levelId)
     {
-        if (rumorMap.TryGetValue(sceneName, out var match))
+        if (rumorMap.TryGetValue(levelId, out var match))
         {
             ApplyRumorToUI(match);
         }
         else
         {
-            Debug.LogWarning($"[RumorSystem] ShowRumor called with unknown scene '{sceneName}'.");
+            Debug.LogWarning($"[RumorSystem] ShowRumor called with unknown level '{levelId}'.");
         }
     }
     

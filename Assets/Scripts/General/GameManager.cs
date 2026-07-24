@@ -522,6 +522,20 @@ public class GameManager : KeyActionReceiver<GameManager>
         if (timer != null && timer.HasStarted)
             playerData.timerTime = timer.GetCurrentTime();
 
+        // Capture level progression
+        if (LevelManager.Instance != null)
+        {
+            var currentLevel = LevelManager.Instance.GetCurrentLevel();
+            if (currentLevel != null)
+            {
+                if (Enum.IsDefined(typeof(LevelId), currentLevel.levelId))
+                {
+                    playerData.currentLevelId = (int)currentLevel.levelId;
+                }
+                playerData.currentSceneIndex = LevelManager.Instance.GetCurrentSceneIndex();
+            }
+        }
+
         if (Player.Instance != null)
         {
             /*
@@ -596,6 +610,12 @@ public class GameManager : KeyActionReceiver<GameManager>
         // Restore auto-save preference
         AutoSaveEnabled = playerData.settings.autoSave;
         SetNumTasksCompleted(_numTasksAssigned);
+
+        // Restore level state — LevelManager will auto-detect the level from the loaded scene
+        if (LevelManager.Instance != null)
+        {
+            LevelManager.Instance.UpdateCurrentLevel();
+        }
 
         // Apply player data after scene has loaded
         if (Player.Instance != null)

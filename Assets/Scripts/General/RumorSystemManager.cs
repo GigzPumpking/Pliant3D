@@ -8,62 +8,6 @@ using UnityEngine.UI;
 
 public class RumorSystemManager : MonoBehaviour
 {
-    #region Data
-    // -------------------------------------------------------------------------
-    //  Data
-    // -------------------------------------------------------------------------
-
-    [System.Serializable]
-    public class RumorTextData
-    {
-        [Tooltip("The text content to display.")] [TextArea(5, 10)]
-        public string text = string.Empty;
-        
-        [Tooltip("Font asset to use for this text.")]
-        public TMP_FontAsset font;
-        
-        [Tooltip("Font style to apply to the text")]
-        public FontStyles fontStyle = FontStyles.Normal;
-        
-        [Tooltip("Font size for this text.")]
-        public float fontSize = 36f;
-        
-        [Tooltip("Text alignment.")]
-        public TextAlignmentOptions alignment = TextAlignmentOptions.Center;
-    }
-    
-    [System.Serializable]
-    public class LevelRumor
-    {
-        [Tooltip("Exact scene name (as it appears in Build Settings) that should trigger this rumor entry.")]
-        public string sceneName;
-
-        [Tooltip("Character Picture for Rumor")]
-        public Sprite characterPicture;
-        
-        [Tooltip("Character Title for Rumor")]
-        public RumorTextData characterTitle;
-
-        [Tooltip("Character info text")]
-        public RumorTextData characterBioText;
-        
-        [Tooltip("Character Bio Background Image for Rumor")]
-        public Sprite characterBioImage;
-
-        [Tooltip("Character Tip text")]
-        public RumorTextData characterTipText;
-        
-        [Tooltip("Character Tip Background Image for Rumor")]
-        public Sprite characterTipImage;
-
-        [Tooltip("Character Rumor text")]
-        public RumorTextData characterRumorText;
-        
-        [Tooltip("Character Rumor Background Image for Rumor")]
-        public Sprite characterRumorImage;
-    }
-    #endregion
-    
     #region Inspector Variables
     // -------------------------------------------------------------------------
     //  Inspector
@@ -92,12 +36,10 @@ public class RumorSystemManager : MonoBehaviour
     [Tooltip("Reference to the menu character rumor Image")]
     [SerializeField] private Image menuCharacterRumorImage;
 
-    [Header("Level Rumors")] [Tooltip("Each entry maps a scene name to the rumor that shows when that level loads.")]
-    [SerializeField] private List<LevelRumor> levelRumors = new List<LevelRumor>();
+    [Header("Level Rumors")]
+    [SerializeField] private LevelRumorDatabase rumorDatabase;
     
-    private Dictionary<string, LevelRumor> rumorMap;
-    
-    #endregion
+    #endregion 
     
     #region Singleton
     // -------------------------------------------------------------------------
@@ -126,17 +68,24 @@ public class RumorSystemManager : MonoBehaviour
             return;
         }
         
-        BuildRumorMap();
         BindUIReferences();
     }
     
     private void OnEnable()
     {
+        if (LevelManager.Instance != null)
+        {
+            LevelManager.Instance.OnLevelChanged += OnLevelChanged;
+        }
         EventDispatcher.AddListener<NewSceneLoaded>(OnNewSceneLoaded);
     }
 
     private void OnDisable()
     {
+        if (LevelManager.Instance != null)
+        {
+            LevelManager.Instance.OnLevelChanged -= OnLevelChanged;
+        }
         EventDispatcher.RemoveListener<NewSceneLoaded>(OnNewSceneLoaded);
     }
     #endregion
@@ -146,51 +95,32 @@ public class RumorSystemManager : MonoBehaviour
     //  Event handlers
     // -------------------------------------------------------------------------
     
+    private void OnLevelChanged(LevelData level)
+    {
+        if (rumorDatabase is null) return;
+
+        if (rumorDatabase.TryGetRumor(level.levelId, out var match))
+        {
+            ApplyRumorToUI(match);
+        }
+        else
+        {
+            Debug.LogWarning($"[RumorSystem] No rumor configured for '{level.levelId}'.", this);
+        }
+    }
+    
     private void OnNewSceneLoaded(NewSceneLoaded scene)
     {
-       if (rumorMap == null) return;
-
-       if (!rumorMap.TryGetValue(scene.sceneName, out LevelRumor match))
-       {
-           Debug.LogWarning($"[RumorSystem] No rumor configured for scene '{scene.sceneName}'.", this);
-           //TODO: Uncomment this if wanting to blank out UI element if no scene is found. Currently want UI elements to carry over during levels
-           //ClearUI();
-           return;
-       }
-       
-       ApplyRumorToUI(match);
+        // Only clear UI when entering a non-level scene (menu, cutscene, etc.)
+        if (LevelManager.Instance == null || !LevelManager.Instance.IsLevelScene(scene.sceneName, out LevelData level))
+        {
+            ClearUI();
+        }
     }
     
     #endregion
     
     #region Rumor Construction
-    // -------------------------------------------------------------------------
-    //  Rumor Construction
-    // -------------------------------------------------------------------------
-    
-    /// <summary>
-    /// Goes through Rumors list in inspector and binds them to a dictionary so they may be retrieved quickly.
-    /// </summary>
-    private void BuildRumorMap()
-    {
-        rumorMap = new Dictionary<string, LevelRumor>();
-        foreach (var rumor in levelRumors)
-        {
-            if (string.IsNullOrEmpty(rumor.sceneName))
-            {
-                Debug.LogError("[RumorSystem] LevelRumor entry has empty sceneName. Skipping.", this);
-                continue;
-            }
-
-            if (rumorMap.ContainsKey(rumor.sceneName))
-            {
-                Debug.LogError($"[RumorSystem] Duplicate sceneName '{rumor.sceneName}' found in LevelRumors. Using first entry.", this);
-                continue;
-            }
-
-            rumorMap.Add(rumor.sceneName, rumor);
-        }
-    }
     
     /// <summary>
     /// Binds UI references to required members.
@@ -228,28 +158,6 @@ public class RumorSystemManager : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Used to validate proper data is placed into Rumor fields.
-    /// </summary>
-    private void OnValidate()
-    {
-        // Validate data integrity in edit mode
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var rumor in levelRumors)
-        {
-            if (string.IsNullOrEmpty(rumor.sceneName))
-            {
-                Debug.LogWarning("[RumorSystem] A LevelRumor entry is missing a sceneName.");
-                continue;
-            }
-
-            if (!seen.Add(rumor.sceneName))
-            {
-                Debug.LogWarning($"[RumorSystem] Duplicate sceneName '{rumor.sceneName}' found in LevelRumors list.");
-            }
-        }
-    }
-    
     #endregion
 
     #region UI Manipulation
@@ -261,19 +169,19 @@ public class RumorSystemManager : MonoBehaviour
     /// With passed rumor applies properties to menu element references.
     /// </summary>
     /// <param name="rumor"></param>
-    private void ApplyRumorToUI(LevelRumor rumor)
+    private void ApplyRumorToUI(LevelRumorDatabase.LevelRumor rumor)
     {
-        SetSprite(menuCharacterImage, rumor.characterPicture);
-        ApplyTextProperties(menuCharacterTitle, rumor.characterTitle);
+        SetSprite(menuCharacterImage, rumor.CharacterPicture);
+        ApplyTextProperties(menuCharacterTitle, rumor.CharacterTitle);
     
-        ApplyTextProperties(menuCharacterBioText, rumor.characterBioText);
-        SetSprite(menuCharacterBioImage, rumor.characterBioImage);
+        ApplyTextProperties(menuCharacterBioText, rumor.CharacterBioText);
+        SetSprite(menuCharacterBioImage, rumor.CharacterBioImage);
     
-        ApplyTextProperties(menuCharacterTipText, rumor.characterTipText);
-        SetSprite(menuCharacterTipImage, rumor.characterTipImage);
+        ApplyTextProperties(menuCharacterTipText, rumor.CharacterTipText);
+        SetSprite(menuCharacterTipImage, rumor.CharacterTipImage);
     
-        ApplyTextProperties(menuCharacterRumorText, rumor.characterRumorText);
-        SetSprite(menuCharacterRumorImage, rumor.characterRumorImage);
+        ApplyTextProperties(menuCharacterRumorText, rumor.CharacterRumorText);
+        SetSprite(menuCharacterRumorImage, rumor.CharacterRumorImage);
     }
     
     /// <summary>
@@ -303,15 +211,15 @@ public class RumorSystemManager : MonoBehaviour
     /// </summary>
     /// <param name="target"></param>
     /// <param name="source"></param>
-    private void ApplyTextProperties(TextMeshProUGUI target, RumorTextData source)
+    private void ApplyTextProperties(TextMeshProUGUI target, LevelRumorDatabase.RumorTextData source)
     {
         if (target == null || source == null) return;
     
-        target.text = source.text;
-        target.font = source.font;
-        target.fontStyle = source.fontStyle;
-        target.fontSize = source.fontSize;
-        target.alignment = source.alignment;
+        target.text = source.Text;
+        target.font = source.Font;
+        target.fontStyle = source.FontStyle;
+        target.fontSize = source.FontSize;
+        target.alignment = source.Alignment;
     }
     
     /// <summary>
@@ -337,15 +245,15 @@ public class RumorSystemManager : MonoBehaviour
     /// Function to show a specific Rumor in the UI section using the passed scene name.
     /// </summary>
     /// <param name="sceneName"></param>
-    public void ShowRumor(string sceneName)
+    public void ShowRumor(LevelId levelId)
     {
-        if (rumorMap.TryGetValue(sceneName, out var match))
+        if (rumorDatabase != null && rumorDatabase.TryGetRumor(levelId, out var match))
         {
             ApplyRumorToUI(match);
         }
         else
         {
-            Debug.LogWarning($"[RumorSystem] ShowRumor called with unknown scene '{sceneName}'.");
+            Debug.LogWarning($"[RumorSystem] ShowRumor called with unknown level '{levelId}'.");
         }
     }
     

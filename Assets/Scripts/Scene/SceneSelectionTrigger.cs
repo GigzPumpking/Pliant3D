@@ -1,18 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
-/// This component can trigger the display of a scene selection UI panel.
-/// It can be activated either by a physical trigger volume in the scene (e.g., player walks into an area)
-/// or by a direct call from a UI element like a button.
+/// Triggers a direct scene load, with an optional loading screen in between.
+/// Can be activated by a physical trigger volume or by a direct call from a UI button.
 /// </summary>
 public class SceneSelectionTrigger : MonoBehaviour
 {
     [System.Serializable]
     public class SceneEntry
     {
-        [Tooltip("The user-friendly name to display on the button.")]
+        [Tooltip("Display name (unused at runtime, for Inspector labelling only).")]
         public string sceneName;
 
         [Tooltip("The exact name of the scene file to be loaded.")]
@@ -30,7 +30,7 @@ public class SceneSelectionTrigger : MonoBehaviour
     }
 
     [Header("Scene Configuration")]
-    [Tooltip("The list of scenes that will be presented as choices in the UI panel.")]
+    [Tooltip("The target scene to load. Only the first entry is used.")]
     public List<SceneEntry> scenesToOffer = new List<SceneEntry>();
 
     [Header("Dependency")]
@@ -40,9 +40,6 @@ public class SceneSelectionTrigger : MonoBehaviour
     private bool IsActive => requiredButton == null || requiredButton.HasBeenTriggered;
     private bool Collided = false;
 
-    // Private cache for the UI component to avoid repeated calls to GetComponent.
-    private SceneSelectionPanelUI _panelUIComponent;
-
     public void ActivatePanelFromButton()
     {
         if (!IsActive)
@@ -50,67 +47,63 @@ public class SceneSelectionTrigger : MonoBehaviour
             Debug.Log("ActivatePanelFromButton called but dependency not yet satisfied.");
             return;
         }
-        Debug.Log("ActivatePanelFromButton called. Attempting to show scene selection panel.");
-        ShowAndPopulatePanel();
+        LoadTargetScene();
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (!IsActive) return;
-        // If collision already detected ignore rest of function to stop duplication calls
         if (Collided) return;
-        
 
         if (other.CompareTag("Player"))
         {
-            Debug.Log("Player entered the trigger. Attempting to show scene selection panel.");
-            EventDispatcher.Raise(new NewSceneLoaded());
-            ShowAndPopulatePanel();
-            // Set Collided to true to stop repeats
+            LoadTargetScene();
             Collided = true;
         }
     }
 
-    private void ShowAndPopulatePanel()
+    private void LoadTargetScene()
     {
-        // First, check if the UIManager and its panel are accessible.
-        if (UIManager.Instance == null || UIManager.Instance.returnScenePanel() == null)
+        if (scenesToOffer == null || scenesToOffer.Count == 0)
         {
-            Debug.LogError("UIManager instance or its sceneSelectionPanel is not available. Cannot show panel.");
-            return; // Exit the function early if we can't proceed.
+            Debug.LogError("SceneSelectionTrigger: No scenes configured in scenesToOffer.");
+            return;
         }
 
-        GameObject panelObject = UIManager.Instance.returnScenePanel();
+        SceneEntry entry = scenesToOffer[0];
 
-        // Try to get the SceneSelectionPanelUI component if we haven't already.
-        if (_panelUIComponent == null)
+        if (string.IsNullOrEmpty(entry.sceneToLoad))
         {
-            _panelUIComponent = panelObject.GetComponent<SceneSelectionPanelUI>();
+            Debug.LogError("SceneSelectionTrigger: sceneToLoad is empty.");
+            return;
         }
 
-        // If the component is found, use it to populate the buttons.
-        if (_panelUIComponent != null)
+        if (entry.useLoadingScreen)
         {
-            // This method is expected to handle setting the panel to active as well.
-            _panelUIComponent.PopulateSceneButtons(scenesToOffer);
+            NextScene.SetupLoadingScreenTransition(
+                entry.loadingScreenSceneName,
+                entry.sceneToLoad,
+                entry.loadingScreenDisplayTime
+            );
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.FadeIn();
+            }
+            else
+            {
+                Debug.LogError("SceneSelectionTrigger: UIManager.Instance is null. Cannot trigger FadeIn.");
+            }
         }
         else
         {
-            Debug.LogError("SceneSelectionPanelUI component not found on the UIManager's scene selection panel prefab!");
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (!IsActive) return;
-
-        if (other.CompareTag("Player"))
-        {
-            // Check if the panel is currently active before trying to deactivate it.
-            if (UIManager.Instance != null && UIManager.Instance.returnScenePanel() != null && UIManager.Instance.returnScenePanel().activeSelf)
+            if (SceneLoader.Instance != null && SceneLoader.Instance.transition != null)
             {
-                Debug.Log("Player exited the trigger. Hiding scene selection panel.");
-                UIManager.Instance.returnScenePanel().SetActive(false);
+                SceneLoader.Instance.LoadNextScene(entry.sceneToLoad);
+            }
+            else
+            {
+                Debug.LogWarning("SceneSelectionTrigger: SceneLoader is unavailable or its transition Animator is unassigned. Loading scene directly.");
+                SceneManager.LoadScene(entry.sceneToLoad);
             }
         }
     }

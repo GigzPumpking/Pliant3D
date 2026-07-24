@@ -11,6 +11,9 @@ public class FireExtinguisherInteractable : MonoBehaviour, IInteractable
     [Tooltip("Maximum distance from which the player can interact. Set to 0 to use the global default.")]
     [SerializeField] private float interactionDistance = 0f;
 
+    [Tooltip("Optional. If assigned, the fire extinguisher can only be picked up after this AnimTrigger has been triggered.")]
+    [SerializeField] private AnimTrigger requiredAnimTrigger;
+
     [Header("Interact Bubble")]
     [Tooltip("The interact bubble GameObject positioned on this object.")]
     [SerializeField] private GameObject interactBubble;
@@ -37,6 +40,7 @@ public class FireExtinguisherInteractable : MonoBehaviour, IInteractable
         if (Player.Instance == null) return false;
         if (Player.Instance.transformation != Transformation.TERRY) return false;
         if (Terry.HasFireExtinguisher) return false;
+        if (requiredAnimTrigger != null && !requiredAnimTrigger.IsTriggered) return false;
         return true;
     }
 

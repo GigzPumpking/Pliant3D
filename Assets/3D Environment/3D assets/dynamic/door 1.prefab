@@ -149,6 +149,9 @@ MonoBehaviour:
   myAnimationController: {fileID: 240172313661079833}
   targetTag: Player
   parameterName: test
+  requiredButton: {fileID: 0}
+  blockedDialogue: []
+  blockedDialoguePortrait: {fileID: 0}
 --- !u!1 &240172313519373309
 GameObject:
   m_ObjectHideFlags: 0
@@ -191,7 +194,7 @@ GameObject:
   m_Component:
   - component: {fileID: 240172313583642263}
   - component: {fileID: 240172313583642260}
-  - component: {fileID: 240172313583642261}
+  - component: {fileID: 1774174000568589753}
   - component: {fileID: 240172313583642262}
   m_Layer: 8
   m_Name: Trigger
@@ -228,7 +231,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2.7344027, y: 1.0152631, z: 1.0030935}
   m_Center: {x: -0.86720043, y: -0.075063705, z: 1.033354}
---- !u!114 &240172313583642261
+--- !u!114 &1774174000568589753
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -237,15 +240,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 240172313583642248}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 100090cda274e41a1aa177fcedd28c73, type: 3}
+  m_Script: {fileID: 11500000, guid: 0895ed87e6f515b42934783199ccac78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scenesToOffer:
-  - sceneName: 1-2 Terry
-    sceneToLoad: 1-2 Terry
-    useLoadingScreen: 0
-    loadingScreenSceneName: 
-    loadingScreenDisplayTime: 0
+  sceneName: 
+  requiredButton: {fileID: 0}
 --- !u!114 &240172313583642262
 MonoBehaviour:
   m_ObjectHideFlags: 0

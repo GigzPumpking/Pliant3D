@@ -12,6 +12,8 @@ public class NewSceneChecker : MonoBehaviour
 {
     public string KeyboardTXT = "Press 'E' to continue";
     public string ControllerTXT = "Press 'A' to continue";
+
+    [SerializeField] NextSceneHolder NextScene;
         
     public TextMeshProUGUI transitionText; // Reference to the TextMeshProUGUI component to display the scene name
     // On Awake, raise event that a new scene has been loaded, then destroy this object
@@ -62,7 +64,7 @@ public class NewSceneChecker : MonoBehaviour
     bool hasBeenCalled = false;
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.E) || Gamepad.current?.buttonSouth.wasPressedThisFrame == true && !hasBeenCalled)
+        if(Input.GetKeyDown(KeyCode.E) || Gamepad.current?.buttonSouth.wasPressedThisFrame == true && !hasBeenCalled && NextScene != null)
         {
             CallLoadNextScene();
             hasBeenCalled = true;
@@ -76,25 +78,20 @@ public class NewSceneChecker : MonoBehaviour
     public void CallLoadNextScene()
     {
         if (!LoadingScreen.LoadingScreenActive) return;
-        Debug.Log("Loading next scene: " + NextScene.TargetScene);
-        UIManager.Instance?.FadeOut();
-        NextScene.CallLoadNextScene();
+
+        if (NextScene != null)
+        {
+            NextScene.LoadNextScene();
+        }
     }
 
     public void LoadMainMenu()
     {
-        UIManager.Instance?.FadeOut();
-        SceneManager.LoadScene("0 Main Menu");
+        UIManager.Instance?.LoadSceneWithFade("0 Main Menu");
     }
 
     public void QuitGame()
     {
         Application.Quit();
-    }
-
-    public void GoToMainMenu()
-    {
-        UIManager.Instance?.FadeOut();
-        SceneManager.LoadScene("0 Main Menu");
     }
 }

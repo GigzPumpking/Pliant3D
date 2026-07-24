@@ -215,8 +215,12 @@ public class Bulldozer : FormScript
             {
                 //Raise event to be checked by AbilityPerformedObjective.cs or any other corresponding scripts
                 AbilityUsed?.Invoke(Transformation.BULLDOZER, 2, highlightedInteractable);
-                
-                highlightedInteractable.gameObject.SetActive(false);
+
+                AnimTrigger animTrigger = highlightedInteractable.GetComponent<AnimTrigger>();
+                if (animTrigger == null) {
+                    highlightedInteractable.gameObject.SetActive(false);
+                }
+
                 highlightedInteractable = null;
             } 
             StartSprint();

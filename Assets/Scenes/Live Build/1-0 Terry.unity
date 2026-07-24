@@ -1527,12 +1527,12 @@ PrefabInstance:
     - target: {fileID: 2974808530385431225, guid: c1f5b96cbee8215479787fffa640b4c0,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: CallLoadNextScene
+      value: LoadNextScene
       objectReference: {fileID: 0}
     - target: {fileID: 2974808530385431225, guid: c1f5b96cbee8215479787fffa640b4c0,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: NewSceneChecker, Assembly-CSharp
+      value: NextSceneHolder, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 2974808530385431225, guid: c1f5b96cbee8215479787fffa640b4c0,
         type: 3}
@@ -1544,17 +1544,32 @@ PrefabInstance:
       propertyPath: m_Name
       value: PressToContinueScenesButton
       objectReference: {fileID: 0}
+    - target: {fileID: 7157360720137682968, guid: c1f5b96cbee8215479787fffa640b4c0,
+        type: 3}
+      propertyPath: sceneName
+      value: 1-1 Terry
+      objectReference: {fileID: 0}
+    - target: {fileID: 8887363450158570564, guid: c1f5b96cbee8215479787fffa640b4c0,
+        type: 3}
+      propertyPath: NextScene
+      value: 
+      objectReference: {fileID: 2974808529244610461}
+    - target: {fileID: 8887363450158570564, guid: c1f5b96cbee8215479787fffa640b4c0,
+        type: 3}
+      propertyPath: sceneName
+      value: 1-1 Terry
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c1f5b96cbee8215479787fffa640b4c0, type: 3}
 --- !u!114 &2974808529244610461 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8887363450158570564, guid: c1f5b96cbee8215479787fffa640b4c0,
+  m_CorrespondingSourceObject: {fileID: 7157360720137682968, guid: c1f5b96cbee8215479787fffa640b4c0,
     type: 3}
   m_PrefabInstance: {fileID: 2974808529244610460}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 2080486691}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8153d57a28fc7496fa743c9dc1392fd9, type: 3}
+  m_Script: {fileID: 11500000, guid: 0895ed87e6f515b42934783199ccac78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

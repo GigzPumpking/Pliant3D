@@ -27,6 +27,6 @@ public class WinScreen : MonoBehaviour
 
     public void Transition()
     {
-        SceneLoader.Instance.LoadNextScene("Main Menu");
+        SceneManager.LoadScene("0 Main Menu");
     }
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class ColoredInteractable : Interactable
 {
@@ -9,10 +10,27 @@ public class ColoredInteractable : Interactable
     [SerializeField]
     private Color highlightColor = Color.green;
 
+    [Tooltip("GameObjects whose renderers will change color on highlight. Defaults to this object if the list is empty.")]
+    [SerializeField] private List<GameObject> colorTargets = new List<GameObject>();
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
-        renderers = GetComponentsInChildren<Renderer>();
+
+        var collectedRenderers = new List<Renderer>();
+        if (colorTargets != null && colorTargets.Count > 0)
+        {
+            foreach (GameObject target in colorTargets)
+            {
+                if (target != null)
+                    collectedRenderers.AddRange(target.GetComponentsInChildren<Renderer>());
+            }
+        }
+        else
+        {
+            collectedRenderers.AddRange(GetComponentsInChildren<Renderer>());
+        }
+        renderers = collectedRenderers.ToArray();
 
         if (animator == null)
         {
@@ -21,7 +39,7 @@ public class ColoredInteractable : Interactable
 
         if (renderers.Length == 0)
         {
-            Debug.LogWarning("No Renderer components found on " + gameObject.name + " or its children.");
+            Debug.LogWarning("No Renderer components found on " + gameObject.name + " or its color targets.");
         }
         else
         {

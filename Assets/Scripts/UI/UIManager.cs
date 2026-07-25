@@ -122,13 +122,13 @@ public class UIManager : KeyActionReceiver<UIManager>
         }
         
 
-        if (InputManager.Instance?.ActiveDeviceType == "Gamepad")
+        if (InputManager.Instance?.ActiveDeviceType == "Mouse" || InputManager.Instance?.ActiveDeviceType == "Keyboard")
         {
-            pauseButton.SetActive(false);
+            UpdatePauseButtonVisibility();
         }
         else
         {
-            UpdatePauseButtonVisibility();
+            pauseButton.SetActive(false);
         }
     }
 

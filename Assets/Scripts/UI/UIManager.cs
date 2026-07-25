@@ -143,6 +143,9 @@ public class UIManager : KeyActionReceiver<UIManager>
 
     public void Pause()
     {
+        if (scenesToHidePauseIn.Contains(SceneManager.GetActiveScene().name))
+            return;
+
         // Pause the game
         AudioManager.Instance?.PlayOneShot(pauseSound);
 

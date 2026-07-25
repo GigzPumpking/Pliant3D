@@ -193,7 +193,7 @@ public class Frog : FormScript
     #region Input & Movement
     public override void Ability1(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && !(UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive)))
         {
             Jump();
             AbilityUsed?.Invoke(Transformation.FROG, 1, null);
@@ -202,7 +202,7 @@ public class Frog : FormScript
 
     public override void Ability2(InputAction.CallbackContext context)
     {
-        if (context.performed && tongueState == TongueState.Idle)
+        if (context.performed && tongueState == TongueState.Idle && !(UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive)))
         {
             _isDirectionLocked = true; // Lock instantly!
 

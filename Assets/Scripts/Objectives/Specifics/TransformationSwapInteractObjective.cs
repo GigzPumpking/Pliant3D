@@ -20,14 +20,10 @@ public class TransformationSwapInteractObjective : Objective {
     {
         if (transformIntoAny == true)
         {
-            isComplete = true;
-            OnObjectiveComplete?.Invoke(this);
-            InvokeCompletionEvents();
+            CompleteObjective();
+        } else if (transformation == desiredTransformation)
+        {
+            CompleteObjective();
         }
-        
-        if (transformation != desiredTransformation) return;
-        isComplete = true;
-        OnObjectiveComplete?.Invoke(this);
-        InvokeCompletionEvents();
     }
 }

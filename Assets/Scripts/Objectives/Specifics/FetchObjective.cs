@@ -364,17 +364,15 @@ using UnityEngine;
             // NPC-return completion is handled by the Interact overload
         }
         
-        private void CompleteObjective()
+        public override void CompleteObjective()
         {
             if (isComplete) return; // Prevent double completion
             
-            InvokeCompletionEvents();
-            isComplete = true;
+            base.CompleteObjective(); // Calls GameManager and sets isComplete
+            
             RefreshNPCDialogue();
             RefreshTallyUI();
             UpdateObjectiveDescriptionUI();
-            OnObjectiveComplete?.Invoke(this);
-            Debug.Log("FetchObjective complete!");
         }
 
         public override ObjectiveSaveState CaptureState()

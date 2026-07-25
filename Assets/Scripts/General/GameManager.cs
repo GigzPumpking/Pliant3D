@@ -104,6 +104,9 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     protected override Dictionary<string, Action<GameManager, InputAction.CallbackContext>> KeyMapping => staticKeyMapping;
 
+    [Header("End Game Tracking")]
+    public int totalTasksInGame;
+
     private void Awake()
     {
         if (instance == null)
@@ -293,28 +296,26 @@ public class GameManager : KeyActionReceiver<GameManager>
         _numTasksCompleted = num;
     }
 
-    public int GetNumTasksAssigned()
+public int GetNumTasksAssigned()
     {
-        return _numTasksAssigned;
+        return _numTasksAssigned + _queuedTasksAssigned;
     }
     
     public int GetNumTasksCompleted()
     {
-        return _numTasksCompleted;
+        return _numTasksCompleted + _queuedTasksCompleted;
     }
     
     public int GetNumTasksRemaining()
     {
-        return _numTasksAssigned - _numTasksCompleted;
+        return GetNumTasksAssigned() - GetNumTasksCompleted();
     }
-    
+
     public float GetRatioOfTasksCompleted()
     {
-        if (_numTasksAssigned == 0) return 0;
-                
-        return (float)_numTasksCompleted/ (float)_numTasksAssigned;
+        if (totalTasksInGame == 0) return 0;
+        return (float)GetNumTasksCompleted() / (float)totalTasksInGame; // Updated to use the new getter
     }
-    
     public float GetPromotionRatio()
     {
         return Instance.promotionRatio;
@@ -517,6 +518,9 @@ public class GameManager : KeyActionReceiver<GameManager>
         // Capture auto dialogue triggered states
         playerData.triggeredAutoDialogueNames = CaptureAutoDialogueStates();
 
+        playerData.numTasksCompleted = _numTasksCompleted;
+        playerData.numTasksAssigned = _numTasksAssigned;
+
         // Capture timer state if one is active in the scene
         var timer = FindObjectOfType<ObjectiveTimer>();
         if (timer != null && timer.HasStarted)
@@ -595,7 +599,8 @@ public class GameManager : KeyActionReceiver<GameManager>
 
         // Restore auto-save preference
         AutoSaveEnabled = playerData.settings.autoSave;
-        SetNumTasksCompleted(_numTasksAssigned);
+        _numTasksCompleted = playerData.numTasksCompleted;
+        _numTasksAssigned = playerData.numTasksAssigned;
 
         // Apply player data after scene has loaded
         if (Player.Instance != null)

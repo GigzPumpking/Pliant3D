@@ -142,7 +142,7 @@ public class CustomEventObjective : Objective
 
         Debug.Log($"CustomEventObjective progress: {numCompleted}/{cachedTotal} for {gameObject.name}");
 
-        if (numCompleted >= cachedTotal && cachedTotal > 0)
+        if (numCompleted >= cachedTotal && cachedTotal > 0 && !isComplete)
         {
             CompleteObjective();
         }
@@ -222,23 +222,6 @@ public class CustomEventObjective : Objective
         }
 
         return path;
-    }
-
-    private void CompleteObjective()
-    {
-        if (isComplete)
-        {
-            return;
-        }
-
-        isComplete = true;
-
-        RefreshTallyUI();
-
-        OnObjectiveComplete?.Invoke(this);
-        InvokeCompletionEvents();
-
-        Debug.Log($"{gameObject.name} has successfully been completed!");
     }
 
     public override ObjectiveSaveState CaptureState()

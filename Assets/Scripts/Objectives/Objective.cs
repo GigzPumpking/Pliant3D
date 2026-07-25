@@ -6,6 +6,7 @@ using UnityEngine.Events;
 
 [System.Serializable]
 public class Objective : MonoBehaviour, IObjective {
+    public static event Action<Objective> OnObjectiveComplete;
     [SerializeField] public string description;
     [SerializeField] public ICompletionStrategy CompletionStrategy;
     public bool isComplete;
@@ -56,5 +57,28 @@ public class Objective : MonoBehaviour, IObjective {
         if (!showTally) return;
 
         TallyBuilder.UpdateTallyUI(this, 0, 1);
+    }
+
+    // Add this virtual method to the base Objective class
+    public virtual void CompleteObjective()
+    {
+        if (isComplete) return; // Prevent double completion
+
+        isComplete = true;
+
+        // 2. Invoke the UnityEvents set up in the inspector
+        InvokeCompletionEvents(); 
+
+        // 3. Fire the C# event to update the Objective Listing UI
+        OnObjectiveComplete?.Invoke(this);
+
+        // 4. Tell the GameManager a task was officially crossed off the agenda
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.AddQueuedTaskComplete();
+        }
+        
+        // 5. Standardized Debug Log
+        Debug.Log($"[Objective] '{gameObject.name}' ({description}) has successfully been completed!");
     }
 }

@@ -31,6 +31,8 @@ public class ObjectiveTracker : MonoBehaviour
     [Header("Objective Listing Rules")]
     [SerializeField] private int maxObjectivesPerListing = 5;
 
+    private HashSet<Objective> _countedAssignedObjectives = new HashSet<Objective>();
+
     private bool isClosed = true;
     private Animator animator;
 
@@ -135,6 +137,17 @@ public class ObjectiveTracker : MonoBehaviour
 
             objectiveListings.Add(listingObject);
             objectiveListingsUI.Add(listingUI);
+            foreach (Objective obj in listingObject.objectives)
+            {
+                if (obj != null && !obj.isComplete && GameManager.Instance != null)
+                {
+                    if (!_countedAssignedObjectives.Contains(obj))
+                    {
+                        GameManager.Instance.AddQueuedTaskAssigned();
+                        _countedAssignedObjectives.Add(obj);
+                    }
+                }
+            }
         }
 
         SetMessyObjectives(messyObjectives);
@@ -303,8 +316,6 @@ public class ObjectiveTracker : MonoBehaviour
                 }
             }
         }
-
-        GameManager.Instance?.SetNumTasksCompleted(restoredCount);
 
         GameManager.Instance?.ClearPendingObjectiveStates();
 
@@ -515,6 +526,12 @@ public class ObjectiveTracker : MonoBehaviour
             if (!objective.isComplete)
             {
                 targetListing.isComplete = false;
+
+                if (GameManager.Instance != null && !_countedAssignedObjectives.Contains(objective))
+                {
+                    GameManager.Instance.AddQueuedTaskAssigned();
+                    _countedAssignedObjectives.Add(objective);
+                }
             }
 
             addedCount++;

@@ -1,7 +1,11 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
+
+// 1. WRAP THE NAMESPACE
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 /// <summary>
 /// Editor-only gamepad simulator. Attach to any GameObject in the scene to test
@@ -64,6 +68,8 @@ public class GamepadSimulator : MonoBehaviour
     }
 }
 
+// 2. WRAP THE EDITOR CLASS
+#if UNITY_EDITOR
 [CustomEditor(typeof(GamepadSimulator))]
 public class GamepadSimulatorEditor : Editor
 {
@@ -78,3 +84,4 @@ public class GamepadSimulatorEditor : Editor
             MessageType.Info);
     }
 }
+#endif

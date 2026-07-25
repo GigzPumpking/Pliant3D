@@ -70,12 +70,14 @@ public class LevelManager : MonoBehaviour
         
         foreach (var level in allLevels)
         {
+            bool isNewLevel = false;
             int index = level.sceneNames.IndexOf(activeScene);
             if (index >= 0)
             {
+                if (level != null && level != currentLevel) isNewLevel = true; 
                 currentLevel = level;
                 currentSceneIndex = index;
-                OnLevelChanged?.Invoke(level);
+                if (isNewLevel) OnLevelChanged?.Invoke(level);
                 return;
             }
         }

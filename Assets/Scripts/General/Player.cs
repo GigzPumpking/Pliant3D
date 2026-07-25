@@ -575,6 +575,8 @@ public class Player : KeyActionReceiver<Player>
         if (!isGrounded || (UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive)) && transformationWheel.gameObject.activeSelf) return;
 
         transformationWheel.gameObject.SetActive(true);
+        //TODO: Finish implementing thought bubble sfx
+        //AudioManager?.Instance.PlayOneShot(thoughtBubbleSound);
         canMoveToggle(false);
     }
 

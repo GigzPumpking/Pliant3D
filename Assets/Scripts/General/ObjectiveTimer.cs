@@ -31,6 +31,8 @@ public class ObjectiveTimer : MonoBehaviour
     public bool HasStarted => hasStarted;
     public float GetCurrentTime() => currentTime;
 
+    public NextSceneHolder nextSceneHolder;
+
     void Start()
     {
         currentTime = 0;
@@ -91,6 +93,10 @@ public class ObjectiveTimer : MonoBehaviour
             if (!GameManager.Instance.isGameOver)
             {
                 currentTime -= Time.deltaTime;
+                if (currentTime < 0f)
+                {
+                    currentTime = 0f;
+                }
                 SetTimeInMinutesAndSeconds(currentTime);
             }
 
@@ -106,17 +112,7 @@ public class ObjectiveTimer : MonoBehaviour
                 if (loadSceneOnExpire && !string.IsNullOrEmpty(sceneToLoadOnExpire))
                 {
                     Debug.LogWarning($"ObjectiveTimer expired. Loading scene '{sceneToLoadOnExpire}'.");
-                    NextScene.TargetScene = sceneToLoadOnExpire;
-
-                    if (UIManager.Instance != null)
-                    {
-                        UIManager.Instance.FadeIn();
-                    }
-                    else
-                    {
-                        Debug.LogError("UIManager instance not found! Loading expire scene directly.");
-                        SceneManager.LoadScene(sceneToLoadOnExpire);
-                    }
+                    nextSceneHolder.LoadNextScene();
                 }
                 else
                 {

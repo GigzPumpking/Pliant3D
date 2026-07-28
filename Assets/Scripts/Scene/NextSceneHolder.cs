@@ -11,6 +11,12 @@ public class NextSceneHolder : MonoBehaviour
     private bool IsActive => requiredAnimTrigger == null || requiredAnimTrigger.IsTriggered;
     private bool Collided = false;
 
+
+    public void QuitGame()
+    {
+        GameManager.Instance?.Quit();
+    }
+    
     public void LoadNextScene()
     {
         if (UIManager.Instance != null)

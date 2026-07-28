@@ -440,7 +440,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5237844407405600072}
   - component: {fileID: 5237844407405600069}
-  - component: {fileID: 5237844407405600070}
+  - component: {fileID: 3968649612193626447}
   - component: {fileID: 5237844407405600071}
   m_Layer: 8
   m_Name: Trigger
@@ -477,7 +477,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2.7344027, y: 1.0152631, z: 1.0030935}
   m_Center: {x: -0.86720043, y: -0.075063705, z: 1.033354}
---- !u!114 &5237844407405600070
+--- !u!114 &3968649612193626447
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -486,15 +486,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 5237844407405600073}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 100090cda274e41a1aa177fcedd28c73, type: 3}
+  m_Script: {fileID: 11500000, guid: 0895ed87e6f515b42934783199ccac78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scenesToOffer:
-  - sceneName: 1-2 Terry
-    sceneToLoad: 1-2 Terry
-    useLoadingScreen: 0
-    loadingScreenSceneName: 
-    loadingScreenDisplayTime: 0
+  sceneName: 
+  requiredButton: {fileID: 0}
 --- !u!114 &5237844407405600071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -819,6 +815,9 @@ MonoBehaviour:
   myAnimationController: {fileID: 5237844407645590301}
   targetTag: Player
   parameterName: open
+  requiredButton: {fileID: 0}
+  blockedDialogue: []
+  blockedDialoguePortrait: {fileID: 0}
 --- !u!1 &9174359261784985687
 GameObject:
   m_ObjectHideFlags: 0

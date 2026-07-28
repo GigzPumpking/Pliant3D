@@ -47,6 +47,9 @@ public class Player : KeyActionReceiver<Player>
 
     // track last non-zero horizontal so we know which way “left” refers to
     private Directions lastHorizontalInput = Directions.RIGHT;
+    
+    // track if walk Sound is active or not
+    private bool WalkSoundActive = false;
 
     [SerializeField] bool isGrounded = true;
     public bool IsGrounded => isGrounded;
@@ -87,6 +90,17 @@ public class Player : KeyActionReceiver<Player>
 
     // Other Variables
     [SerializeField] private float outOfBoundsY = -10f;
+
+    [SerializeField] private string[] outOfBoundsExcludedScenes = new string[]
+    {
+        "0 Main Menu",
+        "1-0 Terry",
+        "2-0 Meri",
+        "3-0 Jerry",
+        "4-0 Carrie",
+        "5-0 Perry",
+        "11-0 End"
+    };
 
     [SerializeField] private float minMoveThreshold = 0.25f;
 
@@ -265,14 +279,7 @@ public class Player : KeyActionReceiver<Player>
         }
 
         if (transform.position.y < outOfBoundsY && !GameManager.Instance.isGameOver
-                                                && SceneManager.GetActiveScene().name != "2-0 Meri"
-                                                && SceneManager.GetActiveScene().name != "3-0 Jerry"
-                                                && SceneManager.GetActiveScene().name != "11-0 Thanks"
-                                                && SceneManager.GetActiveScene().name != "0 Main Menu"
-                                                && SceneManager.GetActiveScene().name != "11 End Screen"
-                                                && SceneManager.GetActiveScene().name != "4-0 Carrie"
-                                                && SceneManager.GetActiveScene().name != "5-0 Perry"
-                                                && SceneManager.GetActiveScene().name != "11-0 End")
+            && System.Array.IndexOf(outOfBoundsExcludedScenes, SceneManager.GetActiveScene().name) < 0)
         {
             Debug.LogWarning("s::" + SceneManager.GetActiveScene().name);
             Debug.LogWarning("Game Over from Player.cs");
@@ -411,13 +418,27 @@ public class Player : KeyActionReceiver<Player>
         
         if (animator != null)
         {
-            bool isMoving = vx != 0 || vy != 0;
+            isMoving = vx != 0 || vy != 0;
             if (isMoving && !directionLocked)
             {
                 animator.SetFloat("MoveX", vx);
                 animator.SetFloat("MoveY", 3 * vy);
             }
             animator.SetBool("isWalking", vx != 0 || vy != 0);
+        }
+
+        if (selectedGroupScript != null)
+        {
+            if (isMoving && !WalkSoundActive)
+            {
+                selectedGroupScript.PlayWalkSound();
+                WalkSoundActive = true;
+            }
+            else if (!isMoving && WalkSoundActive)
+            {
+                selectedGroupScript.EndWalkSound();
+                WalkSoundActive = false;
+            }
         }
         
         Vector3 camF = Camera.main.transform.forward; camF.y = 0; camF.Normalize();
@@ -554,6 +575,8 @@ public class Player : KeyActionReceiver<Player>
         if (!isGrounded || (UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive)) && transformationWheel.gameObject.activeSelf) return;
 
         transformationWheel.gameObject.SetActive(true);
+        //TODO: Finish implementing thought bubble sfx
+        //AudioManager?.Instance.PlayOneShot(thoughtBubbleSound);
         canMoveToggle(false);
     }
 

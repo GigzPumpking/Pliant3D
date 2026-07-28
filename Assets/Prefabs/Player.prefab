@@ -715,6 +715,11 @@ MonoBehaviour:
     volume: 1
     pitch: 1
     loop: 0
+  walkSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
   raycastDistanceDef: 1
   yOffset: 0.5
   jumpForce: 6
@@ -1302,7 +1307,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: -0.0004005432}
   m_SizeDelta: {x: 0.0098, y: 0.00080054323}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -2346,6 +2351,11 @@ MonoBehaviour:
     volume: 1
     pitch: 1
     loop: 0
+  walkSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
   breakBoxCenter: {x: 0, y: 0.5, z: 1.5}
   breakBoxSize: {x: 3, y: 1, z: 3}
   pushDetectHalfExtents: {x: 0.8, y: 0.5, z: 0.3}
@@ -2437,6 +2447,11 @@ MonoBehaviour:
     volume: 1
     pitch: 1
     loop: 0
+  walkSound:
+    clip: {fileID: 8300000, guid: 04b595cafe4354166ada235b66eba5b7, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
   burningInteractBubble: {fileID: 105949234052639406}
   keyboardSprite: {fileID: 21300000, guid: fc7bb22339e9e4dc1a918c75a23f2ae1, type: 3}
   controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}
@@ -2502,12 +2517,17 @@ MonoBehaviour:
     pitch: 1
     loop: 0
   ability1Sound:
-    clip: {fileID: 8300000, guid: 98b36880d5ff6471aa0433973d866480, type: 3}
+    clip: {fileID: 8300000, guid: 1717e1f11c0f84dceb23fd6e0a54b18c, type: 3}
     volume: 1
     pitch: 1
     loop: 0
   ability2Sound:
-    clip: {fileID: 8300000, guid: 021d5fee512e14163938c52fac501511, type: 3}
+    clip: {fileID: 8300000, guid: c6477ba1e76ad422dae757ad8ad371da, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+  walkSound:
+    clip: {fileID: 0}
     volume: 1
     pitch: 1
     loop: 0
@@ -3535,7 +3555,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -0.0004005432}
   m_SizeDelta: {x: 0.0098, y: 0.00080054323}
   m_Pivot: {x: 0.5, y: 0.5}

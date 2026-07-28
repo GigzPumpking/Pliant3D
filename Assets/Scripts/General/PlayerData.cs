@@ -29,6 +29,21 @@ public class PlayerData
     // NPC trigger interaction states (dialogue progression / event suppression)
     public List<NpcTriggerSaveState> npcTriggerStates = new List<NpcTriggerSaveState>();
 
+    // Names of AutoDialogueActivators that have already been triggered
+    public List<string> triggeredAutoDialogueNames = new List<string>();
+
+    // Level progression
+    public int currentLevelId; // Stores the LevelId as int
+    public int currentSceneIndex;
+    public List<int> completedLevels = new List<int>();
+    [System.Serializable]
+    public class LevelTaskProgressEntry
+    {
+        public int levelId;
+        public int tasksCompleted;
+    }
+    public List<LevelTaskProgressEntry> levelTaskProgress = new List<LevelTaskProgressEntry>(); // LevelId -> tasks completed
+
     public PlayerData()
     {
         settings = new GameSettings();

@@ -19,8 +19,6 @@ public class UIManager : KeyActionReceiver<UIManager>
     public UILoadingScreen loadingScreen;
     public DayBanner dayBanner;
 
-    public GameObject scenePanelPrefab;
-
     private GameObject pauseMenu;
     private GameObject pauseMain;
     private GameObject controls;
@@ -112,6 +110,26 @@ public class UIManager : KeyActionReceiver<UIManager>
             default:
                 break;
         }*/
+
+        // If the active device is controller, hide the pause button. Otherwise, show it.
+        if (scenesToHidePauseIn.Contains(SceneManager.GetActiveScene().name))
+        {
+            if (pauseButton.activeSelf)
+            {
+                pauseButton.SetActive(false);
+            }
+            return;
+        }
+        
+
+        if (InputManager.Instance?.ActiveDeviceType == "Mouse" || InputManager.Instance?.ActiveDeviceType == "Keyboard")
+        {
+            UpdatePauseButtonVisibility();
+        }
+        else
+        {
+            pauseButton.SetActive(false);
+        }
     }
 
     public void CallGameManagerLevelReset()
@@ -145,6 +163,9 @@ public class UIManager : KeyActionReceiver<UIManager>
 
     public void Pause()
     {
+        if (scenesToHidePauseIn.Contains(SceneManager.GetActiveScene().name))
+            return;
+
         // Pause the game
         AudioManager.Instance?.PlayOneShot(pauseSound);
 
@@ -165,6 +186,17 @@ public class UIManager : KeyActionReceiver<UIManager>
             pauseButton?.SetActive(false);
             resumeButton?.SetActive(true);
             Time.timeScale = 0;
+        }
+    }
+
+    public void Resume()
+    {
+        if (pauseMenu.activeSelf)
+        {
+            UpdatePauseButtonVisibility();
+            resumeButton?.SetActive(false);
+            pauseMenu?.SetActive(false);
+            Time.timeScale = 1;
         }
     }
 
@@ -204,11 +236,6 @@ public class UIManager : KeyActionReceiver<UIManager>
         pauseButton.SetActive(!shouldHide);
     }
 
-    public void FadeOut()
-    {
-        sceneTransition.GetComponent<Animator>().SetTrigger("FadeOut");
-    }
-
     public void FadeIn()
     {
         loadingScreen.mainCamera = Camera.main;
@@ -216,10 +243,23 @@ public class UIManager : KeyActionReceiver<UIManager>
         sceneTransition.GetComponent<Animator>().SetTrigger("FadeIn");
     }
 
+    public void LoadSceneWithFade(string sceneName)
+    {
+        if (sceneTransition != null)
+        {
+            loadingScreen.mainCamera = Camera.main;
+            sceneTransition.SetActive(true);
+        }
+        else
+        {
+            Debug.LogWarning("Scene transition GameObject is not assigned.");
+        }
+        sceneTransition.GetComponent<LoadNextScene>().Load(sceneName);
+    }
+
     public void FadeOut(NewSceneLoaded e)
     {
         loadingScreen.mainCamera = Camera.main;
-        FadeOut();
     }
 
     public Dialogue returnDialogue()
@@ -230,11 +270,6 @@ public class UIManager : KeyActionReceiver<UIManager>
     public GameObject returnPauseMenu()
     {
         return pauseMenu;
-    }
-
-    public GameObject returnScenePanel()
-    {
-        return scenePanelPrefab;
     }
 
     // Overload to support InputAction.CallbackContext.
@@ -278,6 +313,7 @@ public class UIManager : KeyActionReceiver<UIManager>
 
     public void LoadGame()
     {
+        Resume(); // Ensure the game is not paused before loading
         GameManager.Instance?.LoadGame();
     }
 

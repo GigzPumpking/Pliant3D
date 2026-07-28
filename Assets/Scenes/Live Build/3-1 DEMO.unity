@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028511, g: 0.2257149, b: 0.30692333, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028575, g: 0.22571583, b: 0.3069249, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -4198,6 +4198,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3968649612193626447, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: sceneName
+      value: Demo End
+      objectReference: {fileID: 0}
     - target: {fileID: 5237844407348677566, guid: a9a9ac27c506e84428174b081696a1a4,
         type: 3}
       propertyPath: m_RootOrder
@@ -7809,6 +7814,11 @@ PrefabInstance:
       propertyPath: mainTheme.clip
       value: 
       objectReference: {fileID: 8300000, guid: 3ca5de335088c44659b52992b23e96c6, type: 3}
+    - target: {fileID: 2536014238896151548, guid: 74066245bd0384681a0fff3efad21a9d,
+        type: 3}
+      propertyPath: endMenuSceneName
+      value: Demo End
+      objectReference: {fileID: 0}
     - target: {fileID: 2536014238896151549, guid: 74066245bd0384681a0fff3efad21a9d,
         type: 3}
       propertyPath: m_Name
@@ -14954,6 +14964,7 @@ MonoBehaviour:
   properties:
   - {fileID: 11400000, guid: 5473ed6d6b91a45be953a209cb8ae099, type: 2}
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
+  colorTargets: []
 --- !u!64 &847398887
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -26495,6 +26506,7 @@ MonoBehaviour:
   properties:
   - {fileID: 11400000, guid: 5473ed6d6b91a45be953a209cb8ae099, type: 2}
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
+  colorTargets: []
 --- !u!64 &1431118429
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -30702,6 +30714,7 @@ MonoBehaviour:
   properties:
   - {fileID: 11400000, guid: 5473ed6d6b91a45be953a209cb8ae099, type: 2}
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
+  colorTargets: []
 --- !u!64 &1674027106
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -30920,6 +30933,7 @@ MonoBehaviour:
   properties:
   - {fileID: 11400000, guid: 5473ed6d6b91a45be953a209cb8ae099, type: 2}
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
+  colorTargets: []
 --- !u!114 &1676254606
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37169,7 +37183,7 @@ MonoBehaviour:
   myAnimationController: {fileID: 550313838}
   targetTag: Player
   parameterName: printer
-  requiredButton: {fileID: 0}
+  requiredAnimTrigger: {fileID: 0}
   blockedDialogue: []
   blockedDialoguePortrait: {fileID: 0}
 --- !u!114 &2033030689
@@ -37187,7 +37201,7 @@ MonoBehaviour:
   myAnimationController: {fileID: 30533878}
   targetTag: Player
   parameterName: lights on
-  requiredButton: {fileID: 0}
+  requiredAnimTrigger: {fileID: 0}
   blockedDialogue: []
   blockedDialoguePortrait: {fileID: 0}
 --- !u!114 &2033030690
@@ -37205,7 +37219,7 @@ MonoBehaviour:
   myAnimationController: {fileID: 2033030691}
   targetTag: Player
   parameterName: button lvl 3
-  requiredButton: {fileID: 0}
+  requiredAnimTrigger: {fileID: 0}
   blockedDialogue: []
   blockedDialoguePortrait: {fileID: 0}
 --- !u!95 &2033030691

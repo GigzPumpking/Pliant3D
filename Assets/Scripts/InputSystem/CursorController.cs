@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public enum ModeOfCursor
@@ -9,7 +10,7 @@ public enum ModeOfCursor
     Hand
 }
 
-public class CursorController : MonoBehaviour
+public class CursorController : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler
 {
     
     public static CursorController Instance { get; private set; }
@@ -23,6 +24,9 @@ public class CursorController : MonoBehaviour
     [SerializeField] private Vector2 clickPosition = Vector2.zero;
 
     [SerializeField] private GameObject gamepadCursor;
+    
+    [SerializeField] private AudioData hoverSound;
+    [SerializeField] private AudioData clickSound;
     
     private Image gamepadCursorImage;
     private void Awake()
@@ -63,5 +67,15 @@ public class CursorController : MonoBehaviour
                 gamepadCursorImage.sprite = cursorSpriteDefault;
                 break;
         }
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        AudioManager.Instance?.PlayOneShot(hoverSound);
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        AudioManager.Instance?.PlayOneShot(clickSound);
     }
 }

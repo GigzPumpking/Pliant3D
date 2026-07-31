@@ -265,11 +265,11 @@ public class GameManager : KeyActionReceiver<GameManager>
         }
         else if (isLoadingScene)
         {
-            desiredAmbience = null;
+            desiredAmbience = loadingAmbience;
         }
         else
         {
-            desiredAmbience = loadingAmbience;
+            desiredAmbience = levelAmbience;
         }
 
         // Don't restart music if the right theme is already playing

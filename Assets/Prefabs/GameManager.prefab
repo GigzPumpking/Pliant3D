@@ -51,11 +51,6 @@ MonoBehaviour:
   gameOverPanel: {fileID: 0}
   isGameOver: 0
   player: {fileID: 0}
-  menuAmbience:
-    clip: {fileID: 8300000, guid: 940c942959815468ebca6464b43dde7b, type: 3}
-    volume: 1
-    pitch: 1
-    loop: 0
   levelAmbience:
     clip: {fileID: 8300000, guid: 0b4b298602295494199903df0ea9725b, type: 3}
     volume: 1
@@ -71,6 +66,11 @@ MonoBehaviour:
     volume: 1
     pitch: 1
     loop: 0
+  loadingAmbience:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
   promotionRatio: 0.65
   mainMenuSceneName: 0 Main Menu
   endMenuSceneName: 11-0 End
@@ -83,6 +83,12 @@ MonoBehaviour:
   - 4-0 Carrie
   - 5-0 Perry
   - 11-0 Thanks
+  loadingScenes:
+  - 1-0 Terry
+  - 2-0 Meri
+  - 3-0 Jerry
+  - 4-0 Carrie
+  - 5-0 Perry
   VideoHasPlayed: 0
 --- !u!114 &-6824069562137584864
 MonoBehaviour:

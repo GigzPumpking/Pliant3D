@@ -10,7 +10,13 @@ public enum ModeOfCursor
     Hand
 }
 
-public class CursorController : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler
+public enum ClickSoundType
+{
+    Single,
+    Double
+}
+
+public class CursorController : MonoBehaviour
 {
     
     public static CursorController Instance { get; private set; }
@@ -26,7 +32,8 @@ public class CursorController : MonoBehaviour, IPointerEnterHandler, IPointerCli
     [SerializeField] private GameObject gamepadCursor;
     
     [SerializeField] private AudioData hoverSound;
-    [SerializeField] private AudioData clickSound;
+    [SerializeField] private AudioData singleClickSound;
+    [SerializeField] private AudioData doubleClickSound;
     
     private Image gamepadCursorImage;
     private void Awake()
@@ -69,13 +76,24 @@ public class CursorController : MonoBehaviour, IPointerEnterHandler, IPointerCli
         }
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+    public void PlayHoverSound()
     {
         AudioManager.Instance?.PlayOneShot(hoverSound);
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    public void PlayClickSound(ClickSoundType clickType)
     {
-        AudioManager.Instance?.PlayOneShot(clickSound);
+        switch (clickType)
+        {
+            case ClickSoundType.Single:
+                AudioManager.Instance?.PlayOneShot(singleClickSound);
+                break;
+            case ClickSoundType.Double:
+                AudioManager.Instance?.PlayOneShot(doubleClickSound);
+                break;
+            default:
+                AudioManager.Instance?.PlayOneShot(singleClickSound);
+                break;
+        }
     }
 }

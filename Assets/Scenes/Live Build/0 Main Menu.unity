@@ -1077,11 +1077,16 @@ MonoBehaviour:
   gamepadCursor: {fileID: 307552075}
   hoverSound:
     clip: {fileID: 8300000, guid: f32ad7c1da281431aa6b82e77ef28c2a, type: 3}
+    volume: 0.5
+    pitch: 1
+    loop: 0
+  singleClickSound:
+    clip: {fileID: 8300000, guid: 4cdac2b16d60144cf97a1dea361c0ac8, type: 3}
     volume: 1
     pitch: 1
     loop: 0
-  clickSound:
-    clip: {fileID: 8300000, guid: 4cdac2b16d60144cf97a1dea361c0ac8, type: 3}
+  doubleClickSound:
+    clip: {fileID: 8300000, guid: 070fc412c2f2f4e8481f2caef7e61a62, type: 3}
     volume: 1
     pitch: 1
     loop: 0
@@ -1173,6 +1178,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1913432802579872221, guid: 040204a8d72dcd94daf72b92d2a52de5,
+        type: 3}
+      propertyPath: clickSoundType
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1913432802726427029, guid: 040204a8d72dcd94daf72b92d2a52de5,
         type: 3}
       propertyPath: m_text
@@ -1234,6 +1244,11 @@ PrefabInstance:
       propertyPath: m_fontSizeBase
       value: 28
       objectReference: {fileID: 0}
+    - target: {fileID: 1913432803255107995, guid: 040204a8d72dcd94daf72b92d2a52de5,
+        type: 3}
+      propertyPath: clickSoundType
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1913432803305199001, guid: 040204a8d72dcd94daf72b92d2a52de5,
         type: 3}
       propertyPath: m_IsActive
@@ -1256,6 +1271,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -32
+      objectReference: {fileID: 0}
+    - target: {fileID: 1913432803849984253, guid: 040204a8d72dcd94daf72b92d2a52de5,
+        type: 3}
+      propertyPath: clickSoundType
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1913432804139365265, guid: 040204a8d72dcd94daf72b92d2a52de5,
         type: 3}
@@ -1332,6 +1352,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1913432804420291824, guid: 040204a8d72dcd94daf72b92d2a52de5,
+        type: 3}
+      propertyPath: clickSoundType
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4910619186539931082, guid: 040204a8d72dcd94daf72b92d2a52de5,
         type: 3}

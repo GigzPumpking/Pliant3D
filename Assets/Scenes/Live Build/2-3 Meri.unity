@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731704, g: 0.13414726, b: 0.1210787, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -5360,13 +5360,13 @@ PrefabInstance:
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: objectiveToGive.Array.size
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: dialogueLines.Array.data[0]
-      value: Fantastic! Now let's do something no one likes to do, but we have to
-        do. A **ROUTINE** task!
+      value: Now let's do something no one likes to do, but we have to do. A **ROUTINE**
+        task!
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
@@ -5404,7 +5404,12 @@ PrefabInstance:
         type: 3}
       propertyPath: objectiveToGive.Array.data[0]
       value: 
-      objectReference: {fileID: 1797529536}
+      objectReference: {fileID: 1483608604}
+    - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+        type: 3}
+      propertyPath: objectiveToGive.Array.data[1]
+      value: 
+      objectReference: {fileID: 1882613600}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: tertiaryDialogue.Array.data[0].defaultText
@@ -11570,8 +11575,6 @@ MonoBehaviour:
   objectiveUIList: []
   objectives:
   - {fileID: 438295094}
-  - {fileID: 1483608604}
-  - {fileID: 1882613600}
   - {fileID: 1010316081}
   isComplete: 0
   onCompletionEvents: []

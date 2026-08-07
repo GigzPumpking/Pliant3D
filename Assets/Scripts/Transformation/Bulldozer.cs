@@ -627,6 +627,7 @@ public class Bulldozer : FormScript
 
         isSprinting = true;
         speed = baseSpeed * sprintModifier;
+        PlayAbilitySoundLooping(ability1Sound);
         // if not pushing, set animation to sprinting
         if (!isPushing)
             animator?.SetBool("isSprinting", true);
@@ -640,6 +641,7 @@ public class Bulldozer : FormScript
         isSprinting = false;
         speed = baseSpeed;
         animator?.SetBool("isSprinting", false);
+        StopAbilitySound(ability1Sound);
     }
 
     public bool IsSprinting()
@@ -677,6 +679,7 @@ public class Bulldozer : FormScript
         isPushing = state;
         if (pushCollider != null) pushCollider.enabled = state;
         if (normalCollider != null) normalCollider.enabled = !state;
+        
 
         if (!state)
         {

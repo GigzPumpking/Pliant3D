@@ -44,6 +44,20 @@ public abstract class FormScript : MonoBehaviour
     {
         if(data != null) AudioManager.Instance?.PlayOneShot(data);
     }
+    
+    protected virtual void PlayAbilitySoundLooping(AudioData data)
+    {
+        if (data == null) return;
+        if (AudioManager.Instance.IsSoundPlaying(data)) return;
+        if (!data.loop) data.loop = true;
+        AudioManager.Instance?.PlaySound(data);
+    }
+
+    protected virtual void StopAbilitySound(AudioData data)
+    {
+        if (data != null && AudioManager.Instance?.IsSoundPlaying(data) == true) 
+            AudioManager.Instance?.StopSound(data);
+    }
 
     public virtual void PlayWalkSound()
     {

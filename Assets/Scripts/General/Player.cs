@@ -87,6 +87,8 @@ public class Player : KeyActionReceiver<Player>
     private FormScript selectedGroupScript;
 
     public float transformationDuration = 10f;
+    
+    [SerializeField] private AudioData thoughtBubbleSound;
 
     // Other Variables
     [SerializeField] private float outOfBoundsY = -10f;
@@ -575,6 +577,8 @@ public class Player : KeyActionReceiver<Player>
         if (!isGrounded || (UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive)) && transformationWheel.gameObject.activeSelf) return;
 
         transformationWheel.gameObject.SetActive(true);
+        //TODO: Finish implementing thought bubble sfx
+        AudioManager.Instance?.PlayOneShot(thoughtBubbleSound);
         canMoveToggle(false);
     }
 
@@ -589,6 +593,7 @@ public class Player : KeyActionReceiver<Player>
             if (!isGrounded || (UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive))) return;
 
             transformationWheel.gameObject.SetActive(!transformationWheel.gameObject.activeSelf);
+            AudioManager.Instance?.PlayOneShot(thoughtBubbleSound);
             canMoveToggle(!transformationWheel.gameObject.activeSelf);
         }
     }

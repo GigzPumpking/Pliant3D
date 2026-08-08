@@ -64,7 +64,9 @@ public class NewSceneChecker : MonoBehaviour
     bool hasBeenCalled = false;
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.E) || Gamepad.current?.buttonSouth.wasPressedThisFrame == true && !hasBeenCalled && NextScene != null)
+        if((Input.GetKeyDown(KeyCode.E) || Gamepad.current?.buttonSouth.wasPressedThisFrame == true) 
+            && !hasBeenCalled 
+            && NextScene != null )
         {
             CallLoadNextScene();
             hasBeenCalled = true;

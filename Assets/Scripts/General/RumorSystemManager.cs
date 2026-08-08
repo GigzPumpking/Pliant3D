@@ -73,19 +73,11 @@ public class RumorSystemManager : MonoBehaviour
     
     private void OnEnable()
     {
-        if (LevelManager.Instance != null)
-        {
-            LevelManager.Instance.OnLevelChanged += OnLevelChanged;
-        }
         EventDispatcher.AddListener<NewSceneLoaded>(OnNewSceneLoaded);
     }
 
     private void OnDisable()
     {
-        if (LevelManager.Instance != null)
-        {
-            LevelManager.Instance.OnLevelChanged -= OnLevelChanged;
-        }
         EventDispatcher.RemoveListener<NewSceneLoaded>(OnNewSceneLoaded);
     }
     #endregion
@@ -95,7 +87,7 @@ public class RumorSystemManager : MonoBehaviour
     //  Event handlers
     // -------------------------------------------------------------------------
     
-    private void OnLevelChanged(LevelData level)
+    private void OnLevelChange(LevelData level)
     {
         if (rumorDatabase is null) return;
 
@@ -103,6 +95,7 @@ public class RumorSystemManager : MonoBehaviour
         {
             ApplyRumorToUI(match);
         }
+        //TODO: Current quick fix. Later make proper event handler for level change
         else
         {
             Debug.LogWarning($"[RumorSystem] No rumor configured for '{level.levelId}'.", this);
@@ -115,6 +108,10 @@ public class RumorSystemManager : MonoBehaviour
         if (LevelManager.Instance == null || !LevelManager.Instance.IsLevelScene(scene.sceneName, out LevelData level))
         {
             ClearUI();
+        }
+        else
+        {
+            OnLevelChange(level);
         }
     }
     

@@ -22,10 +22,10 @@ public class GameManager : KeyActionReceiver<GameManager>
     // Themes and ambience to play during menus and levels
     private AudioData mainTheme;
     private AudioData mainAmbience;
-    [SerializeField] private AudioData menuAmbience;
     [SerializeField] private AudioData levelAmbience;
     [SerializeField] private AudioData menuTheme;
     [SerializeField] private AudioData levelTheme;
+    [SerializeField] private AudioData loadingAmbience;
     
     [SerializeField] private int _queuedTasksCompleted = 0;
     [SerializeField] private int _queuedTasksAssigned = 0;
@@ -64,6 +64,16 @@ public class GameManager : KeyActionReceiver<GameManager>
         "4-0 Carrie",
         "5-0 Perry",
         "11-0 End"
+    };
+    
+    // Scenes meant for transitioning to play correct loading ambience
+    [SerializeField] private List<string> loadingScenes = new List<string>
+    {
+        "1-0 Terry",
+        "2-0 Meri",
+        "3-0 Jerry",
+        "4-0 Carrie",
+        "5-0 Perry",
     };
 
     [HideInInspector] public bool VideoHasPlayed = false;
@@ -233,6 +243,11 @@ public class GameManager : KeyActionReceiver<GameManager>
     {
         return sceneName == mainMenuSceneName || sceneName == endMenuSceneName;
     }
+
+    private bool IsLoadingScene(string sceneName)
+    {
+        return unsaveableScenes.Contains(sceneName);
+    }
     
     /// <summary>Plays the correct background theme for the active scene.
     /// Menu scenes -> menuTheme, level scenes -> levelTheme.</summary>
@@ -242,19 +257,33 @@ public class GameManager : KeyActionReceiver<GameManager>
 
         string sceneName = SceneManager.GetActiveScene().name;
         bool isMenu = IsMenuScene(sceneName);
+        bool isLoadingScene = IsLoadingScene(sceneName);
 
         AudioData desiredTheme = isMenu ? menuTheme : levelTheme;
-        AudioData desiredAmbience = isMenu ? menuAmbience : levelAmbience;
+        AudioData desiredAmbience;
+
+        if (isMenu)
+        {
+            desiredAmbience = null;
+        }
+        else if (isLoadingScene)
+        {
+            desiredAmbience = loadingAmbience;
+        }
+        else
+        {
+            desiredAmbience = levelAmbience;
+        }
 
         // Don't restart music if the right theme is already playing
         // (e.g. a level reset reloads the same scene)
-        if (mainTheme == desiredTheme && AudioManager.Instance.IsMusicPlaying())
+        if ((mainTheme == desiredTheme && mainAmbience == desiredAmbience) && AudioManager.Instance.IsMusicPlaying())
             return;
 
         mainTheme = desiredTheme;
         if (!mainTheme.loop) mainTheme.loop = true;
         mainAmbience = desiredAmbience;
-        if (!mainAmbience.loop) mainAmbience.loop = true;
+        if (mainAmbience != null && !mainAmbience.loop) mainAmbience.loop = true;
 
         AudioManager.Instance.StopMusic();
         AudioManager.Instance.DeleteCurrentMusicSources();

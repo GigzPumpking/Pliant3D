@@ -1,12 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public enum ModeOfCursor
 {
     Default,
     Hand
+}
+
+public enum ClickSoundType
+{
+    Single,
+    Double
 }
 
 public class CursorController : MonoBehaviour
@@ -23,6 +30,10 @@ public class CursorController : MonoBehaviour
     [SerializeField] private Vector2 clickPosition = Vector2.zero;
 
     [SerializeField] private GameObject gamepadCursor;
+    
+    [SerializeField] private AudioData hoverSound;
+    [SerializeField] private AudioData singleClickSound;
+    [SerializeField] private AudioData doubleClickSound;
     
     private Image gamepadCursorImage;
     private void Awake()
@@ -61,6 +72,27 @@ public class CursorController : MonoBehaviour
             default:
                 Cursor.SetCursor(cursorTextureDefault, clickPosition, CursorMode.Auto);
                 gamepadCursorImage.sprite = cursorSpriteDefault;
+                break;
+        }
+    }
+
+    public void PlayHoverSound()
+    {
+        AudioManager.Instance?.PlayOneShot(hoverSound);
+    }
+
+    public void PlayClickSound(ClickSoundType clickType)
+    {
+        switch (clickType)
+        {
+            case ClickSoundType.Single:
+                AudioManager.Instance?.PlayOneShot(singleClickSound);
+                break;
+            case ClickSoundType.Double:
+                AudioManager.Instance?.PlayOneShot(doubleClickSound);
+                break;
+            default:
+                AudioManager.Instance?.PlayOneShot(singleClickSound);
                 break;
         }
     }

@@ -19,6 +19,8 @@ public class FireExtinguisherInteractable : MonoBehaviour, IInteractable
     [SerializeField] private GameObject interactBubble;
     [SerializeField] private Sprite keyboardSprite;
     [SerializeField] private Sprite controllerSprite;
+    [SerializeField] private AudioData interactBubbleSound;
+    [SerializeField] private AudioData pickUpSound;
 
     private SpriteRenderer _bubbleSpriteRenderer;
     private Vector3 _originalBubbleScale;
@@ -49,6 +51,8 @@ public class FireExtinguisherInteractable : MonoBehaviour, IInteractable
         if (!IsInteractable()) return;
 
         Terry.HasFireExtinguisher = true;
+        
+        AudioManager.Instance?.PlayOneShot(pickUpSound);
 
         SetInteractBubbleActive(false);
 
@@ -63,7 +67,11 @@ public class FireExtinguisherInteractable : MonoBehaviour, IInteractable
     public void SetInteractBubbleActive(bool active)
     {
         if (interactBubble != null)
+        {
             interactBubble.SetActive(active);
+            AudioManager.Instance?.PlayOneShot(interactBubbleSound);
+        }
+
     }
 
     #endregion

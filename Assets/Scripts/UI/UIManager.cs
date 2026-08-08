@@ -110,6 +110,26 @@ public class UIManager : KeyActionReceiver<UIManager>
             default:
                 break;
         }*/
+
+        // If the active device is controller, hide the pause button. Otherwise, show it.
+        if (scenesToHidePauseIn.Contains(SceneManager.GetActiveScene().name))
+        {
+            if (pauseButton.activeSelf)
+            {
+                pauseButton.SetActive(false);
+            }
+            return;
+        }
+        
+
+        if (InputManager.Instance?.ActiveDeviceType == "Mouse" || InputManager.Instance?.ActiveDeviceType == "Keyboard")
+        {
+            UpdatePauseButtonVisibility();
+        }
+        else
+        {
+            pauseButton.SetActive(false);
+        }
     }
 
     public void CallGameManagerLevelReset()
@@ -143,6 +163,9 @@ public class UIManager : KeyActionReceiver<UIManager>
 
     public void Pause()
     {
+        if (scenesToHidePauseIn.Contains(SceneManager.GetActiveScene().name))
+            return;
+
         // Pause the game
         AudioManager.Instance?.PlayOneShot(pauseSound);
 

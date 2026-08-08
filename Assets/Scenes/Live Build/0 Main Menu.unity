@@ -169,7 +169,7 @@ PrefabInstance:
     - target: {fileID: 2536014238896151548, guid: 74066245bd0384681a0fff3efad21a9d,
         type: 3}
       propertyPath: totalTasksInGame
-      value: 41
+      value: 43
       objectReference: {fileID: 0}
     - target: {fileID: 2536014238896151548, guid: 74066245bd0384681a0fff3efad21a9d,
         type: 3}
@@ -1099,6 +1099,21 @@ MonoBehaviour:
   cursorSpriteHand: {fileID: 21300000, guid: 70fd7c1cfc280425895f3c1f05f5ee49, type: 3}
   clickPosition: {x: 0, y: 0}
   gamepadCursor: {fileID: 307552075}
+  hoverSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  singleClickSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  doubleClickSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
 --- !u!1001 &1622581659
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1187,6 +1202,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1913432802726427029, guid: 040204a8d72dcd94daf72b92d2a52de5,
+        type: 3}
+      propertyPath: m_text
+      value: Pliant_Gold1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1913432802726427029, guid: 040204a8d72dcd94daf72b92d2a52de5,
+        type: 3}
+      propertyPath: m_fontSize
+      value: 35.35
+      objectReference: {fileID: 0}
     - target: {fileID: 1913432802890727685, guid: 040204a8d72dcd94daf72b92d2a52de5,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -1332,6 +1357,18 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
+    - target: {fileID: 6167640148818191897, guid: 040204a8d72dcd94daf72b92d2a52de5,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 752484d1af48e2046bdadadaccb4a5db,
+        type: 3}
+    - target: {fileID: 7684679609141839513, guid: 040204a8d72dcd94daf72b92d2a52de5,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 182dbdd056201134a9cd0388af7997d5,
+        type: 3}
     - target: {fileID: 7766912550422912980, guid: 040204a8d72dcd94daf72b92d2a52de5,
         type: 3}
       propertyPath: m_IsActive
@@ -1357,7 +1394,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af4404da01888154284171315359c747, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebug: 1
+  showDebug: 0
 --- !u!114 &1814705224 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2536014238896151548, guid: 74066245bd0384681a0fff3efad21a9d,

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731704, g: 0.13414726, b: 0.1210787, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2891,6 +2891,7 @@ MonoBehaviour:
   showTally: 0
   onCompleteEvents: []
   onRestoreEvents: []
+  countsTowardsProficiency: 1
   ObjectsToFetch:
   - {fileID: 1887301568}
   questGiver: {fileID: 756567341}
@@ -10593,6 +10594,7 @@ MonoBehaviour:
   showTally: 0
   onCompleteEvents: []
   onRestoreEvents: []
+  countsTowardsProficiency: 1
   ObjectsToFetch:
   - {fileID: 2050788125}
   questGiver: {fileID: 1823953089}
@@ -12777,6 +12779,7 @@ MonoBehaviour:
   showTally: 0
   onCompleteEvents: []
   onRestoreEvents: []
+  countsTowardsProficiency: 1
   npcToInteractWith: {fileID: 2094526556}
 --- !u!1 &600266491
 GameObject:
@@ -18822,6 +18825,7 @@ MonoBehaviour:
   showTally: 1
   onCompleteEvents: []
   onRestoreEvents: []
+  countsTowardsProficiency: 1
   ObjectiveObjects:
   - {fileID: 961042246}
   - {fileID: 881522504}
@@ -22191,6 +22195,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  countsTowardsProficiency: 1
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 534694423}
@@ -31481,6 +31486,7 @@ MonoBehaviour:
   showTally: 0
   onCompleteEvents: []
   onRestoreEvents: []
+  countsTowardsProficiency: 1
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 1662593797}
@@ -34035,10 +34041,30 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2044448438642672688, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5237844406481217940, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 5237844406545811655, guid: a9a9ac27c506e84428174b081696a1a4,
         type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5237844406773508805, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5237844406901559222, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 5237844407348677566, guid: a9a9ac27c506e84428174b081696a1a4,
         type: 3}
@@ -34100,6 +34126,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: elevator v2
       objectReference: {fileID: 0}
+    - target: {fileID: 5237844407348677567, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 5237844407405600070, guid: a9a9ac27c506e84428174b081696a1a4,
         type: 3}
       propertyPath: scenesToOffer.Array.data[0].sceneName
@@ -34125,6 +34156,21 @@ PrefabInstance:
       propertyPath: scenesToOffer.Array.data[0].loadingScreenDisplayTime
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 5237844407645590303, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5237844408077522036, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5237844408456845021, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 8018214507245868131, guid: a9a9ac27c506e84428174b081696a1a4,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -34134,6 +34180,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalPosition.z
       value: -1.452185
+      objectReference: {fileID: 0}
+    - target: {fileID: 9174359261784985687, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a9a9ac27c506e84428174b081696a1a4, type: 3}
@@ -38160,7 +38211,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   properties: []
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
-  isFetched: 0
   interactBubble: {fileID: 2106040553}
   keyboardSprite: {fileID: 21300000, guid: fc7bb22339e9e4dc1a918c75a23f2ae1, type: 3}
   controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}
@@ -41951,7 +42001,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   properties: []
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
-  isFetched: 0
   interactBubble: {fileID: 149147235}
   keyboardSprite: {fileID: 21300000, guid: fc7bb22339e9e4dc1a918c75a23f2ae1, type: 3}
   controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}

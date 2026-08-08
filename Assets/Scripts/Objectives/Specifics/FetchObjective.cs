@@ -36,7 +36,7 @@ using UnityEngine;
     {
         public static event Action<Objective> OnObjectiveComplete;
         //public static event Action<Objective, int, int> OnItemFetched;
-        [SerializeField] List<FetchableInteractable> ObjectsToFetch;
+        [SerializeField] List<MonoBehaviour> ObjectsToFetch;
         public DialogueTrigger questGiver;
 
         [Header("Objective Text")]
@@ -288,13 +288,13 @@ using UnityEngine;
         private void OnFetchObjectInteract(FetchObjectInteract e)
         {
             Debug.Log("FetchObjectInteract received in FetchObjective");
-            // Check if the fetched object is in the ObjectsToFetch list
-            if (ObjectsToFetch.Contains(e.fetchableObject))
+            var fetchableComponent = e.fetchableObject as MonoBehaviour;
+            if (fetchableComponent != null && ObjectsToFetch.Contains(fetchableComponent))
             {
                 Debug.Log("Object fetched is part of the objective, checking completion...");
-                Debug.Log("Object fetched: " + e.fetchableObject.gameObject.name);
+                Debug.Log("Object fetched: " + fetchableComponent.gameObject.name);
                 Debug.Log("Is Fetched: " + e.fetchableObject.isFetched);
-                
+
                 if(showTally) UpdateTally();
                 CheckCompletion();
             }
@@ -310,7 +310,7 @@ using UnityEngine;
                 return;
             }
 
-            numCompleted = ObjectsToFetch.Count(obj => obj != null && obj.isFetched);
+            numCompleted = ObjectsToFetch.Count(obj => obj != null && (obj as IFetchable)?.isFetched == true);
             numCompleted = Mathf.Clamp(numCompleted, 0, cachedTotal);
             UpdateObjectiveDescriptionUI();
         }
@@ -342,7 +342,7 @@ using UnityEngine;
             //check if all objects are fetched
             foreach(var obj in ObjectsToFetch)
             {
-                if (!obj || !obj.isFetched) return;
+                if (!obj || (obj as IFetchable)?.isFetched != true) return;
             }
             
             // Mark that all items have been fetched
@@ -383,7 +383,7 @@ using UnityEngine;
             state.fetchedItemNames = new List<string>();
             foreach (var item in ObjectsToFetch)
             {
-                if (item != null && item.isFetched)
+                if (item != null && (item as IFetchable)?.isFetched == true)
                     state.fetchedItemNames.Add(item.gameObject.name);
             }
             return state;
@@ -401,7 +401,7 @@ using UnityEngine;
             {
                 if (item != null && state.fetchedItemNames.Contains(item.gameObject.name))
                 {
-                    item.SetFetchedSilently();
+                    (item as IFetchable)?.SetFetchedSilently();
                 }
             }
 

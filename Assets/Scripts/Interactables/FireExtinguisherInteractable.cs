@@ -5,7 +5,7 @@ using UnityEngine;
 /// When interacted with, it disappears and sets Terry.HasFireExtinguisher = true,
 /// allowing Terry to extinguish BurningInteractable objects.
 /// </summary>
-public class FireExtinguisherInteractable : MonoBehaviour, IInteractable
+public class FireExtinguisherInteractable : MonoBehaviour, IInteractable, IFetchable
 {
     [Header("Interaction Settings")]
     [Tooltip("Maximum distance from which the player can interact. Set to 0 to use the global default.")]
@@ -28,6 +28,8 @@ public class FireExtinguisherInteractable : MonoBehaviour, IInteractable
 
     private SpriteRenderer _bubbleSpriteRenderer;
     private Vector3 _originalBubbleScale;
+
+    public bool isFetched { get; private set; }
 
     // Dialogue state
     private Dialogue _dialogue;
@@ -61,11 +63,14 @@ public class FireExtinguisherInteractable : MonoBehaviour, IInteractable
     {
         if (!IsInteractable()) return;
 
+        isFetched = true;
         Terry.HasFireExtinguisher = true;
 
         AudioManager.Instance?.PlayOneShot(pickUpSound);
 
         SetInteractBubbleActive(false);
+
+        EventDispatcher.Raise<FetchObjectInteract>(new FetchObjectInteract() { fetchableObject = this });
 
         if (InteractionManager.Instance != null)
             InteractionManager.Instance.Unregister(this);
@@ -92,6 +97,20 @@ public class FireExtinguisherInteractable : MonoBehaviour, IInteractable
         if (string.IsNullOrEmpty(_currentFirstEntry) || e.someEntry != _currentFirstEntry) return;
 
         _waitingForDialogue = false;
+        gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// Marks this fire extinguisher as fetched and hides it without raising events or showing dialogue.
+    /// Used when restoring saved / game-over state.
+    /// </summary>
+    public void SetFetchedSilently()
+    {
+        isFetched = true;
+        Terry.HasFireExtinguisher = true;
+        SetInteractBubbleActive(false);
+        if (InteractionManager.Instance != null)
+            InteractionManager.Instance.Unregister(this);
         gameObject.SetActive(false);
     }
 

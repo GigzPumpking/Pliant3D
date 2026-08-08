@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FetchableInteractable : Interactable, IInteractable
+public class FetchableInteractable : Interactable, IInteractable, IFetchable
 {
     private Animator animator;
     private Renderer[] renderers;
@@ -9,7 +9,7 @@ public class FetchableInteractable : Interactable, IInteractable
     [SerializeField]
     private Color highlightColor = Color.green;
 
-    public bool isFetched = false;
+    public bool isFetched { get; private set; } = false;
 
     [Header("Interact Bubble")]
     [Tooltip("The interact bubble GameObject positioned on this object.")]

@@ -36,7 +36,7 @@ public class Interact : Event
 
 public class FetchObjectInteract : Event
 {
-    public FetchableInteractable fetchableObject;
+    public IFetchable fetchableObject;
 }
 
 public class ObjectiveInteractEvent : Event

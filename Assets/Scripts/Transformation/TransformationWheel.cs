@@ -37,7 +37,9 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
     // Toggle for lockout system functionality.
     [SerializeField] private bool lockoutEnabled = true;
 
+    [Header("Sound Effects")]
     [SerializeField] private AudioData transformationSound;
+    [SerializeField] private AudioData hoverSound;
     
     public static event Action<Transformation> OnTransform; //Listened to by LockoutBar.cs
     public static event Action<Transformation> TransformedObjective; //Listened to by TransformationSwapInteractObjective.cs
@@ -161,6 +163,7 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         // Activate current hover's animation.
         transformation = transformationItems[hoveredSelection].GetComponent<TransformationItem>();
         transformation.HoverEnter();
+        AudioManager.Instance?.PlayOneShot(hoverSound);
     }
 
     private void controllerSelect(int selection)

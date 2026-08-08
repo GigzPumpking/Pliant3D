@@ -109,6 +109,15 @@ public class ObjectsToLocationsObjective : Objective {
             TallyBuilder.UpdateTallyUI(this, numCompleted, GetRequiredTotal());
         }
     }
+
+    public override void CompleteObjective()
+    {
+        if (isComplete) return;
+
+        base.CompleteObjective();
+
+        RefreshTallyUI();
+    }
     
     private void CheckCompletion() {
         if (isComplete) return;
@@ -122,12 +131,7 @@ public class ObjectsToLocationsObjective : Objective {
             {
                 if (node != null && node.isComplete)
                 {
-                    isComplete = true;
-                    RefreshTallyUI();
-                    OnObjectiveComplete?.Invoke(this); //Listened to by 'ObjectiveListing.cs'
-                    InvokeCompletionEvents();
-                    Debug.Log($"{gameObject.name} has successfully been completed!");
-                    return;
+                    CompleteObjective();
                 }
             }
 
@@ -151,11 +155,7 @@ public class ObjectsToLocationsObjective : Objective {
                 }
             }
 
-            isComplete = true;
-            RefreshTallyUI();
-            OnObjectiveComplete?.Invoke(this); //Listened to by 'ObjectiveListing.cs'
-            InvokeCompletionEvents();
-            Debug.Log($"{gameObject.name} has successfully been completed!");
+            CompleteObjective();
         }
     }
 

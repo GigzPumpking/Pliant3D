@@ -42,6 +42,10 @@ public class Tutorializer : MonoBehaviour
         {3, new Color(255,0,0, 0.3f)},
         {4, new Color(0,0,0, 0.3f)}
     };
+
+    [Header("Collection Task Sync")]
+    [Tooltip("Assign the ObjectiveNode for the collection task here. It will auto-complete when the tutorial is finished.")]
+    [SerializeField] private ObjectiveNode stickyNoteCollectionNode;
     
     private void Start()
     {
@@ -152,6 +156,12 @@ public class Tutorializer : MonoBehaviour
     private void ApplyCompletedState()
     {
         _isComplete = true;
+
+        if (stickyNoteCollectionNode != null && !stickyNoteCollectionNode.isComplete)
+        {
+            stickyNoteCollectionNode.ForceComplete();
+        }
+        
         automaticDialogueTrigger.gameObject.SetActive(false);
         exitColliderBox?.gameObject.SetActive(false);
         exitBox.enabled = false;

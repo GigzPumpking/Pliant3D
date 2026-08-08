@@ -93,7 +93,7 @@ public class AbilityPerformedObjective : Objective
         whichInteractable.Remove(interactable);
         if (whichInteractable.Any(i => i != null)) return;
         
-        isComplete = true;
+        CompleteObjective();
         RefreshTallyUI();
         OnObjectiveComplete?.Invoke(this); //this needs to update the objective listing to mark the objective off as complete
         InvokeCompletionEvents();

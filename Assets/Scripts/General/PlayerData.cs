@@ -12,8 +12,9 @@ public class PlayerData
     // Player's form
     public string playerForm; // e.g., "Terry", "Frog", "Bulldozer"
 
-    // # Tasks completed
-	public int numTasksCompleted;
+    // # Tasks 
+    public int numTasksCompleted;
+    public int numTasksAssigned;
     // Game settings
     public GameSettings settings;
 
@@ -50,8 +51,14 @@ public class PlayerData
         objectStates = new Dictionary<string, ObjectState>();
         objectiveStates = new List<ObjectiveSaveState>();
         
-        if(GameManager.Instance != null) numTasksCompleted = GameManager.Instance.GetNumTasksCompleted();
-        else numTasksCompleted = 0;
+        if(GameManager.Instance != null) {
+            numTasksCompleted = GameManager.Instance.GetNumTasksCompleted();
+            numTasksAssigned = GameManager.Instance.GetNumTasksAssigned();
+        }
+        else {
+            numTasksCompleted = 0;
+            numTasksAssigned = 0;
+        }
     }
 }
 

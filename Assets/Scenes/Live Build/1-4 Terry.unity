@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731704, g: 0.13414726, b: 0.1210787, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2265,6 +2265,7 @@ MonoBehaviour:
   showTally: 0
   onCompleteEvents: []
   onRestoreEvents: []
+  countsTowardsProficiency: 0
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 1404268271}
@@ -4069,6 +4070,11 @@ PrefabInstance:
       objectReference: {fileID: 1618861781}
     - target: {fileID: 6234198497812095855, guid: 08e0917a1b4e6594986afdff137dfb8d,
         type: 3}
+      propertyPath: stickyNoteCollectionNode
+      value: 
+      objectReference: {fileID: 1618861782}
+    - target: {fileID: 6234198497812095855, guid: 08e0917a1b4e6594986afdff137dfb8d,
+        type: 3}
       propertyPath: StickyNoteGraphicKeyboard
       value: 
       objectReference: {fileID: 21300000, guid: e90ece9b4537840feab45ad2efd122d8,
@@ -4572,6 +4578,7 @@ MonoBehaviour:
   showTally: 0
   onCompleteEvents: []
   onRestoreEvents: []
+  countsTowardsProficiency: 1
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 620793338}
@@ -4960,6 +4967,7 @@ MonoBehaviour:
   showTally: 1
   onCompleteEvents: []
   onRestoreEvents: []
+  countsTowardsProficiency: 1
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 1618861782}
@@ -6474,6 +6482,11 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: -30.62
       objectReference: {fileID: 0}
+    - target: {fileID: 3416434987287973724, guid: 7491d0271fac34a409ca117416d3b6c6,
+        type: 3}
+      propertyPath: countsTowardsProficiency
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4974934623435322581, guid: 7491d0271fac34a409ca117416d3b6c6,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -6614,6 +6627,11 @@ PrefabInstance:
       propertyPath: stickyNoteObject
       value: 
       objectReference: {fileID: 664243653}
+    - target: {fileID: 6234198497812095855, guid: 7491d0271fac34a409ca117416d3b6c6,
+        type: 3}
+      propertyPath: stickyNoteCollectionNode
+      value: 
+      objectReference: {fileID: 664243655}
     - target: {fileID: 6234198497812095855, guid: 7491d0271fac34a409ca117416d3b6c6,
         type: 3}
       propertyPath: StickyNoteGraphicKeyboard
@@ -7403,6 +7421,7 @@ MonoBehaviour:
   showTally: 1
   onCompleteEvents: []
   onRestoreEvents: []
+  countsTowardsProficiency: 1
   ObjectsToFetch:
   - {fileID: 0}
   - {fileID: 0}
@@ -11717,7 +11736,7 @@ PrefabInstance:
         type: 3}
       propertyPath: dialogueLines.Array.data[2]
       value: Were the notes I left behind helpful? I like to leave them around the
-        office to ease the onboarding experience, especially since I know how **[color=#FF6600]PERRY[/color]**
+        office to ease the onboarding experience, especially since I know how **[color=#FF6600]Perry[/color]**
         is.
       objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,

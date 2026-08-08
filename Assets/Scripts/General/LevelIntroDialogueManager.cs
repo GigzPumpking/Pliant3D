@@ -172,4 +172,9 @@ public class LevelIntroDialogueManager : MonoBehaviour
         dialogue.Appear();
         dialogue.SetPortrait(npcPortrait);
     }
+
+    public void ResetForNewGame()
+    {
+        _triggeredScenes.Clear();
+    }
 }

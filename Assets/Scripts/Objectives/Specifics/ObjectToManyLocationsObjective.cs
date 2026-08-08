@@ -94,11 +94,7 @@ public class ObjectToManyLocationsObjective : Objective {
             if (!node.isComplete) return;
         }
 
-        isComplete = true;
-        RefreshTallyUI();
-        OnObjectiveComplete?.Invoke(this); //this needs to update the objective listing to mark the objective off as complete
-        InvokeCompletionEvents();
-        Debug.Log($"{gameObject.name} has successfully been completed!");
+        CompleteObjective();
     }
 
     public override ObjectiveSaveState CaptureState()
@@ -237,11 +233,7 @@ public class ManyObjectsToLocationObjective : Objective {
 
         if (targetLocation == null || !targetLocation.isComplete) return;
 
-        isComplete = true;
-        RefreshTallyUI();
-        OnObjectiveComplete?.Invoke(this); //this needs to update the objective listing to mark the objective off as complete
-        InvokeCompletionEvents();
-        Debug.Log($"{gameObject.name} has successfully been completed!");
+        CompleteObjective();
     }
 
     public override ObjectiveSaveState CaptureState()

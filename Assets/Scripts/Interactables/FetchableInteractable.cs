@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FetchableInteractable : Interactable, IInteractable
+public class FetchableInteractable : Interactable, IInteractable, IFetchable
 {
     private Animator animator;
     private Renderer[] renderers;
@@ -9,7 +9,7 @@ public class FetchableInteractable : Interactable, IInteractable
     [SerializeField]
     private Color highlightColor = Color.green;
 
-    public bool isFetched = false;
+    public bool isFetched { get; private set; } = false;
 
     [Header("Interact Bubble")]
     [Tooltip("The interact bubble GameObject positioned on this object.")]
@@ -24,6 +24,10 @@ public class FetchableInteractable : Interactable, IInteractable
     [Header("Dialogue")]
     [Tooltip("Dialogue entries shown when this item is fetched. Leave empty for no dialogue.")]
     [SerializeField] private DialogueEntry[] fetchDialogue;
+    
+    [Header("Sound")]
+    [Tooltip("The sound effect to play when the item is fetched.")]
+    [SerializeField] private AudioData fetchSound;
     
     // Cached references
     private Dialogue dialogue;
@@ -139,6 +143,7 @@ public class FetchableInteractable : Interactable, IInteractable
         }
 
         isFetched = true;
+        AudioManager.Instance?.PlayOneShot(fetchSound);
         SetInteractBubbleActive(false);
         
         // Raise the fetch event immediately so objectives can track it

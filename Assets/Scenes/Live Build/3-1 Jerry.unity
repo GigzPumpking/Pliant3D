@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.17276797, g: 0.21589167, b: 0.29782546, a: 1}
+  m_IndirectSpecularColor: {r: 0.17276844, g: 0.21589245, b: 0.2978263, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1180,6 +1180,7 @@ MonoBehaviour:
   showTally: 1
   onCompleteEvents: []
   onRestoreEvents: []
+  countsTowardsProficiency: 1
   whichForm: 02000000
   whichAbility: 2
   whichInteractable:
@@ -4153,6 +4154,38 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2044448438642672688, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5237844406481217938, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7,
+        type: 2}
+    - target: {fileID: 5237844406481217940, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5237844406773508805, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5237844406901559220, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: 8cef8937ad3db403790e73ee6717f4c7,
+        type: 2}
+    - target: {fileID: 5237844406901559222, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 5237844407348677566, guid: a9a9ac27c506e84428174b081696a1a4,
         type: 3}
       propertyPath: m_RootOrder
@@ -4213,6 +4246,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: elevator v2
       objectReference: {fileID: 0}
+    - target: {fileID: 5237844407348677567, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 5237844407405600070, guid: a9a9ac27c506e84428174b081696a1a4,
         type: 3}
       propertyPath: scenesToOffer.Array.data[0].sceneName
@@ -4228,6 +4266,21 @@ PrefabInstance:
       propertyPath: scenesToOffer.Array.data[0].loadingScreenSceneName
       value: 4-0 Carrie
       objectReference: {fileID: 0}
+    - target: {fileID: 5237844407645590303, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5237844408077522036, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5237844408456845021, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 8018214507245868131, guid: a9a9ac27c506e84428174b081696a1a4,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -4237,6 +4290,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalPosition.z
       value: 1.424185
+      objectReference: {fileID: 0}
+    - target: {fileID: 9174359261784985687, guid: a9a9ac27c506e84428174b081696a1a4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a9a9ac27c506e84428174b081696a1a4, type: 3}
@@ -11231,6 +11289,7 @@ MonoBehaviour:
   showTally: 0
   onCompleteEvents: []
   onRestoreEvents: []
+  countsTowardsProficiency: 1
   npcToInteractWith: {fileID: 1601788058}
 --- !u!1 &600938320
 GameObject:
@@ -12411,6 +12470,7 @@ MonoBehaviour:
   showTally: 0
   onCompleteEvents: []
   onRestoreEvents: []
+  countsTowardsProficiency: 1
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 1827520570}
@@ -18468,6 +18528,7 @@ MonoBehaviour:
   showTally: 1
   onCompleteEvents: []
   onRestoreEvents: []
+  countsTowardsProficiency: 1
   targetLocations:
   - {fileID: 1674027097}
   - {fileID: 847398878}
@@ -18475,7 +18536,7 @@ MonoBehaviour:
   lookingFor:
   - {fileID: 1413968840}
   anyObjectToLocation: 0
-  setNumberOfNeeded: 4
+  setNumberOfNeeded: 3
 --- !u!1 &1062937719
 GameObject:
   m_ObjectHideFlags: 0
@@ -20094,6 +20155,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  countsTowardsProficiency: 1
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 2033030696}
@@ -29401,6 +29463,7 @@ MonoBehaviour:
   showTally: 0
   onCompleteEvents: []
   onRestoreEvents: []
+  countsTowardsProficiency: 1
   ObjectsToFetch:
   - {fileID: 1885379712}
   questGiver: {fileID: 0}
@@ -32975,7 +33038,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   properties: []
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
-  isFetched: 0
   interactBubble: {fileID: 890410020}
   keyboardSprite: {fileID: 21300000, guid: fc7bb22339e9e4dc1a918c75a23f2ae1, type: 3}
   controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}

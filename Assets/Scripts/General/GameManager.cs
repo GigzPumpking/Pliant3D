@@ -27,10 +27,10 @@ public class GameManager : KeyActionReceiver<GameManager>
     [SerializeField] private AudioData menuTheme;
     [SerializeField] private AudioData levelTheme;
     
-    private int _queuedTasksCompleted = 0;
-    private int _queuedTasksAssigned = 0;
-    private int _numTasksCompleted = 0;
-    private int _numTasksAssigned = 0;
+    [SerializeField] private int _queuedTasksCompleted = 0;
+    [SerializeField] private int _queuedTasksAssigned = 0;
+    [SerializeField] private int _numTasksCompleted = 0;
+    [SerializeField] private int _numTasksAssigned = 0;
 
     [SerializeField] private float promotionRatio = 0.6f;
 
@@ -518,8 +518,8 @@ public int GetNumTasksAssigned()
         // Capture auto dialogue triggered states
         playerData.triggeredAutoDialogueNames = CaptureAutoDialogueStates();
 
-        playerData.numTasksCompleted = _numTasksCompleted;
-        playerData.numTasksAssigned = _numTasksAssigned;
+        playerData.numTasksCompleted = _numTasksCompleted; // Removed + _queuedTasksCompleted
+        playerData.numTasksAssigned = _numTasksAssigned;   // Removed + _queuedTasksAssigned
 
         // Capture timer state if one is active in the scene
         var timer = FindObjectOfType<ObjectiveTimer>();
@@ -589,6 +589,12 @@ public int GetNumTasksAssigned()
         if (playerData.timerTime > 0f)
             _pendingTimerTime = playerData.timerTime;
 
+        AutoSaveEnabled = playerData.settings.autoSave;
+        _numTasksCompleted = playerData.numTasksCompleted;
+        _numTasksAssigned = playerData.numTasksAssigned;
+        _queuedTasksCompleted = 0;
+        _queuedTasksAssigned = 0;
+
         // Load the scene using UIManager's fade transition if available, otherwise load directly
         if (UIManager.Instance != null)
         {
@@ -610,11 +616,6 @@ public int GetNumTasksAssigned()
                 yield return null;
             }
         }
-
-        // Restore auto-save preference
-        AutoSaveEnabled = playerData.settings.autoSave;
-        _numTasksCompleted = playerData.numTasksCompleted;
-        _numTasksAssigned = playerData.numTasksAssigned;
 
         // Restore level state — LevelManager will auto-detect the level from the loaded scene
         if (LevelManager.Instance != null)
@@ -642,5 +643,24 @@ public int GetNumTasksAssigned()
 
         Screen.SetResolution(playerData.settings.resolutionWidth, playerData.settings.resolutionHeight, playerData.settings.isFullscreen);
         */
+    }
+
+    /// <summary>
+    /// Completely wipes task progression and pending states. 
+    /// Call this when starting a brand new game from the Main Menu.
+    /// </summary>
+    public void ResetForNewGame()
+    {
+        _numTasksCompleted = 0;
+        _numTasksAssigned = 0;
+        _queuedTasksCompleted = 0;
+        _queuedTasksAssigned = 0;
+
+        // Clear any pending objective states so tasks don't auto-complete
+        ClearPendingObjectiveStates();
+        ClearPendingNpcStates();
+        ClearPendingAutoDialogueStates();
+
+        LevelIntroDialogueManager.Instance?.ResetForNewGame();
     }
 }

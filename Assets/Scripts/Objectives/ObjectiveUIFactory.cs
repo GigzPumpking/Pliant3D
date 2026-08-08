@@ -47,7 +47,7 @@ public class ObjectiveUIFactory
             currentObjectiveUI.SetCompletedVisual();
         }
 
-        GameManager.Instance?.AddQueuedTaskAssigned();
+        // GameManager.Instance?.AddQueuedTaskAssigned();
 
         return currentObjectiveUI;
     }

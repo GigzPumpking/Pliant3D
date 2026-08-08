@@ -36,4 +36,16 @@ public class ObjectiveNode : MonoBehaviour
     {
         isComplete = true;
     }
+    
+    /// <summary>
+    /// Marks this node complete AND broadcasts OnNodeCompleted.
+    /// Used to sync with external scripts like Tutorializer.
+    /// </summary>
+    public void ForceComplete()
+    {
+        if (isComplete) return;
+        isComplete = true;
+        lookingFor?.Clear();
+        OnNodeCompleted?.Invoke();
+    }
 }

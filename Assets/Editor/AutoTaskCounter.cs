@@ -26,7 +26,15 @@ public class AutoTaskCounter : EditorWindow
             
             // Find every script that inherits from Objective.cs (true = includes inactive/hidden objects)
             Objective[] objectivesInScene = Object.FindObjectsOfType<Objective>(true);
-            totalObjectives += objectivesInScene.Length;
+            
+            // UPDATE HERE: Only count objectives that are flagged for proficiency (ignores tutorials)
+            foreach (Objective obj in objectivesInScene)
+            {
+                if (obj.countsTowardsProficiency)
+                {
+                    totalObjectives++;
+                }
+            }
         }
 
         // Return the user to the scene they were originally working in
@@ -35,7 +43,7 @@ public class AutoTaskCounter : EditorWindow
             EditorSceneManager.OpenScene(originalScenePath, OpenSceneMode.Single);
         }
 
-        Debug.Log($"<color=green>SUCCESS:</color> Found a total of {totalObjectives} objectives across all build scenes!");
+        Debug.Log($"<color=green>SUCCESS:</color> Found a total of {totalObjectives} valid objectives across all build scenes!");
         
         // Find the GameManager prefab and permanently save this number to it
         string[] guids = AssetDatabase.FindAssets("t:Prefab GameManager");

@@ -16,6 +16,10 @@ public class Objective : MonoBehaviour, IObjective {
     [Tooltip("Events invoked when this objective is restored as complete on level reset or save load. Use this to replay world-state changes (e.g. turn on lights) that are not otherwise persisted.")]
     public List<UnityEvent> onRestoreEvents;
 
+    [Header("Tracking Rules")]
+    [Tooltip("If false, this task is ignored by the GameManager's proficiency score (e.g., Tutorials).")]
+    public bool countsTowardsProficiency = true;
+
     internal void InvokeCompletionEvents()
     {
         foreach(UnityEvent ev in onCompleteEvents) ev?.Invoke();
@@ -59,26 +63,19 @@ public class Objective : MonoBehaviour, IObjective {
         TallyBuilder.UpdateTallyUI(this, 0, 1);
     }
 
-    // Add this virtual method to the base Objective class
     public virtual void CompleteObjective()
     {
         if (isComplete) return; // Prevent double completion
 
         isComplete = true;
-
-        // 2. Invoke the UnityEvents set up in the inspector
-        InvokeCompletionEvents(); 
-
-        // 3. Fire the C# event to update the Objective Listing UI
+        InvokeCompletionEvents();
         OnObjectiveComplete?.Invoke(this);
 
-        // 4. Tell the GameManager a task was officially crossed off the agenda
-        if (GameManager.Instance != null)
+        if (GameManager.Instance != null && countsTowardsProficiency)
         {
             GameManager.Instance.AddQueuedTaskComplete();
         }
         
-        // 5. Standardized Debug Log
         Debug.Log($"[Objective] '{gameObject.name}' ({description}) has successfully been completed!");
     }
 }

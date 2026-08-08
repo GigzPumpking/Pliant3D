@@ -141,8 +141,9 @@ public class ObjectiveTracker : MonoBehaviour
             {
                 if (obj != null && !obj.isComplete && GameManager.Instance != null)
                 {
-                    if (!_countedAssignedObjectives.Contains(obj))
+                    if (obj.countsTowardsProficiency && !_countedAssignedObjectives.Contains(obj))
                     {
+                        Debug.Log($"<color=orange>[Task Assigned]</color> GameManager just counted: {obj.gameObject.name} | Description: {obj.description}");
                         GameManager.Instance.AddQueuedTaskAssigned();
                         _countedAssignedObjectives.Add(obj);
                     }
@@ -303,6 +304,11 @@ public class ObjectiveTracker : MonoBehaviour
                         restoredCount++;
 
                         objective.InvokeRestoreEvents();
+
+                        if (GameManager.Instance != null && objective.countsTowardsProficiency)
+                        {
+                            GameManager.Instance.AddQueuedTaskComplete();
+                        }
 
                         if (i < listing.objectiveUIList.Count)
                         {
@@ -527,8 +533,9 @@ public class ObjectiveTracker : MonoBehaviour
             {
                 targetListing.isComplete = false;
 
-                if (GameManager.Instance != null && !_countedAssignedObjectives.Contains(objective))
+                if (GameManager.Instance != null && objective.countsTowardsProficiency && !_countedAssignedObjectives.Contains(objective))
                 {
+                    Debug.Log($"<color=orange>[Task Assigned]</color> GameManager just counted: {objective.gameObject.name} | Description: {objective.description}");
                     GameManager.Instance.AddQueuedTaskAssigned();
                     _countedAssignedObjectives.Add(objective);
                 }

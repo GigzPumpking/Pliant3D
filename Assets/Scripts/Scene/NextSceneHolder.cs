@@ -8,11 +8,20 @@ public class NextSceneHolder : MonoBehaviour
     [Tooltip("Optional. If assigned, this trigger will only work after the referenced AnimTrigger has been triggered.")]
     [SerializeField] private AnimTrigger requiredAnimTrigger;
 
+    [Header("Objective Sync")]
+    [Tooltip("Optional. Assign the ObjectiveNode for the 'Clock Out' task to ensure it completes before transitioning.")]
+    [SerializeField] private ObjectiveNode clockOutNode;
+
     private bool IsActive => requiredAnimTrigger == null || requiredAnimTrigger.IsTriggered;
     private bool Collided = false;
 
     public void LoadNextScene()
     {
+        if (clockOutNode != null && !clockOutNode.isComplete)
+        {
+            clockOutNode.ForceComplete();
+        }
+
         if (UIManager.Instance != null)
         {
             Debug.Log($"Loading scene '{sceneName}' with fade transition.");

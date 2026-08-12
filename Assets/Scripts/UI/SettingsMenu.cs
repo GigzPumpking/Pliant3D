@@ -2,8 +2,9 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Collections;
 
-public class SettingsMenu : Menu
+public class SettingsMenu : MonoBehaviour
 {
     [Header("UI Elements")]
     [SerializeField] private TMP_Dropdown resolutionDropdown;
@@ -111,9 +112,8 @@ public class SettingsMenu : Menu
         ApplySettings();
     }
 
-    protected override void Update()
+    void Update()
     {
-        base.Update();
         // Update the fullscreen toggle if the actual fullscreen state changes externally.
         if (fullscreenToggle != null && fullscreenToggle.isOn != Screen.fullScreen)
         {

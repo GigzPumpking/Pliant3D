@@ -163,11 +163,15 @@ public class TransformationWheel : KeyActionReceiver<TransformationWheel>
         // Activate current hover's animation.
         transformation = transformationItems[hoveredSelection].GetComponent<TransformationItem>();
         transformation.HoverEnter();
-        AudioManager.Instance?.PlayOneShot(hoverSound);
+        if (AudioManager.Instance is not null && !AudioManager.Instance.IsSoundPlaying(hoverSound)) 
+            AudioManager.Instance.PlayOneShot(hoverSound);
     }
 
     private void controllerSelect(int selection)
     {
+        // If selection is the same when context is performed just return to stop stacking sound and animation calls
+        if (selection == hoveredSelection) return;
+        
         // 1) remember the old hover, update to the new one
         previousHover    = hoveredSelection;
         hoveredSelection = selection;

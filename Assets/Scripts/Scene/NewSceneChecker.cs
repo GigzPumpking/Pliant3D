@@ -61,15 +61,12 @@ public class NewSceneChecker : MonoBehaviour
         }
     }
 
-    bool hasBeenCalled = false;
     void Update()
     {
         if((Input.GetKeyDown(KeyCode.E) || Gamepad.current?.buttonSouth.wasPressedThisFrame == true) 
-            && !hasBeenCalled 
             && NextScene != null )
         {
             CallLoadNextScene();
-            hasBeenCalled = true;
         }
 
         if (!transitionText) return;
@@ -83,7 +80,7 @@ public class NewSceneChecker : MonoBehaviour
 
         if (NextScene != null)
         {
-            NextScene.LoadNextScene();
+            NextScene.CallLoadNextScene();
         }
     }
 

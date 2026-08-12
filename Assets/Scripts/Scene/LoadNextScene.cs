@@ -15,6 +15,22 @@ public class LoadNextScene : MonoBehaviour
 
     private bool isLoading = false;
 
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    // Runs when any scene finishes loading, releasing the guard.
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        isLoading = false;
+    }
+
     public void Load(string sceneToLoad = null)
     {
         if (isLoading) return;
@@ -91,9 +107,6 @@ public class LoadNextScene : MonoBehaviour
         {
             yield return null;
         }
-
-        // Reset here so the new scene can call Load() immediately.
-        isLoading = false;
 
         // 4. Play Fade Out to reveal the new scene.
         if (transitionAnimator != null)

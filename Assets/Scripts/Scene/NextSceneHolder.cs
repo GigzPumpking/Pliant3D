@@ -10,7 +10,6 @@ public class NextSceneHolder : MonoBehaviour
 
     private bool IsActive => requiredAnimTrigger == null || requiredAnimTrigger.IsTriggered;
     private bool Collided = false;
-    private bool hasBeenCalled = false;
 
 
     public void QuitGame()
@@ -18,11 +17,9 @@ public class NextSceneHolder : MonoBehaviour
         GameManager.Instance?.Quit();
     }
 
-    // Entry point for UI buttons and external scripts — guards against duplicate calls.
+    // Entry point for UI buttons and external scripts.
     public void CallLoadNextScene()
     {
-        if (hasBeenCalled) return;
-        hasBeenCalled = true;
         LoadNextScene();
     }
 

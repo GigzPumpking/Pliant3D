@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class NextSceneHolder : MonoBehaviour
 {
@@ -9,30 +8,20 @@ public class NextSceneHolder : MonoBehaviour
     [Tooltip("Optional. If assigned, this trigger will only work after the referenced AnimTrigger has been triggered.")]
     [SerializeField] private AnimTrigger requiredAnimTrigger;
 
-    [Tooltip("Optional. If assigned, this button will be disabled once CallLoadNextScene fires.")]
-    [SerializeField] private Button nextSceneButton;
+    [Header("Objective Sync")]
+    [Tooltip("Optional. Assign the ObjectiveNode for the 'Clock Out' task to ensure it completes before transitioning.")]
+    [SerializeField] private ObjectiveNode clockOutNode;
 
     private bool IsActive => requiredAnimTrigger == null || requiredAnimTrigger.IsTriggered;
     private bool Collided = false;
-    private bool hasBeenCalled = false;
-
-
-    public void QuitGame()
-    {
-        GameManager.Instance?.Quit();
-    }
-
-    // Shared entry point for UI buttons and NewSceneChecker — only the first call goes through.
-    public void CallLoadNextScene()
-    {
-        if (hasBeenCalled) return;
-        hasBeenCalled = true;
-        if (nextSceneButton != null) nextSceneButton.interactable = false;
-        LoadNextScene();
-    }
 
     public void LoadNextScene()
     {
+        if (clockOutNode != null && !clockOutNode.isComplete)
+        {
+            clockOutNode.ForceComplete();
+        }
+
         if (UIManager.Instance != null)
         {
             Debug.Log($"Loading scene '{sceneName}' with fade transition.");

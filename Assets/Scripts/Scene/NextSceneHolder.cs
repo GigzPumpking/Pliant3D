@@ -14,9 +14,13 @@ public class NextSceneHolder : MonoBehaviour
 
     private bool IsActive => requiredAnimTrigger == null || requiredAnimTrigger.IsTriggered;
     private bool Collided = false;
+    private float lastLoadTime = float.MinValue;
 
     public void LoadNextScene()
     {
+        if (Time.unscaledTime - lastLoadTime < 3f) return;
+        lastLoadTime = Time.unscaledTime;
+
         if (clockOutNode != null && !clockOutNode.isComplete)
         {
             clockOutNode.ForceComplete();

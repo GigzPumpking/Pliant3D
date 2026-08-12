@@ -13,28 +13,8 @@ public class LoadNextScene : MonoBehaviour
     private string fadeInTrigger = "FadeIn";
     private string fadeOutTrigger = "FadeOut";
 
-    private bool isLoading = false;
-
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    // Runs when any scene finishes loading, releasing the guard.
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        isLoading = false;
-    }
-
     public void Load(string sceneToLoad = null)
     {
-        if (isLoading) return;
-        isLoading = true;
         sceneName = sceneToLoad;
 
         Debug.Log($"LoadNextScene: Preparing to load scene '{sceneName ?? "next in build order"}'.");
@@ -91,14 +71,12 @@ public class LoadNextScene : MonoBehaviour
             else
             {
                 Debug.LogWarning("No next scene available in build settings.");
-                isLoading = false;
                 yield break;
             }
         }
         else
         {
             Debug.LogWarning("No scene name specified and loadNextByDefault is false.");
-            isLoading = false;
             yield break;
         }
 

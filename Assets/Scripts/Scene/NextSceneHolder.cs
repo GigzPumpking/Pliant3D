@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class NextSceneHolder : MonoBehaviour
 {
@@ -8,8 +9,12 @@ public class NextSceneHolder : MonoBehaviour
     [Tooltip("Optional. If assigned, this trigger will only work after the referenced AnimTrigger has been triggered.")]
     [SerializeField] private AnimTrigger requiredAnimTrigger;
 
+    [Tooltip("Optional. If assigned, this button will be disabled once CallLoadNextScene fires.")]
+    [SerializeField] private Button nextSceneButton;
+
     private bool IsActive => requiredAnimTrigger == null || requiredAnimTrigger.IsTriggered;
     private bool Collided = false;
+    private bool hasBeenCalled = false;
 
 
     public void QuitGame()
@@ -17,9 +22,12 @@ public class NextSceneHolder : MonoBehaviour
         GameManager.Instance?.Quit();
     }
 
-    // Entry point for UI buttons and external scripts.
+    // Shared entry point for UI buttons and NewSceneChecker — only the first call goes through.
     public void CallLoadNextScene()
     {
+        if (hasBeenCalled) return;
+        hasBeenCalled = true;
+        if (nextSceneButton != null) nextSceneButton.interactable = false;
         LoadNextScene();
     }
 

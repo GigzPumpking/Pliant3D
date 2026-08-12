@@ -92,12 +92,13 @@ public class LoadNextScene : MonoBehaviour
             yield return null;
         }
 
+        // Reset here so the new scene can call Load() immediately.
+        isLoading = false;
+
         // 4. Play Fade Out to reveal the new scene.
         if (transitionAnimator != null)
         {
             transitionAnimator.SetTrigger(fadeOutTrigger);
         }
-
-        isLoading = false;
     }
 }

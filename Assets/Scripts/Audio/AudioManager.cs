@@ -175,6 +175,11 @@ public class AudioManager : MonoBehaviour
         if(!IsMusicPlaying()) PlayMusic(GameManager.Instance?.GetMainTheme());
     }
 
+    public void PlayMainAmbience()
+    {
+        if (!IsMusicPlaying()) PlayMusic(GameManager.Instance?.GetMainAmbience());
+    }
+
     public AudioSource PlaySound(AudioData data)
     {
         if (data == null || data.clip == null) return null;
@@ -219,7 +224,7 @@ public class AudioManager : MonoBehaviour
             additionalMusicSources.Add(curr);
             curr.loop = data.loop;
             curr.clip = data.clip;
-            curr.volume = data.volume;
+            curr.volume = data.volume * overallMusicVolume * globalVolume;
             curr.spatialBlend = 0.0f;
             UpdateCurrentMusicVolume();
             if(playImmediately) curr.Play();
@@ -310,11 +315,12 @@ public class AudioManager : MonoBehaviour
     {
         overallSFXVolume = Mathf.Clamp01(volume);
         isSfxMuted = false;
+        UpdateCurrentMusicVolume();
     }
 
-    public void ToggleGlobalMute()
+    public void ToggleGlobalMute(bool flag)
     {
-        isGlobalMuted = !isGlobalMuted;
+        isGlobalMuted = flag;
         if (isGlobalMuted)
         {
             savedGlobalVolume = globalVolume;
@@ -327,9 +333,9 @@ public class AudioManager : MonoBehaviour
         UpdateCurrentMusicVolume();
     }
 
-    public void ToggleMusicMute()
+    public void ToggleMusicMute(bool flag)
     {
-        isMusicMuted = !isMusicMuted;
+        isMusicMuted = flag;
         if (isMusicMuted)
         {
             savedMusicVolume = overallMusicVolume;
@@ -342,9 +348,9 @@ public class AudioManager : MonoBehaviour
         UpdateCurrentMusicVolume();
     }
 
-    public void ToggleSfxMute()
+    public void ToggleSfxMute(bool flag)
     {
-        isSfxMuted = !isSfxMuted;
+        isSfxMuted = flag;
         if (isSfxMuted)
         {
             savedSfxVolume = overallSFXVolume;

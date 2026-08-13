@@ -39,7 +39,9 @@ public class RumorSystemManager : MonoBehaviour
     [Header("Level Rumors")]
     [SerializeField] private LevelRumorDatabase rumorDatabase;
     
-    #endregion 
+    #endregion
+
+    private bool isSubscribed;
     
     #region Singleton
     // -------------------------------------------------------------------------
@@ -74,11 +76,13 @@ public class RumorSystemManager : MonoBehaviour
     private void OnEnable()
     {
         EventDispatcher.AddListener<NewSceneLoaded>(OnNewSceneLoaded);
+        SubscribeToLevelManager();
     }
 
     private void OnDisable()
     {
         EventDispatcher.RemoveListener<NewSceneLoaded>(OnNewSceneLoaded);
+        UnsubscribeFromLevelManager();
     }
     #endregion
 
@@ -90,12 +94,13 @@ public class RumorSystemManager : MonoBehaviour
     private void OnLevelChange(LevelData level)
     {
         if (rumorDatabase is null) return;
+        
+        Debug.Log($"[RumorSystem] Level has changed and pulling rumors for level: '{level.levelId}'.", this);
 
         if (rumorDatabase.TryGetRumor(level.levelId, out var match))
         {
             ApplyRumorToUI(match);
         }
-        //TODO: Current quick fix. Later make proper event handler for level change
         else
         {
             Debug.LogWarning($"[RumorSystem] No rumor configured for '{level.levelId}'.", this);
@@ -104,14 +109,16 @@ public class RumorSystemManager : MonoBehaviour
     
     private void OnNewSceneLoaded(NewSceneLoaded scene)
     {
+        // HACK: This if else should never be reached
         // Only clear UI when entering a non-level scene (menu, cutscene, etc.)
-        if (LevelManager.Instance == null || !LevelManager.Instance.IsLevelScene(scene.sceneName, out LevelData level))
+        if (LevelManager.Instance is null || !LevelManager.Instance.IsLevelScene(scene.sceneName, out LevelData level))
         {
             ClearUI();
         }
-        else
+        else if (!isSubscribed)
         {
             OnLevelChange(level);
+            SubscribeToLevelManager();
         }
     }
     
@@ -168,6 +175,7 @@ public class RumorSystemManager : MonoBehaviour
     /// <param name="rumor"></param>
     private void ApplyRumorToUI(LevelRumorDatabase.LevelRumor rumor)
     {
+        Debug.Log($"[RumorSystem] Filling in UI for Rumor level: '{rumor.LevelId}'", this);
         SetSprite(menuCharacterImage, rumor.CharacterPicture);
         ApplyTextProperties(menuCharacterTitle, rumor.CharacterTitle);
     
@@ -252,6 +260,33 @@ public class RumorSystemManager : MonoBehaviour
         {
             Debug.LogWarning($"[RumorSystem] ShowRumor called with unknown level '{levelId}'.");
         }
+    }
+    
+    #endregion
+    
+    #region Event Subscriptions
+
+    private void SubscribeToLevelManager()
+    {
+        if (LevelManager.Instance != null && !isSubscribed)
+        {
+            LevelManager.Instance.OnLevelChanged += OnLevelChange;
+            isSubscribed = true;
+        }
+        else
+        {
+            isSubscribed = false;
+        }
+    }
+
+    private void UnsubscribeFromLevelManager()
+    {
+        if (LevelManager.Instance is not null && isSubscribed)
+        {
+            LevelManager.Instance.OnLevelChanged -= OnLevelChange;
+        }
+
+        isSubscribed = false;
     }
     
     #endregion

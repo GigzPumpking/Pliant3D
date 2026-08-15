@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731704, g: 0.13414726, b: 0.1210787, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -293,6 +293,10 @@ MonoBehaviour:
   requiredAnimTrigger: {fileID: 0}
   blockedDialogue: []
   blockedDialoguePortrait: {fileID: 0}
+  useInteractTrigger: 0
+  interactBubble: {fileID: 0}
+  keyboardSprite: {fileID: 0}
+  controllerSprite: {fileID: 0}
 --- !u!65 &40018122
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3027,6 +3031,7 @@ MonoBehaviour:
   showTally: 0
   onCompleteEvents: []
   onRestoreEvents: []
+  countsTowardsProficiency: 1
   npcToInteractWith: {fileID: 1453542378}
 --- !u!1001 &475787393
 PrefabInstance:
@@ -3735,6 +3740,10 @@ MonoBehaviour:
   requiredAnimTrigger: {fileID: 0}
   blockedDialogue: []
   blockedDialoguePortrait: {fileID: 0}
+  useInteractTrigger: 0
+  interactBubble: {fileID: 0}
+  keyboardSprite: {fileID: 0}
+  controllerSprite: {fileID: 0}
 --- !u!65 &583380096
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4980,6 +4989,34 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 153113941, guid: 6102a42f46622c04994e750b30cd6bca, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 153113941, guid: 6102a42f46622c04994e750b30cd6bca, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 153113941, guid: 6102a42f46622c04994e750b30cd6bca, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.89239913
+      objectReference: {fileID: 0}
+    - target: {fileID: 153113941, guid: 6102a42f46622c04994e750b30cd6bca, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.23911765
+      objectReference: {fileID: 0}
+    - target: {fileID: 153113941, guid: 6102a42f46622c04994e750b30cd6bca, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.3696438
+      objectReference: {fileID: 0}
+    - target: {fileID: 153113941, guid: 6102a42f46622c04994e750b30cd6bca, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.09904577
+      objectReference: {fileID: 0}
+    - target: {fileID: 153113941, guid: 6102a42f46622c04994e750b30cd6bca, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 45
+      objectReference: {fileID: 0}
     - target: {fileID: 109961114396039011, guid: 6102a42f46622c04994e750b30cd6bca,
         type: 3}
       propertyPath: m_Name
@@ -6672,6 +6709,7 @@ MonoBehaviour:
   showTally: 0
   onCompleteEvents: []
   onRestoreEvents: []
+  countsTowardsProficiency: 1
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 1057383620}
@@ -13674,6 +13712,11 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1882953295406096100, guid: f09abbff6e9a448cab6f233042637973,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2089255658461921929, guid: f09abbff6e9a448cab6f233042637973,
         type: 3}
       propertyPath: m_Type
@@ -13906,6 +13949,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3104159131193517960, guid: f09abbff6e9a448cab6f233042637973,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3112689006434148703, guid: f09abbff6e9a448cab6f233042637973,
         type: 3}
       propertyPath: m_fontSize
@@ -13915,6 +13963,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_fontSizeBase
       value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 3199692983551672423, guid: f09abbff6e9a448cab6f233042637973,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4006940883566548890, guid: f09abbff6e9a448cab6f233042637973,
         type: 3}

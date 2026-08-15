@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class AnimTrigger : MonoBehaviour 
+public class AnimTrigger : MonoBehaviour, IInteractable
 {
     [SerializeField] private Animator myAnimationController;
     [SerializeField] private string targetTag = "Player";
@@ -16,11 +16,25 @@ public class AnimTrigger : MonoBehaviour
     [Tooltip("Portrait sprite shown alongside the blocked dialogue.")]
     [SerializeField] private Sprite blockedDialoguePortrait;
 
+    [Header("Interact Trigger")]
+    [Tooltip("If true, this trigger will not fire automatically on trigger enter. Instead, the player must press Interact while inside the trigger volume.")]
+    [SerializeField] private bool useInteractTrigger = false;
+
+    [Tooltip("Interact bubble shown while the player is inside the trigger volume and can interact.")]
+    [SerializeField] private GameObject interactBubble;
+    [SerializeField] private Sprite keyboardSprite;
+    [SerializeField] private Sprite controllerSprite;
+
     private bool IsActive => requiredAnimTrigger == null || requiredAnimTrigger.IsTriggered;
 
     public bool IsTriggered { get; private set; } = false;
 
     private ColoredInteractable coloredInteractable;
+
+    // Whether the player is currently within this trigger's collider (interact mode only)
+    private bool _playerInRange = false;
+    private SpriteRenderer _bubbleSpriteRenderer;
+    private Vector3 _originalBubbleScale;
 
     private void Awake()
     {
@@ -34,12 +48,45 @@ public class AnimTrigger : MonoBehaviour
             Bulldozer.AbilityUsed += OnAbilityUsed;
             Frog.AbilityUsed += OnAbilityUsed;
         }
+
+        if (useInteractTrigger)
+        {
+            InteractionManager.Instance?.Register(this);
+
+            if (interactBubble != null)
+            {
+                _originalBubbleScale = interactBubble.transform.localScale;
+                interactBubble.SetActive(false);
+            }
+        }
+    }
+
+    private void Start()
+    {
+        // Register with InteractionManager (in case it wasn't ready in OnEnable)
+        if (useInteractTrigger)
+        {
+            InteractionManager.Instance?.Register(this);
+        }
     }
 
     private void OnDisable()
     {
         Bulldozer.AbilityUsed -= OnAbilityUsed;
         Frog.AbilityUsed -= OnAbilityUsed;
+
+        if (useInteractTrigger)
+        {
+            InteractionManager.Instance?.Unregister(this);
+        }
+    }
+
+    private void Update()
+    {
+        if (useInteractTrigger)
+        {
+            UpdateInteractBubbleSprite();
+        }
     }
 
     private void OnAbilityUsed(Transformation transformation, int abilityIndex, Interactable interactable)
@@ -54,6 +101,13 @@ public class AnimTrigger : MonoBehaviour
 
         if (!other.CompareTag(targetTag)) return;
 
+        if (useInteractTrigger)
+        {
+            _playerInRange = true;
+            InteractionManager.Instance?.ForceUpdate();
+            return;
+        }
+
         if (!IsActive)
         {
             TryShowBlockedDialogue();
@@ -66,12 +120,21 @@ public class AnimTrigger : MonoBehaviour
 
     private void OnTriggerExit(Collider other) 
     {
-        if (!IsActive || targetTag == null || targetTag == "") return;
-        
-        if (other.CompareTag(targetTag)) 
+        if (targetTag == null || targetTag == "") return;
+
+        if (!other.CompareTag(targetTag)) return;
+
+        if (useInteractTrigger)
         {
-            myAnimationController.SetBool(parameterName, false);
+            _playerInRange = false;
+            SetInteractBubbleActive(false);
+            InteractionManager.Instance?.ForceUpdate();
+            return;
         }
+
+        if (!IsActive) return;
+
+        myAnimationController.SetBool(parameterName, false);
     }
 
     public void Trigger()
@@ -96,5 +159,84 @@ public class AnimTrigger : MonoBehaviour
         dialogue.SetDialogueEntries(blockedDialogue);
         dialogue.Appear();
         dialogue.SetPortrait(blockedDialoguePortrait);
+    }
+
+    #region IInteractable Implementation
+
+    public Vector3 GetPosition() => transform.position;
+
+    // Proximity is gated by the trigger collider itself (_playerInRange), not distance.
+    public float GetInteractionDistance() => float.MaxValue;
+
+    public bool IsInteractable()
+    {
+        if (!useInteractTrigger) return false;
+        if (!_playerInRange) return false;
+        if (IsTriggered) return false;
+
+        return true;
+    }
+
+    public void OnInteract()
+    {
+        if (!IsInteractable()) return;
+
+        if (!IsActive)
+        {
+            TryShowBlockedDialogue();
+            return;
+        }
+
+        Trigger();
+        SetInteractBubbleActive(false);
+        TriggerSiblingInteractTriggers();
+    }
+
+    public void SetInteractBubbleActive(bool active)
+    {
+        if (interactBubble != null)
+        {
+            interactBubble.SetActive(active);
+        }
+    }
+
+    // Fires every other interact-mode AnimTrigger on this GameObject so a single Interact activates them all together.
+    private void TriggerSiblingInteractTriggers()
+    {
+        foreach (AnimTrigger sibling in GetComponents<AnimTrigger>())
+        {
+            if (sibling == this || !sibling.useInteractTrigger) continue;
+
+            sibling.Trigger();
+            sibling.SetInteractBubbleActive(false);
+        }
+    }
+
+    #endregion
+
+    private void UpdateInteractBubbleSprite()
+    {
+        if (interactBubble == null || !interactBubble.activeSelf) return;
+
+        if (_bubbleSpriteRenderer == null)
+        {
+            interactBubble.TryGetComponent(out _bubbleSpriteRenderer);
+        }
+
+        if (_bubbleSpriteRenderer == null) return;
+
+        bool isKeyboard = InputManager.Instance?.ActiveDeviceType == "Keyboard"
+                       || InputManager.Instance?.ActiveDeviceType == "Mouse";
+
+        if (isKeyboard)
+        {
+            _bubbleSpriteRenderer.sprite = keyboardSprite;
+            interactBubble.transform.localScale = _originalBubbleScale * 3f;
+        }
+        else
+        {
+            _bubbleSpriteRenderer.sprite = controllerSprite;
+            interactBubble.transform.localScale = _originalBubbleScale;
+        }
     }
 }

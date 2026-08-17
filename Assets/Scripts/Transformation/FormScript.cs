@@ -77,6 +77,13 @@ public abstract class FormScript : MonoBehaviour
             isWalkSoundPlaying = false;
         }
     }
+
+    // Stops any looping movement/ability sounds this form owns. Called when movement is force-disabled
+    // or the active transformation changes, so sounds can't keep looping until the action is retriggered.
+    public virtual void StopMovementSounds()
+    {
+        EndWalkSound();
+    }
     
     public virtual void Awake()
     {

@@ -644,6 +644,12 @@ public class Bulldozer : FormScript
         StopAbilitySound(ability1Sound);
     }
 
+    public override void StopMovementSounds()
+    {
+        base.StopMovementSounds();
+        StopSprint();
+    }
+
     public bool IsSprinting()
     {
         return isSprinting;

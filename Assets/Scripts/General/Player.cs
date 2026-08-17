@@ -192,6 +192,10 @@ public class Player : KeyActionReceiver<Player>
         calculatedMoveDir = Vector3.zero;
 
         animator?.SetBool("isWalking", false);
+
+        // Prevent walk/ability sounds from looping indefinitely while movement is disabled
+        selectedGroupScript?.StopMovementSounds();
+        WalkSoundActive = false;
     }
 
     public GameObject GetSmoke() {
@@ -624,6 +628,10 @@ public class Player : KeyActionReceiver<Player>
         if (transformation != newTransformation)
         {
             Smoke();
+
+            // Stop the outgoing form's looping sounds so they don't leak past the switch
+            selectedGroupScript?.StopMovementSounds();
+            WalkSoundActive = false;
         }
         prevTransformation = transformation;
         transformation = newTransformation;

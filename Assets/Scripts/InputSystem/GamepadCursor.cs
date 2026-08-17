@@ -19,6 +19,8 @@ public class GamepadCursor : MonoBehaviour
     private float cursorSpeed = 1000f;
     [SerializeField] 
     private float padding = 50f;
+    [SerializeField]
+    private float stickDeadzone = 0.15f;
 
     private bool previousMouseState;
     private Mouse virtualMouse;
@@ -80,6 +82,9 @@ public class GamepadCursor : MonoBehaviour
         if (virtualMouse == null || Gamepad.current == null) return;
         
         Vector2 stickValue = Gamepad.current.leftStick.ReadValue();
+        // Some controllers (particularly over Bluetooth) report analog noise near center;
+        // without this gate that noise accumulates into constant cursor drift.
+        if (stickValue.magnitude < stickDeadzone) stickValue = Vector2.zero;
         stickValue *= cursorSpeed * Time.deltaTime;
         
         Vector2 currentPosition = virtualMouse.position.ReadValue();

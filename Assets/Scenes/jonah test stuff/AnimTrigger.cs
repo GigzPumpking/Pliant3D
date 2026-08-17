@@ -36,6 +36,12 @@ public class AnimTrigger : MonoBehaviour, IInteractable
     private SpriteRenderer _bubbleSpriteRenderer;
     private Vector3 _originalBubbleScale;
 
+    // Guards against Dialogue.Appear() being called again while the blocked dialogue is still opening/active
+    private bool _blockedDialogueActive = false;
+    private string _currentBlockedFirstEntry = "";
+    private static float lastBlockedDialogueEndTime = float.NegativeInfinity;
+    private const float blockedDialogueCooldown = 1f;
+
     private void Awake()
     {
         coloredInteractable = GetComponent<ColoredInteractable>();
@@ -52,13 +58,15 @@ public class AnimTrigger : MonoBehaviour, IInteractable
         if (useInteractTrigger)
         {
             InteractionManager.Instance?.Register(this);
-
-            if (interactBubble != null)
-            {
-                _originalBubbleScale = interactBubble.transform.localScale;
-                interactBubble.SetActive(false);
-            }
         }
+
+        if (interactBubble != null)
+        {
+            _originalBubbleScale = interactBubble.transform.localScale;
+            interactBubble.SetActive(false);
+        }
+
+        EventDispatcher.AddListener<EndDialogue>(OnBlockedDialogueEnd);
     }
 
     private void Start()
@@ -79,6 +87,8 @@ public class AnimTrigger : MonoBehaviour, IInteractable
         {
             InteractionManager.Instance?.Unregister(this);
         }
+
+        EventDispatcher.RemoveListener<EndDialogue>(OnBlockedDialogueEnd);
     }
 
     private void Update()
@@ -152,13 +162,29 @@ public class AnimTrigger : MonoBehaviour, IInteractable
     {
         if (blockedDialogue == null || blockedDialogue.Length == 0) return;
         if (UIManager.Instance == null) return;
+        if (_blockedDialogueActive) return;
+        if (Time.time - lastBlockedDialogueEndTime < blockedDialogueCooldown) return;
 
         Dialogue dialogue = UIManager.Instance.returnDialogue();
         if (dialogue == null || dialogue.IsActive()) return;
 
+        // Set before Appear() since Dialogue takes a moment to actually become Active, so this closes the re-entrancy window.
+        _blockedDialogueActive = true;
+        _currentBlockedFirstEntry = blockedDialogue[0].defaultText;
+
         dialogue.SetDialogueEntries(blockedDialogue);
         dialogue.Appear();
         dialogue.SetPortrait(blockedDialoguePortrait);
+    }
+
+    private void OnBlockedDialogueEnd(EndDialogue e)
+    {
+        if (!_blockedDialogueActive) return;
+        if (string.IsNullOrEmpty(_currentBlockedFirstEntry) || e.someEntry != _currentBlockedFirstEntry) return;
+
+        _blockedDialogueActive = false;
+        lastBlockedDialogueEndTime = Time.time;
+        _currentBlockedFirstEntry = "";
     }
 
     #region IInteractable Implementation

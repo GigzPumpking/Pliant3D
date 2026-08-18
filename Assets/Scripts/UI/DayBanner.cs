@@ -47,6 +47,10 @@ public class DayBanner : MonoBehaviour
 
     private Coroutine activeRoutine;
 
+    // Tracks scenes that have already shown their banner this session, so a level
+    // reset (which reloads the same scene name) doesn't show it again.
+    private static readonly HashSet<string> shownSceneNames = new HashSet<string>();
+
     private void OnEnable()
     {
         EventDispatcher.AddListener<NewSceneLoaded>(OnNewSceneLoaded);
@@ -70,6 +74,8 @@ public class DayBanner : MonoBehaviour
 
     private void OnNewSceneLoaded(NewSceneLoaded e)
     {
+        if (!shownSceneNames.Add(e.sceneName)) return;
+
         for (int i = 0; i < dayEntries.Count; i++)
         {
             if (dayEntries[i].levelName == e.sceneName)

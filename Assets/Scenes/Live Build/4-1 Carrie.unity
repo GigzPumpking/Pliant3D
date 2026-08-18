@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731715, g: 0.13414735, b: 0.121078536, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -11275,6 +11275,17 @@ MonoBehaviour:
   interactBubble: {fileID: 1606361832}
   keyboardSprite: {fileID: 21300000, guid: fc7bb22339e9e4dc1a918c75a23f2ae1, type: 3}
   controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}
+  ambientSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  triggerSound:
+    clip: {fileID: 8300000, guid: ea825a6445fac4dccb47dd6163b87d77, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+  disableAmbientOnTrigger: 1
 --- !u!114 &534694422
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11297,6 +11308,17 @@ MonoBehaviour:
   interactBubble: {fileID: 1606361832}
   keyboardSprite: {fileID: 21300000, guid: fc7bb22339e9e4dc1a918c75a23f2ae1, type: 3}
   controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}
+  ambientSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  triggerSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  disableAmbientOnTrigger: 0
 --- !u!114 &534694423
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14795,6 +14817,17 @@ MonoBehaviour:
   interactBubble: {fileID: 0}
   keyboardSprite: {fileID: 0}
   controllerSprite: {fileID: 0}
+  ambientSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  triggerSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  disableAmbientOnTrigger: 0
 --- !u!23 &680519233
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -20108,6 +20141,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1891907001}
     m_Modifications:
+    - target: {fileID: 2434470934414647453, guid: e7c64a544b35e1745a2a247062627fe4,
+        type: 3}
+      propertyPath: stopCondition
+      value: 
+      objectReference: {fileID: 534694421}
     - target: {fileID: 6144532072018731273, guid: e7c64a544b35e1745a2a247062627fe4,
         type: 3}
       propertyPath: m_Name

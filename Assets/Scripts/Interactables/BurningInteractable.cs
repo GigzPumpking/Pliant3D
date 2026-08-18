@@ -26,11 +26,24 @@ public class BurningInteractable : MonoBehaviour, IInteractable
     [Tooltip("Fraction of the animation the player must hold through before it auto-completes (0–1). Default 0.75 = first 75%.")]
     [SerializeField] [Range(0f, 1f)] private float holdCompletionThreshold = 0.75f;
 
+    [Header("Ambient Fire Audio")]
+    [Tooltip("Looping ambient sound that plays continuously while this object is on fire. Volume scales with distance to the player via the pooled AudioSource's 3D settings. Paused while the extinguish minigame is active.")]
+    [SerializeField] private AudioData burningAmbientSound;
+
+    [Header("Extinguish Audio")]
+    [Tooltip("Sound that plays while the extinguish animation is actively running. Paused/resumed in sync with the animator.")]
+    [SerializeField] private AudioData extinguishSound;
+    [Tooltip("Plays alongside extinguishSound the moment extinguishing starts; paused/resumed on the same timing.")]
+    [SerializeField] private AudioData fireDyingSound;
+
     private bool _isExtinguished = false;
     private bool _isMinigameActive = false;
     private float _currentProgress = 0f;
     private Animator _animator;
     private bool _animatorTriggered = false;
+    private AudioSource _burningAmbientAudioSource;
+    private AudioSource _extinguishAudioSource;
+    private AudioSource _fireDyingAudioSource;
 
     private Terry GetTerry()
     {
@@ -75,6 +88,7 @@ public class BurningInteractable : MonoBehaviour, IInteractable
     private IEnumerator ExtinguishHoldCoroutine()
     {
         _isMinigameActive = true;
+        PauseBurningAmbient();
 
         float holdTarget = extinguishDuration * holdCompletionThreshold;
 
@@ -132,10 +146,12 @@ public class BurningInteractable : MonoBehaviour, IInteractable
             {
                 _currentProgress = Mathf.Min(_currentProgress + Time.deltaTime, holdTarget);
                 if (_animator != null) _animator.speed = 1f;
+                ResumeExtinguishAudio();
             }
             else
             {
                 if (_animator != null) _animator.speed = 0f;
+                PauseExtinguishAudio();
             }
 
             if (slider != null) slider.value = _currentProgress;
@@ -157,11 +173,14 @@ public class BurningInteractable : MonoBehaviour, IInteractable
             // Forced out of range or lost eligibility — pause animator and let
             // InteractionManager restore the correct bubble when the player returns.
             if (_animator != null) _animator.speed = 0f;
+            PauseExtinguishAudio();
+            StartBurningAmbient(); // fire is still burning, resume the ambient loop
             yield break;
         }
 
         // === AUTO-COMPLETE PHASE: last portion plays on its own ===
         if (_animator != null) _animator.speed = 1f;
+        ResumeExtinguishAudio();
 
         // Immediately disable the killzone so the player can walk through the dwindling fire
         // while the remaining animation plays out.
@@ -172,7 +191,9 @@ public class BurningInteractable : MonoBehaviour, IInteractable
         yield return new WaitForSeconds(remainingTime);
 
         _isExtinguished = true;
-        
+        StopExtinguishAudio();
+        StopBurningAmbient();
+
         //Raise custom event dispatcher
         if (CustomEventObjective.TryCompleteAnyForObject(this.gameObject, out CustomEventObjective completedObjective))
         {
@@ -195,10 +216,69 @@ public class BurningInteractable : MonoBehaviour, IInteractable
 
     #endregion
 
+    #region Fire Audio
+
+    // Starts the ambient fire loop if it hasn't started yet, or unpauses it if it was paused during extinguishing.
+    private void StartBurningAmbient()
+    {
+        if (_isExtinguished) return;
+        if (burningAmbientSound != null && !burningAmbientSound.loop) burningAmbientSound.loop = true;
+        ResumeAudio(burningAmbientSound, ref _burningAmbientAudioSource);
+    }
+
+    private void PauseBurningAmbient() => PauseAudio(_burningAmbientAudioSource);
+
+    private void StopBurningAmbient() => StopAudio(burningAmbientSound, ref _burningAmbientAudioSource);
+
+    // Starts extinguishSound/fireDyingSound if they haven't started yet, or unpauses them if paused mid-hold.
+    private void ResumeExtinguishAudio()
+    {
+        ResumeAudio(extinguishSound, ref _extinguishAudioSource);
+        ResumeAudio(fireDyingSound, ref _fireDyingAudioSource);
+    }
+
+    // Pauses without resetting playback position, mirroring the animator pause.
+    private void PauseExtinguishAudio()
+    {
+        PauseAudio(_extinguishAudioSource);
+        PauseAudio(_fireDyingAudioSource);
+    }
+
+    private void StopExtinguishAudio()
+    {
+        StopAudio(extinguishSound, ref _extinguishAudioSource);
+        StopAudio(fireDyingSound, ref _fireDyingAudioSource);
+    }
+
+    private void ResumeAudio(AudioData data, ref AudioSource source)
+    {
+        if (data == null || data.clip == null) return;
+        if (source == null)
+            source = AudioManager.Instance?.PlaySound(data, transform);
+        else if (!source.isPlaying)
+            source.UnPause();
+    }
+
+    private void PauseAudio(AudioSource source)
+    {
+        if (source != null && source.isPlaying) source.Pause();
+    }
+
+    private void StopAudio(AudioData data, ref AudioSource source)
+    {
+        if (source == null) return;
+        AudioManager.Instance?.StopSound(data);
+        source = null;
+    }
+
+    #endregion
+
     private void OnEnable()
     {
         if (InteractionManager.Instance != null)
             InteractionManager.Instance.Register(this);
+
+        StartBurningAmbient();
     }
 
     private void OnDisable()
@@ -211,6 +291,9 @@ public class BurningInteractable : MonoBehaviour, IInteractable
             CanvasGroup cg = GetProgressCanvasGroup();
             if (cg != null) cg.alpha = 0f;
         }
+
+        StopExtinguishAudio();
+        StopBurningAmbient();
 
         if (InteractionManager.Instance != null)
             InteractionManager.Instance.Unregister(this);

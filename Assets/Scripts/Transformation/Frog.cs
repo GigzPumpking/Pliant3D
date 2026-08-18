@@ -423,7 +423,7 @@ public class Frog : FormScript
         Vector3 facingDir = cachedFacingDirection;
         bool isFacingFront = facingDir == Vector3.left || facingDir == Vector3.back;
         bool isFacingBack = facingDir == Vector3.forward || facingDir == Vector3.right;
-        if (isFacingBack || isFacingFront) animator?.SetTrigger("Tongue");
+        animator?.SetTrigger("Tongue");
 
         if (closestObject != null)
         {
@@ -668,6 +668,8 @@ public class Frog : FormScript
 
     private IEnumerator HandleGrappleReeling()
     {
+        animator?.SetTrigger("Grapple");
+
         Collider hookCollider = tongueHitTarget.GetComponent<Collider>();
 
         Vector3 ComputeArrivalPos() => hookCollider != null 

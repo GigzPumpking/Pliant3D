@@ -25,6 +25,16 @@ public class AnimTrigger : MonoBehaviour, IInteractable
     [SerializeField] private Sprite keyboardSprite;
     [SerializeField] private Sprite controllerSprite;
 
+    [Header("Audio (Optional)")]
+    [Tooltip("Optional ambient sound that loops for as long as this object is enabled. Leave the clip empty to skip.")]
+    [SerializeField] private AudioData ambientSound;
+    [Tooltip("Optional one-shot sound played the moment this trigger fires. Leave the clip empty to skip.")]
+    [SerializeField] private AudioData triggerSound;
+    [Tooltip("If true, the ambient sfx stops as soon as this trigger fires.")]
+    [SerializeField] private bool disableAmbientOnTrigger = false;
+
+    private AudioSource _ambientAudioSource;
+
     private bool IsActive => requiredAnimTrigger == null || requiredAnimTrigger.IsTriggered;
 
     public bool IsTriggered { get; private set; } = false;
@@ -67,6 +77,8 @@ public class AnimTrigger : MonoBehaviour, IInteractable
         }
 
         EventDispatcher.AddListener<EndDialogue>(OnBlockedDialogueEnd);
+
+        StartAmbientAudio();
     }
 
     private void Start()
@@ -89,6 +101,8 @@ public class AnimTrigger : MonoBehaviour, IInteractable
         }
 
         EventDispatcher.RemoveListener<EndDialogue>(OnBlockedDialogueEnd);
+
+        StopAmbientAudio();
     }
 
     private void Update()
@@ -126,6 +140,8 @@ public class AnimTrigger : MonoBehaviour, IInteractable
 
         myAnimationController.SetBool(parameterName, true);
         IsTriggered = true;
+        PlayTriggerSound();
+        if (disableAmbientOnTrigger) StopAmbientAudio();
     }
 
     private void OnTriggerExit(Collider other) 
@@ -153,6 +169,8 @@ public class AnimTrigger : MonoBehaviour, IInteractable
 
         myAnimationController.SetBool(parameterName, true);
         IsTriggered = true;
+        PlayTriggerSound();
+        if (disableAmbientOnTrigger) StopAmbientAudio();
 
         if (coloredInteractable != null)
             coloredInteractable.isInteractable = false;
@@ -236,6 +254,30 @@ public class AnimTrigger : MonoBehaviour, IInteractable
             sibling.Trigger();
             sibling.SetInteractBubbleActive(false);
         }
+    }
+
+    #endregion
+
+    #region Audio
+
+    private void StartAmbientAudio()
+    {
+        if (ambientSound == null || ambientSound.clip == null) return;
+        if (!ambientSound.loop) ambientSound.loop = true;
+        _ambientAudioSource = AudioManager.Instance?.PlaySound(ambientSound, transform);
+    }
+
+    private void StopAmbientAudio()
+    {
+        if (_ambientAudioSource == null) return;
+        AudioManager.Instance?.StopSound(ambientSound);
+        _ambientAudioSource = null;
+    }
+
+    private void PlayTriggerSound()
+    {
+        if (triggerSound == null || triggerSound.clip == null) return;
+        AudioManager.Instance?.PlayOneShot(triggerSound, transform);
     }
 
     #endregion

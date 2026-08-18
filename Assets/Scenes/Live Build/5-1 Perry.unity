@@ -4414,6 +4414,17 @@ MonoBehaviour:
   interactBubble: {fileID: 399604724}
   keyboardSprite: {fileID: 0}
   controllerSprite: {fileID: 0}
+  ambientSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  triggerSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  disableAmbientOnTrigger: 0
 --- !u!114 &157507940
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4436,6 +4447,17 @@ MonoBehaviour:
   interactBubble: {fileID: 399604724}
   keyboardSprite: {fileID: 21300000, guid: fc7bb22339e9e4dc1a918c75a23f2ae1, type: 3}
   controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}
+  ambientSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  triggerSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  disableAmbientOnTrigger: 0
 --- !u!114 &157507941
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19552,6 +19574,21 @@ MonoBehaviour:
   extinguishAnimObject: {fileID: 520840941}
   extinguishDuration: 9
   holdCompletionThreshold: 0.75
+  burningAmbientSound:
+    clip: {fileID: 8300000, guid: 8dac7de203f99489fa9b2e5973018282, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+  extinguishSound:
+    clip: {fileID: 8300000, guid: fca65fee8cb674911a2726673ac61d83, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+  fireDyingSound:
+    clip: {fileID: 8300000, guid: 4eb565c23b76145a28ee77a49da6b38d, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
 --- !u!95 &520840944
 Animator:
   serializedVersion: 5
@@ -23923,6 +23960,21 @@ MonoBehaviour:
   extinguishAnimObject: {fileID: 762927565}
   extinguishDuration: 9
   holdCompletionThreshold: 0.75
+  burningAmbientSound:
+    clip: {fileID: 8300000, guid: 8dac7de203f99489fa9b2e5973018282, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+  extinguishSound:
+    clip: {fileID: 8300000, guid: fca65fee8cb674911a2726673ac61d83, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+  fireDyingSound:
+    clip: {fileID: 8300000, guid: 4eb565c23b76145a28ee77a49da6b38d, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
 --- !u!95 &762927568
 Animator:
   serializedVersion: 5
@@ -24512,6 +24564,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 836848829}
     m_Modifications:
+    - target: {fileID: 2434470934414647453, guid: e7c64a544b35e1745a2a247062627fe4,
+        type: 3}
+      propertyPath: stopCondition
+      value: 
+      objectReference: {fileID: 1365261252}
     - target: {fileID: 6144532072018731273, guid: e7c64a544b35e1745a2a247062627fe4,
         type: 3}
       propertyPath: m_Name
@@ -43242,6 +43299,21 @@ MonoBehaviour:
   extinguishAnimObject: {fileID: 1083023255}
   extinguishDuration: 9
   holdCompletionThreshold: 0.75
+  burningAmbientSound:
+    clip: {fileID: 8300000, guid: 8dac7de203f99489fa9b2e5973018282, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+  extinguishSound:
+    clip: {fileID: 8300000, guid: fca65fee8cb674911a2726673ac61d83, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+  fireDyingSound:
+    clip: {fileID: 8300000, guid: 4eb565c23b76145a28ee77a49da6b38d, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
 --- !u!95 &1083023258
 Animator:
   serializedVersion: 5
@@ -44717,6 +44789,11 @@ PrefabInstance:
     - target: {fileID: 3094725120067165287, guid: 74a0e4baa929983409b3ccaa546f6026,
         type: 3}
       propertyPath: targetTag
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3094725120067165287, guid: 74a0e4baa929983409b3ccaa546f6026,
+        type: 3}
+      propertyPath: triggerSound.clip
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 3117919244619932675, guid: 74a0e4baa929983409b3ccaa546f6026,
@@ -52972,6 +53049,17 @@ MonoBehaviour:
   interactBubble: {fileID: 1899908358}
   keyboardSprite: {fileID: 21300000, guid: fc7bb22339e9e4dc1a918c75a23f2ae1, type: 3}
   controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}
+  ambientSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  triggerSound:
+    clip: {fileID: 8300000, guid: ea825a6445fac4dccb47dd6163b87d77, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+  disableAmbientOnTrigger: 0
 --- !u!95 &1365261253
 Animator:
   serializedVersion: 5
@@ -53015,6 +53103,17 @@ MonoBehaviour:
   interactBubble: {fileID: 1899908358}
   keyboardSprite: {fileID: 21300000, guid: fc7bb22339e9e4dc1a918c75a23f2ae1, type: 3}
   controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}
+  ambientSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  triggerSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  disableAmbientOnTrigger: 0
 --- !u!65 &1365261255
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -62021,6 +62120,21 @@ MonoBehaviour:
   extinguishAnimObject: {fileID: 1663151374}
   extinguishDuration: 9
   holdCompletionThreshold: 0.75
+  burningAmbientSound:
+    clip: {fileID: 8300000, guid: 8dac7de203f99489fa9b2e5973018282, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+  extinguishSound:
+    clip: {fileID: 8300000, guid: fca65fee8cb674911a2726673ac61d83, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+  fireDyingSound:
+    clip: {fileID: 8300000, guid: 4eb565c23b76145a28ee77a49da6b38d, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
 --- !u!95 &1663151377
 Animator:
   serializedVersion: 5
@@ -80236,6 +80350,21 @@ MonoBehaviour:
   extinguishAnimObject: {fileID: 5793747871338084894}
   extinguishDuration: 9
   holdCompletionThreshold: 0.75
+  burningAmbientSound:
+    clip: {fileID: 8300000, guid: 8dac7de203f99489fa9b2e5973018282, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+  extinguishSound:
+    clip: {fileID: 8300000, guid: fca65fee8cb674911a2726673ac61d83, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+  fireDyingSound:
+    clip: {fileID: 8300000, guid: 4eb565c23b76145a28ee77a49da6b38d, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
 --- !u!23 &4520584727131217033
 MeshRenderer:
   m_ObjectHideFlags: 0

@@ -70,6 +70,7 @@ public class Objective : MonoBehaviour, IObjective {
         isComplete = true;
         InvokeCompletionEvents();
         OnObjectiveComplete?.Invoke(this);
+        ObjectiveTracker.Instance?.PlayTaskCompletedSound();
 
         if (GameManager.Instance != null && countsTowardsProficiency)
         {

@@ -12925,7 +12925,7 @@ GameObject:
   - component: {fileID: 1756807966}
   - component: {fileID: 1756807965}
   m_Layer: 0
-  m_Name: Find the Red Door
+  m_Name: Find the Exit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12943,7 +12943,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d9e37210b14429d9412d09612eab3e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  description: Find the Red Door
+  description: Find the Exit
   isComplete: 0
   showTally: 0
   onCompleteEvents: []
@@ -12952,6 +12952,10 @@ MonoBehaviour:
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 2052216169}
+  returnNPC: {fileID: 0}
+  requiresNPCReturn: 0
+  readyDialogue: []
+  completeDialogue: []
 --- !u!4 &1756807966
 Transform:
   m_ObjectHideFlags: 0
@@ -13831,6 +13835,10 @@ MonoBehaviour:
   targetLocations:
   - {fileID: 2002461626}
   - {fileID: 472235178}
+  returnNPC: {fileID: 0}
+  requiresNPCReturn: 0
+  readyDialogue: []
+  completeDialogue: []
 --- !u!1001 &1916754077
 PrefabInstance:
   m_ObjectHideFlags: 0

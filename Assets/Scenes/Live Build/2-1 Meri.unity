@@ -7919,7 +7919,7 @@ GameObject:
   - component: {fileID: 1010316082}
   - component: {fileID: 1010316081}
   m_Layer: 0
-  m_Name: Find the Red Door
+  m_Name: Find the Exit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7937,7 +7937,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d9e37210b14429d9412d09612eab3e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  description: Find the Red Door
+  description: Find the Exit
   isComplete: 0
   showTally: 0
   onCompleteEvents: []
@@ -7946,6 +7946,10 @@ MonoBehaviour:
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 240172314084108813}
+  returnNPC: {fileID: 0}
+  requiresNPCReturn: 0
+  readyDialogue: []
+  completeDialogue: []
 --- !u!4 &1010316082
 Transform:
   m_ObjectHideFlags: 0
@@ -15188,6 +15192,17 @@ MonoBehaviour:
   interactBubble: {fileID: 600730001}
   keyboardSprite: {fileID: 21300000, guid: fc7bb22339e9e4dc1a918c75a23f2ae1, type: 3}
   controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}
+  ambientSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  triggerSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  disableAmbientOnTrigger: 0
 --- !u!65 &240172312578898311
 BoxCollider:
   m_ObjectHideFlags: 0

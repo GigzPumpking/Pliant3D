@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731715, g: 0.13414735, b: 0.121078536, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -4714,6 +4714,10 @@ MonoBehaviour:
   targetLocations:
   - {fileID: 879414813}
   - {fileID: 15961002}
+  returnNPC: {fileID: 0}
+  requiresNPCReturn: 0
+  readyDialogue: []
+  completeDialogue: []
 --- !u!1 &403428009
 GameObject:
   m_ObjectHideFlags: 0
@@ -5686,6 +5690,21 @@ MonoBehaviour:
   requiredAnimTrigger: {fileID: 0}
   blockedDialogue: []
   blockedDialoguePortrait: {fileID: 0}
+  useInteractTrigger: 0
+  interactBubble: {fileID: 0}
+  keyboardSprite: {fileID: 0}
+  controllerSprite: {fileID: 0}
+  ambientSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  triggerSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  disableAmbientOnTrigger: 0
 --- !u!114 &510106871
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5704,6 +5723,21 @@ MonoBehaviour:
   requiredAnimTrigger: {fileID: 0}
   blockedDialogue: []
   blockedDialoguePortrait: {fileID: 0}
+  useInteractTrigger: 0
+  interactBubble: {fileID: 0}
+  keyboardSprite: {fileID: 0}
+  controllerSprite: {fileID: 0}
+  ambientSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  triggerSound:
+    clip: {fileID: 8300000, guid: 5a5893c0bac294201bcba5f44d0690a7, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+  disableAmbientOnTrigger: 0
 --- !u!95 &510106872
 Animator:
   serializedVersion: 5
@@ -12705,6 +12739,10 @@ MonoBehaviour:
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 0}
+  returnNPC: {fileID: 0}
+  requiresNPCReturn: 0
+  readyDialogue: []
+  completeDialogue: []
 --- !u!4 &1316342084
 Transform:
   m_ObjectHideFlags: 0

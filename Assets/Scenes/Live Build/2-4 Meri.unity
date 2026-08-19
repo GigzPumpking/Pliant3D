@@ -1490,6 +1490,60 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.05474982, y: 0.044462927, z: 0.048306484}
   m_Center: {x: 0.00075794355, y: -0.00020258805, z: 0.014153066}
+--- !u!95 &159581309
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 159581300}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: a7a851e01fcc42d499180685534d82fc, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &159581310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 159581300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60080f6bf0d0f5b4c8f41b55ce67791f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myAnimationController: {fileID: 159581309}
+  targetTag: Player
+  parameterName: button 1
+  requiredAnimTrigger: {fileID: 0}
+  blockedDialogue: []
+  blockedDialoguePortrait: {fileID: 0}
+  useInteractTrigger: 1
+  interactBubble: {fileID: 343044091}
+  keyboardSprite: {fileID: 21300000, guid: fc7bb22339e9e4dc1a918c75a23f2ae1, type: 3}
+  controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}
+  ambientSound:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  triggerSound:
+    clip: {fileID: 8300000, guid: 5a5893c0bac294201bcba5f44d0690a7, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+  disableAmbientOnTrigger: 0
 --- !u!1 &164029188
 GameObject:
   m_ObjectHideFlags: 0
@@ -1618,6 +1672,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2369990881507749357, guid: 23446d82a88722a4c86c6e87f789520d,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.066
+      objectReference: {fileID: 0}
+    - target: {fileID: 2369990881507749357, guid: 23446d82a88722a4c86c6e87f789520d,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.0563
+      objectReference: {fileID: 0}
+    - target: {fileID: 2369990881507749357, guid: 23446d82a88722a4c86c6e87f789520d,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.212
+      objectReference: {fileID: 0}
     - target: {fileID: 5098344362855200866, guid: 23446d82a88722a4c86c6e87f789520d,
         type: 3}
       propertyPath: m_RootOrder
@@ -2362,6 +2431,11 @@ PrefabInstance:
         type: 3}
     - target: {fileID: 6903212241321033868, guid: 0c45e353204f5c341902fe3c3652d522,
         type: 3}
+      propertyPath: triggerSound.clip
+      value: 
+      objectReference: {fileID: 8300000, guid: 6c313404739174fc698b286a335b9a8d, type: 3}
+    - target: {fileID: 6903212241321033868, guid: 0c45e353204f5c341902fe3c3652d522,
+        type: 3}
       propertyPath: useInteractTrigger
       value: 1
       objectReference: {fileID: 0}
@@ -2394,52 +2468,52 @@ PrefabInstance:
     - target: {fileID: 9164478704173465657, guid: 0c45e353204f5c341902fe3c3652d522,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.0327
+      value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: 9164478704173465657, guid: 0c45e353204f5c341902fe3c3652d522,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.059
+      value: 0.0581
       objectReference: {fileID: 0}
     - target: {fileID: 9164478704173465657, guid: 0c45e353204f5c341902fe3c3652d522,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.214
+      value: -0.177
       objectReference: {fileID: 0}
     - target: {fileID: 9164478704173465657, guid: 0c45e353204f5c341902fe3c3652d522,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.114037216
+      value: 0.02226007
       objectReference: {fileID: 0}
     - target: {fileID: 9164478704173465657, guid: 0c45e353204f5c341902fe3c3652d522,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.24056526
+      value: 0.3604234
       objectReference: {fileID: 0}
     - target: {fileID: 9164478704173465657, guid: 0c45e353204f5c341902fe3c3652d522,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.96385515
+      value: -0.82236314
       objectReference: {fileID: 0}
     - target: {fileID: 9164478704173465657, guid: 0c45e353204f5c341902fe3c3652d522,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.010357986
+      value: -0.43967974
       objectReference: {fileID: 0}
     - target: {fileID: 9164478704173465657, guid: 0c45e353204f5c341902fe3c3652d522,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 2
+      value: -45
       objectReference: {fileID: 0}
     - target: {fileID: 9164478704173465657, guid: 0c45e353204f5c341902fe3c3652d522,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: -167
+      value: -150
       objectReference: {fileID: 0}
     - target: {fileID: 9164478704173465657, guid: 0c45e353204f5c341902fe3c3652d522,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: -27.8
+      value: -60
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0c45e353204f5c341902fe3c3652d522, type: 3}
@@ -3578,8 +3652,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.025, y: 0.025, z: 0.025}
-  m_Center: {x: 0, y: -0.00000011920929, z: 0.00000012665987}
+  m_Size: {x: 0.036752522, y: 0.03099235, z: 0.025}
+  m_Center: {x: -0.00003199636, y: 0.00299608, z: 0.00000012666972}
 --- !u!114 &457167165
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3608,7 +3682,7 @@ MonoBehaviour:
     pitch: 1
     loop: 0
   triggerSound:
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 5a5893c0bac294201bcba5f44d0690a7, type: 3}
     volume: 1
     pitch: 1
     loop: 0
@@ -4479,6 +4553,10 @@ MonoBehaviour:
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 480907264}
+  returnNPC: {fileID: 0}
+  requiresNPCReturn: 0
+  readyDialogue: []
+  completeDialogue: []
 --- !u!4 &490245413
 Transform:
   m_ObjectHideFlags: 0
@@ -8557,6 +8635,10 @@ MonoBehaviour:
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 457167171}
+  returnNPC: {fileID: 0}
+  requiresNPCReturn: 0
+  readyDialogue: []
+  completeDialogue: []
 --- !u!4 &1010316082
 Transform:
   m_ObjectHideFlags: 0
@@ -18369,6 +18451,10 @@ MonoBehaviour:
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 159581302}
+  returnNPC: {fileID: 0}
+  requiresNPCReturn: 0
+  readyDialogue: []
+  completeDialogue: []
 --- !u!4 &2085248109
 Transform:
   m_ObjectHideFlags: 0

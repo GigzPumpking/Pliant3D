@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731704, g: 0.13414726, b: 0.1210787, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -784,6 +784,10 @@ MonoBehaviour:
   - {fileID: 1368335033}
   - {fileID: 697124989}
   - {fileID: 1346734870}
+  returnNPC: {fileID: 0}
+  requiresNPCReturn: 0
+  readyDialogue: []
+  completeDialogue: []
 --- !u!1001 &172688294
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9912,7 +9916,7 @@ GameObject:
   - component: {fileID: 1630996848}
   - component: {fileID: 1630996847}
   m_Layer: 0
-  m_Name: Find the Red Door
+  m_Name: Find the Exit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9930,7 +9934,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d9e37210b14429d9412d09612eab3e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  description: Find the Red Door
+  description: Find the Exit
   isComplete: 0
   showTally: 0
   onCompleteEvents: []
@@ -9939,6 +9943,10 @@ MonoBehaviour:
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 394636687}
+  returnNPC: {fileID: 0}
+  requiresNPCReturn: 0
+  readyDialogue: []
+  completeDialogue: []
 --- !u!4 &1630996848
 Transform:
   m_ObjectHideFlags: 0

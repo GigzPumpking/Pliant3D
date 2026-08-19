@@ -20,6 +20,19 @@ public class Objective : MonoBehaviour, IObjective {
     [Tooltip("If false, this task is ignored by the GameManager's proficiency score (e.g., Tutorials).")]
     public bool countsTowardsProficiency = true;
 
+    // How much of the ready/complete return-dialogue progression has been shown to the player
+    // (0 = none, 1 = ready, 2 = complete). Advances by at most one tier per NPC interaction so an
+    // NPC never skips straight to "complete" dialogue when conditions were met before the quest
+    // was ever given (e.g. an objective completed before it was assigned).
+    protected int revealedDialogueStage = 0;
+
+    protected void AdvanceRevealedDialogueStage()
+    {
+        revealedDialogueStage = Math.Min(revealedDialogueStage + 1, 2);
+    }
+
+    protected int ClampToRevealedStage(int targetStage) => Math.Min(targetStage, revealedDialogueStage);
+
     internal void InvokeCompletionEvents()
     {
         foreach(UnityEvent ev in onCompleteEvents) ev?.Invoke();
@@ -41,7 +54,8 @@ public class Objective : MonoBehaviour, IObjective {
         {
             objectiveName = gameObject.name,
             description = description,
-            isComplete = isComplete
+            isComplete = isComplete,
+            revealedDialogueStage = revealedDialogueStage
         };
     }
 
@@ -52,7 +66,7 @@ public class Objective : MonoBehaviour, IObjective {
     /// </summary>
     public virtual void RestoreState(ObjectiveSaveState state)
     {
-        // Base class: nothing extra to restore.
+        revealedDialogueStage = state.revealedDialogueStage;
     }
     
     //TALLY STUFF

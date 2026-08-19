@@ -5,7 +5,7 @@ using System.Linq;
 using JetBrains.Annotations;
 
 //Use for multiple objects that need to be placed at multiple locations
-public class ObjectsToLocationsObjective : Objective {
+public class ObjectsToLocationsObjective : Objective, IDialogueProvider {
     public static event Action<Objective> OnObjectiveComplete;
     [SerializeField] private List<ObjectiveNode> targetLocations;
     [SerializeField] private List<GameObject> lookingFor;
@@ -17,6 +17,65 @@ public class ObjectsToLocationsObjective : Objective {
 
     private int numCompleted = 0;
     private int cachedTotal;
+
+    [Header("NPC Return Dialogue (Optional)")]
+    [Tooltip("The NPC the player must talk to for return dialogue/completion. Leave empty to complete automatically.")]
+    [SerializeField] private DialogueTrigger returnNPC;
+
+    [Tooltip("If true and a Return NPC is assigned, the player must interact with the Return NPC after conditions are met before the objective completes.")]
+    [SerializeField] private bool requiresNPCReturn = false;
+
+    [Tooltip("Shown by the return NPC when conditions are met but the objective hasn't been completed yet.")]
+    public DialogueEntry[] readyDialogue;
+
+    [Tooltip("Shown by the return NPC after the objective is fully complete.")]
+    public DialogueEntry[] completeDialogue;
+
+    private ObjectiveDialogueProxy returnNPCProxy;
+    private bool readyForReturn = false;
+
+    private const int PRIORITY_READY = 10;
+    private const int PRIORITY_COMPLETE = 20;
+
+    // 0 = nothing revealed, 1 = ready dialogue revealed, 2 = complete dialogue revealed.
+    private const int STAGE_READY = 1;
+    private const int STAGE_COMPLETE = 2;
+
+    private int GetTargetStage() => isComplete ? STAGE_COMPLETE : (readyForReturn ? STAGE_READY : 0);
+
+    #region IDialogueProvider Implementation (Return NPC)
+
+    public int Priority
+    {
+        get
+        {
+            int stage = ClampToRevealedStage(GetTargetStage());
+            if (stage == STAGE_COMPLETE) return PRIORITY_COMPLETE;
+            if (stage == STAGE_READY) return PRIORITY_READY;
+            return -1;
+        }
+    }
+
+    public bool HasDialogue
+    {
+        get
+        {
+            int stage = ClampToRevealedStage(GetTargetStage());
+            if (stage == STAGE_COMPLETE) return completeDialogue != null && completeDialogue.Length > 0;
+            if (stage == STAGE_READY) return readyDialogue != null && readyDialogue.Length > 0;
+            return false;
+        }
+    }
+
+    public DialogueEntry[] GetDialogueEntries()
+    {
+        int stage = ClampToRevealedStage(GetTargetStage());
+        if (stage == STAGE_COMPLETE) return completeDialogue;
+        if (stage == STAGE_READY) return readyDialogue;
+        return null;
+    }
+
+    #endregion
     
     private void Awake()
     {
@@ -43,16 +102,60 @@ public class ObjectsToLocationsObjective : Objective {
     
     private void OnEnable() {
         ObjectiveNode.OnNodeCompleted += CheckCompletion;
+        DialogueTrigger.InteractedObjective += OnReturnNPCInteracted;
     }
 
     private void OnDisable() {
         ObjectiveNode.OnNodeCompleted -= CheckCompletion;
+        DialogueTrigger.InteractedObjective -= OnReturnNPCInteracted;
+
+        if (returnNPCProxy != null)
+        {
+            Destroy(returnNPCProxy);
+            returnNPCProxy = null;
+
+            if (returnNPC != null)
+            {
+                returnNPC.RefreshDialogueProviders();
+            }
+        }
     }
     
     private void Start()
     {
         RefreshCachedTotal();
         RefreshTallyUI();
+
+        EnsureReturnNPCProxy();
+    }
+
+    private void EnsureReturnNPCProxy()
+    {
+        if (returnNPC == null) return;
+
+        if (returnNPCProxy == null)
+        {
+            returnNPCProxy = returnNPC.gameObject.AddComponent<ObjectiveDialogueProxy>();
+            returnNPCProxy.Initialize(this);
+        }
+
+        returnNPC.RefreshDialogueProviders();
+    }
+
+    private void OnReturnNPCInteracted(DialogueTrigger interactedNPC)
+    {
+        if (returnNPC == null) return;
+        if (interactedNPC != returnNPC) return;
+
+        // Reveal at most one additional dialogue tier per interaction with this NPC, so an
+        // objective completed before it was ever given still plays out base -> ready -> complete
+        // dialogue instead of jumping straight to "complete".
+        AdvanceRevealedDialogueStage();
+
+        if (!readyForReturn) return;
+        if (isComplete) return;
+
+        CompleteObjective();
     }
 
     private void OnValidate()
@@ -117,6 +220,8 @@ public class ObjectsToLocationsObjective : Objective {
         base.CompleteObjective();
 
         RefreshTallyUI();
+
+        if (returnNPC != null) returnNPC.RefreshDialogueProviders();
     }
     
     private void CheckCompletion() {
@@ -125,44 +230,39 @@ public class ObjectsToLocationsObjective : Objective {
 
         RefreshTallyUI();
 
-        if (anyObjectToLocation && targetLocations.Any())
+        bool conditionsMet;
+        if (anyObjectToLocation)
         {
-            foreach (ObjectiveNode node in targetLocations)
-            {
-                if (node != null && node.isComplete)
-                {
-                    CompleteObjective();
-                }
-            }
-
-            return;
+            conditionsMet = targetLocations.Any(node => node != null && node.isComplete);
         }
         else
         {
             int completedCount = targetLocations.Count(curr => curr != null && curr.isComplete);
             int requiredTotal = GetRequiredTotal();
 
-            if (setNumberOfNeeded != 0)
-            {
-                if (completedCount < requiredTotal) return;
-            }
-            else
-            {
-                foreach (ObjectiveNode node in targetLocations)
-                {
-                    if (!node) continue;
-                    if (!node.isComplete) return;
-                }
-            }
-
-            CompleteObjective();
+            conditionsMet = setNumberOfNeeded != 0
+                ? completedCount >= requiredTotal
+                : targetLocations.All(node => node == null || node.isComplete);
         }
+
+        if (!conditionsMet) return;
+
+        if (!readyForReturn)
+        {
+            readyForReturn = true;
+            EnsureReturnNPCProxy();
+        }
+
+        if (requiresNPCReturn && returnNPC != null) return;
+
+        CompleteObjective();
     }
 
     public override ObjectiveSaveState CaptureState()
     {
         var state = base.CaptureState();
         state.numCompleted = numCompleted;
+        state.readyForReturn = readyForReturn;
         state.completedInteractableNames = targetLocations
             .Where(n => n != null && n.isComplete)
             .Select(n => GetNodePath(n))
@@ -173,6 +273,10 @@ public class ObjectsToLocationsObjective : Objective {
     public override void RestoreState(ObjectiveSaveState state)
     {
         if (state == null) return;
+
+        base.RestoreState(state);
+        readyForReturn = state.readyForReturn;
+        EnsureReturnNPCProxy();
 
         var savedPaths = state.completedInteractableNames;
         if (savedPaths == null || savedPaths.Count == 0) return;

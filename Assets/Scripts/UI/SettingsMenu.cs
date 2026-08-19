@@ -134,7 +134,17 @@ public class SettingsMenu : MonoBehaviour
         Resolution[] screenResolutions = Screen.resolutions;
         if (screenResolutions != null && screenResolutions.Length > 0)
         {
-            availableResolutionsList.AddRange(screenResolutions);
+            // Screen.resolutions reports one entry per supported refresh rate, so the
+            // same width/height can appear several times. Keep only the first (highest
+            // refresh rate) entry per width/height to avoid duplicate dropdown options.
+            HashSet<(int width, int height)> seenResolutions = new HashSet<(int, int)>();
+            foreach (Resolution res in screenResolutions)
+            {
+                if (seenResolutions.Add((res.width, res.height)))
+                {
+                    availableResolutionsList.Add(res);
+                }
+            }
         }
         else
         {

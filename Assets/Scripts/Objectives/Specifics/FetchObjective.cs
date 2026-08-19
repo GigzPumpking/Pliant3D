@@ -91,10 +91,11 @@ using UnityEngine;
         {
             get
             {
-                if (isComplete)
+                int stage = ClampToRevealedStage(GetTargetStage());
+                if (stage == PRIORITY_STAGE_COMPLETE)
                     return PRIORITY_COMPLETE;
                 
-                if (fetchedAll)
+                if (stage == PRIORITY_STAGE_READY)
                     return PRIORITY_ITEMS_READY;
                 
                 return -1; // No applicable dialogue state, use base dialogue
@@ -122,10 +123,11 @@ using UnityEngine;
         /// </summary>
         private bool HasDialogueForState(DialogueEntry[] readyDialogue, DialogueEntry[] completeDialogue)
         {
-            if (isComplete)
+            int stage = ClampToRevealedStage(GetTargetStage());
+            if (stage == PRIORITY_STAGE_COMPLETE)
                 return completeDialogue != null && completeDialogue.Length > 0;
             
-            if (fetchedAll)
+            if (stage == PRIORITY_STAGE_READY)
                 return readyDialogue != null && readyDialogue.Length > 0;
             
             return false;
@@ -136,14 +138,21 @@ using UnityEngine;
         /// </summary>
         private DialogueEntry[] GetDialogueForState(DialogueEntry[] readyDialogue, DialogueEntry[] completeDialogue)
         {
-            if (isComplete)
+            int stage = ClampToRevealedStage(GetTargetStage());
+            if (stage == PRIORITY_STAGE_COMPLETE)
                 return completeDialogue;
             
-            if (fetchedAll)
+            if (stage == PRIORITY_STAGE_READY)
                 return readyDialogue;
             
             return null;
         }
+
+        // 0 = nothing revealed, 1 = ready dialogue revealed, 2 = complete dialogue revealed.
+        private const int PRIORITY_STAGE_READY = 1;
+        private const int PRIORITY_STAGE_COMPLETE = 2;
+
+        private int GetTargetStage() => isComplete ? PRIORITY_STAGE_COMPLETE : (fetchedAll ? PRIORITY_STAGE_READY : 0);
         
         #endregion
 
@@ -326,13 +335,17 @@ using UnityEngine;
         public bool fetchedAll = false;
         private void CheckCompletion(DialogueTrigger interactedNPC)
         {
-            if (!fetchedAll) return;
-            if (isComplete) return;
-
             DialogueTrigger targetNPC = (useAlternateNPC && alternateNPC != null) ? alternateNPC : questGiver;
 
-            if (targetNPC == null) return;
-            if (interactedNPC != targetNPC) return;
+            if (targetNPC == null || interactedNPC != targetNPC) return;
+
+            // Reveal at most one additional dialogue tier per interaction with this NPC, so a
+            // quest that was already fetched/complete before ever being given still plays out
+            // base -> ready -> complete dialogue instead of jumping straight to "complete".
+            AdvanceRevealedDialogueStage();
+
+            if (!fetchedAll) return;
+            if (isComplete) return;
             
             CompleteObjective();
         }
@@ -391,6 +404,8 @@ using UnityEngine;
 
         public override void RestoreState(ObjectiveSaveState state)
         {
+            base.RestoreState(state);
+
             RefreshCachedTotal();
 
             numCompleted = state.numCompleted;

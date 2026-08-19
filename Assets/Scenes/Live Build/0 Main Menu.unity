@@ -1123,6 +1123,7 @@ MonoBehaviour:
   canvasRectTransform: {fileID: 545318536}
   cursorSpeed: 1250
   padding: 35
+  stickDeadzone: 0.15
 --- !u!4 &1468273667
 Transform:
   m_ObjectHideFlags: 0
@@ -1366,6 +1367,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1913432804551430183, guid: 040204a8d72dcd94daf72b92d2a52de5,
+        type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1913432804606184286, guid: 040204a8d72dcd94daf72b92d2a52de5,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
@@ -1440,32 +1446,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 040204a8d72dcd94daf72b92d2a52de5, type: 3}
---- !u!1 &1814705213 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2536014238896151549, guid: 74066245bd0384681a0fff3efad21a9d,
-    type: 3}
-  m_PrefabInstance: {fileID: 411366525}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1814705219
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1814705213}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af4404da01888154284171315359c747, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  showDebug: 0
 --- !u!114 &1814705224 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2536014238896151548, guid: 74066245bd0384681a0fff3efad21a9d,
     type: 3}
   m_PrefabInstance: {fileID: 411366525}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1814705213}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: df109963fc6f74b948da13d3868372ac, type: 3}

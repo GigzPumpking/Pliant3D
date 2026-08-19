@@ -1219,6 +1219,18 @@ MonoBehaviour:
   - {fileID: 4753117090239300468}
   - {fileID: 1874315711}
   hideCompletedInteractablesOnRestore: 1
+  returnNPC: {fileID: 1068848482}
+  requiresNPCReturn: 1
+  readyDialogue:
+  - defaultText: Wow! Thanks for breaking the cobwebs!
+    hasDeviceSpecificText: 0
+    keyboardText: 
+    controllerText: 
+  completeDialogue:
+  - defaultText: Goodbye cobwebs!
+    hasDeviceSpecificText: 0
+    keyboardText: 
+    controllerText: 
 --- !u!1 &50017416
 GameObject:
   m_ObjectHideFlags: 0
@@ -8281,6 +8293,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7831745178195359559, guid: 74066245bd0384681a0fff3efad21a9d,
+        type: 3}
+      propertyPath: showDebug
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8359279083094782826, guid: 74066245bd0384681a0fff3efad21a9d,
         type: 3}
       propertyPath: m_SizeDelta.x
@@ -12540,6 +12557,10 @@ MonoBehaviour:
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 1827520570}
+  returnNPC: {fileID: 0}
+  requiresNPCReturn: 0
+  readyDialogue: []
+  completeDialogue: []
 --- !u!43 &709586078
 Mesh:
   m_ObjectHideFlags: 0
@@ -18634,6 +18655,10 @@ MonoBehaviour:
   - {fileID: 1413968840}
   anyObjectToLocation: 0
   setNumberOfNeeded: 3
+  returnNPC: {fileID: 0}
+  requiresNPCReturn: 0
+  readyDialogue: []
+  completeDialogue: []
 --- !u!1001 &1062143229
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19058,6 +19083,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 89b2ae7bccf9f426999e81c797e9ff4e, type: 3}
+--- !u!114 &1068848482 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
+    type: 3}
+  m_PrefabInstance: {fileID: 1068848481}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b3bf43e44d6246e8a2a29751ea654ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1074064732
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20355,6 +20392,18 @@ MonoBehaviour:
   autoCheckChildrenForNodes: 1
   targetLocations:
   - {fileID: 2033030696}
+  returnNPC: {fileID: 1601788058}
+  requiresNPCReturn: 0
+  readyDialogue:
+  - defaultText: Test
+    hasDeviceSpecificText: 0
+    keyboardText: 
+    controllerText: 
+  completeDialogue:
+  - defaultText: Test 2
+    hasDeviceSpecificText: 0
+    keyboardText: 
+    controllerText: 
 --- !u!1001 &1116069285
 PrefabInstance:
   m_ObjectHideFlags: 0

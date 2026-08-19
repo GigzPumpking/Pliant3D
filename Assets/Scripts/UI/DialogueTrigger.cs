@@ -390,8 +390,9 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
         foreach (Objective objective in objectiveToGive)
         {
             if (!objective) continue;
-            if (objective.isComplete) continue;
 
+            // Objectives completed before ever being given (e.g. conditions met before the
+            // player talked to the quest giver) must still be assigned to the agenda.
             if (!objectiveGiven || !IsObjectiveUITracked(objective))
             {
                 objectivesToAdd.Add(objective);

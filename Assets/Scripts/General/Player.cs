@@ -567,11 +567,13 @@ public class Player : KeyActionReceiver<Player>
     }
 
     void InputHandler() {
+#if UNITY_EDITOR
         for (int i = 1; i <= areaPositions.Length; i++) {
             if (Input.GetKeyDown(KeyCode.Alpha0 + i)) {
                 moveToArea(i - 1);
             }
         }
+#endif
         
         if (InputManager.Instance && InputManager.Instance.isListening) {
             return;

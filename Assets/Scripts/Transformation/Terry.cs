@@ -130,7 +130,7 @@ public class Terry : FormScript
         else
         {
             _bubbleSpriteRenderer.sprite = controllerSprite;
-            burningInteractBubble.transform.localScale = _originalBubbleScale;
+            burningInteractBubble.transform.localScale = _originalBubbleScale * 3f;
         }
     }
 
@@ -160,7 +160,7 @@ public class Terry : FormScript
         else
         {
             _holdBubbleSpriteRenderer.sprite = holdControllerSprite;
-            _holdBubbleSpriteRenderer.transform.localScale = _originalHoldBubbleScale;
+            _holdBubbleSpriteRenderer.transform.localScale = _originalHoldBubbleScale * 3f;
         }
     }
 

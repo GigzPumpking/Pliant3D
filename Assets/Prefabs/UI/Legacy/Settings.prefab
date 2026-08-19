@@ -87,6 +87,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5419627776539353749}
   - component: {fileID: 2138226170248597518}
+  - component: {fileID: 4909073261073271372}
   m_Layer: 5
   m_Name: SFXVolume_MuteToggle
   m_TagString: Untagged
@@ -164,6 +165,18 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_IsOn: 1
+--- !u!114 &4909073261073271372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 536249967066734628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b26455c8f6c5754089fd591e4fa8015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &551928438637681017
 GameObject:
   m_ObjectHideFlags: 0
@@ -584,7 +597,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5b42f019d4034f3496da58fccf6b604, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultSelectedUIElement: {fileID: 8305415959695297298}
   resolutionDropdown: {fileID: 2314213720097228809}
   applyButton: {fileID: 3999479539595881708}
   canvasScaler: {fileID: 0}
@@ -1356,6 +1368,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1466387913597242171}
   - component: {fileID: 6558190308658373739}
+  - component: {fileID: 3272082430180869657}
   m_Layer: 5
   m_Name: GlobalVolume_MuteToggle
   m_TagString: Untagged
@@ -1433,6 +1446,18 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_IsOn: 1
+--- !u!114 &3272082430180869657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2335084533619995020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f6ed17a6c4ab8c41ae7043302000714, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2359489312099330072
 GameObject:
   m_ObjectHideFlags: 0
@@ -1720,6 +1745,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5085070952975684094}
   - component: {fileID: 5634829914764237516}
+  - component: {fileID: 8492027819664955514}
   m_Layer: 5
   m_Name: MusicVolume_MuteToggle
   m_TagString: Untagged
@@ -1795,8 +1821,32 @@ MonoBehaviour:
   m_Group: {fileID: 0}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 1
+--- !u!114 &8492027819664955514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2831953499096087442}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0e323880e21a9c4696196d82d57978d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2852532529646640060
 GameObject:
   m_ObjectHideFlags: 0
@@ -3646,6 +3696,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6138362986236844597}
   - component: {fileID: 1033036353822771618}
+  - component: {fileID: 4865448067252465905}
   m_Layer: 5
   m_Name: Slider
   m_TagString: Untagged
@@ -3727,6 +3778,18 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4865448067252465905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5443332192707404668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b35a46664e6467469f0b5c3b08e538c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5549205751697396033
 GameObject:
   m_ObjectHideFlags: 0

@@ -110,8 +110,11 @@ public class AudioManager : MonoBehaviour
             for (int i = activeSources.Count - 1; i >= 0; i--)
             {
                 AudioSource src = activeSources[i];
-                src.Stop();
-                AudioPool.Instance.ReturnAudioSource(src);
+                if (src != null)
+                {
+                    src.Stop();
+                    AudioPool.Instance.ReturnAudioSource(src);
+                }
                 activeSources.RemoveAt(i);
             }
         }
@@ -202,6 +205,11 @@ public class AudioManager : MonoBehaviour
         if (data == null || data.clip == null) return;
         for (int i = activeSources.Count - 1; i >= 0; i--)
         {
+            if (activeSources[i] == null)
+            {
+                activeSources.RemoveAt(i);
+                continue;
+            }
             if (activeSources[i].clip == data.clip)
             {
                 activeSources[i].Stop();
@@ -367,6 +375,7 @@ public class AudioManager : MonoBehaviour
     private IEnumerator ReturnAfterPlay(AudioSource source, float delay, Transform parent)
     {
         yield return new WaitForSeconds(delay);
+        if (source == null) yield break; // destroyed alongside a scene unload before it could be returned
         if (parent == null)
         {
             source.transform.SetParent(null);

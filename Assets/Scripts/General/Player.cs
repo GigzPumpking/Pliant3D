@@ -273,6 +273,11 @@ public class Player : KeyActionReceiver<Player>
             airborneGraceTimer -= Time.deltaTime;
         }
 
+        if (transformationWheel.gameObject.activeSelf)
+        {
+            canMoveToggle(false);
+        }
+
         if (canMove)
         {
             InputHandler();

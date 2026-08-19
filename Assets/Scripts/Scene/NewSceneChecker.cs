@@ -61,15 +61,13 @@ public class NewSceneChecker : MonoBehaviour
         }
     }
 
-    bool hasBeenCalled = false;
     void Update()
     {
         if(Input.GetKeyDown(KeyCode.E)
-            && !hasBeenCalled 
             && NextScene != null )
         {
+            Debug.Log("Calling LoadNextScene from NewSceneChecker");
             CallLoadNextScene();
-            hasBeenCalled = true;
         }
 
         if (!transitionText) return;
@@ -80,6 +78,8 @@ public class NewSceneChecker : MonoBehaviour
     public void CallLoadNextScene()
     {
         if (!LoadingScreen.LoadingScreenActive) return;
+
+        Debug.Log("Loading next scene");
 
         if (NextScene != null)
         {

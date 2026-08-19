@@ -292,7 +292,7 @@ public class GameManager : KeyActionReceiver<GameManager>
 
         AudioManager.Instance.StopMusic();
         AudioManager.Instance.DeleteCurrentMusicSources();
-        AudioManager.Instance.PlayMainAmbience();
+        AudioManager.Instance.PlayMainTheme();
         AudioManager.Instance.PlayMainAmbience();
     }
 

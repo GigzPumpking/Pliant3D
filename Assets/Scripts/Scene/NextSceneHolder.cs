@@ -7,6 +7,8 @@ public class NextSceneHolder : MonoBehaviour
     [Header("Dependency")]
     [Tooltip("Optional. If assigned, this trigger will only work after the referenced AnimTrigger has been triggered.")]
     [SerializeField] private AnimTrigger requiredAnimTrigger;
+    [Tooltip("If enabled, load the next scene as soon as the required AnimTrigger fires instead of waiting for the player's collider to enter this trigger.")]
+    [SerializeField] private bool triggerOnAnimTrigger = false;
 
     [Header("Objective Sync")]
     [Tooltip("Optional. Assign the ObjectiveNode for the 'Clock Out' task to ensure it completes before transitioning.")]
@@ -20,7 +22,7 @@ public class NextSceneHolder : MonoBehaviour
     {
         // Don't wait for the player's collider when a required AnimTrigger is assigned -
         // fire the next scene logic as soon as that trigger fires.
-        if (requiredAnimTrigger != null && requiredAnimTrigger.IsTriggered && !Collided)
+        if (triggerOnAnimTrigger && requiredAnimTrigger != null && requiredAnimTrigger.IsTriggered && !Collided)
         {
             LoadNextScene();
             Collided = true;

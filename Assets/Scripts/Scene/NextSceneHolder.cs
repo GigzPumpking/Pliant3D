@@ -16,6 +16,17 @@ public class NextSceneHolder : MonoBehaviour
     private bool Collided = false;
     private float lastLoadTime = float.MinValue;
 
+    void Update()
+    {
+        // Don't wait for the player's collider when a required AnimTrigger is assigned -
+        // fire the next scene logic as soon as that trigger fires.
+        if (requiredAnimTrigger != null && requiredAnimTrigger.IsTriggered && !Collided)
+        {
+            LoadNextScene();
+            Collided = true;
+        }
+    }
+
     public void LoadNextScene()
     {
         if (Time.unscaledTime - lastLoadTime < 3f) return;

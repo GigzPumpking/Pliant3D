@@ -303,12 +303,6 @@ public class Player : KeyActionReceiver<Player>
             GameManager.Instance?.GameOver();
         }
 
-        // Should be redundancy check
-        if (System.Array.IndexOf(outOfBoundsExcludedScenes, SceneManager.GetActiveScene().name) >= 0)
-        {
-            canMoveToggle(false);
-        }
-
         UpdateAnimationBasedDirection();
     }
 
@@ -700,6 +694,10 @@ public class Player : KeyActionReceiver<Player>
         if (outOfBoundsExcludedScenes.Contains(SceneManager.GetActiveScene().name) && canMove)
         {
             canMoveToggle(false);
+        }
+        else
+        {
+            canMoveToggle(true);
         }
     }
 

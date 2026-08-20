@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -287,6 +288,11 @@ public class Player : KeyActionReceiver<Player>
         { 
             isMoving = false;
             calculatedMoveDir = Vector3.zero;
+            if (!isMoving && WalkSoundActive)
+            {
+                selectedGroupScript.EndWalkSound();
+                WalkSoundActive = false;
+            }
         }
 
         if (transform.position.y < outOfBoundsY && !GameManager.Instance.isGameOver
@@ -295,6 +301,12 @@ public class Player : KeyActionReceiver<Player>
             Debug.LogWarning("s::" + SceneManager.GetActiveScene().name);
             Debug.LogWarning("Game Over from Player.cs");
             GameManager.Instance?.GameOver();
+        }
+
+        // Should be redundancy check
+        if (System.Array.IndexOf(outOfBoundsExcludedScenes, SceneManager.GetActiveScene().name) >= 0)
+        {
+            canMoveToggle(false);
         }
 
         UpdateAnimationBasedDirection();
@@ -684,6 +696,11 @@ public class Player : KeyActionReceiver<Player>
         isGrounded = true;
         isJumping = false;
         airborneGraceTimer = 0f;
+
+        if (outOfBoundsExcludedScenes.Contains(SceneManager.GetActiveScene().name) && canMove)
+        {
+            canMoveToggle(false);
+        }
     }
 
     public void Smoke() {

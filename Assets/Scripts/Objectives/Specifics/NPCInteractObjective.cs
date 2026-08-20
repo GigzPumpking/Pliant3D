@@ -15,7 +15,7 @@ public class NPCInteractObjective : Objective {
         DialogueTrigger.InteractedObjective -= CheckCompletion;
     }
 
-    private void CheckCompletion(DialogueTrigger trigger)
+    private void CheckCompletion(DialogueTrigger trigger, IDialogueProvider shownProvider)
     {
         if (trigger != npcToInteractWith)
         {

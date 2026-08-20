@@ -30,6 +30,10 @@ using UnityEngine;
         public bool HasDialogue => sourceObjective != null && (useAlternateDialogue ? sourceObjective.HasAlternateNPCDialogue() : sourceObjective.HasDialogue);
         
         public DialogueEntry[] GetDialogueEntries() => sourceObjective == null ? null : (useAlternateDialogue ? sourceObjective.GetAlternateNPCDialogueEntries() : sourceObjective.GetDialogueEntries()); 
+
+        public int EligibilityOrder => sourceObjective?.EligibilityOrder ?? -1;
+
+        public bool ReadyDialogueShown => sourceObjective?.ReadyDialogueShown ?? true;
     }
 
     public class FetchObjective : Objective, IDialogueProvider
@@ -91,7 +95,7 @@ using UnityEngine;
         {
             get
             {
-                int stage = ClampToRevealedStage(GetTargetStage());
+                int stage = ResolveDialogueStage(GetTargetStage());
                 if (stage == PRIORITY_STAGE_COMPLETE)
                     return PRIORITY_COMPLETE;
                 
@@ -105,6 +109,10 @@ using UnityEngine;
         public bool HasDialogue => HasDialogueForState(itemsReadyDialogue, questCompleteDialogue);
         
         public DialogueEntry[] GetDialogueEntries() => GetDialogueForState(itemsReadyDialogue, questCompleteDialogue);
+
+        public int EligibilityOrder => DialogueEligibilityOrder;
+
+        public bool ReadyDialogueShown => HasShownReadyDialogue;
         
         #endregion
         
@@ -123,7 +131,7 @@ using UnityEngine;
         /// </summary>
         private bool HasDialogueForState(DialogueEntry[] readyDialogue, DialogueEntry[] completeDialogue)
         {
-            int stage = ClampToRevealedStage(GetTargetStage());
+            int stage = ResolveDialogueStage(GetTargetStage());
             if (stage == PRIORITY_STAGE_COMPLETE)
                 return completeDialogue != null && completeDialogue.Length > 0;
             
@@ -138,7 +146,7 @@ using UnityEngine;
         /// </summary>
         private DialogueEntry[] GetDialogueForState(DialogueEntry[] readyDialogue, DialogueEntry[] completeDialogue)
         {
-            int stage = ClampToRevealedStage(GetTargetStage());
+            int stage = ResolveDialogueStage(GetTargetStage());
             if (stage == PRIORITY_STAGE_COMPLETE)
                 return completeDialogue;
             
@@ -333,16 +341,21 @@ using UnityEngine;
         }
 
         public bool fetchedAll = false;
-        private void CheckCompletion(DialogueTrigger interactedNPC)
+        private void CheckCompletion(DialogueTrigger interactedNPC, IDialogueProvider shownProvider)
         {
             DialogueTrigger targetNPC = (useAlternateNPC && alternateNPC != null) ? alternateNPC : questGiver;
 
             if (targetNPC == null || interactedNPC != targetNPC) return;
 
-            // Reveal at most one additional dialogue tier per interaction with this NPC, so a
-            // quest that was already fetched/complete before ever being given still plays out
-            // base -> ready -> complete dialogue instead of jumping straight to "complete".
-            AdvanceRevealedDialogueStage();
+            // Our provider is either a dedicated proxy on the NPC, or this objective itself when
+            // the quest giver's GameObject is the same as this objective's.
+            IDialogueProvider expectedProvider = useAlternateNPC
+                ? (IDialogueProvider)alternateNPCProxy
+                : (questGiverProxy != null ? (IDialogueProvider)questGiverProxy : this);
+            if (shownProvider != expectedProvider) return; // another objective's dialogue was shown this time
+
+            // Only mark our own stage as shown once our own dialogue was actually displayed.
+            MarkDialogueStageShown(ResolveDialogueStage(GetTargetStage()));
 
             if (!fetchedAll) return;
             if (isComplete) return;
@@ -362,6 +375,7 @@ using UnityEngine;
             if (!fetchedAll)
             {
                 fetchedAll = true;
+                _ = DialogueEligibilityOrder; // stamp this objective's place in the return-dialogue order now
                 RefreshNPCDialogue();
                 UpdateObjectiveDescriptionUI();
 

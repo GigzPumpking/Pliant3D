@@ -53,7 +53,7 @@ public class AbilityPerformedObjective : Objective, IDialogueProvider
     {
         get
         {
-            int stage = ClampToRevealedStage(GetTargetStage());
+            int stage = ResolveDialogueStage(GetTargetStage());
             if (stage == STAGE_COMPLETE) return PRIORITY_COMPLETE;
             if (stage == STAGE_READY) return PRIORITY_READY;
             return -1;
@@ -64,7 +64,7 @@ public class AbilityPerformedObjective : Objective, IDialogueProvider
     {
         get
         {
-            int stage = ClampToRevealedStage(GetTargetStage());
+            int stage = ResolveDialogueStage(GetTargetStage());
             if (stage == STAGE_COMPLETE) return completeDialogue != null && completeDialogue.Length > 0;
             if (stage == STAGE_READY) return readyDialogue != null && readyDialogue.Length > 0;
             return false;
@@ -73,11 +73,15 @@ public class AbilityPerformedObjective : Objective, IDialogueProvider
 
     public DialogueEntry[] GetDialogueEntries()
     {
-        int stage = ClampToRevealedStage(GetTargetStage());
+        int stage = ResolveDialogueStage(GetTargetStage());
         if (stage == STAGE_COMPLETE) return completeDialogue;
         if (stage == STAGE_READY) return readyDialogue;
         return null;
     }
+
+    public int EligibilityOrder => DialogueEligibilityOrder;
+
+    public bool ReadyDialogueShown => HasShownReadyDialogue;
 
     #endregion
 
@@ -132,15 +136,14 @@ public class AbilityPerformedObjective : Objective, IDialogueProvider
         returnNPC.RefreshDialogueProviders();
     }
 
-    private void OnReturnNPCInteracted(DialogueTrigger interactedNPC)
+    private void OnReturnNPCInteracted(DialogueTrigger interactedNPC, IDialogueProvider shownProvider)
     {
         if (returnNPC == null) return;
         if (interactedNPC != returnNPC) return;
+        if (shownProvider != returnNPCProxy) return; // another objective's dialogue was shown this time
 
-        // Reveal at most one additional dialogue tier per interaction with this NPC, so an
-        // objective completed before it was ever given still plays out base -> ready -> complete
-        // dialogue instead of jumping straight to "complete".
-        AdvanceRevealedDialogueStage();
+        // Only mark our own stage as shown once our own dialogue was actually displayed.
+        MarkDialogueStageShown(ResolveDialogueStage(GetTargetStage()));
 
         if (!readyForReturn) return;
         if (isComplete) return;
@@ -199,6 +202,7 @@ public class AbilityPerformedObjective : Objective, IDialogueProvider
         if (!readyForReturn)
         {
             readyForReturn = true;
+            _ = DialogueEligibilityOrder; // stamp this objective's place in the return-dialogue order now
             EnsureReturnNPCProxy();
         }
 

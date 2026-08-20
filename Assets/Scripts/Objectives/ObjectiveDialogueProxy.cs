@@ -19,4 +19,8 @@ public class ObjectiveDialogueProxy : MonoBehaviour, IDialogueProvider
     public bool HasDialogue => source != null && source.HasDialogue;
 
     public DialogueEntry[] GetDialogueEntries() => source?.GetDialogueEntries();
+
+    public int EligibilityOrder => source?.EligibilityOrder ?? -1;
+
+    public bool ReadyDialogueShown => source?.ReadyDialogueShown ?? true;
 }

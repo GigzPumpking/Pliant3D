@@ -20,18 +20,46 @@ public class Objective : MonoBehaviour, IObjective {
     [Tooltip("If false, this task is ignored by the GameManager's proficiency score (e.g., Tutorials).")]
     public bool countsTowardsProficiency = true;
 
-    // How much of the ready/complete return-dialogue progression has been shown to the player
-    // (0 = none, 1 = ready, 2 = complete). Advances by at most one tier per NPC interaction so an
-    // NPC never skips straight to "complete" dialogue when conditions were met before the quest
-    // was ever given (e.g. an objective completed before it was assigned).
+    // How much of the ready/complete return-dialogue progression has actually been shown to the
+    // player (0 = none, 1 = ready, 2 = complete). Only ever set when THIS objective's own dialogue
+    // was the one displayed, via MarkDialogueStageShown - never advances just because the player
+    // talked to the shared NPC about something else.
     protected int revealedDialogueStage = 0;
 
-    protected void AdvanceRevealedDialogueStage()
+    // Global order in which objectives become eligible for return dialogue (ready or complete),
+    // used to sequence multiple objectives that share the same return NPC: whichever became
+    // eligible first gets its Ready dialogue shown first.
+    private static int nextDialogueEligibilityOrder = 0;
+    private int dialogueEligibilityOrder = -1;
+
+    protected int DialogueEligibilityOrder
     {
-        revealedDialogueStage = Math.Min(revealedDialogueStage + 1, 2);
+        get
+        {
+            if (dialogueEligibilityOrder < 0) dialogueEligibilityOrder = nextDialogueEligibilityOrder++;
+            return dialogueEligibilityOrder;
+        }
     }
 
-    protected int ClampToRevealedStage(int targetStage) => Math.Min(targetStage, revealedDialogueStage);
+    protected bool HasShownReadyDialogue => revealedDialogueStage >= 1;
+
+    // Marks that the given stage (1 = ready, 2 = complete) has now actually been shown to the
+    // player. The stage only ever increases, so an already-revealed tier is never "unshown".
+    protected void MarkDialogueStageShown(int stage)
+    {
+        revealedDialogueStage = Math.Max(revealedDialogueStage, stage);
+    }
+
+    // Resolves which stage to actually display: forces "ready" (1) first if this objective's
+    // target jumped straight to "complete" (2) before its ready dialogue was ever shown, so a
+    // quest completed before it was even given still plays ready -> complete instead of skipping
+    // straight to complete.
+    protected int ResolveDialogueStage(int targetStage)
+    {
+        if (targetStage <= 0) return 0;
+        if (targetStage >= 2 && !HasShownReadyDialogue) return 1;
+        return targetStage;
+    }
 
     internal void InvokeCompletionEvents()
     {

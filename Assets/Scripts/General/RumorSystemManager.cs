@@ -225,6 +225,10 @@ public class RumorSystemManager : MonoBehaviour
         target.fontStyle = source.FontStyle;
         target.fontSize = source.FontSize;
         target.alignment = source.Alignment;
+        target.characterSpacing = source.CharacterSpacing;
+        target.wordSpacing = source.WordSpacing;
+        target.lineSpacing = source.LineSpacing;
+        target.paragraphSpacing = source.ParagraphSpacing;
     }
     
     /// <summary>

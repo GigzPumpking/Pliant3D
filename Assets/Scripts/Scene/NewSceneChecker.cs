@@ -66,7 +66,6 @@ public class NewSceneChecker : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.E)
             && NextScene != null )
         {
-            Debug.Log("Calling LoadNextScene from NewSceneChecker");
             CallLoadNextScene();
         }
 

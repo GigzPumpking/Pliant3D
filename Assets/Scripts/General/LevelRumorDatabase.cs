@@ -23,11 +23,27 @@ public class LevelRumorDatabase : ScriptableObject
         [Tooltip("Text alignment.")]
         [SerializeField] private TextAlignmentOptions alignment = TextAlignmentOptions.Center;
 
+        [Tooltip("Spacing between characters (in TMP relative points).")]
+        [SerializeField] private float characterSpacing = 0f;
+
+        [Tooltip("Spacing between words (in TMP relative points).")]
+        [SerializeField] private float wordSpacing = 0f;
+
+        [Tooltip("Spacing between lines (in TMP relative points).")]
+        [SerializeField] private float lineSpacing = 0f;
+
+        [Tooltip("Spacing between paragraphs (in TMP relative points).")]
+        [SerializeField] private float paragraphSpacing = 0f;
+
         public string Text => text;
         public TMP_FontAsset Font => font;
         public FontStyles FontStyle => fontStyle;
         public float FontSize => fontSize;
         public TextAlignmentOptions Alignment => alignment;
+        public float CharacterSpacing => characterSpacing;
+        public float WordSpacing => wordSpacing;
+        public float LineSpacing => lineSpacing;
+        public float ParagraphSpacing => paragraphSpacing;
     }
 
     [System.Serializable]

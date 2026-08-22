@@ -55,7 +55,7 @@ public class GamepadCursor : MonoBehaviour
         }
         else if (!virtualMouse.added)
         {
-            InputSystem.AddDevice("VirtualMouse");
+            InputSystem.AddDevice(virtualMouse);
         }
         
         InputUser.PerformPairingWithDevice(virtualMouse, playerInput.user);

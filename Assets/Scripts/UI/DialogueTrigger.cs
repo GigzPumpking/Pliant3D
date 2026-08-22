@@ -55,8 +55,6 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
     [Header("Interact Bubble")]
     public GameObject interactBubble;
     public GameObject terryRequired;
-    [SerializeField] private Sprite keyboardSprite;
-    [SerializeField] private Sprite controllerSprite;
     
     [Header("Objectives")]
     [SerializeField] private List<Objective> objectiveToGive = new List<Objective>();
@@ -632,11 +630,11 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
 
         if (isKeyboard)
         {
-            _bubbleSpriteRenderer.sprite = keyboardSprite;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Keyboard;
         }
         else
         {
-            _bubbleSpriteRenderer.sprite = controllerSprite;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Controller;
         }
 
     }

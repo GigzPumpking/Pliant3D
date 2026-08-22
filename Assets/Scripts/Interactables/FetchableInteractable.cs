@@ -14,8 +14,6 @@ public class FetchableInteractable : Interactable, IInteractable, IFetchable
     [Header("Interact Bubble")]
     [Tooltip("The interact bubble GameObject positioned on this object.")]
     [SerializeField] private GameObject interactBubble;
-    [SerializeField] private Sprite keyboardSprite;
-    [SerializeField] private Sprite controllerSprite;
     
     [Header("Interaction Settings")]
     [Tooltip("Maximum distance from which the player can interact. Set to 0 to use the global default.")]
@@ -196,11 +194,11 @@ public class FetchableInteractable : Interactable, IInteractable, IFetchable
 
         if (isKeyboard)
         {
-            _bubbleSpriteRenderer.sprite = keyboardSprite;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Keyboard;
         }
         else
         {
-            _bubbleSpriteRenderer.sprite = controllerSprite;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Controller;
         }
     }
 

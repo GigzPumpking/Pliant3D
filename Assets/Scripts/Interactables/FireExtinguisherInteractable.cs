@@ -17,8 +17,6 @@ public class FireExtinguisherInteractable : MonoBehaviour, IInteractable, IFetch
     [Header("Interact Bubble")]
     [Tooltip("The interact bubble GameObject positioned on this object.")]
     [SerializeField] private GameObject interactBubble;
-    [SerializeField] private Sprite keyboardSprite;
-    [SerializeField] private Sprite controllerSprite;
     [SerializeField] private AudioData interactBubbleSound;
     [SerializeField] private AudioData pickUpSound;
 
@@ -173,11 +171,11 @@ public class FireExtinguisherInteractable : MonoBehaviour, IInteractable, IFetch
 
         if (isKeyboard)
         {
-            _bubbleSpriteRenderer.sprite = keyboardSprite;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Keyboard;
         }
         else
         {
-            _bubbleSpriteRenderer.sprite = controllerSprite;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Controller;
         }
     }
 }

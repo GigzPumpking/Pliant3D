@@ -26,8 +26,6 @@ public class AnimTrigger : MonoBehaviour, IInteractable
 
     [Tooltip("Interact bubble shown while the player is inside the trigger volume and can interact.")]
     [SerializeField] private GameObject interactBubble;
-    [SerializeField] private Sprite keyboardSprite;
-    [SerializeField] private Sprite controllerSprite;
 
     [Header("Audio (Optional)")]
     [Tooltip("Optional ambient sound that loops for as long as this object is enabled. Leave the clip empty to skip.")]
@@ -302,11 +300,11 @@ public class AnimTrigger : MonoBehaviour, IInteractable
 
         if (isKeyboard)
         {
-            _bubbleSpriteRenderer.sprite = keyboardSprite;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Keyboard;
         }
         else
         {
-            _bubbleSpriteRenderer.sprite = controllerSprite;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Controller;
         }
     }
 }

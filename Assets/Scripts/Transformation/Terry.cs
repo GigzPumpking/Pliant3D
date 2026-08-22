@@ -17,8 +17,6 @@ public class Terry : FormScript
     [Header("Burning Interact Bubble")]
     [Tooltip("The interact bubble shown on Terry when a Burning object is in range.")]
     [SerializeField] private GameObject burningInteractBubble;
-    [SerializeField] private Sprite keyboardSprite;
-    [SerializeField] private Sprite controllerSprite;
 
     [Header("Extinguish Progress Bar")]
     [Tooltip("Slider displayed beneath Terry to show hold-to-extinguish progress. Assign the slider that is a child of Terry's world-space canvas.")]
@@ -32,8 +30,6 @@ public class Terry : FormScript
     [Header("Hold to Extinguish Bubble")]
     [Tooltip("Shown during the extinguish minigame prompting the player to hold the interact button.")]
     [SerializeField] private GameObject holdExtinguishBubble;
-    [SerializeField] private Sprite holdKeyboardSprite;
-    [SerializeField] private Sprite holdControllerSprite;
 
     private SpriteRenderer _holdBubbleSpriteRenderer;
 
@@ -110,11 +106,11 @@ public class Terry : FormScript
 
         if (isKeyboard)
         {
-            _bubbleSpriteRenderer.sprite = keyboardSprite;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Keyboard;
         }
         else
         {
-            _bubbleSpriteRenderer.sprite = controllerSprite;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Controller;
         }
 
     }
@@ -132,11 +128,11 @@ public class Terry : FormScript
                        || InputManager.Instance?.ActiveDeviceType == "Mouse";
         if (isKeyboard)
         {
-            _holdBubbleSpriteRenderer.sprite = holdKeyboardSprite;
+            _holdBubbleSpriteRenderer.sprite = InteractBubbleIcons.HoldKeyboard;
         }
         else
         {
-            _holdBubbleSpriteRenderer.sprite = holdControllerSprite;
+            _holdBubbleSpriteRenderer.sprite = InteractBubbleIcons.HoldController;
         }
     }
 

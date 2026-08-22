@@ -15,6 +15,9 @@ public class ObjectsToLocationsObjective : Objective, IDialogueProvider {
     [Tooltip("Leave 0 if you want all objects to be placed")]
     public int setNumberOfNeeded;
 
+    [Tooltip("If true, target location nodes that were already completed before a level reset or save load will be hidden on restore, preventing them from blocking the player.")]
+    [SerializeField] private bool hideCompletedInteractablesOnRestore = false;
+
     private int numCompleted = 0;
     private int cachedTotal;
 
@@ -291,6 +294,10 @@ public class ObjectsToLocationsObjective : Objective, IDialogueProvider {
             if (savedPaths.Contains(GetNodePath(node)))
             {
                 node.SetCompleteSilently();
+                if (hideCompletedInteractablesOnRestore)
+                {
+                    node.gameObject.SetActive(false);
+                }
             }
         }
 

@@ -107,6 +107,16 @@ public class Terry : FormScript
 
         bool isKeyboard = InputManager.Instance?.ActiveDeviceType == "Keyboard"
                        || InputManager.Instance?.ActiveDeviceType == "Mouse";
+
+        if (isKeyboard)
+        {
+            _bubbleSpriteRenderer.sprite = keyboardSprite;
+        }
+        else
+        {
+            _bubbleSpriteRenderer.sprite = controllerSprite;
+        }
+
     }
 
     private void UpdateHoldBubbleSprite()
@@ -120,6 +130,14 @@ public class Terry : FormScript
 
         bool isKeyboard = InputManager.Instance?.ActiveDeviceType == "Keyboard"
                        || InputManager.Instance?.ActiveDeviceType == "Mouse";
+        if (isKeyboard)
+        {
+            _holdBubbleSpriteRenderer.sprite = holdKeyboardSprite;
+        }
+        else
+        {
+            _holdBubbleSpriteRenderer.sprite = holdControllerSprite;
+        }
     }
 
     public override void Ability1(InputAction.CallbackContext context)

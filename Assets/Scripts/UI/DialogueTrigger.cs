@@ -630,6 +630,15 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
         bool isKeyboard = InputManager.Instance?.ActiveDeviceType == "Keyboard" 
                        || InputManager.Instance?.ActiveDeviceType == "Mouse";
 
+        if (isKeyboard)
+        {
+            _bubbleSpriteRenderer.sprite = keyboardSprite;
+        }
+        else
+        {
+            _bubbleSpriteRenderer.sprite = controllerSprite;
+        }
+
     }
     
     /// <summary>

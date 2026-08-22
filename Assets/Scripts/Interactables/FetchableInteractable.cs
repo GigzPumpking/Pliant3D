@@ -193,6 +193,15 @@ public class FetchableInteractable : Interactable, IInteractable, IFetchable
         
         bool isKeyboard = InputManager.Instance?.ActiveDeviceType == "Keyboard"
                        || InputManager.Instance?.ActiveDeviceType == "Mouse";
+
+        if (isKeyboard)
+        {
+            _bubbleSpriteRenderer.sprite = keyboardSprite;
+        }
+        else
+        {
+            _bubbleSpriteRenderer.sprite = controllerSprite;
+        }
     }
 
     protected override void Highlight()

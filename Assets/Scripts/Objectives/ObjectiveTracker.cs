@@ -393,63 +393,9 @@ public class ObjectiveTracker : MonoBehaviour
 
         PurgeDestroyedReferences();
 
-        int activeListingUICount = objectiveListingsUI.Count(ui => ui);
-
-        // If this is the only visible Objective Listing UI, keep it on screen.
-        if (activeListingUICount <= 1)
-        {
-            Debug.Log("Objective listing completed, but it is the only listing UI present, so it will stay visible.");
-            SetMessyObjectives(messyObjectives);
-            return;
-        }
-
-        int index = objectiveListings.IndexOf(listing);
-
-        if (index < 0)
-        {
-            return;
-        }
-
-        foreach (Objective objective in listing.objectives)
-        {
-            if (objective != null)
-            {
-                ObjectiveListing.ObjectiveToUI.Remove(objective);
-            }
-        }
-
-        GameObject listingUIObject = null;
-
-        if (index < objectiveListingsUI.Count)
-        {
-            listingUIObject = objectiveListingsUI[index];
-        }
-
-        objectiveListings.RemoveAt(index);
-
-        if (index < objectiveListingsUI.Count)
-        {
-            objectiveListingsUI.RemoveAt(index);
-        }
-
-        if (listingUIObject)
-        {
-            Destroy(listingUIObject);
-        }
-
-        listing.objectiveUIList.Clear();
-
-        if (runtimeObjectiveListings.Contains(listing))
-        {
-            runtimeObjectiveListings.Remove(listing);
-
-            if (listing.gameObject)
-            {
-                Destroy(listing.gameObject);
-            }
-        }
-
-        Debug.Log("Destroying completed objective UI listing because more than one listing UI is present.");
+        // Completed listings stay on screen (showing all objectives checked off) instead of being
+        // removed, so their objectives remain reachable for state capture/restore on scene reset.
+        Debug.Log($"Objective listing '{listing.name}' completed and will remain visible.");
 
         SetMessyObjectives(messyObjectives);
     }

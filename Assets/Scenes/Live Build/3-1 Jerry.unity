@@ -1595,8 +1595,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2219622610596261713}
-  - {fileID: 2219622611721024534}
   - {fileID: 2219622611335166624}
+  - {fileID: 2219622611721024534}
   m_Father: {fileID: 0}
   m_RootOrder: 34
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2290,7 +2290,7 @@ PrefabInstance:
     - target: {fileID: 4753117088774275028, guid: 6f85904ba248a4cb9883955b670536e3,
         type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4753117088774275028, guid: 6f85904ba248a4cb9883955b670536e3,
         type: 3}
@@ -2392,6 +2392,11 @@ PrefabInstance:
       propertyPath: highlightColor.r
       value: 0.1764706
       objectReference: {fileID: 0}
+    - target: {fileID: 4770054862137888047, guid: 6f85904ba248a4cb9883955b670536e3,
+        type: 3}
+      propertyPath: linkedObjectAnimator
+      value: 
+      objectReference: {fileID: 1392364729}
     - target: {fileID: 4770054862137888047, guid: 6f85904ba248a4cb9883955b670536e3,
         type: 3}
       propertyPath: properties.Array.size
@@ -6183,9 +6188,7 @@ Transform:
   m_LocalPosition: {x: 34.75, y: 1.6446328, z: 42.91}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 4753117090239300467}
-  - {fileID: 1874315710}
+  m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 24
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -7774,7 +7777,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-271526
+  m_Name: pb_Mesh-4248580
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -11416,6 +11419,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 4753117090239300467}
+  - {fileID: 1874315710}
   - {fileID: 1736335333}
   m_Father: {fileID: 0}
   m_RootOrder: 23
@@ -12581,7 +12586,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-271900
+  m_Name: pb_Mesh-4248954
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -12892,7 +12897,7 @@ PrefabInstance:
         type: 3}
       propertyPath: objectiveToGive.Array.data[0]
       value: 
-      objectReference: {fileID: 1112463490}
+      objectReference: {fileID: 0}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: triggerEventsOnFirstInteractionOnly
@@ -15590,6 +15595,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5473ed6d6b91a45be953a209cb8ae099, type: 2}
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
   colorTargets: []
+  linkedObjectAnimator: {fileID: 0}
+  linkedObjectAnimationTrigger: dust
 --- !u!64 &847398887
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -16829,7 +16836,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-441758
+  m_Name: pb_Mesh-4246564
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -18669,6 +18676,7 @@ MonoBehaviour:
   - {fileID: 1413968840}
   anyObjectToLocation: 0
   setNumberOfNeeded: 3
+  hideCompletedInteractablesOnRestore: 0
   returnNPC: {fileID: 364571502}
   requiresNPCReturn: 0
   readyDialogue:
@@ -20376,7 +20384,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1112463488}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d9e37210b14429d9412d09612eab3e0, type: 3}
+  m_Script: {fileID: 11500000, guid: 2cfa5b0176ed7744b979bd3b0b5f1f5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   description: Turn On the Power
@@ -20411,9 +20419,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   countsTowardsProficiency: 1
-  autoCheckChildrenForNodes: 1
-  targetLocations:
-  - {fileID: 2033030696}
+  animTriggerToInteractWith: {fileID: 2033030688}
   returnNPC: {fileID: 1601788058}
   requiresNPCReturn: 0
   readyDialogue:
@@ -23310,7 +23316,7 @@ PrefabInstance:
     - target: {fileID: 2219622610360318126, guid: 6d5b0abd4b2235348a83ef80db3cae01,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2219622610360318126, guid: 6d5b0abd4b2235348a83ef80db3cae01,
         type: 3}
@@ -23369,6 +23375,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6d5b0abd4b2235348a83ef80db3cae01, type: 3}
+--- !u!95 &1308426767 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 3120352800550349509, guid: 6d5b0abd4b2235348a83ef80db3cae01,
+    type: 3}
+  m_PrefabInstance: {fileID: 1308426766}
+  m_PrefabAsset: {fileID: 0}
 --- !u!95 &1322155559
 Animator:
   serializedVersion: 5
@@ -24575,7 +24587,7 @@ PrefabInstance:
     - target: {fileID: 2219622610360318126, guid: 6d5b0abd4b2235348a83ef80db3cae01,
         type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2219622610360318126, guid: 6d5b0abd4b2235348a83ef80db3cae01,
         type: 3}
@@ -24629,6 +24641,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6d5b0abd4b2235348a83ef80db3cae01, type: 3}
+--- !u!95 &1392364729 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 3120352800550349509, guid: 6d5b0abd4b2235348a83ef80db3cae01,
+    type: 3}
+  m_PrefabInstance: {fileID: 1392364728}
+  m_PrefabAsset: {fileID: 0}
 --- !u!43 &1398933671
 Mesh:
   m_ObjectHideFlags: 0
@@ -29409,6 +29427,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5473ed6d6b91a45be953a209cb8ae099, type: 2}
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
   colorTargets: []
+  linkedObjectAnimator: {fileID: 0}
+  linkedObjectAnimationTrigger: dust
 --- !u!64 &1674027106
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -29628,6 +29648,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5473ed6d6b91a45be953a209cb8ae099, type: 2}
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
   colorTargets: []
+  linkedObjectAnimator: {fileID: 0}
+  linkedObjectAnimationTrigger: dust
 --- !u!114 &1676254606
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33073,7 +33095,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 387545263}
+    m_TransformParent: {fileID: 600938321}
     m_Modifications:
     - target: {fileID: 1184055144, guid: 6f85904ba248a4cb9883955b670536e3, type: 3}
       propertyPath: m_Mass
@@ -33132,17 +33154,17 @@ PrefabInstance:
     - target: {fileID: 4753117088774275028, guid: 6f85904ba248a4cb9883955b670536e3,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 7.46
+      value: -6.760002
       objectReference: {fileID: 0}
     - target: {fileID: 4753117088774275028, guid: 6f85904ba248a4cb9883955b670536e3,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.415367
+      value: 1.1599998
       objectReference: {fileID: 0}
     - target: {fileID: 4753117088774275028, guid: 6f85904ba248a4cb9883955b670536e3,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -18.89
+      value: -48.319996
       objectReference: {fileID: 0}
     - target: {fileID: 4753117088774275028, guid: 6f85904ba248a4cb9883955b670536e3,
         type: 3}
@@ -33214,6 +33236,11 @@ PrefabInstance:
       propertyPath: highlightColor.r
       value: 0.1764706
       objectReference: {fileID: 0}
+    - target: {fileID: 4770054862137888047, guid: 6f85904ba248a4cb9883955b670536e3,
+        type: 3}
+      propertyPath: linkedObjectAnimator
+      value: 
+      objectReference: {fileID: 1308426767}
     - target: {fileID: 4770054862137888047, guid: 6f85904ba248a4cb9883955b670536e3,
         type: 3}
       propertyPath: properties.Array.size
@@ -33428,8 +33455,6 @@ MonoBehaviour:
   properties: []
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
   interactBubble: {fileID: 890410020}
-  keyboardSprite: {fileID: 21300000, guid: fc7bb22339e9e4dc1a918c75a23f2ae1, type: 3}
-  controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}
   interactionDistance: 0
   fetchDialogue:
   - defaultText: USB acquired. **RETURN USB TO JANE.**
@@ -36023,8 +36048,6 @@ MonoBehaviour:
   blockedDialoguePortrait: {fileID: 0}
   useInteractTrigger: 0
   interactBubble: {fileID: 0}
-  keyboardSprite: {fileID: 0}
-  controllerSprite: {fileID: 0}
   ambientSound:
     clip: {fileID: 0}
     volume: 1
@@ -36056,8 +36079,6 @@ MonoBehaviour:
   blockedDialoguePortrait: {fileID: 0}
   useInteractTrigger: 1
   interactBubble: {fileID: 1324964927}
-  keyboardSprite: {fileID: 21300000, guid: fc7bb22339e9e4dc1a918c75a23f2ae1, type: 3}
-  controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}
   ambientSound:
     clip: {fileID: 0}
     volume: 1
@@ -36089,8 +36110,6 @@ MonoBehaviour:
   blockedDialoguePortrait: {fileID: 0}
   useInteractTrigger: 1
   interactBubble: {fileID: 1324964927}
-  keyboardSprite: {fileID: 21300000, guid: fc7bb22339e9e4dc1a918c75a23f2ae1, type: 3}
-  controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}
   ambientSound:
     clip: {fileID: 0}
     volume: 1
@@ -39668,7 +39687,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 387545263}
+    m_TransformParent: {fileID: 600938321}
     m_Modifications:
     - target: {fileID: 1707603340013973031, guid: 62cf2559056dfd7419dcdf0079d85710,
         type: 3}
@@ -39688,17 +39707,17 @@ PrefabInstance:
     - target: {fileID: 5894771568900274610, guid: 62cf2559056dfd7419dcdf0079d85710,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -30.649998
+      value: -44.87
       objectReference: {fileID: 0}
     - target: {fileID: 5894771568900274610, guid: 62cf2559056dfd7419dcdf0079d85710,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.7
+      value: 1.4446325
       objectReference: {fileID: 0}
     - target: {fileID: 5894771568900274610, guid: 62cf2559056dfd7419dcdf0079d85710,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -29.64
+      value: -59.069996
       objectReference: {fileID: 0}
     - target: {fileID: 5894771568900274610, guid: 62cf2559056dfd7419dcdf0079d85710,
         type: 3}
@@ -39775,6 +39794,11 @@ PrefabInstance:
       propertyPath: highlightColor.r
       value: 0.1764706
       objectReference: {fileID: 0}
+    - target: {fileID: 5911742873606245193, guid: 62cf2559056dfd7419dcdf0079d85710,
+        type: 3}
+      propertyPath: linkedObjectAnimator
+      value: 
+      objectReference: {fileID: 3120352800291339578}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 62cf2559056dfd7419dcdf0079d85710, type: 3}
 --- !u!65 &1213081974165221961
@@ -48304,8 +48328,6 @@ MonoBehaviour:
   blockedDialoguePortrait: {fileID: 0}
   useInteractTrigger: 0
   interactBubble: {fileID: 0}
-  keyboardSprite: {fileID: 0}
-  controllerSprite: {fileID: 0}
   ambientSound:
     clip: {fileID: 0}
     volume: 1

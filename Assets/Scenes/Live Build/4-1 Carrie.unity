@@ -680,6 +680,26 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1830922515}
     m_Modifications:
+    - target: {fileID: 8195066666487332555, guid: 09c7b4865b36bed46b2117bd834cc3fc,
+        type: 3}
+      propertyPath: highlightColor.b
+      value: 0.69411767
+      objectReference: {fileID: 0}
+    - target: {fileID: 8195066666487332555, guid: 09c7b4865b36bed46b2117bd834cc3fc,
+        type: 3}
+      propertyPath: highlightColor.g
+      value: 0.13333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 8195066666487332555, guid: 09c7b4865b36bed46b2117bd834cc3fc,
+        type: 3}
+      propertyPath: highlightColor.r
+      value: 0.13725491
+      objectReference: {fileID: 0}
+    - target: {fileID: 8195066666487332555, guid: 09c7b4865b36bed46b2117bd834cc3fc,
+        type: 3}
+      propertyPath: linkedObjectAnimator
+      value: 
+      objectReference: {fileID: 406824055}
     - target: {fileID: 8250151303737445424, guid: 09c7b4865b36bed46b2117bd834cc3fc,
         type: 3}
       propertyPath: m_RootOrder
@@ -740,6 +760,11 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 1178925230}
+    - target: {fileID: 8250151303737445425, guid: 09c7b4865b36bed46b2117bd834cc3fc,
+        type: 3}
+      propertyPath: m_VersionIndex
+      value: 2301
+      objectReference: {fileID: 0}
     - target: {fileID: 8250151303737445428, guid: 09c7b4865b36bed46b2117bd834cc3fc,
         type: 3}
       propertyPath: m_Mesh
@@ -1844,7 +1869,7 @@ PrefabInstance:
         type: 3}
       propertyPath: objectiveToGive.Array.data[0]
       value: 
-      objectReference: {fileID: 1112463490}
+      objectReference: {fileID: 1112463491}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: triggerEventsOnFirstInteractionOnly
@@ -4051,7 +4076,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-1688750
+  m_Name: pb_Mesh-1885598
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -4969,7 +4994,7 @@ PrefabInstance:
     - target: {fileID: 4753117088774275029, guid: 6f85904ba248a4cb9883955b670536e3,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 2280
+      value: 2283
       objectReference: {fileID: 0}
     - target: {fileID: 4753117088774275031, guid: 6f85904ba248a4cb9883955b670536e3,
         type: 3}
@@ -7454,7 +7479,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-1689518
+  m_Name: pb_Mesh-1886366
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -9351,6 +9376,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 38
   m_LocalEulerAnglesHint: {x: 0, y: -270, z: 0}
+--- !u!95 &406824055 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 3120352800550349509, guid: 6d5b0abd4b2235348a83ef80db3cae01,
+    type: 3}
+  m_PrefabInstance: {fileID: 111872130}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &407243316
 GameObject:
   m_ObjectHideFlags: 0
@@ -9914,7 +9945,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-1686710
+  m_Name: pb_Mesh-1883558
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -11283,8 +11314,6 @@ MonoBehaviour:
   blockedDialoguePortrait: {fileID: 0}
   useInteractTrigger: 1
   interactBubble: {fileID: 1606361832}
-  keyboardSprite: {fileID: 21300000, guid: fc7bb22339e9e4dc1a918c75a23f2ae1, type: 3}
-  controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}
   ambientSound:
     clip: {fileID: 0}
     volume: 1
@@ -11316,8 +11345,6 @@ MonoBehaviour:
   blockedDialoguePortrait: {fileID: 0}
   useInteractTrigger: 1
   interactBubble: {fileID: 1606361832}
-  keyboardSprite: {fileID: 21300000, guid: fc7bb22339e9e4dc1a918c75a23f2ae1, type: 3}
-  controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}
   ambientSound:
     clip: {fileID: 0}
     volume: 1
@@ -14831,8 +14858,6 @@ MonoBehaviour:
   blockedDialoguePortrait: {fileID: 0}
   useInteractTrigger: 0
   interactBubble: {fileID: 0}
-  keyboardSprite: {fileID: 0}
-  controllerSprite: {fileID: 0}
   ambientSound:
     clip: {fileID: 0}
     volume: 1
@@ -18190,6 +18215,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1fcb5ed599908dc43b7552ab19a6b42a, type: 2}
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
   colorTargets: []
+  linkedObjectAnimator: {fileID: 0}
+  linkedObjectAnimationTrigger: dust
 --- !u!65 &878076647
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -18415,6 +18442,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1fcb5ed599908dc43b7552ab19a6b42a, type: 2}
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
   colorTargets: []
+  linkedObjectAnimator: {fileID: 0}
+  linkedObjectAnimationTrigger: dust
 --- !u!65 &881522506
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -19139,6 +19168,10 @@ MonoBehaviour:
   - {fileID: 878076645}
   - {fileID: 1629247744}
   hideCompletedInteractablesOnRestore: 1
+  returnNPC: {fileID: 0}
+  requiresNPCReturn: 0
+  readyDialogue: []
+  completeDialogue: []
 --- !u!4 &909500692 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1070439015040466526, guid: 60b448caeaff3dc4d9f7e246339f76c2,
@@ -20291,6 +20324,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1fcb5ed599908dc43b7552ab19a6b42a, type: 2}
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
   colorTargets: []
+  linkedObjectAnimator: {fileID: 0}
+  linkedObjectAnimationTrigger: dust
 --- !u!65 &961042248
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -22459,7 +22494,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1112463489}
-  - component: {fileID: 1112463490}
+  - component: {fileID: 1112463491}
   m_Layer: 0
   m_Name: Turn Off the Water
   m_TagString: Untagged
@@ -22482,7 +22517,7 @@ Transform:
   m_Father: {fileID: 247037571}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1112463490
+--- !u!114 &1112463491
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -22491,7 +22526,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1112463488}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d9e37210b14429d9412d09612eab3e0, type: 3}
+  m_Script: {fileID: 11500000, guid: 2cfa5b0176ed7744b979bd3b0b5f1f5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   description: Turn Off the Water
@@ -22514,10 +22549,8 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   countsTowardsProficiency: 1
-  autoCheckChildrenForNodes: 1
-  targetLocations:
-  - {fileID: 534694423}
-  returnNPC: {fileID: 0}
+  animTriggerToInteractWith: {fileID: 534694421}
+  returnNPC: {fileID: 2094526556}
   requiresNPCReturn: 0
   readyDialogue:
   - defaultText: "Thanks\u2026for turning off the water\u2026 I\u2019ll be more careful.
@@ -23776,7 +23809,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-1688674
+  m_Name: pb_Mesh-1885522
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -23966,7 +23999,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-1686338
+  m_Name: pb_Mesh-4209248
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -28017,7 +28050,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-1688394
+  m_Name: pb_Mesh-1885242
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -30863,7 +30896,7 @@ PrefabInstance:
     - target: {fileID: 3561304782050129484, guid: 8d8c3281c80a24913afaf5c412c1bb33,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 2197
+      value: 2200
       objectReference: {fileID: 0}
     - target: {fileID: 4150416791139596910, guid: 8d8c3281c80a24913afaf5c412c1bb33,
         type: 3}
@@ -32611,6 +32644,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1fcb5ed599908dc43b7552ab19a6b42a, type: 2}
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
   colorTargets: []
+  linkedObjectAnimator: {fileID: 0}
+  linkedObjectAnimationTrigger: dust
 --- !u!65 &1629247746
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -35000,7 +35035,7 @@ PrefabInstance:
     - target: {fileID: 4753117088774275029, guid: 6f85904ba248a4cb9883955b670536e3,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 2292
+      value: 2295
       objectReference: {fileID: 0}
     - target: {fileID: 4753117088774275031, guid: 6f85904ba248a4cb9883955b670536e3,
         type: 3}
@@ -36685,7 +36720,7 @@ PrefabInstance:
     - target: {fileID: 4753117088774275029, guid: 6f85904ba248a4cb9883955b670536e3,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 2295
+      value: 2298
       objectReference: {fileID: 0}
     - target: {fileID: 4753117088774275031, guid: 6f85904ba248a4cb9883955b670536e3,
         type: 3}
@@ -38855,8 +38890,6 @@ MonoBehaviour:
   properties: []
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
   interactBubble: {fileID: 2106040553}
-  keyboardSprite: {fileID: 21300000, guid: fc7bb22339e9e4dc1a918c75a23f2ae1, type: 3}
-  controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}
   interactionDistance: 0
   fetchDialogue:
   - defaultText: Keys acquired. **RETURN KEYS TO CHIP.**
@@ -42776,8 +42809,6 @@ MonoBehaviour:
   properties: []
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
   interactBubble: {fileID: 149147235}
-  keyboardSprite: {fileID: 21300000, guid: fc7bb22339e9e4dc1a918c75a23f2ae1, type: 3}
-  controllerSprite: {fileID: 21300000, guid: 81695101029a64fbdb34de64b8705e71, type: 3}
   interactionDistance: 0
   fetchDialogue:
   - defaultText: Shades acquired. **RETURN SHADES TO CHANDLER.**
@@ -43435,7 +43466,7 @@ PrefabInstance:
     - target: {fileID: 4753117088774275029, guid: 6f85904ba248a4cb9883955b670536e3,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 2283
+      value: 2286
       objectReference: {fileID: 0}
     - target: {fileID: 4753117088774275031, guid: 6f85904ba248a4cb9883955b670536e3,
         type: 3}
@@ -47578,52 +47609,52 @@ PrefabInstance:
     - target: {fileID: 5554935717656047752, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -199.79
+      value: -199.7925
       objectReference: {fileID: 0}
     - target: {fileID: 5554935717656047752, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.37000045
+      value: 0.37339342
       objectReference: {fileID: 0}
     - target: {fileID: 5554935717656047752, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -25.039999
+      value: -25.052486
       objectReference: {fileID: 0}
     - target: {fileID: 5554935717656047752, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.99999565
       objectReference: {fileID: 0}
     - target: {fileID: 5554935717656047752, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: 0.0025586744
       objectReference: {fileID: 0}
     - target: {fileID: 5554935717656047752, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0.0012043626
       objectReference: {fileID: 0}
     - target: {fileID: 5554935717656047752, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0.0008397152
       objectReference: {fileID: 0}
     - target: {fileID: 5554935717656047752, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: 0.293
       objectReference: {fileID: 0}
     - target: {fileID: 5554935717656047752, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: -0.138
       objectReference: {fileID: 0}
     - target: {fileID: 5554935717656047752, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
+      value: -0.097
       objectReference: {fileID: 0}
     - target: {fileID: 5554935717656047753, guid: c1305ba4f09cf423393aa0cf26ecb6a3,
         type: 3}

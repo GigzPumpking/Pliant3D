@@ -218,6 +218,8 @@ public class Bulldozer : FormScript
                 AbilityUsed?.Invoke(Transformation.BULLDOZER, 2, highlightedInteractable);
                 PlayAbilitySound(breakSound);
 
+                highlightedInteractable.Interact();
+
                 AnimTrigger animTrigger = highlightedInteractable.GetComponent<AnimTrigger>();
                 if (animTrigger == null) {
                     highlightedInteractable.gameObject.SetActive(false);

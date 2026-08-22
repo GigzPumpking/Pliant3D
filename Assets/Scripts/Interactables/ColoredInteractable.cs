@@ -13,6 +13,10 @@ public class ColoredInteractable : Interactable
     [Tooltip("GameObjects whose renderers will change color on highlight. Defaults to this object if the list is empty.")]
     [SerializeField] private List<GameObject> colorTargets = new List<GameObject>();
 
+    [SerializeField] private Animator linkedObjectAnimator;
+
+    [SerializeField] private string linkedObjectAnimationTrigger;
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -58,6 +62,11 @@ public class ColoredInteractable : Interactable
         {
             Debug.Log("Can't interact with " + gameObject.name);
             return;
+        }
+
+        if (linkedObjectAnimator != null && !string.IsNullOrEmpty(linkedObjectAnimationTrigger))
+        {
+            linkedObjectAnimator.SetTrigger(linkedObjectAnimationTrigger);
         }
     }
 

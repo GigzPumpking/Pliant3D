@@ -36,12 +36,8 @@ public class Terry : FormScript
     [SerializeField] private Sprite holdControllerSprite;
 
     private SpriteRenderer _holdBubbleSpriteRenderer;
-    private Vector3 _originalHoldBubbleScale;
-    private bool _holdBubbleScaleInitialized = false;
 
     private SpriteRenderer _bubbleSpriteRenderer;
-    private Vector3 _originalBubbleScale;
-    private bool _bubbleScaleInitialized = false;
 
     /// <summary>Called by BurningInteractable via IInteractable.SetInteractBubbleActive.</summary>
     public void SetBurningPromptActive(bool active)
@@ -64,16 +60,6 @@ public class Terry : FormScript
 
         if (burningInteractBubble != null)
         {
-            if (!_bubbleScaleInitialized)
-            {
-                _originalBubbleScale = burningInteractBubble.transform.localScale;
-                _bubbleScaleInitialized = true;
-            }
-            else
-            {
-                // Reset scale in case it was left at a modified value before this OnEnable
-                burningInteractBubble.transform.localScale = _originalBubbleScale;
-            }
             burningInteractBubble.SetActive(false);
         }
 
@@ -121,17 +107,6 @@ public class Terry : FormScript
 
         bool isKeyboard = InputManager.Instance?.ActiveDeviceType == "Keyboard"
                        || InputManager.Instance?.ActiveDeviceType == "Mouse";
-
-        if (isKeyboard)
-        {
-            _bubbleSpriteRenderer.sprite = keyboardSprite;
-            burningInteractBubble.transform.localScale = _originalBubbleScale * 3f;
-        }
-        else
-        {
-            _bubbleSpriteRenderer.sprite = controllerSprite;
-            burningInteractBubble.transform.localScale = _originalBubbleScale * 3f;
-        }
     }
 
     private void UpdateHoldBubbleSprite()
@@ -143,25 +118,8 @@ public class Terry : FormScript
 
         if (_holdBubbleSpriteRenderer == null) return;
 
-        if (!_holdBubbleScaleInitialized)
-        {
-            _originalHoldBubbleScale = _holdBubbleSpriteRenderer.transform.localScale;
-            _holdBubbleScaleInitialized = true;
-        }
-
         bool isKeyboard = InputManager.Instance?.ActiveDeviceType == "Keyboard"
                        || InputManager.Instance?.ActiveDeviceType == "Mouse";
-
-        if (isKeyboard)
-        {
-            _holdBubbleSpriteRenderer.sprite = holdKeyboardSprite;
-            _holdBubbleSpriteRenderer.transform.localScale = _originalHoldBubbleScale * 3f;
-        }
-        else
-        {
-            _holdBubbleSpriteRenderer.sprite = holdControllerSprite;
-            _holdBubbleSpriteRenderer.transform.localScale = _originalHoldBubbleScale * 3f;
-        }
     }
 
     public override void Ability1(InputAction.CallbackContext context)

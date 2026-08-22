@@ -32,7 +32,6 @@ public class FetchableInteractable : Interactable, IInteractable, IFetchable
     // Cached references
     private Dialogue dialogue;
     private SpriteRenderer _bubbleSpriteRenderer;
-    private Vector3 _originalBubbleScale;
     private string currentFirstEntry = "";
     private bool waitingForDialogue = false;
 
@@ -83,7 +82,6 @@ public class FetchableInteractable : Interactable, IInteractable, IFetchable
         
         if (interactBubble != null)
         {
-            _originalBubbleScale = interactBubble.transform.localScale;
             interactBubble.SetActive(false);
         }
     }
@@ -195,17 +193,6 @@ public class FetchableInteractable : Interactable, IInteractable, IFetchable
         
         bool isKeyboard = InputManager.Instance?.ActiveDeviceType == "Keyboard"
                        || InputManager.Instance?.ActiveDeviceType == "Mouse";
-        
-        if (isKeyboard)
-        {
-            _bubbleSpriteRenderer.sprite = keyboardSprite;
-            interactBubble.transform.localScale = _originalBubbleScale * 3f;
-        }
-        else
-        {
-            _bubbleSpriteRenderer.sprite = controllerSprite;
-            interactBubble.transform.localScale = _originalBubbleScale * 1f;
-        }
     }
 
     protected override void Highlight()

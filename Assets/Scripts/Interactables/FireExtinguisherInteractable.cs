@@ -27,8 +27,6 @@ public class FireExtinguisherInteractable : MonoBehaviour, IInteractable, IFetch
     [SerializeField] private DialogueEntry[] fetchDialogue;
 
     private SpriteRenderer _bubbleSpriteRenderer;
-    private Vector3 _originalBubbleScale;
-
     public bool isFetched { get; private set; }
 
     // Dialogue state
@@ -135,7 +133,6 @@ public class FireExtinguisherInteractable : MonoBehaviour, IInteractable, IFetch
 
         if (interactBubble != null)
         {
-            _originalBubbleScale = interactBubble.transform.localScale;
             interactBubble.SetActive(false);
         }
     }
@@ -173,16 +170,5 @@ public class FireExtinguisherInteractable : MonoBehaviour, IInteractable, IFetch
 
         bool isKeyboard = InputManager.Instance?.ActiveDeviceType == "Keyboard"
                        || InputManager.Instance?.ActiveDeviceType == "Mouse";
-
-        if (isKeyboard)
-        {
-            _bubbleSpriteRenderer.sprite = keyboardSprite;
-            interactBubble.transform.localScale = _originalBubbleScale * 3f;
-        }
-        else
-        {
-            _bubbleSpriteRenderer.sprite = controllerSprite;
-            interactBubble.transform.localScale = _originalBubbleScale;
-        }
     }
 }

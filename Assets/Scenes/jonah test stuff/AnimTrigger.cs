@@ -48,7 +48,6 @@ public class AnimTrigger : MonoBehaviour, IInteractable
     // Whether the player is currently within this trigger's collider (interact mode only)
     private bool _playerInRange = false;
     private SpriteRenderer _bubbleSpriteRenderer;
-    private Vector3 _originalBubbleScale;
 
     // Guards against Dialogue.Appear() being called again while the blocked dialogue is still opening/active
     private bool _blockedDialogueActive = false;
@@ -76,7 +75,6 @@ public class AnimTrigger : MonoBehaviour, IInteractable
 
         if (interactBubble != null)
         {
-            _originalBubbleScale = interactBubble.transform.localScale;
             interactBubble.SetActive(false);
         }
 
@@ -301,16 +299,5 @@ public class AnimTrigger : MonoBehaviour, IInteractable
 
         bool isKeyboard = InputManager.Instance?.ActiveDeviceType == "Keyboard"
                        || InputManager.Instance?.ActiveDeviceType == "Mouse";
-
-        if (isKeyboard)
-        {
-            _bubbleSpriteRenderer.sprite = keyboardSprite;
-            interactBubble.transform.localScale = _originalBubbleScale * 3f;
-        }
-        else
-        {
-            _bubbleSpriteRenderer.sprite = controllerSprite;
-            interactBubble.transform.localScale = _originalBubbleScale;
-        }
     }
 }

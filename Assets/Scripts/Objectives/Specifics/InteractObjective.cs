@@ -1,12 +1,12 @@
 using System;
 using UnityEngine;
 
-//Completes when the assigned AnimTrigger has been interacted with via its Interact Trigger flow
+//Completes when any AnimTrigger on the assigned object's GameObject has been interacted with via its Interact Trigger flow
 public class InteractObjective : Objective, IDialogueProvider
 {
     public static event Action<Objective> OnObjectiveComplete;
 
-    [Tooltip("The AnimTrigger the player must interact with to complete this objective. Must have Use Interact Trigger enabled.")]
+    [Tooltip("The object the player must interact with to complete this objective. Completes if any AnimTrigger on this GameObject fires (Use Interact Trigger must be enabled).")]
     [SerializeField] private AnimTrigger animTriggerToInteractWith;
 
     [Header("NPC Return Dialogue (Optional)")]
@@ -131,7 +131,7 @@ public class InteractObjective : Objective, IDialogueProvider
     private void CheckCompletion(AnimTrigger trigger)
     {
         if (isComplete) return;
-        if (trigger != animTriggerToInteractWith) return;
+        if (animTriggerToInteractWith == null || trigger.gameObject != animTriggerToInteractWith.gameObject) return;
 
         if (!readyForReturn)
         {

@@ -1544,6 +1544,18 @@ MonoBehaviour:
     pitch: 1
     loop: 0
   disableAmbientOnTrigger: 0
+--- !u!114 &159581312 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6903212241321033868, guid: 0c45e353204f5c341902fe3c3652d522,
+    type: 3}
+  m_PrefabInstance: {fileID: 343044090}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 159581300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60080f6bf0d0f5b4c8f41b55ce67791f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &164029188
 GameObject:
   m_ObjectHideFlags: 0
@@ -3652,8 +3664,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.036752522, y: 0.03099235, z: 0.025}
-  m_Center: {x: -0.00003199636, y: 0.00299608, z: 0.00000012666972}
+  m_Size: {x: 0.051691994, y: 0.04786072, z: 0.025}
+  m_Center: {x: 0.0008331149, y: 0.0054759146, z: 0.00000012666972}
 --- !u!114 &457167165
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3741,19 +3753,6 @@ MonoBehaviour:
     pitch: 1
     loop: 0
   disableAmbientOnTrigger: 0
---- !u!114 &457167171
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 457167160}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3dec0dd9de384a6ea2bcdce0eec71c81, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lookingFor: []
 --- !u!114 &457167172
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3770,6 +3769,8 @@ MonoBehaviour:
   - {fileID: 0}
   highlightColor: {r: 0, g: 1, b: 0, a: 1}
   colorTargets: []
+  linkedObjectAnimator: {fileID: 0}
+  linkedObjectAnimationTrigger: dust
 --- !u!1 &459142632
 GameObject:
   m_ObjectHideFlags: 0
@@ -8606,7 +8607,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1010316082}
-  - component: {fileID: 1010316081}
+  - component: {fileID: 1010316083}
   m_Layer: 0
   m_Name: Turn Off the PC
   m_TagString: Untagged
@@ -8614,31 +8615,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1010316081
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1010316080}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d9e37210b14429d9412d09612eab3e0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  description: Turn Off the PC
-  isComplete: 0
-  showTally: 0
-  onCompleteEvents: []
-  onRestoreEvents: []
-  countsTowardsProficiency: 1
-  autoCheckChildrenForNodes: 1
-  targetLocations:
-  - {fileID: 457167171}
-  returnNPC: {fileID: 0}
-  requiresNPCReturn: 0
-  readyDialogue: []
-  completeDialogue: []
 --- !u!4 &1010316082
 Transform:
   m_ObjectHideFlags: 0
@@ -8654,6 +8630,37 @@ Transform:
   m_Father: {fileID: 2114182023}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1010316083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1010316080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2cfa5b0176ed7744b979bd3b0b5f1f5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  description: Turn off the PC
+  isComplete: 0
+  showTally: 0
+  onCompleteEvents: []
+  onRestoreEvents: []
+  countsTowardsProficiency: 1
+  animTriggerToInteractWith: {fileID: 457167165}
+  returnNPC: {fileID: 525583673}
+  requiresNPCReturn: 0
+  readyDialogue:
+  - defaultText: Thanks for turning off the PC!
+    hasDeviceSpecificText: 0
+    keyboardText: 
+    controllerText: 
+  completeDialogue:
+  - defaultText: PC off!
+    hasDeviceSpecificText: 0
+    keyboardText: 
+    controllerText: 
 --- !u!4 &1025036599 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5158139198738151034, guid: 9cba94f9b2540024ea38ea85fd096150,
@@ -13160,12 +13167,12 @@ PrefabInstance:
         type: 3}
       propertyPath: objectiveToGive.Array.data[0]
       value: 
-      objectReference: {fileID: 1010316081}
+      objectReference: {fileID: 1010316083}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: objectiveToGive.Array.data[1]
       value: 
-      objectReference: {fileID: 2085248108}
+      objectReference: {fileID: 2085248110}
     - target: {fileID: 3493604527745461607, guid: 89b2ae7bccf9f426999e81c797e9ff4e,
         type: 3}
       propertyPath: tertiaryDialogue.Array.data[0].defaultText
@@ -18427,7 +18434,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2085248109}
-  - component: {fileID: 2085248108}
+  - component: {fileID: 2085248110}
   m_Layer: 0
   m_Name: Turn On the Coffee Machine
   m_TagString: Untagged
@@ -18435,31 +18442,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2085248108
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2085248107}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d9e37210b14429d9412d09612eab3e0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  description: Turn On the Coffee Machine
-  isComplete: 0
-  showTally: 0
-  onCompleteEvents: []
-  onRestoreEvents: []
-  countsTowardsProficiency: 1
-  autoCheckChildrenForNodes: 1
-  targetLocations:
-  - {fileID: 159581302}
-  returnNPC: {fileID: 0}
-  requiresNPCReturn: 0
-  readyDialogue: []
-  completeDialogue: []
 --- !u!4 &2085248109
 Transform:
   m_ObjectHideFlags: 0
@@ -18475,6 +18457,37 @@ Transform:
   m_Father: {fileID: 2114182023}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2085248110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2085248107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2cfa5b0176ed7744b979bd3b0b5f1f5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  description: Turn on the Coffee Machine
+  isComplete: 0
+  showTally: 0
+  onCompleteEvents: []
+  onRestoreEvents: []
+  countsTowardsProficiency: 1
+  animTriggerToInteractWith: {fileID: 159581312}
+  returnNPC: {fileID: 525583673}
+  requiresNPCReturn: 0
+  readyDialogue:
+  - defaultText: Thanks for turning off the Coffee Machine!
+    hasDeviceSpecificText: 0
+    keyboardText: 
+    controllerText: 
+  completeDialogue:
+  - defaultText: Coffee Coffee
+    hasDeviceSpecificText: 0
+    keyboardText: 
+    controllerText: 
 --- !u!1 &2089989756
 GameObject:
   m_ObjectHideFlags: 0

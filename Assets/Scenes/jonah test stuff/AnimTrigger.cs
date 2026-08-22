@@ -1,7 +1,11 @@
+using System;
 using UnityEngine;
 
 public class AnimTrigger : MonoBehaviour, IInteractable
 {
+    // Raised when this trigger fires via the Interact Trigger flow (useInteractTrigger). Listened to by InteractObjective.
+    public static event Action<AnimTrigger> Interacted;
+
     [SerializeField] private Animator myAnimationController;
     [SerializeField] private string targetTag = "Player";
     [SerializeField] private string parameterName = "test";
@@ -174,6 +178,8 @@ public class AnimTrigger : MonoBehaviour, IInteractable
 
         if (coloredInteractable != null)
             coloredInteractable.isInteractable = false;
+
+        if (useInteractTrigger) Interacted?.Invoke(this);
     }
 
     private void TryShowBlockedDialogue()

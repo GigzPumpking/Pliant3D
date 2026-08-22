@@ -15,7 +15,7 @@ public class ColoredInteractable : Interactable
 
     [SerializeField] private Animator linkedObjectAnimator;
 
-    [SerializeField] private string linkedObjectAnimationTrigger;
+    [SerializeField] private string linkedObjectAnimationTrigger = "dust";
 
     private void Awake()
     {

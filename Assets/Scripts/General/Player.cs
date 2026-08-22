@@ -691,9 +691,10 @@ public class Player : KeyActionReceiver<Player>
         isJumping = false;
         airborneGraceTimer = 0f;
 
-        if (outOfBoundsExcludedScenes.Contains(SceneManager.GetActiveScene().name) && canMove)
+        if (outOfBoundsExcludedScenes.Contains(SceneManager.GetActiveScene().name))
         {
-            canMoveToggle(false);
+            if (canMove)
+                canMoveToggle(false);
         }
         else
         {

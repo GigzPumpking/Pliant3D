@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
+using UnityEngine.SceneManagement;
 
 public class GamepadCursor : MonoBehaviour
 {
@@ -68,6 +69,7 @@ public class GamepadCursor : MonoBehaviour
 
         InputSystem.onAfterUpdate += UpdateMotion;
         playerInput.onControlsChanged += OnControlsChanged;
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
@@ -75,6 +77,11 @@ public class GamepadCursor : MonoBehaviour
         if (virtualMouse != null && virtualMouse.added) InputSystem.RemoveDevice(virtualMouse);
         InputSystem.onAfterUpdate -= UpdateMotion;
         playerInput.onControlsChanged -= OnControlsChanged;
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void UpdateMotion()
@@ -138,5 +145,12 @@ public class GamepadCursor : MonoBehaviour
             if (currentMouse != null) AnchorCursor(currentMouse.position.ReadValue());
             previousControlScheme = gamepadScheme;
         }
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        var uiModule = FindObjectOfType<InputSystemUIInputModule>();
+        playerInput.uiInputModule = uiModule;
+        playerInput.camera = Camera.main;
     }
 }

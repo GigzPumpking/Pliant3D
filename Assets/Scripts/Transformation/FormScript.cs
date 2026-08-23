@@ -15,10 +15,12 @@ public abstract class FormScript : MonoBehaviour
     [SerializeField] protected AudioData initialSound;
     [SerializeField] protected AudioData ability1Sound;
     [SerializeField] protected AudioData ability2Sound;
+    [SerializeField] protected AudioData walkSound;
 
     [SerializeField] protected abstract float baseSpeed { get; set; }
 
     private float _speed; // Backing field for the speed property
+    private bool isWalkSoundPlaying = false;
 
     protected virtual float speed
     {
@@ -41,6 +43,46 @@ public abstract class FormScript : MonoBehaviour
     protected virtual void PlayAbilitySound(AudioData data)
     {
         if(data != null) AudioManager.Instance?.PlayOneShot(data);
+    }
+    
+    protected virtual void PlayAbilitySoundLooping(AudioData data)
+    {
+        if (data == null) return;
+        if (AudioManager.Instance.IsSoundPlaying(data)) return;
+        if (!data.loop) data.loop = true;
+        AudioManager.Instance?.PlaySound(data);
+    }
+
+    protected virtual void StopAbilitySound(AudioData data)
+    {
+        if (data != null && AudioManager.Instance?.IsSoundPlaying(data) == true) 
+            AudioManager.Instance?.StopSound(data);
+    }
+
+    public virtual void PlayWalkSound()
+    {
+        if (walkSound != null && !isWalkSoundPlaying)
+        {
+            if (!walkSound.loop) walkSound.loop = true;
+            AudioManager.Instance?.PlaySound(walkSound);
+            isWalkSoundPlaying = true;
+        }
+    }
+
+    public virtual void EndWalkSound()
+    {
+        if (walkSound != null && isWalkSoundPlaying)
+        {
+            AudioManager.Instance?.StopSound(walkSound);
+            isWalkSoundPlaying = false;
+        }
+    }
+
+    // Stops any looping movement/ability sounds this form owns. Called when movement is force-disabled
+    // or the active transformation changes, so sounds can't keep looping until the action is retriggered.
+    public virtual void StopMovementSounds()
+    {
+        EndWalkSound();
     }
     
     public virtual void Awake()
@@ -68,6 +110,11 @@ public abstract class FormScript : MonoBehaviour
     public virtual void Ability3(InputAction.CallbackContext context)
     {
         // Optional ability, can be overridden by subclasses
+    }
+
+    public virtual void Unstick(InputAction.CallbackContext context)
+    {
+        // Optional unstick minigame input, can be overridden by subclasses
     }
 
     /// <summary>

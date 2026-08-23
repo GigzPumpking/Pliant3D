@@ -5,6 +5,7 @@ using UnityEngine;
 public abstract class ButtonScript : MonoBehaviour
 {
     private Animator animator;
+    [SerializeField] private AudioData pressedSound;
 
     /// <summary>True once Press() has been called at least once.</summary>
     public bool HasBeenTriggered { get; private set; }
@@ -19,6 +20,7 @@ public abstract class ButtonScript : MonoBehaviour
     {
         if (animator == null) animator = GetComponent<Animator>();
         animator.SetTrigger("Press");
+        AudioManager.Instance?.PlayOneShot(pressedSound);
         HasBeenTriggered = true;
         OnPress();
     }
@@ -28,6 +30,15 @@ public abstract class ButtonScript : MonoBehaviour
         if (animator == null) animator = GetComponent<Animator>();
         animator.SetTrigger("Unpress");
         OnRelease();
+    }
+
+    /// <summary>
+    /// Marks this button as triggered without playing the press animation or calling OnPress().
+    /// Used by Tutorializer.RestoreTutorialSection() to restore gate state after a reset.
+    /// </summary>
+    public void SetTriggeredSilently()
+    {
+        HasBeenTriggered = true;
     }
 
     public abstract void OnPress();

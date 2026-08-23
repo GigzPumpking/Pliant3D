@@ -55,26 +55,13 @@ public class ObjectiveListing : MonoBehaviour {
     
     //will refactor later
     private void OnEnable() {
-        PlayerToLocationObjective.OnObjectiveComplete += SetCompletionOfObjective;
-        ObjectsToLocationsObjective.OnObjectiveComplete += SetCompletionOfObjective;
-        ObjectToManyLocationsObjective.OnObjectiveComplete += SetCompletionOfObjective;
-        NPCInteractObjective.OnObjectiveComplete += SetCompletionOfObjective;
-        TransformationSwapInteractObjective.OnObjectiveComplete += SetCompletionOfObjective;
-        FetchObjective.OnObjectiveComplete += SetCompletionOfObjective;
-        AbilityPerformedObjective.OnObjectiveComplete += SetCompletionOfObjective;
-        CustomEventObjective.OnObjectiveComplete += SetCompletionOfObjective;
-        //add logic for the other strategies too
+        // Listen to the base class event instead of every individual subclass!
+        Objective.OnObjectiveComplete += SetCompletionOfObjective;
     }
 
     private void OnDisable() {
-        PlayerToLocationObjective.OnObjectiveComplete -= SetCompletionOfObjective;
-        ObjectsToLocationsObjective.OnObjectiveComplete -= SetCompletionOfObjective;
-        ObjectToManyLocationsObjective.OnObjectiveComplete -= SetCompletionOfObjective;
-        NPCInteractObjective.OnObjectiveComplete -= SetCompletionOfObjective;
-        TransformationSwapInteractObjective.OnObjectiveComplete -= SetCompletionOfObjective;
-        FetchObjective.OnObjectiveComplete -= SetCompletionOfObjective;
-        AbilityPerformedObjective.OnObjectiveComplete -= SetCompletionOfObjective;
-        CustomEventObjective.OnObjectiveComplete -= SetCompletionOfObjective;
+        // Unsubscribe from the base class event
+        Objective.OnObjectiveComplete -= SetCompletionOfObjective;
     }
 
     private void CheckCompletion() {

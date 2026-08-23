@@ -12,8 +12,9 @@ public class PlayerData
     // Player's form
     public string playerForm; // e.g., "Terry", "Frog", "Bulldozer"
 
-    // # Tasks completed
-	public int numTasksCompleted;
+    // # Tasks 
+    public int numTasksCompleted;
+    public int numTasksAssigned;
     // Game settings
     public GameSettings settings;
 
@@ -29,14 +30,35 @@ public class PlayerData
     // NPC trigger interaction states (dialogue progression / event suppression)
     public List<NpcTriggerSaveState> npcTriggerStates = new List<NpcTriggerSaveState>();
 
+    // Names of AutoDialogueActivators that have already been triggered
+    public List<string> triggeredAutoDialogueNames = new List<string>();
+
+    // Level progression
+    public int currentLevelId; // Stores the LevelId as int
+    public int currentSceneIndex;
+    public List<int> completedLevels = new List<int>();
+    [System.Serializable]
+    public class LevelTaskProgressEntry
+    {
+        public int levelId;
+        public int tasksCompleted;
+    }
+    public List<LevelTaskProgressEntry> levelTaskProgress = new List<LevelTaskProgressEntry>(); // LevelId -> tasks completed
+
     public PlayerData()
     {
         settings = new GameSettings();
         objectStates = new Dictionary<string, ObjectState>();
         objectiveStates = new List<ObjectiveSaveState>();
         
-        if(GameManager.Instance != null) numTasksCompleted = GameManager.Instance.GetNumTasksCompleted();
-        else numTasksCompleted = 0;
+        if(GameManager.Instance != null) {
+            numTasksCompleted = GameManager.Instance.GetNumTasksCompleted();
+            numTasksAssigned = GameManager.Instance.GetNumTasksAssigned();
+        }
+        else {
+            numTasksCompleted = 0;
+            numTasksAssigned = 0;
+        }
     }
 }
 
@@ -66,6 +88,8 @@ public class ObjectiveSaveState
     public bool isComplete;
     public int numCompleted;
     public bool fetchedAll;
+    public bool readyForReturn;
+    public int revealedDialogueStage;
     public List<string> fetchedItemNames = new List<string>();
     public List<string> completedInteractableNames = new List<string>();
     // How many times the NPC that gave this objective had been talked to

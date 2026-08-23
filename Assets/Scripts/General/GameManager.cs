@@ -19,12 +19,18 @@ public class GameManager : KeyActionReceiver<GameManager>
     [SerializeField] private Transform player;
     private TransformationWheel transformWheel;
 
-    [SerializeField] private AudioData mainTheme;
-    [SerializeField] private AudioData Ambience;
-    private int _queuedTasksCompleted = 0;
-    private int _queuedTasksAssigned = 0;
-    private int _numTasksCompleted = 0;
-    private int _numTasksAssigned = 0;
+    // Themes and ambience to play during menus and levels
+    private AudioData mainTheme;
+    private AudioData mainAmbience;
+    [SerializeField] private AudioData levelAmbience;
+    [SerializeField] private AudioData menuTheme;
+    [SerializeField] private AudioData levelTheme;
+    [SerializeField] private AudioData loadingAmbience;
+    
+    [SerializeField] private int _queuedTasksCompleted = 0;
+    [SerializeField] private int _queuedTasksAssigned = 0;
+    [SerializeField] private int _numTasksCompleted = 0;
+    [SerializeField] private int _numTasksAssigned = 0;
 
     [SerializeField] private float promotionRatio = 0.6f;
 
@@ -40,8 +46,12 @@ public class GameManager : KeyActionReceiver<GameManager>
     // NPC trigger interaction states pending restoration after a scene reload
     private List<NpcTriggerSaveState> _pendingNpcStates;
 
+    // AutoDialogueActivator triggered states pending restoration after a scene reload
+    private List<string> _pendingAutoDialogueStates;
+
     // Main menu scene name
     [SerializeField] private string mainMenuSceneName = "0 Main Menu";
+    [SerializeField] private string endMenuSceneName = "11-0 End";
     [SerializeField] private VideoPlayer outroVideoPlayer;
 
     // Scenes where saving is not allowed (transitions, main menu, etc.)
@@ -53,7 +63,17 @@ public class GameManager : KeyActionReceiver<GameManager>
         "3-0 Jerry",
         "4-0 Carrie",
         "5-0 Perry",
-        "11-0 Thanks"
+        "11-0 End"
+    };
+    
+    // Scenes meant for transitioning to play correct loading ambience
+    [SerializeField] private List<string> loadingScenes = new List<string>
+    {
+        "1-0 Terry",
+        "2-0 Meri",
+        "3-0 Jerry",
+        "4-0 Carrie",
+        "5-0 Perry",
     };
 
     [HideInInspector] public bool VideoHasPlayed = false;
@@ -84,6 +104,11 @@ public class GameManager : KeyActionReceiver<GameManager>
         return mainTheme;
     }
 
+    public AudioData GetMainAmbience()
+    {
+        return mainAmbience;
+    }
+
     // Static key mapping shared across all GameManager instances.
     public static Dictionary<string, Action<GameManager, InputAction.CallbackContext>> staticKeyMapping =
         new Dictionary<string, Action<GameManager, InputAction.CallbackContext>>()
@@ -93,6 +118,9 @@ public class GameManager : KeyActionReceiver<GameManager>
         };
 
     protected override Dictionary<string, Action<GameManager, InputAction.CallbackContext>> KeyMapping => staticKeyMapping;
+
+    [Header("End Game Tracking")]
+    public int totalTasksInGame;
 
     private void Awake()
     {
@@ -111,17 +139,9 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     void Start()
     {
-        if (AudioManager.Instance != null)
+        if (AudioManager.Instance != null && AudioManager.Instance.playOnAwake)
         {
-            if (AudioManager.Instance.playOnAwake && !AudioManager.Instance.IsMusicPlaying())
-            {
-                //Handle Music Carryover between scenes
-                instance.mainTheme = this.mainTheme;
-                instance.Ambience = this.Ambience;
-                AudioManager.Instance?.DeleteCurrentMusicSources();
-                AudioManager.Instance?.PlayMusic(mainTheme);
-                AudioManager.Instance?.PlayMusic(Ambience);
-            }
+            PlaySoundForCurrentScene();
         }
     }
 
@@ -163,6 +183,9 @@ public class GameManager : KeyActionReceiver<GameManager>
             // Capture NPC trigger states before the scene is destroyed
             _pendingNpcStates = CaptureNpcTriggerStates();
 
+            // Capture auto dialogue triggered states before the scene is destroyed
+            _pendingAutoDialogueStates = CaptureAutoDialogueStates();
+
             // Capture timer progress before the scene is destroyed
             var timer = FindObjectOfType<ObjectiveTimer>();
             if (timer != null && timer.HasStarted)
@@ -178,6 +201,7 @@ public class GameManager : KeyActionReceiver<GameManager>
             // Timer failure: start fresh — wipe any saved state
             _pendingObjectiveStates = null;
             _pendingNpcStates = null;
+            _pendingAutoDialogueStates = null;
             _pendingTimerTime = -1f;
             _timerFailed = false;
         }
@@ -219,6 +243,59 @@ public class GameManager : KeyActionReceiver<GameManager>
         }
     }
 
+    // Returns true if either Main Menu or End Menu
+    private bool IsMenuScene(string sceneName)
+    {
+        return sceneName == mainMenuSceneName || sceneName == endMenuSceneName;
+    }
+
+    private bool IsLoadingScene(string sceneName)
+    {
+        return unsaveableScenes.Contains(sceneName);
+    }
+    
+    /// <summary>Plays the correct background theme for the active scene.
+    /// Menu scenes -> menuTheme, level scenes -> levelTheme.</summary>
+    private void PlaySoundForCurrentScene()
+    {
+        if (AudioManager.Instance == null) return;
+
+        string sceneName = SceneManager.GetActiveScene().name;
+        bool isMenu = IsMenuScene(sceneName);
+        bool isLoadingScene = IsLoadingScene(sceneName);
+
+        AudioData desiredTheme = isMenu ? menuTheme : levelTheme;
+        AudioData desiredAmbience;
+
+        if (isMenu)
+        {
+            desiredAmbience = null;
+        }
+        else if (isLoadingScene)
+        {
+            desiredAmbience = loadingAmbience;
+        }
+        else
+        {
+            desiredAmbience = levelAmbience;
+        }
+
+        // Don't restart music if the right theme is already playing
+        // (e.g. a level reset reloads the same scene)
+        if ((mainTheme == desiredTheme && mainAmbience == desiredAmbience) && AudioManager.Instance.IsMusicPlaying())
+            return;
+
+        mainTheme = desiredTheme;
+        if (!mainTheme.loop) mainTheme.loop = true;
+        mainAmbience = desiredAmbience;
+        if (mainAmbience != null && !mainAmbience.loop) mainAmbience.loop = true;
+
+        AudioManager.Instance.StopMusic();
+        AudioManager.Instance.DeleteCurrentMusicSources();
+        AudioManager.Instance.PlayMainTheme();
+        AudioManager.Instance.PlayMainAmbience();
+    }
+
     public void AddQueuedTaskComplete()
     {
         Debug.LogWarning("Adding Queued Task Complete");
@@ -253,28 +330,26 @@ public class GameManager : KeyActionReceiver<GameManager>
         _numTasksCompleted = num;
     }
 
-    public int GetNumTasksAssigned()
+public int GetNumTasksAssigned()
     {
-        return _numTasksAssigned;
+        return _numTasksAssigned + _queuedTasksAssigned;
     }
     
     public int GetNumTasksCompleted()
     {
-        return _numTasksCompleted;
+        return _numTasksCompleted + _queuedTasksCompleted;
     }
     
     public int GetNumTasksRemaining()
     {
-        return _numTasksAssigned - _numTasksCompleted;
+        return GetNumTasksAssigned() - GetNumTasksCompleted();
     }
-    
+
     public float GetRatioOfTasksCompleted()
     {
-        if (_numTasksAssigned == 0) return 0;
-                
-        return (float)_numTasksCompleted/ (float)_numTasksAssigned;
+        if (totalTasksInGame == 0) return 0;
+        return (float)GetNumTasksCompleted() / (float)totalTasksInGame; // Updated to use the new getter
     }
-    
     public float GetPromotionRatio()
     {
         return Instance.promotionRatio;
@@ -301,7 +376,7 @@ public class GameManager : KeyActionReceiver<GameManager>
         var states = new List<ObjectiveSaveState>();
         // Only capture objectives that are actively tracked in a listing.
         // This avoids capturing un-given NPC objectives that exist in the scene.
-        foreach (var listing in FindObjectsOfType<ObjectiveListing>())
+        foreach (var listing in FindObjectsOfType<ObjectiveListing>(true))
         {
             foreach (var obj in listing.objectives)
             {
@@ -365,6 +440,21 @@ public class GameManager : KeyActionReceiver<GameManager>
 
     public void ClearPendingNpcStates() => _pendingNpcStates = null;
 
+    private List<string> CaptureAutoDialogueStates()
+    {
+        var names = new List<string>();
+        foreach (var activator in FindObjectsOfType<AutoDialogueActivator>(true))
+        {
+            if (activator.HasTriggered)
+                names.Add(activator.ScenePath);
+        }
+        return names;
+    }
+
+    public List<string> GetPendingAutoDialogueStates() => _pendingAutoDialogueStates;
+
+    public void ClearPendingAutoDialogueStates() => _pendingAutoDialogueStates = null;
+
     #endregion
 
     private String prevSceneStr = "";
@@ -397,9 +487,9 @@ public class GameManager : KeyActionReceiver<GameManager>
         SaveGame();
         Debug.Log("Auto-saved on scene load: " + e.sceneName);
         
-        if (SceneManager.GetActiveScene().name != "11 End Screen")
+        if (SceneManager.GetActiveScene().name != endMenuSceneName)
         {
-            AudioManager.Instance?.StopMusic();
+            PlaySoundForCurrentScene();
         }
         
         {
@@ -459,10 +549,30 @@ public class GameManager : KeyActionReceiver<GameManager>
         // Capture NPC trigger states
         playerData.npcTriggerStates = CaptureNpcTriggerStates();
 
+        // Capture auto dialogue triggered states
+        playerData.triggeredAutoDialogueNames = CaptureAutoDialogueStates();
+
+        playerData.numTasksCompleted = _numTasksCompleted; // Removed + _queuedTasksCompleted
+        playerData.numTasksAssigned = _numTasksAssigned;   // Removed + _queuedTasksAssigned
+
         // Capture timer state if one is active in the scene
         var timer = FindObjectOfType<ObjectiveTimer>();
         if (timer != null && timer.HasStarted)
             playerData.timerTime = timer.GetCurrentTime();
+
+        // Capture level progression
+        if (LevelManager.Instance != null)
+        {
+            var currentLevel = LevelManager.Instance.GetCurrentLevel();
+            if (currentLevel != null)
+            {
+                if (Enum.IsDefined(typeof(LevelId), currentLevel.levelId))
+                {
+                    playerData.currentLevelId = (int)currentLevel.levelId;
+                }
+                playerData.currentSceneIndex = LevelManager.Instance.GetCurrentSceneIndex();
+            }
+        }
 
         if (Player.Instance != null)
         {
@@ -505,22 +615,47 @@ public class GameManager : KeyActionReceiver<GameManager>
         if (playerData.npcTriggerStates != null && playerData.npcTriggerStates.Count > 0)
             _pendingNpcStates = playerData.npcTriggerStates;
 
+        // Restore auto dialogue triggered states if saved
+        if (playerData.triggeredAutoDialogueNames != null && playerData.triggeredAutoDialogueNames.Count > 0)
+            _pendingAutoDialogueStates = playerData.triggeredAutoDialogueNames;
+
         // Restore timer state if it was saved
         if (playerData.timerTime > 0f)
             _pendingTimerTime = playerData.timerTime;
 
-        // Load the scene
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(playerData.sceneName);
+        AutoSaveEnabled = playerData.settings.autoSave;
+        _numTasksCompleted = playerData.numTasksCompleted;
+        _numTasksAssigned = playerData.numTasksAssigned;
+        _queuedTasksCompleted = 0;
+        _queuedTasksAssigned = 0;
 
-        // Wait until the scene is fully loaded
-        while (!asyncLoad.isDone)
+        // Load the scene using UIManager's fade transition if available, otherwise load directly
+        if (UIManager.Instance != null)
         {
-            yield return null;
+            UIManager.Instance.LoadSceneWithFade(playerData.sceneName);
+            // Wait until the scene is fully loaded
+            while (SceneManager.GetActiveScene().name != playerData.sceneName)
+            {
+                yield return null;
+            }
+        }
+        else
+        {
+            Debug.LogWarning("UIManager instance is not available. Loading scene without fade.");
+            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(playerData.sceneName);
+
+            // Wait until the scene is fully loaded
+            while (!asyncLoad.isDone)
+            {
+                yield return null;
+            }
         }
 
-        // Restore auto-save preference
-        AutoSaveEnabled = playerData.settings.autoSave;
-        SetNumTasksCompleted(_numTasksAssigned);
+        // Restore level state — LevelManager will auto-detect the level from the loaded scene
+        if (LevelManager.Instance != null)
+        {
+            LevelManager.Instance.UpdateCurrentLevel();
+        }
 
         // Apply player data after scene has loaded
         if (Player.Instance != null)
@@ -542,5 +677,24 @@ public class GameManager : KeyActionReceiver<GameManager>
 
         Screen.SetResolution(playerData.settings.resolutionWidth, playerData.settings.resolutionHeight, playerData.settings.isFullscreen);
         */
+    }
+
+    /// <summary>
+    /// Completely wipes task progression and pending states. 
+    /// Call this when starting a brand new game from the Main Menu.
+    /// </summary>
+    public void ResetForNewGame()
+    {
+        _numTasksCompleted = 0;
+        _numTasksAssigned = 0;
+        _queuedTasksCompleted = 0;
+        _queuedTasksAssigned = 0;
+
+        // Clear any pending objective states so tasks don't auto-complete
+        ClearPendingObjectiveStates();
+        ClearPendingNpcStates();
+        ClearPendingAutoDialogueStates();
+
+        LevelIntroDialogueManager.Instance?.ResetForNewGame();
     }
 }

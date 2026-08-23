@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -45,8 +46,11 @@ public class Player : KeyActionReceiver<Player>
     private bool prevH = false;
     private bool prevV = false;
 
-    // track last non‑zero horizontal so we know which way “left” refers to
+    // track last non-zero horizontal so we know which way “left” refers to
     private Directions lastHorizontalInput = Directions.RIGHT;
+    
+    // track if walk Sound is active or not
+    private bool WalkSoundActive = false;
 
     [SerializeField] bool isGrounded = true;
     public bool IsGrounded => isGrounded;
@@ -61,6 +65,10 @@ public class Player : KeyActionReceiver<Player>
     // Jumping and Movement Variables
     [SerializeField] float movementSpeed = 5f;
     private Vector2 movementInput;
+    
+    // NEW: Stores the calculated direction from Update to be applied in FixedUpdate
+    private Vector3 calculatedMoveDir = Vector3.zero;
+    
     float timeElapsed = 0f;
     public bool canMove = true;
 
@@ -80,9 +88,22 @@ public class Player : KeyActionReceiver<Player>
     private FormScript selectedGroupScript;
 
     public float transformationDuration = 10f;
+    
+    [SerializeField] private AudioData thoughtBubbleSound;
 
     // Other Variables
     [SerializeField] private float outOfBoundsY = -10f;
+
+    [SerializeField] private string[] outOfBoundsExcludedScenes = new string[]
+    {
+        "0 Main Menu",
+        "1-0 Terry",
+        "2-0 Meri",
+        "3-0 Jerry",
+        "4-0 Carrie",
+        "5-0 Perry",
+        "11-0 End"
+    };
 
     [SerializeField] private float minMoveThreshold = 0.25f;
 
@@ -100,7 +121,8 @@ public class Player : KeyActionReceiver<Player>
             { "Interact", (instance, ctx) => instance.InteractHandler(ctx) },
             { "Ability1", (instance, ctx) => instance.Ability1Handler(ctx) },
             { "Ability2", (instance, ctx) => instance.Ability2Handler(ctx) },
-            { "Ability3", (instance, ctx) => instance.Ability3Handler(ctx) }
+            { "Ability3", (instance, ctx) => instance.Ability3Handler(ctx) },
+            { "Unstick", (instance, ctx) => instance.UnstickHandler(ctx) }
         };
 
     protected override Dictionary<string, Action<Player, InputAction.CallbackContext>> KeyMapping => staticKeyMapping;
@@ -168,8 +190,13 @@ public class Player : KeyActionReceiver<Player>
     public void stopMovement() {
         rbody.velocity = Vector3.zero;
         movementInput = Vector2.zero;
+        calculatedMoveDir = Vector3.zero;
 
         animator?.SetBool("isWalking", false);
+
+        // Prevent walk/ability sounds from looping indefinitely while movement is disabled
+        selectedGroupScript?.StopMovementSounds();
+        WalkSoundActive = false;
     }
 
     public GameObject GetSmoke() {
@@ -247,24 +274,29 @@ public class Player : KeyActionReceiver<Player>
             airborneGraceTimer -= Time.deltaTime;
         }
 
+        if (transformationWheel.gameObject.activeSelf)
+        {
+            canMoveToggle(false);
+        }
+
         if (canMove)
         {
             InputHandler();
-            MoveHandler();
+            CalculateMovement(); // Determines intent, applies sprite logic
         }
         else
         { 
             isMoving = false;
+            calculatedMoveDir = Vector3.zero;
+            if (!isMoving && WalkSoundActive)
+            {
+                selectedGroupScript.EndWalkSound();
+                WalkSoundActive = false;
+            }
         }
 
         if (transform.position.y < outOfBoundsY && !GameManager.Instance.isGameOver
-                                                && SceneManager.GetActiveScene().name != "2-0 Meri"
-                                                && SceneManager.GetActiveScene().name != "3-0 Jerry"
-                                                && SceneManager.GetActiveScene().name != "11-0 Thanks"
-                                                && SceneManager.GetActiveScene().name != "0 Main Menu"
-                                                && SceneManager.GetActiveScene().name != "11 End Screen"
-                                                && SceneManager.GetActiveScene().name != "4-0 Carrie"
-                                                && SceneManager.GetActiveScene().name != "5-0 Perry")
+            && System.Array.IndexOf(outOfBoundsExcludedScenes, SceneManager.GetActiveScene().name) < 0)
         {
             Debug.LogWarning("s::" + SceneManager.GetActiveScene().name);
             Debug.LogWarning("Game Over from Player.cs");
@@ -272,6 +304,39 @@ public class Player : KeyActionReceiver<Player>
         }
 
         UpdateAnimationBasedDirection();
+    }
+
+    // NEW: Apply the actual physics movement in FixedUpdate
+    private void FixedUpdate()
+    {
+        if (!canMove) return;
+
+        // Apply horizontal/depth velocity while maintaining current vertical velocity
+        rbody.velocity = new Vector3(
+            calculatedMoveDir.x * movementSpeed,
+            rbody.velocity.y,
+            calculatedMoveDir.z * movementSpeed
+        );
+
+        // Check if Bulldozer is sprinting - if so, don't clamp velocity
+        bool isBulldozerSprinting = false;
+        if (transformation == Transformation.BULLDOZER && selectedGroupScript != null)
+        {
+            Bulldozer bulldozer = selectedGroupScript as Bulldozer;
+            if (bulldozer != null)
+            {
+                isBulldozerSprinting = bulldozer.IsSprinting();
+            }
+        }
+
+        if (!isJumping && airborneGraceTimer <= 0f && isGrounded && rbody.velocity.y > 0.1f && !isBulldozerSprinting)
+        {
+            rbody.velocity = new Vector3(
+                rbody.velocity.x,
+                0,
+                rbody.velocity.z
+            );
+        }
     }
 
     public void resetPosition() {
@@ -318,8 +383,8 @@ public class Player : KeyActionReceiver<Player>
         movementInput = moveValue;
     }
 
-
-    void MoveHandler() {
+    // Renamed from MoveHandler. Calculates intent and updates sprites.
+    void CalculateMovement() {
         float vx = movementInput.x;
         float vy = movementInput.y;
         float thr = minMoveThreshold;
@@ -355,7 +420,6 @@ public class Player : KeyActionReceiver<Player>
                                      : Directions.DOWN;
             }
 
-
             if (h)
             {
                 if (transformation == Transformation.BULLDOZER || transformation == Transformation.FROG)
@@ -369,16 +433,29 @@ public class Player : KeyActionReceiver<Player>
             }
         }
         
-
         if (animator != null)
         {
-            bool isMoving = vx != 0 || vy != 0;
+            isMoving = vx != 0 || vy != 0;
             if (isMoving && !directionLocked)
             {
                 animator.SetFloat("MoveX", vx);
                 animator.SetFloat("MoveY", 3 * vy);
             }
             animator.SetBool("isWalking", vx != 0 || vy != 0);
+        }
+
+        if (selectedGroupScript != null)
+        {
+            if (isMoving && !WalkSoundActive)
+            {
+                selectedGroupScript.PlayWalkSound();
+                WalkSoundActive = true;
+            }
+            else if (!isMoving && WalkSoundActive)
+            {
+                selectedGroupScript.EndWalkSound();
+                WalkSoundActive = false;
+            }
         }
         
         Vector3 camF = Camera.main.transform.forward; camF.y = 0; camF.Normalize();
@@ -398,31 +475,8 @@ public class Player : KeyActionReceiver<Player>
             }
         }
 
-        rbody.velocity = new Vector3(
-            dir.x * movementSpeed,
-            rbody.velocity.y,
-            dir.z * movementSpeed
-        );
-
-        // Check if Bulldozer is sprinting - if so, don't clamp velocity
-        bool isBulldozerSprinting = false;
-        if (transformation == Transformation.BULLDOZER && selectedGroupScript != null)
-        {
-            Bulldozer bulldozer = selectedGroupScript as Bulldozer;
-            if (bulldozer != null)
-            {
-                isBulldozerSprinting = bulldozer.IsSprinting();
-            }
-        }
-
-        if (!isJumping && airborneGraceTimer <= 0f && isGrounded && rbody.velocity.y > 0.1f && !isBulldozerSprinting)
-        {
-            rbody.velocity = new Vector3(
-                rbody.velocity.x,
-                0,
-                rbody.velocity.z
-            );
-        }
+        // Pass calculated direction to FixedUpdate
+        calculatedMoveDir = dir;
     }
     
     private string GetCurrentSpriteName()
@@ -435,99 +489,60 @@ public class Player : KeyActionReceiver<Player>
         return selectedGroupSprite.sprite.name;
     }
 
-    // This is the logic that determines direction from animation state.
     private void UpdateAnimationBasedDirection()
     {
-        Vector3 dirVec = Vector3.forward; // Default direction
-        
-        if (selectedGroupSprite == null || animator == null)
-        {
-            AnimationBasedFacingDirection = dirVec;
-            return;
-        }
+        if (selectedGroupScript != null && selectedGroupScript.IsDirectionLocked) return;
+        if (selectedGroupSprite == null || animator == null) return;
+
+        // NEW: Default to our EXISTING direction! 
+        // If an animation (like Idle or Tongue) doesn't have a directional keyword in its name,
+        // we just maintain the last known direction instead of breaking and snapping to forward.
+        Vector3 dirVec = AnimationBasedFacingDirection == Vector3.zero ? Vector3.forward : AnimationBasedFacingDirection;
 
         bool isFlippedX = selectedGroupSprite.flipX;
         string spriteName = GetCurrentSpriteName();
 
-        // Special handling for Frog's "Left" sprites - these are pure left/right facing
-        if (spriteName.StartsWith("Left"))
+        // Changed .StartsWith to .Contains to catch names like "Frog_Idle_FrontLeft"
+        if (spriteName.Contains("FrontLeft"))
+        {
+            if (transformation == Transformation.BULLDOZER)
+                dirVec = isFlippedX ? Vector3.back : Vector3.left;
+            else
+                dirVec = Vector3.left;
+        }
+        else if (spriteName.Contains("FrontRight"))
+        {
+            dirVec = Vector3.back;
+        }
+        else if (spriteName.Contains("BackLeft"))
+        {
+            if (transformation == Transformation.BULLDOZER)
+                dirVec = isFlippedX ? Vector3.right : Vector3.forward;
+            else
+                dirVec = Vector3.forward;
+        }
+        else if (spriteName.Contains("BackRight"))
+        {
+            dirVec = Vector3.right;
+        }
+        else if (spriteName.Contains("Left")) // Pure Left/Right
         {
             if (transformation == Transformation.FROG)
-            {
-                // Frog's "Left" sprites use flipX to distinguish left from right
-                // flipX = false: facing pure west (left) - between forward and left
-                // flipX = true: facing pure east (right) - between back and right
-                dirVec = isFlippedX 
-                    ? new Vector3(1, 0, -1).normalized  // East: between back (0,0,-1) and right (1,0,0)
-                    : new Vector3(-1, 0, 1).normalized; // West: between left (-1,0,0) and forward (0,0,1)
-            }
+                dirVec = isFlippedX ? new Vector3(1, 0, -1).normalized : new Vector3(-1, 0, 1).normalized;
             else
-            {
-                // Other transformations default to left
                 dirVec = Vector3.left;
-            }
         }
-        // Sprites with specific "Left" or "Right" directions
-        // These function as if isFlippedX is false or true, respectively, ignoring the variable.
-        else if (spriteName.StartsWith("FrontLeft"))
+        else if (spriteName.Contains("Back"))
         {
-            // if Transformation is BULLDOZER, use the isFlippedX to determine direction
-            if (transformation == Transformation.BULLDOZER)
-            {
-                dirVec = isFlippedX ? Vector3.back : Vector3.left; // South (FACING DOWN) or West (FACING LEFT)
-            }
-            else
-            {
-                dirVec = Vector3.left;   // South (FACING DOWN)
-            }
+            dirVec = isFlippedX ? Vector3.right : Vector3.forward;
         }
-        else if (spriteName.StartsWith("FrontRight"))
+        else if (spriteName.Contains("Front"))
         {
-            dirVec = Vector3.back;  // East (FACING RIGHT)
-        }
-        else if (spriteName.StartsWith("BackLeft"))
-        {
-            if (transformation == Transformation.BULLDOZER)
-            {
-                dirVec = isFlippedX ? Vector3.right : Vector3.forward; // North (FACING UP) or West (FACING LEFT)
-            }
-            else
-            {
-                dirVec = Vector3.forward;    // West (FACING LEFT)
-            }
-        }
-        else if (spriteName.StartsWith("BackRight"))
-        {
-            dirVec = Vector3.right; // North (FACING UP)
-        }
-        // Fallback to generic "Front" or "Back" sprites which use isFlippedX
-        else if (spriteName.StartsWith("Back"))
-        {
-            if (!isFlippedX)
-            {
-                dirVec = Vector3.forward;    // West (FACING LEFT)
-            }
-            else
-            {
-                dirVec = Vector3.right; // North (FACING UP)
-            }
-        }
-        else if (spriteName.StartsWith("Front"))
-        {
-            if (!isFlippedX)
-            {
-                dirVec = Vector3.left;   // South (FACING DOWN)
-            }
-            else
-            {
-                dirVec = Vector3.back;  // East (FACING RIGHT)
-            }
+            dirVec = isFlippedX ? Vector3.back : Vector3.left;
         }
 
-        // Update the public property for other scripts to read.
         AnimationBasedFacingDirection = dirVec;
     }
-
 
     public void SetVelocity(Vector3 velocity) {
         rbody.velocity = velocity;
@@ -552,12 +567,19 @@ public class Player : KeyActionReceiver<Player>
         selectedGroup.GetComponent<FormScript>().Ability3(context);
     }
 
+    void UnstickHandler(InputAction.CallbackContext context) {
+        if (UIManager.Instance && UIManager.Instance.isPaused) return;
+        selectedGroup.GetComponent<FormScript>().Unstick(context);
+    }
+
     void InputHandler() {
+#if UNITY_EDITOR
         for (int i = 1; i <= areaPositions.Length; i++) {
             if (Input.GetKeyDown(KeyCode.Alpha0 + i)) {
                 moveToArea(i - 1);
             }
         }
+#endif
         
         if (InputManager.Instance && InputManager.Instance.isListening) {
             return;
@@ -572,6 +594,8 @@ public class Player : KeyActionReceiver<Player>
         if (!isGrounded || (UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive)) && transformationWheel.gameObject.activeSelf) return;
 
         transformationWheel.gameObject.SetActive(true);
+        //TODO: Finish implementing thought bubble sfx
+        AudioManager.Instance?.PlayOneShot(thoughtBubbleSound);
         canMoveToggle(false);
     }
 
@@ -586,6 +610,7 @@ public class Player : KeyActionReceiver<Player>
             if (!isGrounded || (UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive))) return;
 
             transformationWheel.gameObject.SetActive(!transformationWheel.gameObject.activeSelf);
+            AudioManager.Instance?.PlayOneShot(thoughtBubbleSound);
             canMoveToggle(!transformationWheel.gameObject.activeSelf);
         }
     }
@@ -616,6 +641,10 @@ public class Player : KeyActionReceiver<Player>
         if (transformation != newTransformation)
         {
             Smoke();
+
+            // Stop the outgoing form's looping sounds so they don't leak past the switch
+            selectedGroupScript?.StopMovementSounds();
+            WalkSoundActive = false;
         }
         prevTransformation = transformation;
         transformation = newTransformation;
@@ -661,6 +690,16 @@ public class Player : KeyActionReceiver<Player>
         isGrounded = true;
         isJumping = false;
         airborneGraceTimer = 0f;
+
+        if (outOfBoundsExcludedScenes.Contains(SceneManager.GetActiveScene().name))
+        {
+            if (canMove)
+                canMoveToggle(false);
+        }
+        else
+        {
+            canMoveToggle(true);
+        }
     }
 
     public void Smoke() {

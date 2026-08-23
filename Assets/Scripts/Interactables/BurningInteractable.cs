@@ -26,11 +26,24 @@ public class BurningInteractable : MonoBehaviour, IInteractable
     [Tooltip("Fraction of the animation the player must hold through before it auto-completes (0–1). Default 0.75 = first 75%.")]
     [SerializeField] [Range(0f, 1f)] private float holdCompletionThreshold = 0.75f;
 
+    [Header("Ambient Fire Audio")]
+    [Tooltip("Looping ambient sound that plays continuously while this object is on fire. Volume scales with distance to the player via the pooled AudioSource's 3D settings. Paused while the extinguish minigame is active.")]
+    [SerializeField] private AudioData burningAmbientSound;
+
+    [Header("Extinguish Audio")]
+    [Tooltip("Sound that plays while the extinguish animation is actively running. Paused/resumed in sync with the animator.")]
+    [SerializeField] private AudioData extinguishSound;
+    [Tooltip("Plays alongside extinguishSound the moment extinguishing starts; paused/resumed on the same timing.")]
+    [SerializeField] private AudioData fireDyingSound;
+
     private bool _isExtinguished = false;
     private bool _isMinigameActive = false;
     private float _currentProgress = 0f;
     private Animator _animator;
     private bool _animatorTriggered = false;
+    private AudioSource _burningAmbientAudioSource;
+    private AudioSource _extinguishAudioSource;
+    private AudioSource _fireDyingAudioSource;
 
     private Terry GetTerry()
     {
@@ -75,13 +88,14 @@ public class BurningInteractable : MonoBehaviour, IInteractable
     private IEnumerator ExtinguishHoldCoroutine()
     {
         _isMinigameActive = true;
+        PauseBurningAmbient();
 
         float holdTarget = extinguishDuration * holdCompletionThreshold;
 
-        // Disable player movement
+        // Lock movement for the entire hold phase — restored on completion or forced exit only.
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = false });
 
-        // Show UI progress bar (only covers the hold portion — slider max = holdTarget)
+        // Show progress bar
         Slider slider = GetProgressSlider();
         CanvasGroup cg = GetProgressCanvasGroup();
         if (slider != null)
@@ -89,11 +103,12 @@ public class BurningInteractable : MonoBehaviour, IInteractable
             slider.maxValue = holdTarget;
             slider.value = _currentProgress;
         }
-        if (cg != null)
-            cg.alpha = 1f;
+        if (cg != null) cg.alpha = 1f;
 
-        // Hide bubble prompt
-        SetInteractBubbleActive(false);
+        // Hide press bubble and show hold bubble for the duration of the minigame
+        Terry terry = GetTerry();
+        terry?.SetBurningPromptActive(false);
+        terry?.SetHoldExtinguishPromptActive(true);
 
         // Activate animator and fire trigger once
         if (extinguishAnimObject != null)
@@ -106,21 +121,23 @@ public class BurningInteractable : MonoBehaviour, IInteractable
             {
                 _animator.SetTrigger("Extinguish");
                 _animatorTriggered = true;
-                _animator.speed = 0f; // Start paused
+                _animator.speed = 0f;
             }
         }
 
-        // === PHASE 1: player must hold the button up to holdTarget ===
+        bool forcedExit = false;
+
+        // === HOLD PHASE: runs until the bar is full or a forced exit occurs ===
+        // Releasing the button only pauses the animator; movement stays locked and the
+        // bar keeps its value. The player just holds again to resume.
         while (_isMinigameActive && _currentProgress < holdTarget)
         {
-            if (!IsInteractable())
-                break;
+            if (!IsInteractable()) { forcedExit = true; break; }
 
             if (Player.Instance != null)
             {
                 float distance = Vector3.Distance(Player.Instance.transform.position, transform.position);
-                if (distance > GetInteractionDistance() + 1.5f)
-                    break;
+                if (distance > GetInteractionDistance() + 1.5f) { forcedExit = true; break; }
             }
 
             bool isHolding = InputManager.Instance != null && InputManager.Instance.IsActionPressed("Interact");
@@ -129,46 +146,59 @@ public class BurningInteractable : MonoBehaviour, IInteractable
             {
                 _currentProgress = Mathf.Min(_currentProgress + Time.deltaTime, holdTarget);
                 if (_animator != null) _animator.speed = 1f;
+                ResumeExtinguishAudio();
             }
             else
             {
                 if (_animator != null) _animator.speed = 0f;
-                break; // Released — pause and let the player resume later
+                PauseExtinguishAudio();
             }
 
-            if (slider != null)
-                slider.value = _currentProgress;
-
+            if (slider != null) slider.value = _currentProgress;
             yield return null;
         }
 
-        bool completedHold = _currentProgress >= holdTarget;
+        bool completedHold = !forcedExit && _currentProgress >= holdTarget;
 
         _isMinigameActive = false;
 
-        // Re-enable player movement regardless of outcome
+        // Always restore movement and clean up UI when the loop ends
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
-
-        if (!completedHold)
-        {
-            // Player released early — hide bar, pause animator, restore prompt
-            if (cg != null) cg.alpha = 0f;
-            if (_animator != null) _animator.speed = 0f;
-            SetInteractBubbleActive(true);
-            yield break;
-        }
-
-        // === PHASE 2: hold complete — hide bar, let animation finish on its own ===
+        terry?.SetHoldExtinguishPromptActive(false);
         if (cg != null) cg.alpha = 0f;
         if (slider != null) slider.value = 0f;
 
-        if (_animator != null) _animator.speed = 1f;
+        if (!completedHold)
+        {
+            // Forced out of range or lost eligibility — pause animator and let
+            // InteractionManager restore the correct bubble when the player returns.
+            if (_animator != null) _animator.speed = 0f;
+            PauseExtinguishAudio();
+            StartBurningAmbient(); // fire is still burning, resume the ambient loop
+            yield break;
+        }
 
-        // Wait for the remaining animation time (the last 25%)
+        // === AUTO-COMPLETE PHASE: last portion plays on its own ===
+        if (_animator != null) _animator.speed = 1f;
+        ResumeExtinguishAudio();
+
+        // Immediately disable the killzone so the player can walk through the dwindling fire
+        // while the remaining animation plays out.
+        Transform killzone = transform.Find("Killzone");
+        if (killzone != null) killzone.gameObject.SetActive(false);
+
         float remainingTime = extinguishDuration - holdTarget;
         yield return new WaitForSeconds(remainingTime);
 
         _isExtinguished = true;
+        StopExtinguishAudio();
+        StopBurningAmbient();
+
+        //Raise custom event dispatcher
+        if (CustomEventObjective.TryCompleteAnyForObject(this.gameObject, out CustomEventObjective completedObjective))
+        {
+            Debug.Log($"Extinguished object '{this.gameObject.name}' counted toward objective '{completedObjective.description}'.");
+        }
 
         if (InteractionManager.Instance != null)
             InteractionManager.Instance.Unregister(this);
@@ -179,9 +209,66 @@ public class BurningInteractable : MonoBehaviour, IInteractable
 
     public void SetInteractBubbleActive(bool active)
     {
-        // The bubble lives on Terry, not on this object.
-        Terry terry = Player.Instance?.GetComponentInChildren<Terry>();
-        terry?.SetBurningPromptActive(active);
+        // Show/hide the press-to-interact prompt on Terry.
+        // The hold bubble is managed directly by ExtinguishHoldCoroutine.
+        GetTerry()?.SetBurningPromptActive(active);
+    }
+
+    #endregion
+
+    #region Fire Audio
+
+    // Starts the ambient fire loop if it hasn't started yet, or unpauses it if it was paused during extinguishing.
+    private void StartBurningAmbient()
+    {
+        if (_isExtinguished) return;
+        if (burningAmbientSound != null && !burningAmbientSound.loop) burningAmbientSound.loop = true;
+        ResumeAudio(burningAmbientSound, ref _burningAmbientAudioSource);
+    }
+
+    private void PauseBurningAmbient() => PauseAudio(_burningAmbientAudioSource);
+
+    private void StopBurningAmbient() => StopAudio(burningAmbientSound, ref _burningAmbientAudioSource);
+
+    // Starts extinguishSound/fireDyingSound if they haven't started yet, or unpauses them if paused mid-hold.
+    private void ResumeExtinguishAudio()
+    {
+        ResumeAudio(extinguishSound, ref _extinguishAudioSource);
+        ResumeAudio(fireDyingSound, ref _fireDyingAudioSource);
+    }
+
+    // Pauses without resetting playback position, mirroring the animator pause.
+    private void PauseExtinguishAudio()
+    {
+        PauseAudio(_extinguishAudioSource);
+        PauseAudio(_fireDyingAudioSource);
+    }
+
+    private void StopExtinguishAudio()
+    {
+        StopAudio(extinguishSound, ref _extinguishAudioSource);
+        StopAudio(fireDyingSound, ref _fireDyingAudioSource);
+    }
+
+    private void ResumeAudio(AudioData data, ref AudioSource source)
+    {
+        if (data == null || data.clip == null) return;
+        if (source == null)
+            source = AudioManager.Instance?.PlaySound(data, transform);
+        else if (!source.isPlaying)
+            source.UnPause();
+    }
+
+    private void PauseAudio(AudioSource source)
+    {
+        if (source != null && source.isPlaying) source.Pause();
+    }
+
+    private void StopAudio(AudioData data, ref AudioSource source)
+    {
+        if (source == null) return;
+        AudioManager.Instance?.StopSound(data);
+        source = null;
     }
 
     #endregion
@@ -190,6 +277,8 @@ public class BurningInteractable : MonoBehaviour, IInteractable
     {
         if (InteractionManager.Instance != null)
             InteractionManager.Instance.Register(this);
+
+        StartBurningAmbient();
     }
 
     private void OnDisable()
@@ -202,6 +291,9 @@ public class BurningInteractable : MonoBehaviour, IInteractable
             CanvasGroup cg = GetProgressCanvasGroup();
             if (cg != null) cg.alpha = 0f;
         }
+
+        StopExtinguishAudio();
+        StopBurningAmbient();
 
         if (InteractionManager.Instance != null)
             InteractionManager.Instance.Unregister(this);

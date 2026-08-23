@@ -30,13 +30,17 @@ using UnityEngine;
         public bool HasDialogue => sourceObjective != null && (useAlternateDialogue ? sourceObjective.HasAlternateNPCDialogue() : sourceObjective.HasDialogue);
         
         public DialogueEntry[] GetDialogueEntries() => sourceObjective == null ? null : (useAlternateDialogue ? sourceObjective.GetAlternateNPCDialogueEntries() : sourceObjective.GetDialogueEntries()); 
+
+        public int EligibilityOrder => sourceObjective?.EligibilityOrder ?? -1;
+
+        public bool ReadyDialogueShown => sourceObjective?.ReadyDialogueShown ?? true;
     }
 
     public class FetchObjective : Objective, IDialogueProvider
     {
         public static event Action<Objective> OnObjectiveComplete;
         //public static event Action<Objective, int, int> OnItemFetched;
-        [SerializeField] List<FetchableInteractable> ObjectsToFetch;
+        [SerializeField] List<MonoBehaviour> ObjectsToFetch;
         public DialogueTrigger questGiver;
 
         [Header("Objective Text")]
@@ -76,6 +80,7 @@ using UnityEngine;
         
         //Tally the number of items fetched
         public int numCompleted { get; set; }
+        private int cachedTotal;
         
         //reference the objects to fetch/flag if all objects are fetched, then check if npc actually got the object, if so objective complete
         
@@ -90,10 +95,11 @@ using UnityEngine;
         {
             get
             {
-                if (isComplete)
+                int stage = ResolveDialogueStage(GetTargetStage());
+                if (stage == PRIORITY_STAGE_COMPLETE)
                     return PRIORITY_COMPLETE;
                 
-                if (fetchedAll)
+                if (stage == PRIORITY_STAGE_READY)
                     return PRIORITY_ITEMS_READY;
                 
                 return -1; // No applicable dialogue state, use base dialogue
@@ -103,6 +109,10 @@ using UnityEngine;
         public bool HasDialogue => HasDialogueForState(itemsReadyDialogue, questCompleteDialogue);
         
         public DialogueEntry[] GetDialogueEntries() => GetDialogueForState(itemsReadyDialogue, questCompleteDialogue);
+
+        public int EligibilityOrder => DialogueEligibilityOrder;
+
+        public bool ReadyDialogueShown => HasShownReadyDialogue;
         
         #endregion
         
@@ -121,10 +131,11 @@ using UnityEngine;
         /// </summary>
         private bool HasDialogueForState(DialogueEntry[] readyDialogue, DialogueEntry[] completeDialogue)
         {
-            if (isComplete)
+            int stage = ResolveDialogueStage(GetTargetStage());
+            if (stage == PRIORITY_STAGE_COMPLETE)
                 return completeDialogue != null && completeDialogue.Length > 0;
             
-            if (fetchedAll)
+            if (stage == PRIORITY_STAGE_READY)
                 return readyDialogue != null && readyDialogue.Length > 0;
             
             return false;
@@ -135,19 +146,33 @@ using UnityEngine;
         /// </summary>
         private DialogueEntry[] GetDialogueForState(DialogueEntry[] readyDialogue, DialogueEntry[] completeDialogue)
         {
-            if (isComplete)
+            int stage = ResolveDialogueStage(GetTargetStage());
+            if (stage == PRIORITY_STAGE_COMPLETE)
                 return completeDialogue;
             
-            if (fetchedAll)
+            if (stage == PRIORITY_STAGE_READY)
                 return readyDialogue;
             
             return null;
         }
+
+        // 0 = nothing revealed, 1 = ready dialogue revealed, 2 = complete dialogue revealed.
+        private const int PRIORITY_STAGE_READY = 1;
+        private const int PRIORITY_STAGE_COMPLETE = 2;
+
+        private int GetTargetStage() => isComplete ? PRIORITY_STAGE_COMPLETE : (fetchedAll ? PRIORITY_STAGE_READY : 0);
         
         #endregion
 
+        private void Awake()
+        {
+            RefreshCachedTotal();
+        }
+
         private void Start()
         {
+            RefreshCachedTotal();
+
             if(!questGiver) questGiver = GetComponent<DialogueTrigger>();
 
             EnsureQuestGiverProxy();
@@ -167,7 +192,8 @@ using UnityEngine;
             }
             
             //UPDATE TALLY AT START (This kinda sucks tho)
-            TallyBuilder.InitializeTallyUI(this, ObjectsToFetch.Count);
+            TallyBuilder.InitializeTallyUI(this, cachedTotal);
+            RefreshTallyUI();
             UpdateObjectiveDescriptionUI();
         }
         
@@ -205,6 +231,27 @@ using UnityEngine;
                 {
                     alternateNPC.RefreshDialogueProviders();
                 }
+            }
+        }
+
+        private void OnValidate()
+        {
+            RefreshCachedTotal();
+        }
+
+        private void RefreshCachedTotal()
+        {
+            int currentTotal = ObjectsToFetch != null ? ObjectsToFetch.Count(obj => obj != null) : 0;
+
+            if (!Application.isPlaying)
+            {
+                cachedTotal = currentTotal;
+                return;
+            }
+
+            if (cachedTotal <= 0)
+            {
+                cachedTotal = currentTotal;
             }
         }
 
@@ -247,7 +294,7 @@ using UnityEngine;
 
             if (showTally)
             {
-                ObjectiveListing.ObjectiveToUI[this].DescriptionTXT.text = $"{currentDescription} ({numCompleted}/{ObjectsToFetch.Count})";
+                ObjectiveListing.ObjectiveToUI[this].DescriptionTXT.text = $"{currentDescription} ({numCompleted}/{cachedTotal})";
             }
             else
             {
@@ -258,13 +305,13 @@ using UnityEngine;
         private void OnFetchObjectInteract(FetchObjectInteract e)
         {
             Debug.Log("FetchObjectInteract received in FetchObjective");
-            // Check if the fetched object is in the ObjectsToFetch list
-            if (ObjectsToFetch.Contains(e.fetchableObject))
+            var fetchableComponent = e.fetchableObject as MonoBehaviour;
+            if (fetchableComponent != null && ObjectsToFetch.Contains(fetchableComponent))
             {
                 Debug.Log("Object fetched is part of the objective, checking completion...");
-                Debug.Log("Object fetched: " + e.fetchableObject.gameObject.name);
+                Debug.Log("Object fetched: " + fetchableComponent.gameObject.name);
                 Debug.Log("Is Fetched: " + e.fetchableObject.isFetched);
-                
+
                 if(showTally) UpdateTally();
                 CheckCompletion();
             }
@@ -280,7 +327,8 @@ using UnityEngine;
                 return;
             }
 
-            numCompleted = ObjectsToFetch.Count(obj => obj != null && obj.isFetched);
+            numCompleted = ObjectsToFetch.Count(obj => obj != null && (obj as IFetchable)?.isFetched == true);
+            numCompleted = Mathf.Clamp(numCompleted, 0, cachedTotal);
             UpdateObjectiveDescriptionUI();
         }
 
@@ -293,15 +341,24 @@ using UnityEngine;
         }
 
         public bool fetchedAll = false;
-        private void CheckCompletion(DialogueTrigger interactedNPC)
+        private void CheckCompletion(DialogueTrigger interactedNPC, IDialogueProvider shownProvider)
         {
-            if (!fetchedAll) return;
-            if (isComplete) return;
-
             DialogueTrigger targetNPC = (useAlternateNPC && alternateNPC != null) ? alternateNPC : questGiver;
 
-            if (targetNPC == null) return;
-            if (interactedNPC != targetNPC) return;
+            if (targetNPC == null || interactedNPC != targetNPC) return;
+
+            // Our provider is either a dedicated proxy on the NPC, or this objective itself when
+            // the quest giver's GameObject is the same as this objective's.
+            IDialogueProvider expectedProvider = useAlternateNPC
+                ? (IDialogueProvider)alternateNPCProxy
+                : (questGiverProxy != null ? (IDialogueProvider)questGiverProxy : this);
+            if (shownProvider != expectedProvider) return; // another objective's dialogue was shown this time
+
+            // Only mark our own stage as shown once our own dialogue was actually displayed.
+            MarkDialogueStageShown(ResolveDialogueStage(GetTargetStage()));
+
+            if (!fetchedAll) return;
+            if (isComplete) return;
             
             CompleteObjective();
         }
@@ -311,13 +368,14 @@ using UnityEngine;
             //check if all objects are fetched
             foreach(var obj in ObjectsToFetch)
             {
-                if (!obj || !obj.isFetched) return;
+                if (!obj || (obj as IFetchable)?.isFetched != true) return;
             }
             
             // Mark that all items have been fetched
             if (!fetchedAll)
             {
                 fetchedAll = true;
+                _ = DialogueEligibilityOrder; // stamp this objective's place in the return-dialogue order now
                 RefreshNPCDialogue();
                 UpdateObjectiveDescriptionUI();
 
@@ -333,16 +391,15 @@ using UnityEngine;
             // NPC-return completion is handled by the Interact overload
         }
         
-        private void CompleteObjective()
+        public override void CompleteObjective()
         {
             if (isComplete) return; // Prevent double completion
             
-            InvokeCompletionEvents();
-            isComplete = true;
+            base.CompleteObjective(); // Calls GameManager and sets isComplete
+            
             RefreshNPCDialogue();
+            RefreshTallyUI();
             UpdateObjectiveDescriptionUI();
-            OnObjectiveComplete?.Invoke(this);
-            Debug.Log("FetchObjective complete!");
         }
 
         public override ObjectiveSaveState CaptureState()
@@ -353,7 +410,7 @@ using UnityEngine;
             state.fetchedItemNames = new List<string>();
             foreach (var item in ObjectsToFetch)
             {
-                if (item != null && item.isFetched)
+                if (item != null && (item as IFetchable)?.isFetched == true)
                     state.fetchedItemNames.Add(item.gameObject.name);
             }
             return state;
@@ -361,6 +418,10 @@ using UnityEngine;
 
         public override void RestoreState(ObjectiveSaveState state)
         {
+            base.RestoreState(state);
+
+            RefreshCachedTotal();
+
             numCompleted = state.numCompleted;
             fetchedAll = state.fetchedAll;
 
@@ -369,15 +430,27 @@ using UnityEngine;
             {
                 if (item != null && state.fetchedItemNames.Contains(item.gameObject.name))
                 {
-                    item.SetFetchedSilently();
+                    (item as IFetchable)?.SetFetchedSilently();
                 }
             }
 
+            numCompleted = Mathf.Clamp(numCompleted, 0, cachedTotal);
+
             // Update the tally UI to reflect restored progress
             if (showTally)
-                TallyBuilder.UpdateTallyUI(this, numCompleted, ObjectsToFetch.Count);
+                TallyBuilder.UpdateTallyUI(this, numCompleted, cachedTotal);
 
             RefreshNPCDialogue();
             UpdateObjectiveDescriptionUI();
+        }
+
+        public override void RefreshTallyUI()
+        {
+            RefreshCachedTotal();
+
+            if (showTally)
+            {
+                TallyBuilder.UpdateTallyUI(this, numCompleted, cachedTotal);
+            }
         }
     }

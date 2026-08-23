@@ -5,20 +5,32 @@ using UnityEngine;
 /// When interacted with, it disappears and sets Terry.HasFireExtinguisher = true,
 /// allowing Terry to extinguish BurningInteractable objects.
 /// </summary>
-public class FireExtinguisherInteractable : MonoBehaviour, IInteractable
+public class FireExtinguisherInteractable : MonoBehaviour, IInteractable, IFetchable
 {
     [Header("Interaction Settings")]
     [Tooltip("Maximum distance from which the player can interact. Set to 0 to use the global default.")]
     [SerializeField] private float interactionDistance = 0f;
 
+    [Tooltip("Optional. If assigned, the fire extinguisher can only be picked up after this AnimTrigger has been triggered.")]
+    [SerializeField] private AnimTrigger requiredAnimTrigger;
+
     [Header("Interact Bubble")]
     [Tooltip("The interact bubble GameObject positioned on this object.")]
     [SerializeField] private GameObject interactBubble;
-    [SerializeField] private Sprite keyboardSprite;
-    [SerializeField] private Sprite controllerSprite;
+    [SerializeField] private AudioData interactBubbleSound;
+    [SerializeField] private AudioData pickUpSound;
+
+    [Header("Dialogue")]
+    [Tooltip("Dialogue entries shown when the fire extinguisher is picked up. Leave empty for no dialogue.")]
+    [SerializeField] private DialogueEntry[] fetchDialogue;
 
     private SpriteRenderer _bubbleSpriteRenderer;
-    private Vector3 _originalBubbleScale;
+    public bool isFetched { get; private set; }
+
+    // Dialogue state
+    private Dialogue _dialogue;
+    private string _currentFirstEntry = "";
+    private bool _waitingForDialogue = false;
 
     #region IInteractable Implementation
 
@@ -37,6 +49,9 @@ public class FireExtinguisherInteractable : MonoBehaviour, IInteractable
         if (Player.Instance == null) return false;
         if (Player.Instance.transformation != Transformation.TERRY) return false;
         if (Terry.HasFireExtinguisher) return false;
+        if (requiredAnimTrigger != null && !requiredAnimTrigger.IsTriggered) return false;
+        if (_waitingForDialogue) return false;
+        if (_dialogue != null && _dialogue.IsActive()) return false;
         return true;
     }
 
@@ -44,22 +59,65 @@ public class FireExtinguisherInteractable : MonoBehaviour, IInteractable
     {
         if (!IsInteractable()) return;
 
+        isFetched = true;
         Terry.HasFireExtinguisher = true;
 
+        AudioManager.Instance?.PlayOneShot(pickUpSound);
+
         SetInteractBubbleActive(false);
+
+        EventDispatcher.Raise<FetchObjectInteract>(new FetchObjectInteract() { fetchableObject = this });
 
         if (InteractionManager.Instance != null)
             InteractionManager.Instance.Unregister(this);
 
-        gameObject.SetActive(false);
+        if (_dialogue != null && fetchDialogue != null && fetchDialogue.Length > 0)
+        {
+            _waitingForDialogue = true;
+            _dialogue.SetDialogueEntries(fetchDialogue);
+            _currentFirstEntry = fetchDialogue[0].defaultText;
+            _dialogue.Appear();
+            EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = false });
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
 
         Debug.Log("[FireExtinguisher] Picked up. Terry now has the fire extinguisher.");
+    }
+
+    private void OnEndDialogue(EndDialogue e)
+    {
+        if (!_waitingForDialogue) return;
+        if (string.IsNullOrEmpty(_currentFirstEntry) || e.someEntry != _currentFirstEntry) return;
+
+        _waitingForDialogue = false;
+        gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// Marks this fire extinguisher as fetched and hides it without raising events or showing dialogue.
+    /// Used when restoring saved / game-over state.
+    /// </summary>
+    public void SetFetchedSilently()
+    {
+        isFetched = true;
+        Terry.HasFireExtinguisher = true;
+        SetInteractBubbleActive(false);
+        if (InteractionManager.Instance != null)
+            InteractionManager.Instance.Unregister(this);
+        gameObject.SetActive(false);
     }
 
     public void SetInteractBubbleActive(bool active)
     {
         if (interactBubble != null)
+        {
             interactBubble.SetActive(active);
+            AudioManager.Instance?.PlayOneShot(interactBubbleSound);
+        }
+
     }
 
     #endregion
@@ -69,9 +127,10 @@ public class FireExtinguisherInteractable : MonoBehaviour, IInteractable
         if (InteractionManager.Instance != null)
             InteractionManager.Instance.Register(this);
 
+        EventDispatcher.AddListener<EndDialogue>(OnEndDialogue);
+
         if (interactBubble != null)
         {
-            _originalBubbleScale = interactBubble.transform.localScale;
             interactBubble.SetActive(false);
         }
     }
@@ -80,6 +139,8 @@ public class FireExtinguisherInteractable : MonoBehaviour, IInteractable
     {
         if (InteractionManager.Instance != null)
             InteractionManager.Instance.Unregister(this);
+
+        EventDispatcher.RemoveListener<EndDialogue>(OnEndDialogue);
     }
 
     private void Start()
@@ -87,6 +148,8 @@ public class FireExtinguisherInteractable : MonoBehaviour, IInteractable
         // Re-register in case InteractionManager wasn't ready during OnEnable
         if (InteractionManager.Instance != null)
             InteractionManager.Instance.Register(this);
+
+        _dialogue = UIManager.Instance.returnDialogue();
     }
 
     private void Update()
@@ -108,13 +171,11 @@ public class FireExtinguisherInteractable : MonoBehaviour, IInteractable
 
         if (isKeyboard)
         {
-            _bubbleSpriteRenderer.sprite = keyboardSprite;
-            interactBubble.transform.localScale = _originalBubbleScale * 3f;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Keyboard;
         }
         else
         {
-            _bubbleSpriteRenderer.sprite = controllerSprite;
-            interactBubble.transform.localScale = _originalBubbleScale;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Controller;
         }
     }
 }

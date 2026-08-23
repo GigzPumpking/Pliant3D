@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: -6824069562137584864}
   - component: {fileID: 6055948509835098436}
   - component: {fileID: 1286383207433458363}
+  - component: {fileID: 8590099190428112328}
+  - component: {fileID: 7831745178195359559}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -50,18 +52,33 @@ MonoBehaviour:
   gameOverPanel: {fileID: 0}
   isGameOver: 0
   player: {fileID: 0}
-  mainTheme:
-    clip: {fileID: 8300000, guid: 3ca5de335088c44659b52992b23e96c6, type: 3}
+  levelAmbience:
+    clip: {fileID: 8300000, guid: 0b4b298602295494199903df0ea9725b, type: 3}
     volume: 1
     pitch: 1
-    loop: 1
-  Ambience:
-    clip: {fileID: 8300000, guid: 7a90df5e9daa445349e8dcc6a64c018a, type: 3}
-    volume: 0.478
+    loop: 0
+  menuTheme:
+    clip: {fileID: 8300000, guid: 4ab1076d42c804d878450ec8d3eade00, type: 3}
+    volume: 1
     pitch: 1
     loop: 0
+  levelTheme:
+    clip: {fileID: 8300000, guid: 5519f6aaa8b8041ac8c50052b9c16528, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+  loadingAmbience:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: 1
+    loop: 0
+  _queuedTasksCompleted: 0
+  _queuedTasksAssigned: 0
+  _numTasksCompleted: 0
+  _numTasksAssigned: 0
   promotionRatio: 0.65
   mainMenuSceneName: 0 Main Menu
+  endMenuSceneName: 11-0 End
   outroVideoPlayer: {fileID: 0}
   unsaveableScenes:
   - 0 Main Menu
@@ -70,8 +87,15 @@ MonoBehaviour:
   - 3-0 Jerry
   - 4-0 Carrie
   - 5-0 Perry
-  - 11-0 Thanks
+  - 11-0 End
+  loadingScenes:
+  - 1-0 Terry
+  - 2-0 Meri
+  - 3-0 Jerry
+  - 4-0 Carrie
+  - 5-0 Perry
   VideoHasPlayed: 0
+  totalTasksInGame: 44
 --- !u!114 &-6824069562137584864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -152,3 +176,37 @@ MonoBehaviour:
       keyboardText: 
       controllerText: 
   triggerOnlyOnce: 1
+--- !u!114 &8590099190428112328
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2536014238896151549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32cb43ac1ea64474cbf2493f68dc592b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  allLevels:
+  - {fileID: 11400000, guid: ba879b5239e38b74b97a7814bc4ebb46, type: 2}
+  - {fileID: 11400000, guid: 1f8f334e8bdb97247b7f4b38786341f9, type: 2}
+  - {fileID: 11400000, guid: 53eb4bf06ed1fbe43aa65c47064b90c6, type: 2}
+  - {fileID: 11400000, guid: 3448c9b0161e7a447bb8dcb027fc2306, type: 2}
+  - {fileID: 11400000, guid: 6f65ef79f56b48e4bb30a7dffb5cc577, type: 2}
+  - {fileID: 11400000, guid: 28fbb128202e5e44ca73978d58059dbe, type: 2}
+  currentLevel: {fileID: 0}
+  currentSceneIndex: -1
+--- !u!114 &7831745178195359559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2536014238896151549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af4404da01888154284171315359c747, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  showDebug: 0

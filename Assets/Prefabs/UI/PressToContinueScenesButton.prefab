@@ -149,6 +149,8 @@ GameObject:
   - component: {fileID: 2974808530385431227}
   - component: {fileID: 2974808530385431226}
   - component: {fileID: 2974808530385431225}
+  - component: {fileID: 7157360720137682968}
+  - component: {fileID: 6575037922556255455}
   m_Layer: 5
   m_Name: PressToContinueScenesButton
   m_TagString: Untagged
@@ -259,7 +261,47 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2974808530385431226}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7157360720137682968}
+        m_TargetAssemblyTypeName: NextSceneHolder, Assembly-CSharp
+        m_MethodName: LoadNextScene
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &7157360720137682968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2974808530385431231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0895ed87e6f515b42934783199ccac78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneName: 
+  requiredAnimTrigger: {fileID: 0}
+  clockOutNode: {fileID: 0}
+--- !u!114 &6575037922556255455
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2974808530385431231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d093b849cfc34d66a56a1a73e1368da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultSelectedUIElement: {fileID: 2974808530385431231}
 --- !u!1001 &2974808530867897958
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -267,6 +309,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2974808530385431224}
     m_Modifications:
+    - target: {fileID: 5917419163060738594, guid: 338d829fe9ec8487cb3a9406c0d2fa7c,
+        type: 3}
+      propertyPath: NextScene
+      value: 
+      objectReference: {fileID: 7157360720137682968}
     - target: {fileID: 5917419163060738594, guid: 338d829fe9ec8487cb3a9406c0d2fa7c,
         type: 3}
       propertyPath: transitionText

@@ -8,12 +8,27 @@ public class ObjectToManyLocationsObjective : Objective {
     public static event Action<Objective> OnObjectiveComplete;
     [SerializeField] private List<ObjectiveNode> targetLocations = new();
     [SerializeField] private GameObject lookingFor;
+
+    private int numCompleted = 0;
+    private int cachedTotal;
     
     private void Awake() {
+        RefreshCachedTotal();
+
         //set each looking for 'gameobject' to the player
         for (int i = 0; i < targetLocations.Count; ++i) {
             if(targetLocations[i] != null)
-                targetLocations[i].lookingFor.Add(lookingFor);
+            {
+                if (targetLocations[i].lookingFor == null)
+                {
+                    targetLocations[i].lookingFor = new List<GameObject>();
+                }
+
+                if (lookingFor && !targetLocations[i].lookingFor.Contains(lookingFor))
+                {
+                    targetLocations[i].lookingFor.Add(lookingFor);
+                }
+            }
         }
     }
     
@@ -27,21 +42,104 @@ public class ObjectToManyLocationsObjective : Objective {
     
     private void Start()
     {
-        if (showTally) TallyBuilder.UpdateTallyUI(this, 0, targetLocations.Count);
+        RefreshCachedTotal();
+        RefreshTallyUI();
+    }
+
+    private void OnValidate()
+    {
+        RefreshCachedTotal();
+    }
+
+    private void RefreshCachedTotal()
+    {
+        int currentTotal = targetLocations != null ? targetLocations.Count(node => node != null) : 0;
+
+        if (!Application.isPlaying)
+        {
+            cachedTotal = currentTotal;
+            return;
+        }
+
+        if (cachedTotal <= 0)
+        {
+            cachedTotal = currentTotal;
+        }
+    }
+
+    private void RefreshCompletedCount()
+    {
+        numCompleted = targetLocations != null ? targetLocations.Count(curr => curr != null && curr.isComplete) : 0;
+        numCompleted = Mathf.Clamp(numCompleted, 0, cachedTotal);
+    }
+
+    public override void RefreshTallyUI()
+    {
+        RefreshCachedTotal();
+        RefreshCompletedCount();
+
+        if (showTally)
+        {
+            TallyBuilder.UpdateTallyUI(this, numCompleted, cachedTotal);
+        }
     }
     
     private void CheckCompletion() {
+        if (isComplete) return;
+
+        RefreshTallyUI();
+
         foreach (ObjectiveNode node in targetLocations) {
-            if (node.isComplete)
-            {
-                if(showTally) TallyBuilder.UpdateTallyUI(this, targetLocations.Count(curr => curr.isComplete), targetLocations.Count);
-            }
-            else return;
+            if (!node) continue;
+            if (!node.isComplete) return;
         }
 
-        isComplete = true;
-        OnObjectiveComplete?.Invoke(this); //this needs to update the objective listing to mark the objective off as complete
-        Debug.Log($"{gameObject.name} has successfully been completed!");
+        CompleteObjective();
+    }
+
+    public override ObjectiveSaveState CaptureState()
+    {
+        var state = base.CaptureState();
+        state.numCompleted = numCompleted;
+        state.completedInteractableNames = targetLocations
+            .Where(n => n != null && n.isComplete)
+            .Select(n => GetNodePath(n))
+            .ToList();
+        return state;
+    }
+
+    public override void RestoreState(ObjectiveSaveState state)
+    {
+        if (state == null) return;
+
+        var savedPaths = state.completedInteractableNames;
+        if (savedPaths == null || savedPaths.Count == 0) return;
+
+        foreach (ObjectiveNode node in targetLocations)
+        {
+            if (node == null) continue;
+            if (savedPaths.Contains(GetNodePath(node)))
+            {
+                node.SetCompleteSilently();
+            }
+        }
+
+        RefreshCompletedCount();
+        RefreshTallyUI();
+    }
+
+    private string GetNodePath(ObjectiveNode node) => GetHierarchyPath(node.transform);
+
+    private string GetHierarchyPath(Transform t)
+    {
+        if (t == null) return "";
+        string path = t.name;
+        while (t.parent != null)
+        {
+            t = t.parent;
+            path = t.name + "/" + path;
+        }
+        return path;
     }
 }
 
@@ -49,11 +147,24 @@ public class ManyObjectsToLocationObjective : Objective {
     public static event Action<Objective> OnObjectiveComplete;
     [SerializeField] ObjectiveNode targetLocation = new();
     [SerializeField] List<GameObject> lookingFor = new();
+
+    private int numCompleted = 0;
+    private int cachedTotal;
     
     private void Awake() {
+        RefreshCachedTotal();
+
+        if (targetLocation != null && targetLocation.lookingFor == null)
+        {
+            targetLocation.lookingFor = new List<GameObject>();
+        }
+
         //set each looking for 'gameobject' to the player
         for (int i = 0; i < lookingFor.Count; ++i) {
-            targetLocation.lookingFor.Add(lookingFor[i]);
+            if (targetLocation != null && lookingFor[i] != null && !targetLocation.lookingFor.Contains(lookingFor[i]))
+            {
+                targetLocation.lookingFor.Add(lookingFor[i]);
+            }
         }
     }
     
@@ -64,13 +175,113 @@ public class ManyObjectsToLocationObjective : Objective {
     private void OnDisable() {
         ObjectiveNode.OnNodeCompleted -= CheckCompletion;
     }
+
+    private void Start()
+    {
+        RefreshCachedTotal();
+        RefreshTallyUI();
+    }
+
+    private void OnValidate()
+    {
+        RefreshCachedTotal();
+    }
+
+    private void RefreshCachedTotal()
+    {
+        int currentTotal = lookingFor != null ? lookingFor.Count(obj => obj != null) : 0;
+
+        if (!Application.isPlaying)
+        {
+            cachedTotal = currentTotal;
+            return;
+        }
+
+        if (cachedTotal <= 0)
+        {
+            cachedTotal = currentTotal;
+        }
+    }
+
+    private void RefreshCompletedCount()
+    {
+        if (targetLocation == null)
+        {
+            numCompleted = 0;
+            return;
+        }
+
+        int remaining = targetLocation.lookingFor != null ? targetLocation.lookingFor.Count(obj => obj != null) : 0;
+        numCompleted = Mathf.Clamp(cachedTotal - remaining, 0, cachedTotal);
+    }
+
+    public override void RefreshTallyUI()
+    {
+        RefreshCachedTotal();
+        RefreshCompletedCount();
+
+        if (showTally)
+        {
+            TallyBuilder.UpdateTallyUI(this, numCompleted, cachedTotal);
+        }
+    }
     
     private void CheckCompletion() {
-        if (!targetLocation.isComplete) return;
+        if (isComplete) return;
 
-        isComplete = true;
-        OnObjectiveComplete?.Invoke(this); //this needs to update the objective listing to mark the objective off as complete
-        InvokeCompletionEvents();
-        Debug.Log($"{gameObject.name} has successfully been completed!");
+        RefreshTallyUI();
+
+        if (targetLocation == null || !targetLocation.isComplete) return;
+
+        CompleteObjective();
+    }
+
+    public override ObjectiveSaveState CaptureState()
+    {
+        var state = base.CaptureState();
+        state.numCompleted = numCompleted;
+        // "placed" items = in the master lookingFor list but no longer in the node's live list
+        if (targetLocation != null && targetLocation.lookingFor != null)
+        {
+            state.completedInteractableNames = lookingFor
+                .Where(obj => obj != null && !targetLocation.lookingFor.Contains(obj))
+                .Select(obj => GetHierarchyPath(obj.transform))
+                .ToList();
+        }
+        return state;
+    }
+
+    public override void RestoreState(ObjectiveSaveState state)
+    {
+        if (state == null) return;
+        if (targetLocation == null || targetLocation.lookingFor == null) return;
+
+        var savedPaths = state.completedInteractableNames;
+        if (savedPaths == null || savedPaths.Count == 0) return;
+
+        foreach (GameObject obj in lookingFor)
+        {
+            if (obj == null) continue;
+            // Accept hierarchy path (current format) or plain name (old save fallback)
+            if (savedPaths.Contains(GetHierarchyPath(obj.transform)) || savedPaths.Contains(obj.name))
+            {
+                targetLocation.lookingFor.Remove(obj);
+            }
+        }
+
+        RefreshCompletedCount();
+        RefreshTallyUI();
+    }
+
+    private string GetHierarchyPath(Transform t)
+    {
+        if (t == null) return "";
+        string path = t.name;
+        while (t.parent != null)
+        {
+            t = t.parent;
+            path = t.name + "/" + path;
+        }
+        return path;
     }
 }

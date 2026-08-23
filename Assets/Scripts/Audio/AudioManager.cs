@@ -110,8 +110,11 @@ public class AudioManager : MonoBehaviour
             for (int i = activeSources.Count - 1; i >= 0; i--)
             {
                 AudioSource src = activeSources[i];
-                src.Stop();
-                AudioPool.Instance.ReturnAudioSource(src);
+                if (src != null)
+                {
+                    src.Stop();
+                    AudioPool.Instance.ReturnAudioSource(src);
+                }
                 activeSources.RemoveAt(i);
             }
         }
@@ -128,6 +131,7 @@ public class AudioManager : MonoBehaviour
             source.pitch = randomizePitch ? UnityEngine.Random.Range(lowestPitch, highestPitch) : 1f;
             source.spatialBlend = 1.0f;
             source.volume = data.volume * overallSFXVolume * globalVolume;
+            source.clip = data.clip;
             source.PlayOneShot(data.clip);
             StartCoroutine(ReturnAfterPlay(source, data.clip.length, parent));
         }
@@ -139,9 +143,12 @@ public class AudioManager : MonoBehaviour
         AudioSource source = AudioPool.Instance.GetAudioSource(null);
         if (source != null)
         {
+            Debug.Log($"Playing SFX: {data.clip.name} | data.volume: {data.volume} | overallSFXVolume: {overallSFXVolume} | globalVolume: {globalVolume} | final: {source.volume}");
+            
             source.pitch = randomizePitch ? UnityEngine.Random.Range(lowestPitch, highestPitch) : 1f;
             source.spatialBlend = 0.0f;
             source.volume = data.volume * overallSFXVolume * globalVolume;
+            source.clip = data.clip;
             source.PlayOneShot(data.clip);
             StartCoroutine(ReturnAfterPlay(source, data.clip.length, null));
         }
@@ -153,6 +160,8 @@ public class AudioManager : MonoBehaviour
         AudioSource source = AudioPool.Instance.GetAudioSource(parent);
         if (source != null)
         {
+            Debug.Log($"Playing SFX: {data.clip.name} | data.volume: {data.volume} | overallSFXVolume: {overallSFXVolume} | globalVolume: {globalVolume} | final: {source.volume}");
+            
             source.clip = data.clip;
             source.pitch = randomizePitch ? UnityEngine.Random.Range(lowestPitch, highestPitch) : 1f;
             source.volume = data.volume * overallSFXVolume * globalVolume;
@@ -167,6 +176,11 @@ public class AudioManager : MonoBehaviour
     public void PlayMainTheme()
     {
         if(!IsMusicPlaying()) PlayMusic(GameManager.Instance?.GetMainTheme());
+    }
+
+    public void PlayMainAmbience()
+    {
+        if (!IsMusicPlaying()) PlayMusic(GameManager.Instance?.GetMainAmbience());
     }
 
     public AudioSource PlaySound(AudioData data)
@@ -191,6 +205,11 @@ public class AudioManager : MonoBehaviour
         if (data == null || data.clip == null) return;
         for (int i = activeSources.Count - 1; i >= 0; i--)
         {
+            if (activeSources[i] == null)
+            {
+                activeSources.RemoveAt(i);
+                continue;
+            }
             if (activeSources[i].clip == data.clip)
             {
                 activeSources[i].Stop();
@@ -213,7 +232,7 @@ public class AudioManager : MonoBehaviour
             additionalMusicSources.Add(curr);
             curr.loop = data.loop;
             curr.clip = data.clip;
-            curr.volume = data.volume;
+            curr.volume = data.volume * overallMusicVolume * globalVolume;
             curr.spatialBlend = 0.0f;
             UpdateCurrentMusicVolume();
             if(playImmediately) curr.Play();
@@ -241,7 +260,7 @@ public class AudioManager : MonoBehaviour
 
     public void DeleteCurrentMusicSources()
     {
-        musicSource.Stop();
+        musicSource.clip = null;
         foreach(AudioSource audioSource in additionalMusicSources)
         {
             Destroy(audioSource);
@@ -304,11 +323,12 @@ public class AudioManager : MonoBehaviour
     {
         overallSFXVolume = Mathf.Clamp01(volume);
         isSfxMuted = false;
+        UpdateCurrentMusicVolume();
     }
 
-    public void ToggleGlobalMute()
+    public void ToggleGlobalMute(bool flag)
     {
-        isGlobalMuted = !isGlobalMuted;
+        isGlobalMuted = flag;
         if (isGlobalMuted)
         {
             savedGlobalVolume = globalVolume;
@@ -321,9 +341,9 @@ public class AudioManager : MonoBehaviour
         UpdateCurrentMusicVolume();
     }
 
-    public void ToggleMusicMute()
+    public void ToggleMusicMute(bool flag)
     {
-        isMusicMuted = !isMusicMuted;
+        isMusicMuted = flag;
         if (isMusicMuted)
         {
             savedMusicVolume = overallMusicVolume;
@@ -336,9 +356,9 @@ public class AudioManager : MonoBehaviour
         UpdateCurrentMusicVolume();
     }
 
-    public void ToggleSfxMute()
+    public void ToggleSfxMute(bool flag)
     {
-        isSfxMuted = !isSfxMuted;
+        isSfxMuted = flag;
         if (isSfxMuted)
         {
             savedSfxVolume = overallSFXVolume;
@@ -355,6 +375,7 @@ public class AudioManager : MonoBehaviour
     private IEnumerator ReturnAfterPlay(AudioSource source, float delay, Transform parent)
     {
         yield return new WaitForSeconds(delay);
+        if (source == null) yield break; // destroyed alongside a scene unload before it could be returned
         if (parent == null)
         {
             source.transform.SetParent(null);

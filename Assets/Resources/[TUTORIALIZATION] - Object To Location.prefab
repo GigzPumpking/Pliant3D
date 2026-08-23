@@ -57,15 +57,17 @@ MonoBehaviour:
   exitBox: {fileID: 7764314523639074388}
   exitColliderBox: {fileID: 3045677404438871954}
   automaticDialogueTrigger: {fileID: 6602552634057100540}
+  tutorialAreaObjects: []
   StickyNoteGraphicKeyboard: {fileID: 0}
   StickyNoteGraphicController: {fileID: 0}
+  stickyNoteObject: {fileID: 0}
   StickyNoteGraphicFallBack: {fileID: 7482667652216324306, guid: 48e93eef0688c4a259cb0eddcd8661f7,
     type: 3}
   _objectiveListing: {fileID: 621427417437859114}
   _tutorialStickyNote: {fileID: 2785142590105209762}
   tutorialCompleteSFX:
     clip: {fileID: 8300000, guid: 066436eb0713d45c29605fec90bf1a43, type: 3}
-    volume: 1
+    volume: 0.7
     pitch: 1
     loop: 0
 --- !u!1 &7131661343025230725
@@ -400,6 +402,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Tutorial Area
+      objectReference: {fileID: 0}
+    - target: {fileID: 8917777897701650908, guid: c0cfc9c4ad6915c41ab6af87a9c0776d,
+        type: 3}
+      propertyPath: m_SortingLayer
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c0cfc9c4ad6915c41ab6af87a9c0776d, type: 3}

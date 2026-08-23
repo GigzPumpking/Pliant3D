@@ -8,6 +8,7 @@ using System;
 
 public class Bulldozer : FormScript
 {
+    [SerializeField] protected AudioData breakSound;
     protected override float baseSpeed { get; set; } = 6f;
 
     private Interactable highlightedInteractable;
@@ -194,7 +195,7 @@ public class Bulldozer : FormScript
     
     public override void Ability1(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && !(UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive)))
         {
             PushState(true);
             //Raise event to be checked by AbilityPerformedObjective.cs or any other corresponding scripts
@@ -208,15 +209,22 @@ public class Bulldozer : FormScript
 
     public override void Ability2(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && !(UIManager.Instance && (UIManager.Instance.isPaused || UIManager.Instance.isDialogueActive)))
         {
             //Tells the script if the player is attempting to interact with a breakable object. If so, it breaks it
             if (highlightedInteractable != null && highlightedInteractable.HasProperty("Breakable"))
             {
                 //Raise event to be checked by AbilityPerformedObjective.cs or any other corresponding scripts
                 AbilityUsed?.Invoke(Transformation.BULLDOZER, 2, highlightedInteractable);
-                
-                highlightedInteractable.gameObject.SetActive(false);
+                PlayAbilitySound(breakSound);
+
+                highlightedInteractable.Interact();
+
+                AnimTrigger animTrigger = highlightedInteractable.GetComponent<AnimTrigger>();
+                if (animTrigger == null) {
+                    highlightedInteractable.gameObject.SetActive(false);
+                }
+
                 highlightedInteractable = null;
             } 
             StartSprint();
@@ -235,6 +243,7 @@ public class Bulldozer : FormScript
         if (isPushing)
         {
             animator?.SetBool("isPushing", true);
+            animator?.SetBool("isSprinting", false);
         }
         else
         {
@@ -622,7 +631,10 @@ public class Bulldozer : FormScript
 
         isSprinting = true;
         speed = baseSpeed * sprintModifier;
-        animator?.SetBool("isSprinting", true);
+        PlayAbilitySoundLooping(ability1Sound);
+        // if not pushing, set animation to sprinting
+        if (!isPushing)
+            animator?.SetBool("isSprinting", true);
         timeSinceSprintStopped = 0f;
     }
 
@@ -633,6 +645,13 @@ public class Bulldozer : FormScript
         isSprinting = false;
         speed = baseSpeed;
         animator?.SetBool("isSprinting", false);
+        StopAbilitySound(ability1Sound);
+    }
+
+    public override void StopMovementSounds()
+    {
+        base.StopMovementSounds();
+        StopSprint();
     }
 
     public bool IsSprinting()
@@ -670,6 +689,7 @@ public class Bulldozer : FormScript
         isPushing = state;
         if (pushCollider != null) pushCollider.enabled = state;
         if (normalCollider != null) normalCollider.enabled = !state;
+        
 
         if (!state)
         {

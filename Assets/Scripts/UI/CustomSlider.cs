@@ -14,6 +14,8 @@ public abstract class CustomSlider : MonoBehaviour
     {
         // Clear any existing listeners.
         slider.onValueChanged.RemoveAllListeners();
+        // In case their is an existing value before subscribed to event
+        OnSliderChanged(slider.value);
         slider.onValueChanged.AddListener(OnSliderChanged);
     }
 

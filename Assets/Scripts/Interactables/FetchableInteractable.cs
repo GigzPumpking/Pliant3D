@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FetchableInteractable : Interactable, IInteractable
+public class FetchableInteractable : Interactable, IInteractable, IFetchable
 {
     private Animator animator;
     private Renderer[] renderers;
@@ -9,13 +9,11 @@ public class FetchableInteractable : Interactable, IInteractable
     [SerializeField]
     private Color highlightColor = Color.green;
 
-    public bool isFetched = false;
+    public bool isFetched { get; private set; } = false;
 
     [Header("Interact Bubble")]
     [Tooltip("The interact bubble GameObject positioned on this object.")]
     [SerializeField] private GameObject interactBubble;
-    [SerializeField] private Sprite keyboardSprite;
-    [SerializeField] private Sprite controllerSprite;
     
     [Header("Interaction Settings")]
     [Tooltip("Maximum distance from which the player can interact. Set to 0 to use the global default.")]
@@ -25,10 +23,13 @@ public class FetchableInteractable : Interactable, IInteractable
     [Tooltip("Dialogue entries shown when this item is fetched. Leave empty for no dialogue.")]
     [SerializeField] private DialogueEntry[] fetchDialogue;
     
+    [Header("Sound")]
+    [Tooltip("The sound effect to play when the item is fetched.")]
+    [SerializeField] private AudioData fetchSound;
+    
     // Cached references
     private Dialogue dialogue;
     private SpriteRenderer _bubbleSpriteRenderer;
-    private Vector3 _originalBubbleScale;
     private string currentFirstEntry = "";
     private bool waitingForDialogue = false;
 
@@ -79,7 +80,6 @@ public class FetchableInteractable : Interactable, IInteractable
         
         if (interactBubble != null)
         {
-            _originalBubbleScale = interactBubble.transform.localScale;
             interactBubble.SetActive(false);
         }
     }
@@ -139,6 +139,7 @@ public class FetchableInteractable : Interactable, IInteractable
         }
 
         isFetched = true;
+        AudioManager.Instance?.PlayOneShot(fetchSound);
         SetInteractBubbleActive(false);
         
         // Raise the fetch event immediately so objectives can track it
@@ -190,16 +191,14 @@ public class FetchableInteractable : Interactable, IInteractable
         
         bool isKeyboard = InputManager.Instance?.ActiveDeviceType == "Keyboard"
                        || InputManager.Instance?.ActiveDeviceType == "Mouse";
-        
+
         if (isKeyboard)
         {
-            _bubbleSpriteRenderer.sprite = keyboardSprite;
-            interactBubble.transform.localScale = _originalBubbleScale * 3f;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Keyboard;
         }
         else
         {
-            _bubbleSpriteRenderer.sprite = controllerSprite;
-            interactBubble.transform.localScale = _originalBubbleScale * 1f;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Controller;
         }
     }
 

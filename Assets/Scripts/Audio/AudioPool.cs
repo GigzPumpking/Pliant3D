@@ -37,9 +37,11 @@ public class AudioPool : MonoBehaviour
 
     public AudioSource GetAudioSource(Transform parent)
     {
-        if (audioPool.Count > 0)
+        while (audioPool.Count > 0)
         {
             AudioSource source = audioPool.Dequeue();
+            if (source == null) continue; // was destroyed alongside a scene it had been parented into
+
             source.gameObject.SetActive(true);
             if (parent != null)
             {
@@ -48,15 +50,14 @@ public class AudioPool : MonoBehaviour
             }
             return source;
         }
-        else
-        {
-            Debug.LogWarning("Audio Pool Exhausted! Consider increasing the pool size.");
-            return null;
-        }
+
+        Debug.LogWarning("Audio Pool Exhausted! Consider increasing the pool size.");
+        return null;
     }
 
     public void ReturnAudioSource(AudioSource source)
     {
+        if (source == null) return; // destroyed alongside a scene unload before it could be returned
         source.Stop();
         source.transform.SetParent(transform); // Reset parent to pool manager
         source.gameObject.SetActive(false);

@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
+using UnityEngine.SceneManagement;
 
 public class GamepadCursor : MonoBehaviour
 {
@@ -19,6 +20,8 @@ public class GamepadCursor : MonoBehaviour
     private float cursorSpeed = 1000f;
     [SerializeField] 
     private float padding = 50f;
+    [SerializeField]
+    private float stickDeadzone = 0.15f;
 
     private bool previousMouseState;
     private Mouse virtualMouse;
@@ -28,6 +31,19 @@ public class GamepadCursor : MonoBehaviour
     private string previousControlScheme = "";
     private const string gamepadScheme = "Gamepad";
     private const string mouseScheme = "Keyboard&Mouse";
+
+    public static GamepadCursor Instance { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
 
     private void OnEnable()
     {
@@ -40,19 +56,14 @@ public class GamepadCursor : MonoBehaviour
         }
         else if (!virtualMouse.added)
         {
-            InputSystem.AddDevice("VirtualMouse");
+            InputSystem.AddDevice(virtualMouse);
         }
         
         InputUser.PerformPairingWithDevice(virtualMouse, playerInput.user);
 
-        if (cursorTransform != null)
-        {
-            Vector2 position = cursorTransform.anchoredPosition;
-            InputState.Change(virtualMouse.position, position);
-        }
-
         InputSystem.onAfterUpdate += UpdateMotion;
         playerInput.onControlsChanged += OnControlsChanged;
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
@@ -62,17 +73,25 @@ public class GamepadCursor : MonoBehaviour
         playerInput.onControlsChanged -= OnControlsChanged;
     }
 
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
     private void UpdateMotion()
     {
         if (virtualMouse == null || Gamepad.current == null) return;
         
         Vector2 stickValue = Gamepad.current.leftStick.ReadValue();
+        // Some controllers (particularly over Bluetooth) report analog noise near center;
+        // without this gate that noise accumulates into constant cursor drift.
+        if (stickValue.magnitude < stickDeadzone) stickValue = Vector2.zero;
         stickValue *= cursorSpeed * Time.deltaTime;
         
         Vector2 currentPosition = virtualMouse.position.ReadValue();
         Vector2 newPosition = currentPosition + stickValue;
         
-        newPosition.x = Mathf.Clamp(newPosition.x, padding, Screen.width - padding); //TODO: add padding
+        newPosition.x = Mathf.Clamp(newPosition.x, padding, Screen.width - padding);
         newPosition.y = Mathf.Clamp(newPosition.y, padding, Screen.height - padding);
         
         InputState.Change(virtualMouse.position, newPosition);
@@ -120,5 +139,48 @@ public class GamepadCursor : MonoBehaviour
             if (currentMouse != null) AnchorCursor(currentMouse.position.ReadValue());
             previousControlScheme = gamepadScheme;
         }
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (!IsMenuScene(scene.name)) return;
+        
+        //Reset PlayerInput component's camera and uiInputModule on scene change.
+        var uiModule = FindObjectOfType<InputSystemUIInputModule>();
+        playerInput.uiInputModule = uiModule;
+        playerInput.camera = Camera.main;
+        
+        // Reset scheme tracking so OnControlsChanged fires correctly on first change
+        previousControlScheme = "";
+    
+        // Immediately apply the correct cursor state for the current scheme
+        if (playerInput.currentControlScheme == gamepadScheme)
+        {
+            cursorTransform.gameObject.SetActive(true);
+            Cursor.visible = false;
+        
+            // Sync virtual mouse to hardware mouse in SCREEN space
+            if (currentMouse != null)
+            {
+                Vector2 screenPos = currentMouse.position.ReadValue();
+                InputState.Change(virtualMouse.position, screenPos);
+                AnchorCursor(screenPos);
+            }
+        }
+        else if (playerInput.currentControlScheme == mouseScheme)
+        {
+            cursorTransform.gameObject.SetActive(false);
+            Cursor.visible = true;
+        
+            if (currentMouse != null && virtualMouse != null)
+            {
+                currentMouse.WarpCursorPosition(virtualMouse.position.ReadValue());
+            }
+        }
+    }
+    
+    private bool IsMenuScene(string sceneName)
+    {
+        return sceneName == "0 Main Menu" || sceneName == "11-0 End";
     }
 }

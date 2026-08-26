@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
+using UnityEngine.SceneManagement;
 
 public class GamepadCursor : MonoBehaviour
 {
@@ -19,6 +20,8 @@ public class GamepadCursor : MonoBehaviour
     private float cursorSpeed = 1000f;
     [SerializeField] 
     private float padding = 50f;
+    [SerializeField]
+    private float stickDeadzone = 0.15f;
 
     private bool previousMouseState;
     private Mouse virtualMouse;
@@ -53,7 +56,7 @@ public class GamepadCursor : MonoBehaviour
         }
         else if (!virtualMouse.added)
         {
-            InputSystem.AddDevice("VirtualMouse");
+            InputSystem.AddDevice(virtualMouse);
         }
         
         InputUser.PerformPairingWithDevice(virtualMouse, playerInput.user);
@@ -66,6 +69,7 @@ public class GamepadCursor : MonoBehaviour
 
         InputSystem.onAfterUpdate += UpdateMotion;
         playerInput.onControlsChanged += OnControlsChanged;
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
@@ -75,11 +79,19 @@ public class GamepadCursor : MonoBehaviour
         playerInput.onControlsChanged -= OnControlsChanged;
     }
 
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
     private void UpdateMotion()
     {
         if (virtualMouse == null || Gamepad.current == null) return;
         
         Vector2 stickValue = Gamepad.current.leftStick.ReadValue();
+        // Some controllers (particularly over Bluetooth) report analog noise near center;
+        // without this gate that noise accumulates into constant cursor drift.
+        if (stickValue.magnitude < stickDeadzone) stickValue = Vector2.zero;
         stickValue *= cursorSpeed * Time.deltaTime;
         
         Vector2 currentPosition = virtualMouse.position.ReadValue();
@@ -133,5 +145,12 @@ public class GamepadCursor : MonoBehaviour
             if (currentMouse != null) AnchorCursor(currentMouse.position.ReadValue());
             previousControlScheme = gamepadScheme;
         }
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        var uiModule = FindObjectOfType<InputSystemUIInputModule>();
+        playerInput.uiInputModule = uiModule;
+        playerInput.camera = Camera.main;
     }
 }

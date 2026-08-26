@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -192,6 +193,10 @@ public class Player : KeyActionReceiver<Player>
         calculatedMoveDir = Vector3.zero;
 
         animator?.SetBool("isWalking", false);
+
+        // Prevent walk/ability sounds from looping indefinitely while movement is disabled
+        selectedGroupScript?.StopMovementSounds();
+        WalkSoundActive = false;
     }
 
     public GameObject GetSmoke() {
@@ -269,6 +274,11 @@ public class Player : KeyActionReceiver<Player>
             airborneGraceTimer -= Time.deltaTime;
         }
 
+        if (transformationWheel.gameObject.activeSelf)
+        {
+            canMoveToggle(false);
+        }
+
         if (canMove)
         {
             InputHandler();
@@ -278,6 +288,11 @@ public class Player : KeyActionReceiver<Player>
         { 
             isMoving = false;
             calculatedMoveDir = Vector3.zero;
+            if (!isMoving && WalkSoundActive)
+            {
+                selectedGroupScript.EndWalkSound();
+                WalkSoundActive = false;
+            }
         }
 
         if (transform.position.y < outOfBoundsY && !GameManager.Instance.isGameOver
@@ -558,11 +573,13 @@ public class Player : KeyActionReceiver<Player>
     }
 
     void InputHandler() {
+#if UNITY_EDITOR
         for (int i = 1; i <= areaPositions.Length; i++) {
             if (Input.GetKeyDown(KeyCode.Alpha0 + i)) {
                 moveToArea(i - 1);
             }
         }
+#endif
         
         if (InputManager.Instance && InputManager.Instance.isListening) {
             return;
@@ -624,6 +641,10 @@ public class Player : KeyActionReceiver<Player>
         if (transformation != newTransformation)
         {
             Smoke();
+
+            // Stop the outgoing form's looping sounds so they don't leak past the switch
+            selectedGroupScript?.StopMovementSounds();
+            WalkSoundActive = false;
         }
         prevTransformation = transformation;
         transformation = newTransformation;
@@ -669,6 +690,16 @@ public class Player : KeyActionReceiver<Player>
         isGrounded = true;
         isJumping = false;
         airborneGraceTimer = 0f;
+
+        if (outOfBoundsExcludedScenes.Contains(SceneManager.GetActiveScene().name))
+        {
+            if (canMove)
+                canMoveToggle(false);
+        }
+        else
+        {
+            canMoveToggle(true);
+        }
     }
 
     public void Smoke() {

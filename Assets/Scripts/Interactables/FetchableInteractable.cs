@@ -14,8 +14,6 @@ public class FetchableInteractable : Interactable, IInteractable, IFetchable
     [Header("Interact Bubble")]
     [Tooltip("The interact bubble GameObject positioned on this object.")]
     [SerializeField] private GameObject interactBubble;
-    [SerializeField] private Sprite keyboardSprite;
-    [SerializeField] private Sprite controllerSprite;
     
     [Header("Interaction Settings")]
     [Tooltip("Maximum distance from which the player can interact. Set to 0 to use the global default.")]
@@ -32,7 +30,6 @@ public class FetchableInteractable : Interactable, IInteractable, IFetchable
     // Cached references
     private Dialogue dialogue;
     private SpriteRenderer _bubbleSpriteRenderer;
-    private Vector3 _originalBubbleScale;
     private string currentFirstEntry = "";
     private bool waitingForDialogue = false;
 
@@ -83,7 +80,6 @@ public class FetchableInteractable : Interactable, IInteractable, IFetchable
         
         if (interactBubble != null)
         {
-            _originalBubbleScale = interactBubble.transform.localScale;
             interactBubble.SetActive(false);
         }
     }
@@ -195,16 +191,14 @@ public class FetchableInteractable : Interactable, IInteractable, IFetchable
         
         bool isKeyboard = InputManager.Instance?.ActiveDeviceType == "Keyboard"
                        || InputManager.Instance?.ActiveDeviceType == "Mouse";
-        
+
         if (isKeyboard)
         {
-            _bubbleSpriteRenderer.sprite = keyboardSprite;
-            interactBubble.transform.localScale = _originalBubbleScale * 3f;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Keyboard;
         }
         else
         {
-            _bubbleSpriteRenderer.sprite = controllerSprite;
-            interactBubble.transform.localScale = _originalBubbleScale * 1f;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Controller;
         }
     }
 

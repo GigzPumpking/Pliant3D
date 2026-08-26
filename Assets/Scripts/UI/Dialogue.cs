@@ -47,6 +47,11 @@ public class Dialogue : MonoBehaviour
     [SerializeField] string kbText = "Press 'E' to continue";
     [SerializeField] string controllerText = "Press 'Y' to continue";
 
+    [Header("Dialogue Audio")]
+    [SerializeField] private AudioData dialogueStartSound;
+    [SerializeField] private AudioData dialogueEndSound;
+    [SerializeField] private AudioData dialogueNextLineSound;
+
     void OnEnable()
     {
         EventDispatcher.AddListener<Interact>(PlayerInteract);
@@ -82,6 +87,7 @@ public class Dialogue : MonoBehaviour
 
         Active = true;
         index = 0;
+        AudioManager.Instance?.PlayOneShot(dialogueStartSound);
         StartCoroutine(TypeLine());
     }
 
@@ -92,6 +98,7 @@ public class Dialogue : MonoBehaviour
             index++;
             textDisplay.text = string.Empty;
             textDisplay.maxVisibleCharacters = 0;
+            AudioManager.Instance?.PlayOneShot(dialogueNextLineSound);
             StartCoroutine(TypeLine());
         }
         else
@@ -99,6 +106,7 @@ public class Dialogue : MonoBehaviour
             textDisplay.text = "";
             textDisplay.maxVisibleCharacters = 0;
             animator.Play("DialogueHide");
+            AudioManager.Instance?.PlayOneShot(dialogueEndSound);
             EventDispatcher.Raise<EndDialogue>(new EndDialogue(this.dialogueEntries[0].defaultText));
             EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = true });
             Active = false;

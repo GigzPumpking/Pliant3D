@@ -2,11 +2,19 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Collections;
 
-public class SettingsMenu : Menu
+public class SettingsMenu : MonoBehaviour
 {
     [Header("UI Elements")]
-    [SerializeField] private TMP_Dropdown resolutionDropdown;
+    [Tooltip("Text element that displays the currently selected resolution.")]
+    [SerializeField] private TMP_Text resolutionValueText;
+
+    [Tooltip("Button that selects the previous (lower) resolution in the list.")]
+    [SerializeField] private Button resolutionLeftButton;
+
+    [Tooltip("Button that selects the next (higher) resolution in the list.")]
+    [SerializeField] private Button resolutionRightButton;
 
     [Tooltip("Button that applies the current resolution/fullscreen settings.")]
     [SerializeField] private Button applyButton;
@@ -38,14 +46,11 @@ public class SettingsMenu : Menu
     // This list will store either Screen.resolutions or customResolutions.
     private List<Resolution> availableResolutionsList = new List<Resolution>();
 
+    // Index of the currently selected (but not yet necessarily applied) resolution.
+    private int currentResolutionIndex = 0;
+
     private void Awake()
     {
-        // Ensure the resolution dropdown is assigned.
-        if (resolutionDropdown == null)
-        {
-            resolutionDropdown = GetComponentInChildren<TMP_Dropdown>();
-        }
-
         // Automatically find the CanvasScaler in children if not assigned.
         if (canvasScaler == null)
         {
@@ -63,42 +68,34 @@ public class SettingsMenu : Menu
         {
             applyButton.onClick.AddListener(ApplySettings);
         }
+
     }
 
     private void Start()
     {
-        // Populate the resolution dropdown.
-        PopulateDropdown();
+        // Build the list of available resolutions.
+        PopulateResolutionList();
 
-        // If in fullscreen, try to find the current fullscreen resolution in our list.
-        if (Screen.fullScreen)
+        // Try to find the player's current screen resolution in our list, regardless of fullscreen state.
+        bool found = false;
+        for (int i = 0; i < availableResolutionsList.Count; i++)
         {
-            bool found = false;
-            for (int i = 0; i < availableResolutionsList.Count; i++)
+            Resolution res = availableResolutionsList[i];
+            if (res.width == Screen.width && res.height == Screen.height)
             {
-                Resolution res = availableResolutionsList[i];
-                // Compare with Screen.currentResolution (or Screen.width/Screen.height)
-                if (res.width == Screen.currentResolution.width && res.height == Screen.currentResolution.height)
-                {
-                    initialResolutionIndex = i;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-            {
-                initialResolutionIndex = availableResolutionsList.Count - 1;
+                initialResolutionIndex = i;
+                found = true;
+                break;
             }
         }
-        // Otherwise, initialResolutionIndex remains as set in the Inspector for windowed mode.
-        if (initialResolutionIndex < 0 || initialResolutionIndex >= availableResolutionsList.Count)
+        if (!found || initialResolutionIndex < 0 || initialResolutionIndex >= availableResolutionsList.Count)
         {
             initialResolutionIndex = availableResolutionsList.Count - 1;
         }
 
-        // Set the dropdown's initial value.
-        resolutionDropdown.value = initialResolutionIndex;
-        resolutionDropdown.RefreshShownValue();
+        // Set the initial selected resolution to match the current window resolution.
+        currentResolutionIndex = initialResolutionIndex;
+        UpdateResolutionDisplay();
 
         // Set initial fullscreen mode based on Screen.fullScreen.
         fullscreenMode = Screen.fullScreen;
@@ -111,9 +108,8 @@ public class SettingsMenu : Menu
         ApplySettings();
     }
 
-    protected override void Update()
+    void Update()
     {
-        base.Update();
         // Update the fullscreen toggle if the actual fullscreen state changes externally.
         if (fullscreenToggle != null && fullscreenToggle.isOn != Screen.fullScreen)
         {
@@ -122,45 +118,86 @@ public class SettingsMenu : Menu
         }
     }
 
-    void PopulateDropdown()
+    void PopulateResolutionList()
     {
-        List<string> options = new List<string>();
-
-        // Clear any existing options.
-        resolutionDropdown.ClearOptions();
         availableResolutionsList.Clear();
 
         // Try to use Screen.resolutions.
         Resolution[] screenResolutions = Screen.resolutions;
         if (screenResolutions != null && screenResolutions.Length > 0)
         {
-            availableResolutionsList.AddRange(screenResolutions);
+            // Screen.resolutions reports one entry per supported refresh rate, so the
+            // same width/height can appear several times. Keep only the first (highest
+            // refresh rate) entry per width/height to avoid duplicate dropdown options.
+            HashSet<(int width, int height)> seenResolutions = new HashSet<(int, int)>();
+            foreach (Resolution res in screenResolutions)
+            {
+                if (seenResolutions.Add((res.width, res.height)))
+                {
+                    availableResolutionsList.Add(res);
+                }
+            }
         }
         else
         {
             // Fallback to the predefined custom resolutions.
             availableResolutionsList.AddRange(customResolutions);
         }
+    }
 
-        // Add each resolution to the dropdown options.
-        foreach (Resolution res in availableResolutionsList)
+    /// Selects the previous (lower) resolution in the list, if not already at the lowest.
+    public void SelectPreviousResolution()
+    {
+        if (currentResolutionIndex > 0)
         {
-            options.Add(res.width + " x " + res.height);
+            currentResolutionIndex--;
+            UpdateResolutionDisplay();
+        }
+    }
+
+    /// Selects the next (higher) resolution in the list, if not already at the highest.
+    public void SelectNextResolution()
+    {
+        if (currentResolutionIndex < availableResolutionsList.Count - 1)
+        {
+            currentResolutionIndex++;
+            UpdateResolutionDisplay();
+        }
+    }
+
+    /// Updates the resolution text display and the interactable state of the arrow buttons.
+    void UpdateResolutionDisplay()
+    {
+        if (currentResolutionIndex < 0 || currentResolutionIndex >= availableResolutionsList.Count)
+        {
+            return;
         }
 
-        resolutionDropdown.AddOptions(options);
+        Resolution res = availableResolutionsList[currentResolutionIndex];
+        if (resolutionValueText != null)
+        {
+            resolutionValueText.text = res.width + " x " + res.height;
+        }
+
+        if (resolutionLeftButton != null)
+        {
+            resolutionLeftButton.interactable = currentResolutionIndex > 0;
+        }
+        if (resolutionRightButton != null)
+        {
+            resolutionRightButton.interactable = currentResolutionIndex < availableResolutionsList.Count - 1;
+        }
     }
 
     public void ApplySettings()
     {
-        int index = resolutionDropdown.value;
-        if (index < 0 || index >= availableResolutionsList.Count)
+        if (currentResolutionIndex < 0 || currentResolutionIndex >= availableResolutionsList.Count)
         {
             Debug.LogWarning("Invalid resolution index.");
             return;
         }
-        
-        Resolution selectedResolution = availableResolutionsList[index];
+
+        Resolution selectedResolution = availableResolutionsList[currentResolutionIndex];
         // Set the resolution with the selected mode (fullscreenMode).
         Screen.SetResolution(selectedResolution.width, selectedResolution.height, fullscreenMode);
         // Update the CanvasScaler's reference resolution to match the aspect ratio of the selected resolution.

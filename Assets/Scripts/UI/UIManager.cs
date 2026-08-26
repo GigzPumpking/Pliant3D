@@ -64,6 +64,7 @@ public class UIManager : KeyActionReceiver<UIManager>
     {
         if (instance != null && instance != this)
         {
+            Debug.LogWarning($"UIManager duplicate detected in scene '{gameObject.scene.name}' — destroying this instance. Existing instance is from scene '{instance.gameObject.scene.name}'.");
             Destroy(this.gameObject);
         }
         else
@@ -73,21 +74,33 @@ public class UIManager : KeyActionReceiver<UIManager>
 
         DontDestroyOnLoad(this);
 
-        dialogueScript = transform.Find("DialogueBox").GetComponent<Dialogue>();
-
-        pauseMenu = transform.Find("Pause Menu").gameObject;
-        pauseMain = pauseMenu.transform.Find("Pause Main").gameObject;
-        controls = pauseMenu.transform.Find("Controls").gameObject;
-        settings = pauseMenu.transform.Find("Settings").gameObject;
-        pauseButton = transform.Find("Pause Button").gameObject;
-        pauseButtonText = pauseButton.GetComponentInChildren<TextMeshProUGUI>();
-        resumeButton = pauseMenu.transform.Find("Resume Button").gameObject;
-        
-        pauseMenu.SetActive(false);
-        UpdatePauseButtonVisibility();
-
+        // Register these first so a missing UI child below can't skip subscribing to scene events.
         EventDispatcher.AddListener<NewSceneLoaded>(FadeOut);
         EventDispatcher.AddListener<NewSceneLoaded>(OnSceneChanged);
+
+        dialogueScript = transform.Find("DialogueBox")?.GetComponent<Dialogue>();
+
+        pauseMenu = FindChild(transform, "Pause Menu");
+        pauseMain = FindChild(pauseMenu?.transform, "Pause Main");
+        controls = FindChild(pauseMenu?.transform, "Controls");
+        settings = FindChild(pauseMenu?.transform, "Settings");
+        pauseButton = FindChild(transform, "Pause Button");
+        pauseButtonText = pauseButton?.GetComponentInChildren<TextMeshProUGUI>();
+        resumeButton = FindChild(pauseMenu?.transform, "Resume Button");
+
+        pauseMenu?.SetActive(false);
+        UpdatePauseButtonVisibility();
+    }
+
+    private static GameObject FindChild(Transform parent, string name)
+    {
+        Transform found = parent != null ? parent.Find(name) : null;
+        if (found == null)
+        {
+            Debug.LogError($"UIManager: expected child '{name}' under '{(parent != null ? parent.name : "null")}' was not found.");
+            return null;
+        }
+        return found.gameObject;
     }
 
     void Update()

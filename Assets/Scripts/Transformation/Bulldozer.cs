@@ -8,6 +8,7 @@ using System;
 
 public class Bulldozer : FormScript
 {
+    [SerializeField] protected AudioData breakSound;
     protected override float baseSpeed { get; set; } = 6f;
 
     private Interactable highlightedInteractable;
@@ -215,6 +216,9 @@ public class Bulldozer : FormScript
             {
                 //Raise event to be checked by AbilityPerformedObjective.cs or any other corresponding scripts
                 AbilityUsed?.Invoke(Transformation.BULLDOZER, 2, highlightedInteractable);
+                PlayAbilitySound(breakSound);
+
+                highlightedInteractable.Interact();
 
                 AnimTrigger animTrigger = highlightedInteractable.GetComponent<AnimTrigger>();
                 if (animTrigger == null) {
@@ -642,6 +646,12 @@ public class Bulldozer : FormScript
         speed = baseSpeed;
         animator?.SetBool("isSprinting", false);
         StopAbilitySound(ability1Sound);
+    }
+
+    public override void StopMovementSounds()
+    {
+        base.StopMovementSounds();
+        StopSprint();
     }
 
     public bool IsSprinting()

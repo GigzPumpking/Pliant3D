@@ -7,6 +7,8 @@ public class NextSceneHolder : MonoBehaviour
     [Header("Dependency")]
     [Tooltip("Optional. If assigned, this trigger will only work after the referenced AnimTrigger has been triggered.")]
     [SerializeField] private AnimTrigger requiredAnimTrigger;
+    [Tooltip("If enabled, load the next scene as soon as the required AnimTrigger fires instead of waiting for the player's collider to enter this trigger.")]
+    [SerializeField] private bool triggerOnAnimTrigger = false;
 
     [Header("Objective Sync")]
     [Tooltip("Optional. Assign the ObjectiveNode for the 'Clock Out' task to ensure it completes before transitioning.")]
@@ -14,6 +16,18 @@ public class NextSceneHolder : MonoBehaviour
 
     private bool IsActive => requiredAnimTrigger == null || requiredAnimTrigger.IsTriggered;
     private bool Collided = false;
+    private float lastLoadTime = float.MinValue;
+
+    void Update()
+    {
+        // Don't wait for the player's collider when a required AnimTrigger is assigned -
+        // fire the next scene logic as soon as that trigger fires.
+        if (triggerOnAnimTrigger && requiredAnimTrigger != null && requiredAnimTrigger.IsTriggered && !Collided)
+        {
+            LoadNextScene();
+            Collided = true;
+        }
+    }
 
 
     public void QuitGame()
@@ -23,6 +37,9 @@ public class NextSceneHolder : MonoBehaviour
     
     public void LoadNextScene()
     {
+        if (Time.unscaledTime - lastLoadTime < 3f) return;
+        lastLoadTime = Time.unscaledTime;
+
         if (clockOutNode != null && !clockOutNode.isComplete)
         {
             clockOutNode.ForceComplete();

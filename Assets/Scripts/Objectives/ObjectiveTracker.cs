@@ -31,6 +31,18 @@ public class ObjectiveTracker : MonoBehaviour
     [Header("Objective Listing Rules")]
     [SerializeField] private int maxObjectivesPerListing = 5;
 
+    [Header("Objective Audio")]
+    [Tooltip("Played once when a new objective is added to the agenda.")]
+    [SerializeField] private AudioData taskAddedSound;
+    [Tooltip("Played once when an objective is completed.")]
+    [SerializeField] private AudioData taskCompletedSound;
+    [Tooltip("Played when an objective's tally/progress text updates. One is picked at random each time, avoiding immediate repeats.")]
+    [SerializeField] private List<AudioData> taskUpdatedSounds = new();
+
+    private int _lastTaskUpdatedSoundIndex = -1;
+
+    public static ObjectiveTracker Instance { get; private set; }
+
     private HashSet<Objective> _countedAssignedObjectives = new HashSet<Objective>();
 
     private bool isClosed = true;
@@ -48,6 +60,30 @@ public class ObjectiveTracker : MonoBehaviour
     {
         ObjectiveListing.OnObjectiveListingComplete -= UICompleteObjective;
         NextSceneTrigger.NextSceneTriggered -= ClearAndRefetchObjectives;
+    }
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
+    public void PlayTaskAddedSound() => AudioManager.Instance?.PlayOneShot(taskAddedSound);
+
+    public void PlayTaskCompletedSound() => AudioManager.Instance?.PlayOneShot(taskCompletedSound);
+
+    public void PlayTaskUpdatedSound()
+    {
+        if (taskUpdatedSounds == null || taskUpdatedSounds.Count == 0) return;
+
+        int index = Random.Range(0, taskUpdatedSounds.Count);
+        if (taskUpdatedSounds.Count > 1)
+        {
+            while (index == _lastTaskUpdatedSoundIndex)
+                index = Random.Range(0, taskUpdatedSounds.Count);
+        }
+        _lastTaskUpdatedSoundIndex = index;
+
+        AudioManager.Instance?.PlayOneShot(taskUpdatedSounds[index]);
     }
 
     void Start()
@@ -357,63 +393,9 @@ public class ObjectiveTracker : MonoBehaviour
 
         PurgeDestroyedReferences();
 
-        int activeListingUICount = objectiveListingsUI.Count(ui => ui);
-
-        // If this is the only visible Objective Listing UI, keep it on screen.
-        if (activeListingUICount <= 1)
-        {
-            Debug.Log("Objective listing completed, but it is the only listing UI present, so it will stay visible.");
-            SetMessyObjectives(messyObjectives);
-            return;
-        }
-
-        int index = objectiveListings.IndexOf(listing);
-
-        if (index < 0)
-        {
-            return;
-        }
-
-        foreach (Objective objective in listing.objectives)
-        {
-            if (objective != null)
-            {
-                ObjectiveListing.ObjectiveToUI.Remove(objective);
-            }
-        }
-
-        GameObject listingUIObject = null;
-
-        if (index < objectiveListingsUI.Count)
-        {
-            listingUIObject = objectiveListingsUI[index];
-        }
-
-        objectiveListings.RemoveAt(index);
-
-        if (index < objectiveListingsUI.Count)
-        {
-            objectiveListingsUI.RemoveAt(index);
-        }
-
-        if (listingUIObject)
-        {
-            Destroy(listingUIObject);
-        }
-
-        listing.objectiveUIList.Clear();
-
-        if (runtimeObjectiveListings.Contains(listing))
-        {
-            runtimeObjectiveListings.Remove(listing);
-
-            if (listing.gameObject)
-            {
-                Destroy(listing.gameObject);
-            }
-        }
-
-        Debug.Log("Destroying completed objective UI listing because more than one listing UI is present.");
+        // Completed listings stay on screen (showing all objectives checked off) instead of being
+        // removed, so their objectives remain reachable for state capture/restore on scene reset.
+        Debug.Log($"Objective listing '{listing.name}' completed and will remain visible.");
 
         SetMessyObjectives(messyObjectives);
     }
@@ -542,6 +524,7 @@ public class ObjectiveTracker : MonoBehaviour
             }
 
             addedCount++;
+            PlayTaskAddedSound();
         }
 
         if (addedCount > 0)

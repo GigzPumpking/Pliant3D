@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class AbilityPerformedObjective : Objective
+public class AbilityPerformedObjective : Objective, IDialogueProvider
 {
     private enum AbilityType
     {
@@ -22,6 +22,69 @@ public class AbilityPerformedObjective : Objective
     private int cachedTotal;
     private List<string> _completedInteractableNames = new List<string>();
 
+    [Header("NPC Return Dialogue (Optional)")]
+    [Tooltip("The NPC the player must talk to for return dialogue/completion. Leave empty to complete automatically.")]
+    [SerializeField] private DialogueTrigger returnNPC;
+
+    [Tooltip("If true and a Return NPC is assigned, the player must interact with the Return NPC after conditions are met before the objective completes.")]
+    [SerializeField] private bool requiresNPCReturn = false;
+
+    [Tooltip("Shown by the return NPC when conditions are met but the objective hasn't been completed yet.")]
+    public DialogueEntry[] readyDialogue;
+
+    [Tooltip("Shown by the return NPC after the objective is fully complete.")]
+    public DialogueEntry[] completeDialogue;
+
+    private ObjectiveDialogueProxy returnNPCProxy;
+    private bool readyForReturn = false;
+
+    private const int PRIORITY_READY = 10;
+    private const int PRIORITY_COMPLETE = 20;
+
+    // 0 = nothing revealed, 1 = ready dialogue revealed, 2 = complete dialogue revealed.
+    private const int STAGE_READY = 1;
+    private const int STAGE_COMPLETE = 2;
+
+    private int GetTargetStage() => isComplete ? STAGE_COMPLETE : (readyForReturn ? STAGE_READY : 0);
+
+    #region IDialogueProvider Implementation (Return NPC)
+
+    public int Priority
+    {
+        get
+        {
+            int stage = ResolveDialogueStage(GetTargetStage());
+            if (stage == STAGE_COMPLETE) return PRIORITY_COMPLETE;
+            if (stage == STAGE_READY) return PRIORITY_READY;
+            return -1;
+        }
+    }
+
+    public bool HasDialogue
+    {
+        get
+        {
+            int stage = ResolveDialogueStage(GetTargetStage());
+            if (stage == STAGE_COMPLETE) return completeDialogue != null && completeDialogue.Length > 0;
+            if (stage == STAGE_READY) return readyDialogue != null && readyDialogue.Length > 0;
+            return false;
+        }
+    }
+
+    public DialogueEntry[] GetDialogueEntries()
+    {
+        int stage = ResolveDialogueStage(GetTargetStage());
+        if (stage == STAGE_COMPLETE) return completeDialogue;
+        if (stage == STAGE_READY) return readyDialogue;
+        return null;
+    }
+
+    public int EligibilityOrder => DialogueEligibilityOrder;
+
+    public bool ReadyDialogueShown => HasShownReadyDialogue;
+
+    #endregion
+
     private void Awake()
     {
         RefreshCachedTotal();
@@ -31,18 +94,61 @@ public class AbilityPerformedObjective : Objective
     {
         Bulldozer.AbilityUsed += CheckCompletion;
         Frog.AbilityUsed += CheckCompletion;
+        DialogueTrigger.InteractedObjective += OnReturnNPCInteracted;
     }
 
     private void OnDisable()
     {
         Bulldozer.AbilityUsed -= CheckCompletion;
         Frog.AbilityUsed -= CheckCompletion;
+        DialogueTrigger.InteractedObjective -= OnReturnNPCInteracted;
+
+        if (returnNPCProxy != null)
+        {
+            Destroy(returnNPCProxy);
+            returnNPCProxy = null;
+
+            if (returnNPC != null)
+            {
+                returnNPC.RefreshDialogueProviders();
+            }
+        }
     }
 
     private void Start()
     {
         RefreshCachedTotal();
         RefreshTallyUI();
+
+        EnsureReturnNPCProxy();
+    }
+
+    private void EnsureReturnNPCProxy()
+    {
+        if (returnNPC == null) return;
+
+        if (returnNPCProxy == null)
+        {
+            returnNPCProxy = returnNPC.gameObject.AddComponent<ObjectiveDialogueProxy>();
+            returnNPCProxy.Initialize(this);
+        }
+
+        returnNPC.RefreshDialogueProviders();
+    }
+
+    private void OnReturnNPCInteracted(DialogueTrigger interactedNPC, IDialogueProvider shownProvider)
+    {
+        if (returnNPC == null) return;
+        if (interactedNPC != returnNPC) return;
+        if (shownProvider != returnNPCProxy) return; // another objective's dialogue was shown this time
+
+        // Only mark our own stage as shown once our own dialogue was actually displayed.
+        MarkDialogueStageShown(ResolveDialogueStage(GetTargetStage()));
+
+        if (!readyForReturn) return;
+        if (isComplete) return;
+
+        FinalizeCompletion();
     }
 
     private void OnValidate()
@@ -92,11 +198,26 @@ public class AbilityPerformedObjective : Objective
         //check if the list is empty
         whichInteractable.Remove(interactable);
         if (whichInteractable.Any(i => i != null)) return;
-        
+
+        if (!readyForReturn)
+        {
+            readyForReturn = true;
+            _ = DialogueEligibilityOrder; // stamp this objective's place in the return-dialogue order now
+            EnsureReturnNPCProxy();
+        }
+
+        if (requiresNPCReturn && returnNPC != null) return;
+
+        FinalizeCompletion();
+    }
+
+    private void FinalizeCompletion()
+    {
         CompleteObjective();
         RefreshTallyUI();
         OnObjectiveComplete?.Invoke(this); //this needs to update the objective listing to mark the objective off as complete
         InvokeCompletionEvents();
+        if (returnNPC != null) returnNPC.RefreshDialogueProviders();
         Debug.Log($"{gameObject.name} has successfully been completed!");
     }
 
@@ -104,16 +225,22 @@ public class AbilityPerformedObjective : Objective
     {
         var state = base.CaptureState();
         state.numCompleted = numCompleted;
+        state.readyForReturn = readyForReturn;
         state.completedInteractableNames = new List<string>(_completedInteractableNames);
         return state;
     }
 
     public override void RestoreState(ObjectiveSaveState state)
     {
+        base.RestoreState(state);
+
         RefreshCachedTotal();
 
         numCompleted = state.numCompleted;
+        readyForReturn = state.readyForReturn;
         _completedInteractableNames = new List<string>(state.completedInteractableNames ?? new List<string>());
+
+        EnsureReturnNPCProxy();
 
         // Remove already-completed interactables so they aren't required again,
         // and optionally hide them so they don't block the player.

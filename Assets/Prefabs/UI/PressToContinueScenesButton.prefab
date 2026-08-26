@@ -150,6 +150,7 @@ GameObject:
   - component: {fileID: 2974808530385431226}
   - component: {fileID: 2974808530385431225}
   - component: {fileID: 7157360720137682968}
+  - component: {fileID: 6575037922556255455}
   m_Layer: 5
   m_Name: PressToContinueScenesButton
   m_TagString: Untagged
@@ -286,7 +287,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneName: 
-  requiredButton: {fileID: 0}
+  requiredAnimTrigger: {fileID: 0}
+  clockOutNode: {fileID: 0}
+--- !u!114 &6575037922556255455
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2974808530385431231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d093b849cfc34d66a56a1a73e1368da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultSelectedUIElement: {fileID: 2974808530385431231}
 --- !u!1001 &2974808530867897958
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -104,6 +104,11 @@ public class GameManager : KeyActionReceiver<GameManager>
         return mainTheme;
     }
 
+    public AudioData GetMainAmbience()
+    {
+        return mainAmbience;
+    }
+
     // Static key mapping shared across all GameManager instances.
     public static Dictionary<string, Action<GameManager, InputAction.CallbackContext>> staticKeyMapping =
         new Dictionary<string, Action<GameManager, InputAction.CallbackContext>>()
@@ -287,8 +292,8 @@ public class GameManager : KeyActionReceiver<GameManager>
 
         AudioManager.Instance.StopMusic();
         AudioManager.Instance.DeleteCurrentMusicSources();
-        AudioManager.Instance.PlayMusic(mainTheme);
-        AudioManager.Instance.PlayMusic(mainAmbience);
+        AudioManager.Instance.PlayMainTheme();
+        AudioManager.Instance.PlayMainAmbience();
     }
 
     public void AddQueuedTaskComplete()

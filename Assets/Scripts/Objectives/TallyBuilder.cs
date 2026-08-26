@@ -20,5 +20,6 @@ public static class TallyBuilder
     {
         if(ObjectiveListing.ObjectiveToUI == null || !ObjectiveListing.ObjectiveToUI.ContainsKey(obj)) return;
         ObjectiveListing.ObjectiveToUI[obj].DescriptionTXT.text = $"{obj.description} ({current}/{total})";
+        ObjectiveTracker.Instance?.PlayTaskUpdatedSound();
     }
 }

@@ -88,6 +88,8 @@ public class ObjectiveSaveState
     public bool isComplete;
     public int numCompleted;
     public bool fetchedAll;
+    public bool readyForReturn;
+    public int revealedDialogueStage;
     public List<string> fetchedItemNames = new List<string>();
     public List<string> completedInteractableNames = new List<string>();
     // How many times the NPC that gave this objective had been talked to

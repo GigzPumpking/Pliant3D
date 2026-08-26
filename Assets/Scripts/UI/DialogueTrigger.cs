@@ -55,8 +55,6 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
     [Header("Interact Bubble")]
     public GameObject interactBubble;
     public GameObject terryRequired;
-    [SerializeField] private Sprite keyboardSprite;
-    [SerializeField] private Sprite controllerSprite;
     
     [Header("Objectives")]
     [SerializeField] private List<Objective> objectiveToGive = new List<Objective>();
@@ -72,6 +70,12 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
     private bool objectiveGiven = false;
     private Dialogue dialogue;
     private IDialogueProvider[] dialogueProviders;
+
+    // Rotation for providers that have already shown their ready dialogue (i.e. now cycling
+    // complete dialogue, or still waiting on another condition). Providers that haven't shown
+    // ready yet bypass this queue entirely - see GetActiveDialogue.
+    private readonly List<IDialogueProvider> dialogueQueue = new List<IDialogueProvider>();
+    private IDialogueProvider activeDialogueProvider;
     
     // Track how many times the player has completed a dialogue with this NPC
     private int interactionCount = 0;
@@ -86,7 +90,9 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
     // Track last random index to avoid repeating the same dialogue twice in a row
     private int lastRandomIndex = -1;
     
-    public static event Action<DialogueTrigger> InteractedObjective;
+    // Second parameter is the provider whose dialogue was actually shown, so listeners can tell
+    // whether the interaction was actually theirs before reacting to it.
+    public static event Action<DialogueTrigger, IDialogueProvider> InteractedObjective;
     public static ObjectiveTracker ObjectiveTracker;
     
     /// <summary>
@@ -109,7 +115,6 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
     
     // Cached sprite renderer for interact bubble
     private SpriteRenderer _bubbleSpriteRenderer = null;
-    private Vector3 _originalBubbleScale;
 
     #region IDialogueProvider Implementation
     
@@ -119,6 +124,10 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
     public bool HasDialogue => GetOwnDialogue() != null && GetOwnDialogue().Length > 0;
     
     public DialogueEntry[] GetDialogueEntries() => GetOwnDialogue();
+
+    // Base dialogue has no ready/complete staging, so it never needs ordering or holds up others.
+    public int EligibilityOrder => -1;
+    public bool ReadyDialogueShown => true;
     
     #endregion
     
@@ -223,7 +232,6 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
         
         if (interactBubble != null)
         {
-            _originalBubbleScale = interactBubble.transform.localScale;
             interactBubble.SetActive(false);
         }
     }
@@ -267,7 +275,11 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
     }
     
     /// <summary>
-    /// Gets the highest priority dialogue entries from all providers on this GameObject.
+    /// Gets the active dialogue entries for this interaction. Providers that haven't shown their
+    /// ready dialogue yet always go first, in the order they became eligible, so one objective's
+    /// complete dialogue never causes another's ready dialogue to be skipped. Once every eligible
+    /// provider has shown its ready dialogue, the remaining ones (complete, or still-pending ready)
+    /// rotate in a queue so they all keep getting a turn.
     /// </summary>
     private DialogueEntry[] GetActiveDialogue()
     {
@@ -275,7 +287,37 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
         {
             RefreshDialogueProviders();
         }
-        
+
+        IDialogueProvider nextUnrevealed = null;
+        foreach (var provider in dialogueProviders)
+        {
+            if (provider == null || ReferenceEquals(provider, this) || !provider.HasDialogue) continue;
+            if (provider.ReadyDialogueShown) continue;
+            if (nextUnrevealed == null || provider.EligibilityOrder < nextUnrevealed.EligibilityOrder)
+            {
+                nextUnrevealed = provider;
+            }
+        }
+
+        if (nextUnrevealed != null)
+        {
+            activeDialogueProvider = nextUnrevealed;
+            return nextUnrevealed.GetDialogueEntries();
+        }
+
+        dialogueQueue.RemoveAll(provider => provider == null || ReferenceEquals(provider, this) || !provider.HasDialogue || !provider.ReadyDialogueShown);
+        foreach (var provider in dialogueProviders)
+        {
+            if (provider == null || ReferenceEquals(provider, this) || !provider.HasDialogue || !provider.ReadyDialogueShown) continue;
+            if (!dialogueQueue.Contains(provider)) dialogueQueue.Add(provider);
+        }
+
+        if (dialogueQueue.Count > 0)
+        {
+            activeDialogueProvider = dialogueQueue[0];
+            return activeDialogueProvider.GetDialogueEntries();
+        }
+
         IDialogueProvider bestProvider = null;
         int highestPriority = int.MinValue;
         
@@ -288,6 +330,7 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
             }
         }
         
+        activeDialogueProvider = bestProvider;
         return bestProvider?.GetDialogueEntries();
     }
     
@@ -338,7 +381,7 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
         dialogue.Appear();
         dialogue.SetPortrait(npcPortrait);
         EventDispatcher.Raise<TogglePlayerMovement>(new TogglePlayerMovement() { isEnabled = false });
-        InteractedObjective?.Invoke(this);
+        InteractedObjective?.Invoke(this, activeDialogueProvider);
         
         SetInteractBubbleActive(false);
     }
@@ -362,7 +405,14 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
         interactionCount++;
 
         // This is okay: it is your objective-specific event.
-        InteractedObjective?.Invoke(this);
+        InteractedObjective?.Invoke(this, activeDialogueProvider);
+
+        // Send the shown provider to the back of the line so other objectives sharing this NPC
+        // get their turn on subsequent interactions instead of this one always winning.
+        if (activeDialogueProvider != null && !ReferenceEquals(activeDialogueProvider, this))
+        {
+            dialogueQueue.Remove(activeDialogueProvider);
+        }
 
         if (!_suppressEvents && (!triggerEventsOnFirstInteractionOnly || interactionCount == 1))
         {
@@ -390,8 +440,9 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
         foreach (Objective objective in objectiveToGive)
         {
             if (!objective) continue;
-            if (objective.isComplete) continue;
 
+            // Objectives completed before ever being given (e.g. conditions met before the
+            // player talked to the quest giver) must still be assigned to the agenda.
             if (!objectiveGiven || !IsObjectiveUITracked(objective))
             {
                 objectivesToAdd.Add(objective);
@@ -576,17 +627,16 @@ public class DialogueTrigger : MonoBehaviour, IDialogueProvider, IInteractable
         
         bool isKeyboard = InputManager.Instance?.ActiveDeviceType == "Keyboard" 
                        || InputManager.Instance?.ActiveDeviceType == "Mouse";
-        
+
         if (isKeyboard)
         {
-            _bubbleSpriteRenderer.sprite = keyboardSprite;
-            interactBubble.transform.localScale = _originalBubbleScale * 3f;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Keyboard;
         }
         else
         {
-            _bubbleSpriteRenderer.sprite = controllerSprite;
-            interactBubble.transform.localScale = _originalBubbleScale * 1f;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Controller;
         }
+
     }
     
     /// <summary>

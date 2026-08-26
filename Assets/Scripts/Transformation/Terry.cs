@@ -17,8 +17,6 @@ public class Terry : FormScript
     [Header("Burning Interact Bubble")]
     [Tooltip("The interact bubble shown on Terry when a Burning object is in range.")]
     [SerializeField] private GameObject burningInteractBubble;
-    [SerializeField] private Sprite keyboardSprite;
-    [SerializeField] private Sprite controllerSprite;
 
     [Header("Extinguish Progress Bar")]
     [Tooltip("Slider displayed beneath Terry to show hold-to-extinguish progress. Assign the slider that is a child of Terry's world-space canvas.")]
@@ -32,16 +30,10 @@ public class Terry : FormScript
     [Header("Hold to Extinguish Bubble")]
     [Tooltip("Shown during the extinguish minigame prompting the player to hold the interact button.")]
     [SerializeField] private GameObject holdExtinguishBubble;
-    [SerializeField] private Sprite holdKeyboardSprite;
-    [SerializeField] private Sprite holdControllerSprite;
 
     private SpriteRenderer _holdBubbleSpriteRenderer;
-    private Vector3 _originalHoldBubbleScale;
-    private bool _holdBubbleScaleInitialized = false;
 
     private SpriteRenderer _bubbleSpriteRenderer;
-    private Vector3 _originalBubbleScale;
-    private bool _bubbleScaleInitialized = false;
 
     /// <summary>Called by BurningInteractable via IInteractable.SetInteractBubbleActive.</summary>
     public void SetBurningPromptActive(bool active)
@@ -64,16 +56,6 @@ public class Terry : FormScript
 
         if (burningInteractBubble != null)
         {
-            if (!_bubbleScaleInitialized)
-            {
-                _originalBubbleScale = burningInteractBubble.transform.localScale;
-                _bubbleScaleInitialized = true;
-            }
-            else
-            {
-                // Reset scale in case it was left at a modified value before this OnEnable
-                burningInteractBubble.transform.localScale = _originalBubbleScale;
-            }
             burningInteractBubble.SetActive(false);
         }
 
@@ -124,14 +106,13 @@ public class Terry : FormScript
 
         if (isKeyboard)
         {
-            _bubbleSpriteRenderer.sprite = keyboardSprite;
-            burningInteractBubble.transform.localScale = _originalBubbleScale * 3f;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Keyboard;
         }
         else
         {
-            _bubbleSpriteRenderer.sprite = controllerSprite;
-            burningInteractBubble.transform.localScale = _originalBubbleScale;
+            _bubbleSpriteRenderer.sprite = InteractBubbleIcons.Controller;
         }
+
     }
 
     private void UpdateHoldBubbleSprite()
@@ -143,24 +124,15 @@ public class Terry : FormScript
 
         if (_holdBubbleSpriteRenderer == null) return;
 
-        if (!_holdBubbleScaleInitialized)
-        {
-            _originalHoldBubbleScale = _holdBubbleSpriteRenderer.transform.localScale;
-            _holdBubbleScaleInitialized = true;
-        }
-
         bool isKeyboard = InputManager.Instance?.ActiveDeviceType == "Keyboard"
                        || InputManager.Instance?.ActiveDeviceType == "Mouse";
-
         if (isKeyboard)
         {
-            _holdBubbleSpriteRenderer.sprite = holdKeyboardSprite;
-            _holdBubbleSpriteRenderer.transform.localScale = _originalHoldBubbleScale * 3f;
+            _holdBubbleSpriteRenderer.sprite = InteractBubbleIcons.HoldKeyboard;
         }
         else
         {
-            _holdBubbleSpriteRenderer.sprite = holdControllerSprite;
-            _holdBubbleSpriteRenderer.transform.localScale = _originalHoldBubbleScale;
+            _holdBubbleSpriteRenderer.sprite = InteractBubbleIcons.HoldController;
         }
     }
 

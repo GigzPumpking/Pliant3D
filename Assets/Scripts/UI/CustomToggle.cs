@@ -14,15 +14,6 @@ public abstract class CustomToggle : MonoBehaviour
     {
         // Clear any existing listeners.
         toggle.onValueChanged.RemoveAllListeners();
-        // In case their is an existing value before subscribed to event set adjust accordingly.
-        if (toggle.isOn)
-        {
-            OnToggleChanged(true);
-        }
-        else
-        {
-            OnToggleChanged(false);
-        }
         toggle.onValueChanged.AddListener(OnToggleChanged);
     }
     

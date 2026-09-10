@@ -61,12 +61,6 @@ public class GamepadCursor : MonoBehaviour
         
         InputUser.PerformPairingWithDevice(virtualMouse, playerInput.user);
 
-        if (cursorTransform != null)
-        {
-            Vector2 position = cursorTransform.anchoredPosition;
-            InputState.Change(virtualMouse.position, position);
-        }
-
         InputSystem.onAfterUpdate += UpdateMotion;
         playerInput.onControlsChanged += OnControlsChanged;
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -149,8 +143,44 @@ public class GamepadCursor : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        if (!IsMenuScene(scene.name)) return;
+        
+        //Reset PlayerInput component's camera and uiInputModule on scene change.
         var uiModule = FindObjectOfType<InputSystemUIInputModule>();
         playerInput.uiInputModule = uiModule;
         playerInput.camera = Camera.main;
+        
+        // Reset scheme tracking so OnControlsChanged fires correctly on first change
+        previousControlScheme = "";
+    
+        // Immediately apply the correct cursor state for the current scheme
+        if (playerInput.currentControlScheme == gamepadScheme)
+        {
+            cursorTransform.gameObject.SetActive(true);
+            Cursor.visible = false;
+        
+            // Sync virtual mouse to hardware mouse in SCREEN space
+            if (currentMouse != null)
+            {
+                Vector2 screenPos = currentMouse.position.ReadValue();
+                InputState.Change(virtualMouse.position, screenPos);
+                AnchorCursor(screenPos);
+            }
+        }
+        else if (playerInput.currentControlScheme == mouseScheme)
+        {
+            cursorTransform.gameObject.SetActive(false);
+            Cursor.visible = true;
+        
+            if (currentMouse != null && virtualMouse != null)
+            {
+                currentMouse.WarpCursorPosition(virtualMouse.position.ReadValue());
+            }
+        }
+    }
+    
+    private bool IsMenuScene(string sceneName)
+    {
+        return sceneName == "0 Main Menu" || sceneName == "11-0 End";
     }
 }

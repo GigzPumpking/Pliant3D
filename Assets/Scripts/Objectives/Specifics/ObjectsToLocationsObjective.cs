@@ -151,6 +151,7 @@ public class ObjectsToLocationsObjective : Objective, IDialogueProvider {
 
     private void OnReturnNPCInteracted(DialogueTrigger interactedNPC, IDialogueProvider shownProvider)
     {
+        if (!IsAssigned) return;
         if (returnNPC == null) return;
         if (interactedNPC != returnNPC) return;
         if (shownProvider != returnNPCProxy) return; // another objective's dialogue was shown this time
@@ -231,6 +232,7 @@ public class ObjectsToLocationsObjective : Objective, IDialogueProvider {
     }
     
     private void CheckCompletion() {
+        if (!IsAssigned) return;
         if (isComplete) return;
         if (targetLocations == null || !targetLocations.Any()) return;
 
@@ -263,6 +265,11 @@ public class ObjectsToLocationsObjective : Objective, IDialogueProvider {
         if (requiresNPCReturn && returnNPC != null) return;
 
         CompleteObjective();
+    }
+
+    protected override void EvaluateCompletionAfterAssignment()
+    {
+        CheckCompletion();
     }
 
     public override ObjectiveSaveState CaptureState()

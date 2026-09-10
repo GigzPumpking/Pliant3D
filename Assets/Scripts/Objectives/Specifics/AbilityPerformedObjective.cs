@@ -138,6 +138,7 @@ public class AbilityPerformedObjective : Objective, IDialogueProvider
 
     private void OnReturnNPCInteracted(DialogueTrigger interactedNPC, IDialogueProvider shownProvider)
     {
+        if (!IsAssigned) return;
         if (returnNPC == null) return;
         if (interactedNPC != returnNPC) return;
         if (shownProvider != returnNPCProxy) return; // another objective's dialogue was shown this time
@@ -195,9 +196,20 @@ public class AbilityPerformedObjective : Objective, IDialogueProvider
         numCompleted = Mathf.Clamp(_completedInteractableNames.Count, 0, cachedTotal);
         RefreshTallyUI();
         
-        //check if the list is empty
         whichInteractable.Remove(interactable);
-        if (whichInteractable.Any(i => i != null)) return;
+        if (!IsAssigned) return;
+
+        EvaluateTrackedProgress();
+    }
+
+    protected override void EvaluateCompletionAfterAssignment()
+    {
+        EvaluateTrackedProgress();
+    }
+
+    private void EvaluateTrackedProgress()
+    {
+        if (isComplete || whichInteractable.Any(i => i != null)) return;
 
         if (!readyForReturn)
         {

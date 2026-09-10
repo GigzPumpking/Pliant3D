@@ -304,6 +304,7 @@ using UnityEngine;
 
         private void OnFetchObjectInteract(FetchObjectInteract e)
         {
+            if (!IsAssigned) return;
             Debug.Log("FetchObjectInteract received in FetchObjective");
             var fetchableComponent = e.fetchableObject as MonoBehaviour;
             if (fetchableComponent != null && ObjectsToFetch.Contains(fetchableComponent))
@@ -343,6 +344,7 @@ using UnityEngine;
         public bool fetchedAll = false;
         private void CheckCompletion(DialogueTrigger interactedNPC, IDialogueProvider shownProvider)
         {
+            if (!IsAssigned) return;
             DialogueTrigger targetNPC = (useAlternateNPC && alternateNPC != null) ? alternateNPC : questGiver;
 
             if (targetNPC == null || interactedNPC != targetNPC) return;
@@ -365,6 +367,7 @@ using UnityEngine;
 
         private void CheckCompletion()
         {
+            if (!IsAssigned) return;
             //check if all objects are fetched
             foreach(var obj in ObjectsToFetch)
             {
@@ -389,6 +392,12 @@ using UnityEngine;
 
             // This overload doesn't have interact info, so can't complete NPC-return quests here
             // NPC-return completion is handled by the Interact overload
+        }
+
+        protected override void EvaluateCompletionAfterAssignment()
+        {
+            UpdateTally();
+            CheckCompletion();
         }
         
         public override void CompleteObjective()

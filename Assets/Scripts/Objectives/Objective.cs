@@ -13,6 +13,12 @@ public class Objective : MonoBehaviour, IObjective {
     public bool showTally;
     public List<UnityEvent> onCompleteEvents;
 
+    // Objectives can exist in a scene before an NPC formally gives them to the player.
+    // Only objectives on the agenda may progress or complete.
+    private bool isAssigned;
+
+    protected bool IsAssigned => isAssigned;
+
     [Tooltip("Events invoked when this objective is restored as complete on level reset or save load. Use this to replay world-state changes (e.g. turn on lights) that are not otherwise persisted.")]
     public List<UnityEvent> onRestoreEvents;
 
@@ -105,8 +111,21 @@ public class Objective : MonoBehaviour, IObjective {
         TallyBuilder.UpdateTallyUI(this, 0, 1);
     }
 
+    public void Assign()
+    {
+        if (isAssigned) return;
+
+        isAssigned = true;
+        EvaluateCompletionAfterAssignment();
+    }
+
+    protected virtual void EvaluateCompletionAfterAssignment()
+    {
+    }
+
     public virtual void CompleteObjective()
     {
+        if (!isAssigned) return;
         if (isComplete) return; // Prevent double completion
 
         isComplete = true;

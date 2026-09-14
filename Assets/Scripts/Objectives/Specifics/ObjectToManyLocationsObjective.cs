@@ -85,6 +85,7 @@ public class ObjectToManyLocationsObjective : Objective {
     }
     
     private void CheckCompletion() {
+        if (!IsAssigned) return;
         if (isComplete) return;
 
         RefreshTallyUI();
@@ -95,6 +96,11 @@ public class ObjectToManyLocationsObjective : Objective {
         }
 
         CompleteObjective();
+    }
+
+    protected override void EvaluateCompletionAfterAssignment()
+    {
+        CheckCompletion();
     }
 
     public override ObjectiveSaveState CaptureState()
@@ -227,6 +233,7 @@ public class ManyObjectsToLocationObjective : Objective {
     }
     
     private void CheckCompletion() {
+        if (!IsAssigned) return;
         if (isComplete) return;
 
         RefreshTallyUI();
@@ -234,6 +241,11 @@ public class ManyObjectsToLocationObjective : Objective {
         if (targetLocation == null || !targetLocation.isComplete) return;
 
         CompleteObjective();
+    }
+
+    protected override void EvaluateCompletionAfterAssignment()
+    {
+        CheckCompletion();
     }
 
     public override ObjectiveSaveState CaptureState()

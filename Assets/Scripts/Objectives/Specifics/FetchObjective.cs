@@ -304,7 +304,7 @@ using UnityEngine;
 
         private void OnFetchObjectInteract(FetchObjectInteract e)
         {
-            if (!IsAssigned) return;
+            if (!CanProcessCompletion) return;
             Debug.Log("FetchObjectInteract received in FetchObjective");
             var fetchableComponent = e.fetchableObject as MonoBehaviour;
             if (fetchableComponent != null && ObjectsToFetch.Contains(fetchableComponent))
@@ -344,7 +344,7 @@ using UnityEngine;
         public bool fetchedAll = false;
         private void CheckCompletion(DialogueTrigger interactedNPC, IDialogueProvider shownProvider)
         {
-            if (!IsAssigned) return;
+            if (!CanProcessCompletion) return;
             DialogueTrigger targetNPC = (useAlternateNPC && alternateNPC != null) ? alternateNPC : questGiver;
 
             if (targetNPC == null || interactedNPC != targetNPC) return;
@@ -367,7 +367,7 @@ using UnityEngine;
 
         private void CheckCompletion()
         {
-            if (!IsAssigned) return;
+            if (!CanProcessCompletion) return;
             //check if all objects are fetched
             foreach(var obj in ObjectsToFetch)
             {

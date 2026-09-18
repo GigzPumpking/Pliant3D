@@ -85,7 +85,7 @@ public class ObjectToManyLocationsObjective : Objective {
     }
     
     private void CheckCompletion() {
-        if (!IsAssigned) return;
+        if (!CanProcessCompletion) return;
         if (isComplete) return;
 
         RefreshTallyUI();
@@ -233,7 +233,7 @@ public class ManyObjectsToLocationObjective : Objective {
     }
     
     private void CheckCompletion() {
-        if (!IsAssigned) return;
+        if (!CanProcessCompletion) return;
         if (isComplete) return;
 
         RefreshTallyUI();

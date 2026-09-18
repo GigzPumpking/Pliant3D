@@ -25,6 +25,9 @@ public class Objective : MonoBehaviour, IObjective {
     [Header("Tracking Rules")]
     [Tooltip("If false, this task is ignored by the GameManager's proficiency score (e.g., Tutorials).")]
     public bool countsTowardsProficiency = true;
+    [Tooltip("Allow this objective to complete before ObjectiveTracker assigns it. Enable for tutorial objectives that are not added to the agenda.")]
+    [SerializeField] private bool allowCompletionBeforeAssignment = false;
+    protected bool CanProcessCompletion => isAssigned || allowCompletionBeforeAssignment;
 
     // How much of the ready/complete return-dialogue progression has actually been shown to the
     // player (0 = none, 1 = ready, 2 = complete). Only ever set when THIS objective's own dialogue
@@ -125,7 +128,7 @@ public class Objective : MonoBehaviour, IObjective {
 
     public virtual void CompleteObjective()
     {
-        if (!isAssigned) return;
+        if (!CanProcessCompletion) return;
         if (isComplete) return; // Prevent double completion
 
         isComplete = true;

@@ -136,7 +136,7 @@ public class CustomEventObjective : Objective, IDialogueProvider
 
     private void OnReturnNPCInteracted(DialogueTrigger interactedNPC, IDialogueProvider shownProvider)
     {
-        if (!IsAssigned) return;
+        if (!CanProcessCompletion) return;
         if (returnNPC == null) return;
         if (interactedNPC != returnNPC) return;
         if (shownProvider != returnNPCProxy) return; // another objective's dialogue was shown this time
@@ -216,7 +216,7 @@ public class CustomEventObjective : Objective, IDialogueProvider
 
     public bool TryCompleteForObject(GameObject completedObject)
     {
-        if (!IsAssigned)
+        if (!CanProcessCompletion)
         {
             return false;
         }

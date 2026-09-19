@@ -13,12 +13,21 @@ public class Objective : MonoBehaviour, IObjective {
     public bool showTally;
     public List<UnityEvent> onCompleteEvents;
 
+    // Objectives can exist in a scene before an NPC formally gives them to the player.
+    // Only objectives on the agenda may progress or complete.
+    private bool isAssigned;
+
+    protected bool IsAssigned => isAssigned;
+
     [Tooltip("Events invoked when this objective is restored as complete on level reset or save load. Use this to replay world-state changes (e.g. turn on lights) that are not otherwise persisted.")]
     public List<UnityEvent> onRestoreEvents;
 
     [Header("Tracking Rules")]
     [Tooltip("If false, this task is ignored by the GameManager's proficiency score (e.g., Tutorials).")]
     public bool countsTowardsProficiency = true;
+    [Tooltip("Allow this objective to complete before ObjectiveTracker assigns it. Enable for tutorial objectives that are not added to the agenda.")]
+    [SerializeField] private bool allowCompletionBeforeAssignment = false;
+    protected bool CanProcessCompletion => isAssigned || allowCompletionBeforeAssignment;
 
     // How much of the ready/complete return-dialogue progression has actually been shown to the
     // player (0 = none, 1 = ready, 2 = complete). Only ever set when THIS objective's own dialogue
@@ -105,8 +114,21 @@ public class Objective : MonoBehaviour, IObjective {
         TallyBuilder.UpdateTallyUI(this, 0, 1);
     }
 
+    public void Assign()
+    {
+        if (isAssigned) return;
+
+        isAssigned = true;
+        EvaluateCompletionAfterAssignment();
+    }
+
+    protected virtual void EvaluateCompletionAfterAssignment()
+    {
+    }
+
     public virtual void CompleteObjective()
     {
+        if (!CanProcessCompletion) return;
         if (isComplete) return; // Prevent double completion
 
         isComplete = true;

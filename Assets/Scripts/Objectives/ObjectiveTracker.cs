@@ -175,7 +175,9 @@ public class ObjectiveTracker : MonoBehaviour
             objectiveListingsUI.Add(listingUI);
             foreach (Objective obj in listingObject.objectives)
             {
-                if (obj != null && !obj.isComplete && GameManager.Instance != null)
+                if (obj == null) continue;
+
+                if (!obj.isComplete && GameManager.Instance != null)
                 {
                     if (obj.countsTowardsProficiency && !_countedAssignedObjectives.Contains(obj))
                     {
@@ -184,6 +186,8 @@ public class ObjectiveTracker : MonoBehaviour
                         _countedAssignedObjectives.Add(obj);
                     }
                 }
+
+                obj.Assign();
             }
         }
 
@@ -508,19 +512,21 @@ public class ObjectiveTracker : MonoBehaviour
                 objectiveUIPrefab,
                 ObjectiveListing.ObjectiveToUI
             );
+
+            if (!objective.isComplete && GameManager.Instance != null && objective.countsTowardsProficiency && !_countedAssignedObjectives.Contains(objective))
+            {
+                Debug.Log($"<color=orange>[Task Assigned]</color> GameManager just counted: {objective.gameObject.name} | Description: {objective.description}");
+                GameManager.Instance.AddQueuedTaskAssigned();
+                _countedAssignedObjectives.Add(objective);
+            }
+
+            objective.Assign();
             
             // If we add a new incomplete objective to a previously completed listing,
             // the listing must become incomplete again so it can complete later.
             if (!objective.isComplete)
             {
                 targetListing.isComplete = false;
-
-                if (GameManager.Instance != null && objective.countsTowardsProficiency && !_countedAssignedObjectives.Contains(objective))
-                {
-                    Debug.Log($"<color=orange>[Task Assigned]</color> GameManager just counted: {objective.gameObject.name} | Description: {objective.description}");
-                    GameManager.Instance.AddQueuedTaskAssigned();
-                    _countedAssignedObjectives.Add(objective);
-                }
             }
 
             addedCount++;
